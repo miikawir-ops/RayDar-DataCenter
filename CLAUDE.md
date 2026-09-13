@@ -27,6 +27,12 @@ Read this at the start of every session. These rules override default behaviour.
   based on assumed content. (Learned the hard way — patching a stale copy silently
   dropped ~400 lines.)
 - After any multi-file change, state what changed and why, per file.
+- **Challenge the direction.** If you think there's a faster or more robust way to
+  hit a PLAN.md step's goal, say so and propose it before implementing — don't
+  silently execute a worse path because it's what was asked.
+- **After correcting a wrong assumption, update the rule, not just the code.** If I
+  catch you making a wrong assumption mid-build, fix the immediate issue, then update
+  PLAN.md or this file so the same mistake can't recur silently on a later step.
 
 ## Verification (don't claim done until checked)
 
@@ -42,6 +48,10 @@ Read this at the start of every session. These rules override default behaviour.
 - Financial data may be stale (quarterly financials up to 90 days old) — disclose it.
 - Distinguish "the signal is real" from "the price moved." Never conflate them.
 - Not financial advice — the dashboards inform decisions, they don't make them.
+- **On fetch failure, never substitute zero, a stale cached value, or an estimate
+  silently.** A failed fetch is a missing value, not a zero — treating it as zero is
+  itself a form of fabrication. Mark the field or ticker as missing for that run and
+  surface it in the output.
 
 ## RayDar family consistency
 
