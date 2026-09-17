@@ -191,6 +191,57 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
    must display any field/score derived from missing data as visibly
    distinguishable from a real 0.0 or real score.
 
+   **`score_engine.py` implemented (2026-09-17) — three tiers, not a
+   binary full/insufficient split.** `reference/score_engine.py`'s own
+   `_get(default=X)` helper turned out to be the same anti-pattern one
+   level up — it silently substituted a neutral default for any missing
+   field and kept computing (per spec D3's "reuse the design, not a bug
+   found empirically" rule, this is exactly the case that rule exists
+   for). Replaced with: **field-level** — a missing input excludes that
+   sub-component and renormalizes the stage's remaining weights;
+   **stage-level** — a stage with zero usable input is dropped and the
+   top-level 65/20/15 weights renormalize across the remaining stages;
+   **ticker-level** — score is `None` ("insufficient data") only when
+   acceleration (65% weight, the primary bottleneck detector) has zero
+   usable input at all (`growth_curr`, `growth_prev`, AND `gm_delta` all
+   missing). `news_velocity` alone does NOT trigger this, despite being
+   the example named above — at its actual composite weight (20% x 60%
+   = 12%), nuking the whole score over it would over-flag routine gaps.
+
+   Every result also carries `stages_used` (which of the 3 top-level
+   stages had usable input) and `reduced_input` (`True` if ANY field was
+   excluded anywhere, even one sub-component) — a coverage/confidence
+   marker per Part A4's data-honesty principle. Threshold set low
+   (any exclusion, not just a stage collapsing to one surviving input)
+   deliberately: the point is making a reduced-input score visibly
+   distinguishable from a fully-supported one, not just flagging severe
+   cases; render decides how prominently to surface it.
+
+   Two more reference bugs of the same class found and fixed while
+   building this, neither previously documented: (1) the error-path
+   fallback on an unhandled exception returned `score: 0.0, color:
+   "Green"` — a crash silently became indistinguishable from a real
+   neutral reading; now `score: None`. (2) `get_macro_multiplier()`'s
+   `self.macro_data.get("vix", 20.0)` pattern only applies its default
+   when the key is ABSENT — `fetch_macro()` now returns the key present
+   with value `None` on failure (this same decision), so the old pattern
+   would have returned `None` itself and crashed on `None > 30`. Fixed
+   to skip a missing macro signal from the vote entirely; if all 3 are
+   missing, returns an explicit `"Unknown (macro data unavailable)"`
+   regime at 1.0x rather than computing Risk-Off/Neutral from nothing.
+
+   **Verified against live VRT data before the main.py commit:** fetched
+   VRT fresh (2026-09-17) through the real pipeline path (including
+   `add_peer_outperformance`) and ran it through the new engine.
+   `revenue_quarterly` was the only fetch-stage gap, and it isn't
+   consumed by any `calculate_*` stage — result was `data_missing: []`,
+   `reduced_input: false`, `data_status: "Full"`. The acceleration-
+   insufficient path did NOT trigger. This is not a routine outcome for
+   VRT as of this data — B8's "shows which sub-layer is bottlenecked"
+   criterion isn't threatened by data completeness for Cooling right
+   now. Not a permanent guarantee — re-check if a future run shows
+   otherwise.
+
 7. **Cadence: start daily-only, add weekly deep once stable.**
    Chronologically this belongs with decisions #1–3 — it was made at the
    project's original scoping, before PLAN.md existed in its current

@@ -11,3 +11,7 @@ __pycache__/
 
 # Backups
 *.backup
+
+# Runtime artifacts (score_engine.py / main.py generate these, not source)
+audit_log.json
+scores_history.json
