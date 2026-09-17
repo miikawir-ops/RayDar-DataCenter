@@ -51,8 +51,9 @@ identical to parent.
 - **Hype divergence flag:** price ran up without fundamental/constraint backing → warn.
 - **Narrative ahead of fundamentals:** news active but revenue not confirming → flag.
 - **Not financial advice:** provide factual signals and analysis, never recommendations.
-- **Data honesty:** mark data-backed vs estimated signals. Never fabricate. Quarterly
-  financials may be up to 90 days old — always disclosed.
+- **Data honesty:** a failed or missing fetch is `None`, named in that record's
+  `data_missing` list — never a silent default, estimate, or 0 (PLAN.md decision #6).
+  Never fabricate. Quarterly financials may be up to 90 days old — always disclosed.
 
 ## A5. Visual design (match parent for family consistency)
 
@@ -108,12 +109,23 @@ PART of the data center buildout is most constrained right now (currently: optic
 This is the primary NEW signal and the reason the sub-agent exists.
 
 **Concept:** Every dollar of AI capex flows through data center infrastructure. When a
-hyperscaler raises capex guidance, that money reaches specific suppliers over the
+hyperscaler's actual capex accelerates, that money reaches specific suppliers over the
 following quarters — BEFORE it shows up in supplier revenue. Tracking this lag is the
 "accumulation signal" for this layer.
 
+**Method (resolved, PLAN.md decision #4):** capex ACTUALS only, via yfinance's
+`quarterly_cashflow` `Capital Expenditure` row — a single-quarter YoY snapshot (latest
+non-null quarter vs. the same fiscal quarter one year prior, on the raw column index).
+Magnitude (%) is stored and shown alongside the accelerating/stable/decelerating label,
+not just the label. No fallback to the nearest available quarter if the exact
+prior-year slot is missing or NaN — that hyperscaler is surfaced as insufficient data
+for the run, not silently dropped or approximated. Guidance/press-release/transcript
+parsing is an explicit phase-2 deferral, not part of the current concept: guidance text
+isn't cleanly parseable from free sources without substantially more scraping work, and
+actuals alone already give a reliable accumulation-lag signal.
+
 ```
-Track hyperscaler capex (guidance + actuals): MSFT, GOOGL, AMZN, META
+Track hyperscaler capex actuals (quarterly_cashflow): MSFT, GOOGL, AMZN, META
   ↓
 Aggregate capex trend accelerating? → whole data center layer is a tailwind (top signal)
   ↓
@@ -141,6 +153,11 @@ The parent's Energy layer owns everything UP TO the building:
 Overlap zone (power/thermal at the building edge): this agent covers power
 DISTRIBUTION inside; energy layer covers power DELIVERY to the site. State this
 explicitly in any power-related signal to avoid double-counting.
+
+**Where this is enforced in code:** documented as a comment directly on the
+`CAPEX_BENEFICIARY_MAP` config definition (PLAN.md step 5b) — at the exact place a
+future power-related signal would be added, not as a separate display mechanism or a
+prose-only rule someone could miss while extending the map.
 
 ## B5. Ticker universe
 
@@ -182,18 +199,20 @@ The sub-agent succeeds if it:
 
 ---
 
-# PART C — OPEN DECISIONS (resolve before/while building)
+# PART C — DECISIONS (see PLAN.md for full detail)
 
-1. **Capex data sourcing:** hyperscaler capex comes from earnings reports and guidance.
-   Test whether it's cleanly parseable (yfinance cash-flow statements give capex actuals;
-   guidance needs press-release/transcript parsing). If guidance is too manual initially,
-   start with capex ACTUALS from cash-flow data and add guidance later.
+1. **Capex data sourcing — resolved.** Capex ACTUALS only, via yfinance
+   `quarterly_cashflow`, single-quarter YoY snapshot. Guidance/transcript parsing
+   deferred to phase 2. See PLAN.md decision #4 and Part B3 above.
 
-2. **Sub-layer market-cap weighting:** some sub-layers have one dominant ticker (Cooling
-   = VRT). Decide how to score a single-company sub-layer fairly vs multi-company ones.
+2. **Sub-layer market-cap weighting — resolved.** Single-ticker sub-layers (Cooling =
+   VRT) use the ticker's own score directly; market-cap weighting degenerates correctly
+   to N=1. The Red reality check (needs 2+ companies) is skipped for single-ticker
+   sub-layers. See PLAN.md decisions #2 and #3.
 
-3. **Daily-only vs daily+weekly:** start simple (daily-only) or build the two-tier
-   cadence from the start. Recommend starting daily-only, add weekly deep once stable.
+3. **Daily-only vs daily+weekly — still open.** Not resolved as of 2026-09-17; no
+   PLAN.md decision covers this yet. Revisit at PLAN.md build-order step 7 (deploy
+   plumbing), when a real run cadence is actually needed.
 PART D — REFERENCE IMPLEMENTATION (reuse the parent's proven code)
 
 The reference/ folder contains the WORKING, PROVEN implementation from the parent AI value chain agent (RayDar). This is the source of the RayDar DNA — not a description of it, but the actual battle-tested logic. Reuse it; do not rebuild from scratch.
@@ -223,3 +242,5 @@ The capex → beneficiary mapping (Part B3) is NEW — it has no parent equivale
 D3. Rule
 
 When implementing any core mechanic (scoring, weighting, news filtering, confirmation, color assignment), CHECK the reference implementation first and reuse its logic. Only diverge where Part B explicitly requires it. If you find yourself reinventing something the reference already solves, stop and reuse the reference instead.
+
+Reusing the reference "exactly" (D1, fetch_market.py) means reusing its design, not perpetuating a bug in it found empirically. Concrete precedent: the reference's score_news_velocity counted a bare brand-name mention as a full keyword match — reused faithfully at first, then correctly abandoned once it was shown to saturate every sub-layer to an identical 10.0, and the same failure was reproduced by running the untouched parent's own reference/fetch_market.py, confirming it as a pre-existing bug in the design, not something introduced by this port. See PLAN.md decision #5. Verify the reference's behavior on real data before trusting "exact reuse" as correct by definition.
