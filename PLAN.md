@@ -191,6 +191,22 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
    must display any field/score derived from missing data as visibly
    distinguishable from a real 0.0 or real score.
 
+7. **Cadence: start daily-only, add weekly deep once stable.**
+   Chronologically this belongs with decisions #1–3 — it was made at the
+   project's original scoping, before PLAN.md existed in its current
+   numbered-decisions format, alongside the capex-overlay-only and
+   single-ticker-weighting calls. It simply never got a formal numbered
+   entry until now; recorded retroactively rather than left to read as
+   an unresolved open question in the spec. Numbered #7 (after the later
+   mid-build decisions #4–6) only to avoid renumbering entries already
+   cross-referenced elsewhere in this file, `fetch_market.py`,
+   `config.py`, and `DATACENTER_RAYDAR_SPEC.md` — the number doesn't
+   reflect when the decision was actually made. Matches
+   `DATACENTER_RAYDAR_SPEC.md` Part B6's original recommendation
+   ("Recommend starting daily-only, add weekly deep once stable").
+   Revisit at build-order step 7 (deploy plumbing), when a real run
+   cadence is actually needed.
+
 ## Build order
 
 1. **Data spike** (throwaway, not committed) — pull `quarterly_cashflow`

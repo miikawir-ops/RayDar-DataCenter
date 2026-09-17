@@ -210,9 +210,10 @@ The sub-agent succeeds if it:
    to N=1. The Red reality check (needs 2+ companies) is skipped for single-ticker
    sub-layers. See PLAN.md decisions #2 and #3.
 
-3. **Daily-only vs daily+weekly — still open.** Not resolved as of 2026-09-17; no
-   PLAN.md decision covers this yet. Revisit at PLAN.md build-order step 7 (deploy
-   plumbing), when a real run cadence is actually needed.
+3. **Daily-only vs daily+weekly — resolved.** Start daily-only, add weekly deep once
+   stable. Decided at the project's original scoping, alongside decisions #1–3;
+   recorded retroactively as PLAN.md decision #7 since it predates PLAN.md's
+   numbered-decisions format. See PLAN.md decision #7.
 PART D — REFERENCE IMPLEMENTATION (reuse the parent's proven code)
 
 The reference/ folder contains the WORKING, PROVEN implementation from the parent AI value chain agent (RayDar). This is the source of the RayDar DNA — not a description of it, but the actual battle-tested logic. Reuse it; do not rebuild from scratch.
