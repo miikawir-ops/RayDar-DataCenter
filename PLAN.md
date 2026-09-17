@@ -236,3 +236,15 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
    Pages bare-URL resolution, per CLAUDE.md), GitHub Actions workflow,
    `publish.py` adapted from `reference/`. Remote not created yet — local
    repo only until there's something to deploy.
+
+## Known issues (recorded, not fixed)
+
+- **`python fetch_market.py --news` crashes on Windows with
+  `UnicodeEncodeError`.** The CLI output uses `█` (news-velocity bars) and
+  `×` (weight labels); Windows terminals default to the `cp1252` codepage,
+  which can't encode either character, so the crash is reproducible on
+  any Windows shell that hasn't been forced to UTF-8
+  (`PYTHONIOENCODING=utf-8` works around it). Found during the missing-
+  data-convention verification (2026-09-17), unrelated to that fix —
+  pre-existing in the original `--news` print statements. Not fixed;
+  noted here so it isn't lost before someone hits it unprepared.
