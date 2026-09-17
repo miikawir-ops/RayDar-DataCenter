@@ -53,7 +53,7 @@ TICKER_TO_LAYER = {
 }
 
 
-def fetch_ticker_headlines(tickers: list, max_per_ticker: int = 10) -> list:
+def fetch_ticker_headlines(tickers: list, max_per_ticker: int = 10) -> tuple:
     """
     Fetch Yahoo Finance RSS for each specific ticker.
 
@@ -65,8 +65,14 @@ def fetch_ticker_headlines(tickers: list, max_per_ticker: int = 10) -> list:
 
     Now: headlines are cleanly separated by ticker ownership.
     score_news_velocity() filters by layer_tickers to prevent cross-contamination.
+
+    Returns (headlines, failed_tickers). failed_tickers is the set of
+    tickers whose feed fetch raised an exception this run — callers use
+    this to mark news_velocity as missing rather than a misleadingly
+    clean 0.0 (fetch-failure rule, CLAUDE.md).
     """
     headlines = []
+    failed_tickers = set()
     for ticker in tickers:
         url = f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={ticker}&region=US&lang=en-US"
         try:
@@ -82,12 +88,20 @@ def fetch_ticker_headlines(tickers: list, max_per_ticker: int = 10) -> list:
                     })
         except Exception as e:
             log.debug(f"  Ticker feed failed ({ticker}): {e}")
-    return headlines
+            failed_tickers.add(ticker.upper())
+    return headlines, failed_tickers
 
 
-def fetch_generic_headlines(max_per_feed: int = 20) -> list:
-    """Fetch generic business news as supplementary signal."""
+def fetch_generic_headlines(max_per_feed: int = 20) -> tuple:
+    """
+    Fetch generic business news as supplementary signal.
+
+    Returns (headlines, failed_feeds). failed_feeds is the list of feed
+    URLs that raised an exception this run — not attributable to a single
+    ticker/sub-layer, so it's surfaced at the pipeline level instead.
+    """
     headlines = []
+    failed_feeds = []
     for url in GENERIC_FEEDS:
         try:
             feed = feedparser.parse(url)
@@ -102,20 +116,29 @@ def fetch_generic_headlines(max_per_feed: int = 20) -> list:
                     })
         except Exception as e:
             log.warning(f"Generic feed failed ({url}): {e}")
-    return headlines
+            failed_feeds.append(url)
+    return headlines, failed_feeds
 
 
-def fetch_all_headlines() -> list:
-    """Fetch ticker-specific (primary) + generic (supplementary) headlines."""
+def fetch_all_headlines() -> tuple:
+    """
+    Fetch ticker-specific (primary) + generic (supplementary) headlines.
+
+    Returns (headlines, failed_ticker_feeds, failed_generic_feeds).
+    """
     log.info("  Fetching ticker-specific headlines...")
-    ticker_headlines = fetch_ticker_headlines(ALL_TICKERS, max_per_ticker=10)
+    ticker_headlines, failed_ticker_feeds = fetch_ticker_headlines(ALL_TICKERS, max_per_ticker=10)
     log.info(f"  Got {len(ticker_headlines)} ticker-specific headlines")
+    if failed_ticker_feeds:
+        log.warning(f"  Ticker feed fetch failed for: {sorted(failed_ticker_feeds)}")
 
     log.info("  Fetching generic news headlines...")
-    generic_headlines = fetch_generic_headlines(max_per_feed=20)
+    generic_headlines, failed_generic_feeds = fetch_generic_headlines(max_per_feed=20)
     log.info(f"  Got {len(generic_headlines)} generic headlines")
+    if failed_generic_feeds:
+        log.warning(f"  Generic feed fetch failed for: {failed_generic_feeds}")
 
-    return ticker_headlines + generic_headlines
+    return ticker_headlines + generic_headlines, failed_ticker_feeds, failed_generic_feeds
 
 
 def score_news_velocity(
@@ -189,20 +212,38 @@ def score_news_velocity(
 
 
 def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
-                      brand_keywords: list = None, layer_tickers: list = None):
+                      brand_keywords: list = None, layer_tickers: list = None,
+                      failed_ticker_feeds: set = None):
+    data_missing = []
     try:
         t    = yf.Ticker(ticker)
         info = t.info
 
         price = (info.get("currentPrice")
                  or info.get("regularMarketPrice")
-                 or info.get("previousClose", 0))
-        prev        = info.get("previousClose") or price
-        week52_high = info.get("fiftyTwoWeekHigh", 0) or 0
-        week52_low  = info.get("fiftyTwoWeekLow",  0) or 0
-        market_cap  = info.get("marketCap", 0) or 0
-        price_act   = round((price - prev) / prev, 4) if prev else 0.0
+                 or info.get("previousClose"))
+        if price is None:
+            data_missing.append("price")
+
+        prev_close = info.get("previousClose")
+        if prev_close and price is not None:
+            price_act = round((price - prev_close) / prev_close, 4)
+        else:
+            price_act = None
+            data_missing.append("price_act")
+
+        week52_high = info.get("fiftyTwoWeekHigh")
+        if week52_high is None:
+            data_missing.append("week52_high")
+        week52_low = info.get("fiftyTwoWeekLow")
+        if week52_low is None:
+            data_missing.append("week52_low")
+        market_cap = info.get("marketCap")
+        if market_cap is None:
+            data_missing.append("market_cap")
         gross_margin = info.get("grossMargins")
+        if gross_margin is None:
+            data_missing.append("gross_margin")
 
         hist    = t.history(period="6mo")
         closes  = hist["Close"].tolist() if not hist.empty else []
@@ -211,22 +252,36 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             price_history = [round(closes[i], 2) for i in range(0, len(closes), step)][-30:]
         else:
             price_history = []
+            data_missing.append("price_history")
         volumes = hist["Volume"].tolist() if not hist.empty else []
 
-        price_30d = round((closes[-1] / closes[-21] - 1), 4) if len(closes) >= 21 else 0.0
-        vol_avg   = sum(volumes[-20:]) / 20 if len(volumes) >= 20 else None
-        vol_spike = round(volumes[-1] / vol_avg, 2) if vol_avg and volumes else 1.0
+        if len(closes) >= 21:
+            price_30d = round((closes[-1] / closes[-21] - 1), 4)
+        else:
+            price_30d = None
+            data_missing.append("price_30d_return")
 
-        ret_5d  = (closes[-1] / closes[-5]  - 1) if len(closes) >= 5  else 0
-        ret_90d = (closes[-1] / closes[-63] - 1) if len(closes) >= 63 else ret_5d
-        avg_5d_from_90d = ret_90d / 18 if ret_90d != 0 else 0.001
-        price_momentum  = round(ret_5d / avg_5d_from_90d, 2) if avg_5d_from_90d != 0 else 1.0
-        price_momentum  = max(-5.0, min(5.0, price_momentum))
+        vol_avg = sum(volumes[-20:]) / 20 if len(volumes) >= 20 else None
+        if vol_avg and volumes:
+            vol_spike = round(volumes[-1] / vol_avg, 2)
+        else:
+            vol_spike = None
+            data_missing.append("vol_spike")
+
+        if len(closes) >= 5:
+            ret_5d  = closes[-1] / closes[-5] - 1
+            ret_90d = (closes[-1] / closes[-63] - 1) if len(closes) >= 63 else ret_5d
+            avg_5d_from_90d = ret_90d / 18 if ret_90d != 0 else 0.001
+            price_momentum  = round(ret_5d / avg_5d_from_90d, 2) if avg_5d_from_90d != 0 else 1.0
+            price_momentum  = max(-5.0, min(5.0, price_momentum))
+        else:
+            price_momentum = None
+            data_missing.append("price_momentum")
 
         growth_curr       = None
         growth_prev       = None
-        gm_delta          = 0.0
-        revenue_quarterly = 0
+        gm_delta          = None
+        revenue_quarterly = None
         financials        = None
 
         try:
@@ -266,6 +321,9 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
         except Exception as e:
             log.debug(f"  {ticker} quarterly error: {e}")
 
+        if gm_delta is None:
+            data_missing.append("gm_delta")
+
         if growth_curr is None:
             try:
                 if financials is not None and not financials.empty:
@@ -278,10 +336,17 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
                                 revenue_quarterly = float(rev_vals[0])
                             break
             except Exception:
-                revenue_quarterly = 0
+                pass
             growth_curr = info.get("revenueGrowth")
         if growth_prev is None:
             growth_prev = info.get("earningsGrowth")
+
+        if revenue_quarterly is None:
+            data_missing.append("revenue_quarterly")
+        if growth_curr is None:
+            data_missing.append("growth_curr")
+        if growth_prev is None:
+            data_missing.append("growth_prev")
 
         analyst_upgrades = 0
         try:
@@ -293,18 +358,24 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
                         "Buy", "Strong Buy", "Overweight", "Outperform", "Positive"
                     ])]
                     analyst_upgrades = len(up)
-        except Exception:
-            analyst_upgrades = 0
+            # else: call succeeded, genuinely no recent recommendation data —
+            # real 0, not a fetch failure.
+        except Exception as e:
+            log.debug(f"  {ticker} recommendations error: {e}")
+            analyst_upgrades = None
+            data_missing.append("analyst_upgrades")
 
-        short_int_change = 0.0
+        short_int_change = None
         try:
             short_info = info.get("shortPercentOfFloat")
-            if short_info:
+            if short_info is not None:
                 short_int_change = round((short_info - 0.05) * -1, 4)
+            else:
+                data_missing.append("short_int_change")
         except Exception:
-            short_int_change = 0.0
+            data_missing.append("short_int_change")
 
-        capex_div = 0.0
+        capex_div = None
         try:
             cf = t.quarterly_cashflow
             if cf is not None and not cf.empty:
@@ -319,26 +390,36 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
                         ocf_row = cf.loc[label]
                         break
                 if capex_row is not None and ocf_row is not None:
-                    capex_val = abs(capex_row.dropna().iloc[0]) if not capex_row.dropna().empty else 0
-                    ocf_val   = ocf_row.dropna().iloc[0] if not ocf_row.dropna().empty else 1
-                    if ocf_val and ocf_val > 0:
+                    capex_val = abs(capex_row.dropna().iloc[0]) if not capex_row.dropna().empty else None
+                    ocf_val   = ocf_row.dropna().iloc[0] if not ocf_row.dropna().empty else None
+                    if ocf_val and ocf_val > 0 and capex_val is not None:
                         capex_div = round(min(capex_val / ocf_val, 1.0), 4)
         except Exception as e:
             log.debug(f"  {ticker} capex error: {e}")
+        if capex_div is None:
+            data_missing.append("capex_div")
 
-        # News velocity — sub-layer-filtered to prevent cross-contamination
-        # Only this sub-layer's ticker headlines + generic headlines are counted
-        news_velocity = score_news_velocity(
-            headlines,
-            context_keywords,
-            brand_keywords=brand_keywords,
-            layer_tickers=layer_tickers,   # ← ownership filter
-        )
+        # News velocity — sub-layer-filtered to prevent cross-contamination.
+        # Only this sub-layer's ticker headlines + generic headlines are counted.
+        # If this ticker's own RSS feed failed, news_velocity is unreliable —
+        # a computed 0.0 here would be indistinguishable from a genuine
+        # no-signal read, so it's marked missing instead (fetch-failure rule).
+        ticker_feed_failed = bool(failed_ticker_feeds) and ticker.upper() in failed_ticker_feeds
+        if ticker_feed_failed:
+            news_velocity = None
+            data_missing.append("news_velocity")
+        else:
+            news_velocity = score_news_velocity(
+                headlines,
+                context_keywords,
+                brand_keywords=brand_keywords,
+                layer_tickers=layer_tickers,   # ← ownership filter
+            )
 
         return {
             "ticker":            ticker,
             "name":              info.get("longName") or info.get("shortName", ticker),
-            "price":             round(float(price), 2),
+            "price":             round(float(price), 2) if price is not None else None,
             "currency":          info.get("currency", "USD"),
             "growth_curr":       growth_curr,
             "growth_prev":       growth_prev,
@@ -354,14 +435,15 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             "price_history":     price_history,
             "week52_high":       week52_high,
             "week52_low":        week52_low,
-            "market_cap":        info.get("marketCap"),
+            "market_cap":        market_cap,
             "revenue_quarterly": revenue_quarterly,
             "price_momentum":    price_momentum,
-            "peer_outperformance": 0.0,
+            "peer_outperformance": None,
             "analyst_count":     info.get("numberOfAnalystOpinions", 0),
             "sector":            info.get("sector", "N/A"),
             "data_date":         datetime.datetime.now().strftime("%Y-%m-%d"),
             "data_age_note":     "Quarterly financials may be up to 90 days old",
+            "data_missing":      data_missing,
         }
 
     except Exception as e:
@@ -381,35 +463,72 @@ def add_peer_outperformance(ticker_list: list) -> list:
 
 
 def fetch_macro() -> dict:
+    """
+    Each of the three macro signals is fetched independently — one
+    signal's failure must not blank out the others (previously a single
+    shared try/except meant an exception on the 2nd or 3rd fetch discarded
+    an already-successful 1st fetch and returned hardcoded defaults for
+    everything). Missing signals are None, listed in data_missing —
+    never a hardcoded fallback number (fetch-failure rule, CLAUDE.md).
+    """
     log.info("  Fetching macro signals...")
-    result = {"vix": 20.0, "yield_10y_change": 0.0, "nasdaq_vs_spx_20d": 0.0}
+    result = {"vix": None, "yield_10y_change": None, "nasdaq_vs_spx_20d": None}
+    data_missing = []
+
     try:
         vix_info = yf.Ticker("^VIX").info
-        result["vix"] = round(
-            vix_info.get("regularMarketPrice") or vix_info.get("previousClose", 20.0), 2
-        )
+        vix_val  = vix_info.get("regularMarketPrice") or vix_info.get("previousClose")
+        if vix_val is not None:
+            result["vix"] = round(vix_val, 2)
+        else:
+            data_missing.append("vix")
+    except Exception as e:
+        log.warning(f"  VIX fetch error: {e}")
+        data_missing.append("vix")
+
+    try:
         tnx = yf.Ticker("^TNX").history(period="35d")
         if not tnx.empty and len(tnx) >= 21:
             result["yield_10y_change"] = round(
                 (tnx["Close"].iloc[-1] - tnx["Close"].iloc[-21]) * 100, 2
             )
+        else:
+            data_missing.append("yield_10y_change")
+    except Exception as e:
+        log.warning(f"  10Y yield fetch error: {e}")
+        data_missing.append("yield_10y_change")
+
+    try:
         nasdaq = yf.Ticker("^IXIC").history(period="25d")
         spx    = yf.Ticker("^GSPC").history(period="25d")
         if len(nasdaq) >= 20 and len(spx) >= 20:
             nasdaq_ret = nasdaq["Close"].iloc[-1] / nasdaq["Close"].iloc[-20] - 1
             spx_ret    = spx["Close"].iloc[-1]    / spx["Close"].iloc[-20]    - 1
             result["nasdaq_vs_spx_20d"] = round(nasdaq_ret - spx_ret, 4)
+        else:
+            data_missing.append("nasdaq_vs_spx_20d")
+    except Exception as e:
+        log.warning(f"  Nasdaq/SPX fetch error: {e}")
+        data_missing.append("nasdaq_vs_spx_20d")
+
+    result["data_missing"] = data_missing
+    if data_missing:
+        log.warning(f"  Macro data missing: {data_missing}")
+    else:
         log.info(f"  Macro: VIX={result['vix']} "
                  f"yield_chg={result['yield_10y_change']}bps "
                  f"nasdaq_rel={result['nasdaq_vs_spx_20d']*100:.1f}%")
-    except Exception as e:
-        log.warning(f"  Macro fetch error: {e} — using defaults")
     return result
 
 
 def run_pipeline(portfolio_file: str = "portfolio.json") -> dict:
+    """
+    Returns {"sub_layers": {sub_layer_id: [ticker dicts]}, "meta": {...}}.
+    "meta" carries pipeline-level flags that aren't attributable to one
+    ticker — currently generic_feed_failures (see fetch_generic_headlines).
+    """
     log.info("Fetching all headlines (ticker-specific + generic)...")
-    headlines = fetch_all_headlines()
+    headlines, failed_ticker_feeds, failed_generic_feeds = fetch_all_headlines()
     results   = {}
     for layer_id, layer_config in SUB_LAYERS.items():
         log.info(f"  Sub-layer: {layer_config['name']}")
@@ -422,13 +541,19 @@ def run_pipeline(portfolio_file: str = "portfolio.json") -> dict:
                 layer_config["context_keywords"],
                 brand_keywords=layer_config["brand_keywords"],
                 layer_tickers=layer_tickers,       # ← ownership filter
+                failed_ticker_feeds=failed_ticker_feeds,
             )
             if data:
                 tickers_data.append(data)
         tickers_data      = add_peer_outperformance(tickers_data)
         results[layer_id] = tickers_data
         log.info(f"    {len(tickers_data)}/{len(layer_tickers)} tickers OK")
-    return results
+    return {
+        "sub_layers": results,
+        "meta": {
+            "generic_feed_failures": failed_generic_feeds,
+        },
+    }
 
 
 if __name__ == "__main__":
@@ -446,16 +571,23 @@ if __name__ == "__main__":
 
     if args.macro:
         print("\nFetching macro signals...")
-        print(json.dumps(fetch_macro(), indent=2))
+        macro = fetch_macro()
+        print(json.dumps(macro, indent=2))
+        if macro.get("data_missing"):
+            print(f"\n⚠ Macro data missing this run: {macro['data_missing']}")
 
     elif args.news:
         print("\nTesting news fetch and velocity scoring (sub-layer-filtered)...")
-        headlines = fetch_all_headlines()
+        headlines, failed_ticker_feeds, failed_generic_feeds = fetch_all_headlines()
         ticker_count  = sum(1 for h in headlines if isinstance(h, dict) and h.get("source") == "ticker")
         generic_count = sum(1 for h in headlines if isinstance(h, dict) and h.get("source") == "generic")
         print(f"\nTotal headlines: {len(headlines)}")
         print(f"  Ticker-specific: {ticker_count} (weight ×2, sub-layer-filtered)")
         print(f"  Generic:         {generic_count} (weight ×1, keyword-matched)")
+        if failed_ticker_feeds:
+            print(f"\n⚠ Ticker feed fetch failed for: {sorted(failed_ticker_feeds)}")
+        if failed_generic_feeds:
+            print(f"⚠ Generic feed fetch failed for: {failed_generic_feeds}")
 
         print("\nNews velocity by sub-layer (filtered — no cross-contamination):")
         for layer_id, layer in SUB_LAYERS.items():
@@ -496,7 +628,9 @@ if __name__ == "__main__":
             print(f"Unknown sub-layer. Choose from: {list(SUB_LAYERS.keys())}")
         else:
             print(f"\nFetching {args.layer} sub-layer only...")
-            headlines = fetch_all_headlines()
+            headlines, failed_ticker_feeds, failed_generic_feeds = fetch_all_headlines()
+            if failed_generic_feeds:
+                print(f"⚠ Generic feed fetch failed for: {failed_generic_feeds}")
             layer     = SUB_LAYERS[args.layer]
             tickers   = []
             for ticker in layer["tickers"]:
@@ -506,6 +640,7 @@ if __name__ == "__main__":
                     layer["context_keywords"],
                     brand_keywords=layer["brand_keywords"],
                     layer_tickers=layer["tickers"],
+                    failed_ticker_feeds=failed_ticker_feeds,
                 )
                 if data:
                     tickers.append(data)
@@ -514,15 +649,21 @@ if __name__ == "__main__":
 
     else:
         print("\nRunning full pipeline...")
-        data = run_pipeline()
+        pipeline_result  = run_pipeline()
+        data             = pipeline_result["sub_layers"]
+        generic_failures = pipeline_result["meta"]["generic_feed_failures"]
+        if generic_failures:
+            print(f"\n⚠ Generic feed fetch failed this run for: {generic_failures}")
         for layer_id, tickers in data.items():
             print(f"\n{layer_id.upper()} — {len(tickers)} tickers")
             for t in tickers:
-                g_curr = t.get("growth_curr")
-                g_prev = t.get("growth_prev")
-                delta  = round(g_curr - g_prev, 3) if g_curr and g_prev else "N/A"
-                gm     = f"{t.get('gross_margin', 0)*100:.0f}%" if t.get("gross_margin") else "N/A"
+                g_curr  = t.get("growth_curr")
+                g_prev  = t.get("growth_prev")
+                delta   = round(g_curr - g_prev, 3) if g_curr and g_prev else "N/A"
+                gm      = f"{t.get('gross_margin', 0)*100:.0f}%" if t.get("gross_margin") else "N/A"
+                missing = t.get("data_missing") or []
+                flag    = f"  ⚠ missing: {missing}" if missing else ""
                 print(f"  {t['ticker']:<6} price=${t['price']:<8} "
                       f"growth={str(g_curr):<8} delta={str(delta):<8} "
-                      f"GM={gm:<6} news={t.get('news_velocity')}")
+                      f"GM={gm:<6} news={t.get('news_velocity')}{flag}")
         print(f"\n✅ Pipeline complete — {sum(len(v) for v in data.values())} tickers")
