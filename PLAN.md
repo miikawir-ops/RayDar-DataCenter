@@ -125,6 +125,37 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
    Whether/how to fix any of this on the parent is a separate decision,
    out of scope for this project — not touched.
 
+6. **Missing-data convention (fetch stage): `None` + `data_missing` list,
+   not silent 0/empty.** Applied across `fetch_market.py`'s per-ticker
+   fetch (`fetch_ticker_data`) and macro fetch (`fetch_macro`) — every
+   field that previously defaulted to 0/empty on a failed or absent fetch
+   now returns `None` and appends its field name to that ticker's (or
+   macro dict's) `data_missing` list. Two deliberate exceptions, both real
+   zeros rather than failures: `analyst_upgrades` stays `0` when the API
+   call succeeds but returns no matching recommendations (only an actual
+   call failure sets it to `None` + missing); `peer_outperformance`
+   derives from `price_30d_return` and is left `None` without its own
+   `data_missing` entry when the root field is already flagged, so one
+   failure isn't double-counted as two.
+
+   News-fetch failures: if a ticker's own RSS feed fetch fails,
+   `news_velocity` is `None` + missing — even if generic headlines still
+   came through — because the ticker-specific feed is the heavier-
+   weighted (2×) primary signal and a 0.0 computed without it isn't
+   trustworthy. Generic-feed failures aren't attributable to one ticker;
+   they're surfaced as a top-level `meta.generic_feed_failures` list on
+   `run_pipeline()`'s return value (and a top-level `⚠` flag in the CLI
+   output), not injected into every ticker's `data_missing`.
+
+   **`score_engine.py` (step 3) and `render.py` (step 6) don't exist yet**
+   — this fix covers the fetch stage only. When those files are built,
+   they inherit the contract: no scoring calculation may let a `None`
+   flow through arithmetic as if it were 0 — exclude the input and note
+   the exclusion, or mark the whole score "insufficient data" when the
+   field is load-bearing (e.g. `news_velocity`) — and the render layer
+   must display any field/score derived from missing data as visibly
+   distinguishable from a real 0.0 or real score.
+
 ## Build order
 
 1. **Data spike** (throwaway, not committed) — pull `quarterly_cashflow`
@@ -141,6 +172,14 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
 3. **`score_engine.py`** — copied from `reference/` essentially unchanged:
    three-signal weights, fundamental override, macro multiplier, A/B/C/D
    ratings. No capex-driven changes (decision #1).
+
+   **Not yet built.** Contrary to this build order, step 4a ran before
+   this step — the 4a news-scoring checkpoint (sub-layer swap + cross-
+   contamination check) only needed `fetch_market.py` and `config.py`,
+   not `score_engine.py`, so building it wasn't a blocker and was
+   deferred. This is an accepted reordering, not an oversight to backfill
+   silently — build it when this step is actually reached, applying
+   decision #6's missing-data contract from the start.
 
 4a. **`fetch_market.py` — sub-layer swap only.** Swap the parent's
    `AI_CHAIN_LAYERS` for the 5 sub-layers + Part B5 ticker universe. Reuse
@@ -188,7 +227,10 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
 6. **`render.py`** — adapt layer cards to the 5 sub-layers. Add the
    top-level capex-direction strip and per-sub-layer beneficiary badge as
    a display-only addition (decision #1). Keep the dark hero/visual system
-   as-is for family consistency (Part A5).
+   as-is for family consistency (Part A5). Apply decision #6's missing-
+   data contract: any field/score derived from a `None`/`data_missing`
+   value must render as visibly distinguishable from a real 0.0 or real
+   score, not silently plausible.
 
 7. **Deploy plumbing** — `index.html` at repo root (required for GitHub
    Pages bare-URL resolution, per CLAUDE.md), GitHub Actions workflow,
