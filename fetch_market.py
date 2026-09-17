@@ -13,12 +13,17 @@ config.py; everything else — including the layer-filtered news scoring
 mechanism (v4 fix from the parent, non-negotiable per Part A6) — is reused
 unchanged, just remapped from layers to sub-layers.
 
-No capex-trend fetch yet (that's PLAN.md step 4b). This step only swaps
-the sub-layer structure and re-validates the news scoring against it.
+PLAN.md step 4b: capex-trend fetch for the 4 hyperscalers (MSFT/GOOGL/
+AMZN/META), single-quarter YoY snapshot per decision #4. Kept as a
+distinct field (capex_yoy_pct) from the existing per-ticker capex_div —
+different concept (hyperscaler capex trend overlay vs. a sub-layer
+company's own capex/OCF ratio).
 
-Returns two objects:
-  run_pipeline() -> dict of {sub_layer_id: [list of ticker dicts]}
-  fetch_macro()  -> dict with vix, yield_10y_change, nasdaq_vs_spx_20d
+Returns:
+  run_pipeline()       -> {"sub_layers": {sub_layer_id: [ticker dicts]},
+                            "meta": {"generic_feed_failures": [...]}}
+  fetch_macro()         -> dict with vix, yield_10y_change, nasdaq_vs_spx_20d
+  fetch_capex_trend()   -> list of hyperscaler capex-trend dicts
 """
 
 import json
@@ -29,7 +34,7 @@ import feedparser
 import yfinance as yf
 from pathlib import Path
 
-from config import SUB_LAYERS
+from config import SUB_LAYERS, CAPEX_TICKERS
 
 log = logging.getLogger(__name__)
 
@@ -521,6 +526,99 @@ def fetch_macro() -> dict:
     return result
 
 
+def _quarter_value(row, idx):
+    """NaN-safe positional lookup on a raw (non-dropna'd) cashflow row."""
+    if idx >= len(row):
+        return None
+    v = row.iloc[idx]
+    if v is None or v != v:  # NaN check (matches the idiom used elsewhere in this file)
+        return None
+    return v
+
+
+def fetch_capex_trend(tickers: list = None) -> list:
+    """
+    Single-quarter YoY capex snapshot for the hyperscaler capex-trend
+    overlay (PLAN.md decision #4). Distinct from the per-ticker capex_div
+    field elsewhere in this file — different concept (hyperscaler capex
+    trend vs. a sub-layer company's own capex/OCF ratio).
+
+    Method: "latest non-null quarter" is the first non-NaN value scanning
+    forward from raw column index 0 (yfinance orders quarterly_cashflow
+    columns most-recent-first). "4-back" is +4 on that RAW column index —
+    gaps included, not position 4 after dropna(). dropna() would compact
+    the column list and silently compare against the wrong fiscal quarter
+    with no error — quietly breaking the seasonality control this method
+    exists for (see decision #4 in PLAN.md).
+
+    No fallback to the nearest available quarter if the exact 4-back slot
+    is NaN or doesn't exist — that ticker is "insufficient data" for this
+    run, full stop (fetch-failure rule, CLAUDE.md / decision #6).
+
+    Unlike fetch_ticker_data(), a total fetch failure here still returns
+    an entry (data_missing, not a dropped record) rather than None. This
+    is intentional, not an inconsistency to "fix": these 4 tickers feed a
+    single aggregate capex-direction read (5b), and silently dropping one
+    would misrepresent a 3-of-4 aggregate as if it were a 4-of-4 one
+    (decision #4's explicit "don't drop an insufficient-data ticker from
+    the aggregate silently" rule).
+    """
+    tickers = tickers or CAPEX_TICKERS
+    results = []
+    for ticker in tickers:
+        entry = {
+            "ticker":         ticker,
+            "capex_yoy_pct":  None,
+            "latest_quarter": None,
+            "prior_quarter":  None,
+            "data_missing":   [],
+        }
+        try:
+            cf = yf.Ticker(ticker).quarterly_cashflow
+            if cf is None or cf.empty or "Capital Expenditure" not in cf.index:
+                entry["data_missing"].append("capex_yoy_pct")
+                results.append(entry)
+                continue
+
+            capex_row = cf.loc["Capital Expenditure"]
+
+            latest_idx = None
+            for i in range(len(capex_row)):
+                if _quarter_value(capex_row, i) is not None:
+                    latest_idx = i
+                    break
+
+            if latest_idx is None:
+                entry["data_missing"].append("capex_yoy_pct")
+                results.append(entry)
+                continue
+
+            prior_idx  = latest_idx + 4
+            latest_val = _quarter_value(capex_row, latest_idx)
+            prior_val  = _quarter_value(capex_row, prior_idx)
+
+            if prior_val is None or prior_val == 0:
+                # Exact 4-back slot is NaN or out of range — no fallback
+                # to the nearest available quarter (decision #4).
+                entry["data_missing"].append("capex_yoy_pct")
+            else:
+                entry["capex_yoy_pct"]  = round((abs(latest_val) - abs(prior_val)) / abs(prior_val), 4)
+                entry["latest_quarter"] = str(capex_row.index[latest_idx].date()) \
+                    if hasattr(capex_row.index[latest_idx], "date") else str(capex_row.index[latest_idx])
+                entry["prior_quarter"]  = str(capex_row.index[prior_idx].date()) \
+                    if hasattr(capex_row.index[prior_idx], "date") else str(capex_row.index[prior_idx])
+
+        except Exception as e:
+            log.warning(f"  {ticker}: capex-trend fetch failed — {e}")
+            entry["data_missing"].append("capex_yoy_pct")
+
+        results.append(entry)
+
+    reporting = [r for r in results if not r["data_missing"]]
+    log.info(f"  Capex trend: {len(reporting)}/{len(tickers)} hyperscalers reporting")
+    return results
+
+
 def run_pipeline(portfolio_file: str = "portfolio.json") -> dict:
     """
     Returns {"sub_layers": {sub_layer_id: [ticker dicts]}, "meta": {...}}.
@@ -567,9 +665,22 @@ if __name__ == "__main__":
     parser.add_argument("--macro",  action="store_true", help="Macro data only")
     parser.add_argument("--layer",  type=str, default=None, help="One sub-layer only")
     parser.add_argument("--news",   action="store_true", help="Test news fetch + scoring")
+    parser.add_argument("--capex",  action="store_true", help="Hyperscaler capex-trend YoY only")
     args = parser.parse_args()
 
-    if args.macro:
+    if args.capex:
+        print("\nFetching hyperscaler capex trend (single-quarter YoY)...")
+        capex = fetch_capex_trend()
+        for c in capex:
+            if c["data_missing"]:
+                print(f"  {c['ticker']:<6} insufficient data  (data_missing: {c['data_missing']})")
+            else:
+                print(f"  {c['ticker']:<6} YoY={c['capex_yoy_pct']*100:>6.1f}%  "
+                      f"({c['prior_quarter']} -> {c['latest_quarter']})")
+        reporting = [c for c in capex if not c["data_missing"]]
+        print(f"\n{len(reporting)}/{len(capex)} hyperscalers reporting")
+
+    elif args.macro:
         print("\nFetching macro signals...")
         macro = fetch_macro()
         print(json.dumps(macro, indent=2))

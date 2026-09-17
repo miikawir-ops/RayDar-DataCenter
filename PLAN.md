@@ -34,7 +34,12 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
    to the quarter exactly 4 positions back (same fiscal quarter, prior
    year) from `quarterly_cashflow`'s `Capital Expenditure` row (not
    `Net PPE Purchase And Sale` — that nets out disposal proceeds and is a
-   different number for AMZN).
+   different number for AMZN). **"4-back" means 4 positions back on the
+   raw column index (gaps included) — not position 4 after `dropna()`.**
+   `dropna()` compacts the column list, so if any column in between is
+   NaN, its post-dropna position 4 silently points at the wrong fiscal
+   quarter with no error or visible sign it happened — quietly breaking
+   the seasonality control this method exists for.
 
    - **No fallback to nearest-available quarter.** If the slot exactly
      4-back is NaN (or doesn't exist in the returned columns), that
@@ -53,11 +58,41 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
      a single lumpy quarter is driving the classification rather than a
      genuine trend.
    - **Label thresholds are named constants in the config module (Part
-     B2), not inline judgment calls in 5b.** E.g.
-     `CAPEX_YOY_ACCELERATING_PCT` / `CAPEX_YOY_DECELERATING_PCT` — starting
-     values still need picking (propose during 5b, sanity-check against
-     4b's real fetched numbers, not guessed blind), but the mechanism must
-     be a tunable constant, not a magic number buried in a conditional.
+     B2), resolved after seeing 4b's real fetched numbers — not inline
+     judgment calls in 5b, and not guessed blind.**
+     `CAPEX_YOY_ACCELERATING_PCT = 0.30`, `CAPEX_YOY_DECELERATING_PCT =
+     0.05` (>30% YoY = accelerating, <5% = decelerating, 5–30% = stable).
+
+     **Reasoning (verified history — corrects an earlier unverified
+     guess):** pre-AI hyperscaler capex growth ran up to ~30–43% in
+     strong years (2018: +43%; 2016–2020 average: ~32%) and near-flat in
+     soft years (2019: +1% aggregate) — not "high-single-digit to 20%"
+     as first assumed. The current AI-driven regime has run at roughly
+     70–80%+ YoY sustained since approximately Q2 2023. The 4b real
+     readings (2026-09-17: MSFT +109.6%, GOOGL +100.1%, AMZN +76.7%,
+     META +82.1%) are consistent with an already-established multi-year
+     regime, not a fresh spike.
+
+     **Expected consequence, not a defect:** with these thresholds,
+     "accelerating" should be expected to read true for an extended
+     period while the current supercycle holds — an accurate reflection
+     of a real, sustained regime, not a sign the thresholds are stuck or
+     miscalibrated. This is distinct in kind from the 4a news-scoring
+     saturation bug (decision #5): that was one shared artifact pinning
+     every sub-layer to an identical 10.0 regardless of real content;
+     this is four genuinely differentiated real values (76.7–109.6%, a
+     33-point spread) that happen to all clear one threshold because the
+     underlying trend genuinely is that strong across all four
+     hyperscalers right now.
+
+     **GOOGL fragility (observed on the 4b real run):** GOOGL returned
+     exactly 5 quarters total from `quarterly_cashflow`, and the 4-back
+     slot landed precisely on the 5th (oldest) column, which happened to
+     be non-null — it passed this run with zero margin, not comfortably
+     clear of the edge. If yfinance ever trims GOOGL to 4 quarters, or
+     that oldest column goes NaN, GOOGL flips to insufficient-data
+     immediately. Not a bug — the exact fragile case the no-fallback
+     rule above exists to handle correctly rather than mask.
 
 5. **News matching requires a context/topic keyword, not just a brand-name
    mention — and context vocabulary must include plain bottleneck

@@ -36,6 +36,19 @@ GENERIC_BOTTLENECK_KEYWORDS = [
     "demand surge", "sold out", "supply tight",
 ]
 
+CAPEX_TICKERS = ["MSFT", "GOOGL", "AMZN", "META"]  # Part B5 hyperscaler capex-trend universe
+
+# Single-quarter YoY capex-trend label thresholds (PLAN.md decision #4).
+# Picked from verified capex history, not guessed: pre-AI hyperscaler capex growth
+# topped out around 30-43% in strong years (2018: +43%; 2016-2020 avg: ~32%) and ran
+# near-flat in soft years (2019: +1%). The current AI-driven regime has run ~70-80%+
+# YoY sustained since ~Q2 2023 — the 4b real readings (2026-09-17: MSFT +109.6%,
+# GOOGL +100.1%, AMZN +76.7%, META +82.1%) reflect that established regime, not a
+# fresh spike. Expect ACCELERATING to read true for an extended period while the
+# supercycle holds — that's the regime being real, not the thresholds being stuck.
+CAPEX_YOY_ACCELERATING_PCT = 0.30  # >30% YoY = accelerating
+CAPEX_YOY_DECELERATING_PCT = 0.05  # <5% YoY = decelerating; 5-30% = stable
+
 SUB_LAYERS = {
     "cooling": {
         "name": "Cooling",
