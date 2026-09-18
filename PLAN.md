@@ -418,10 +418,60 @@ findings don't get lost, not because a fix or a direction has been agreed.
    value must render as visibly distinguishable from a real 0.0 or real
    score, not silently plausible.
 
-7. **Deploy plumbing** — `index.html` at repo root (required for GitHub
-   Pages bare-URL resolution, per CLAUDE.md), GitHub Actions workflow,
-   `publish.py` adapted from `reference/`. Remote not created yet — local
-   repo only until there's something to deploy.
+7. **Deploy plumbing.** In progress (2026-09-18).
+
+   **Correction: no `reference/publish.py` exists to adapt from.**
+   `reference/` contains exactly 4 files (`fetch_market.py`, `main.py`,
+   `render.py`, `score_engine.py`) — confirmed by listing the directory.
+   No `publish.py`, no GitHub Actions workflow, no `.github/` anywhere in
+   this repo or in `reference/`. This step's original wording ("`publish.py`
+   adapted from `reference/`") was a wrong assumption; corrected here
+   rather than left standing. Built from general GitHub Pages deploy
+   knowledge instead — no separate `publish.py` file at all, the workflow
+   YAML handles fetch/score/render/deploy declaratively.
+
+   **Deploy model: Actions-based artifact upload, not commit-back.**
+   `.github/workflows/deploy.yml` runs `python main.py --now` (writes
+   `index.html` locally exactly as any local run does — unaffected by
+   this choice), copies just that file into a `_site/` staging dir (not
+   the whole repo), and uploads it via `actions/upload-pages-artifact` +
+   `actions/deploy-pages`. `index.html` is never committed to git —
+   avoids noisy diffs from dynamic content (prices/scores/timestamp
+   changing every run) and matches GitHub's current recommended approach
+   over the older branch-based model.
+
+   **No secrets required.** Confirmed by grepping this project's fetch
+   code and `reference/fetch_market.py` for API-key/env-var usage — none
+   found. `yfinance` and the RSS feeds `fetch_market.py` depends on are
+   both unauthenticated. The workflow's `pages: write` / `id-token: write`
+   permissions are declared in the YAML itself, not manually-created
+   secrets; `GITHUB_TOKEN` is provided automatically by Actions.
+
+   **Schedule: weekdays only (`0 12 * * 1-5`, 12:00 UTC), deliberately —
+   not an unexamined default.** Markets are closed weekends: no new
+   prices, sharply reduced news/filing volume. A weekend run would just
+   re-fetch Friday's numbers with a new timestamp — not harmful, but a
+   wasted run with no new signal. Matches real precedent:
+   `reference/main.py`'s own `scheduled_job()` explicitly skips weekends
+   (`is_weekday()` check) for the same reason. Decision #7's "daily" is
+   read as "daily while markets are open," not literally every calendar
+   day.
+
+   **`requirements.txt` created** (`yfinance`, `feedparser`) — named in
+   step 2 but never actually created; inferred from the real imports
+   across every `.py` file in this project (not `reference/`, which
+   pulls in `schedule`/`dotenv` for features already dropped here).
+
+   **Not live yet, deliberately.** No remote configured — this repo has
+   never been pushed to GitHub, so nothing in the workflow can run
+   anywhere yet. Even once pushed, the final `deploy-pages` step only
+   succeeds once Pages is manually enabled (Settings → Pages → Source:
+   GitHub Actions) — not done, gated on the still-open private/public
+   repo + GitHub plan question. Until both happen, `workflow_dispatch`/
+   `schedule` could at most run the fetch/score/render steps in CI and
+   fail cleanly at the deploy step — expected, not a bug. Remote
+   creation and repo visibility remain separate, explicitly-gated
+   decisions, not made in this commit.
 
 ## Known issues (recorded, not fixed)
 

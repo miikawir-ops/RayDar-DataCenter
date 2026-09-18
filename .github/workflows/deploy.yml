@@ -1,0 +1,75 @@
+name: Deploy RayDar Data Center dashboard
+
+# Actions-based Pages deploy (PLAN.md step 7): generates index.html fresh
+# each run and uploads it as a Pages artifact — never committed to git.
+#
+# NOT LIVE YET. This workflow can exist and be committed without doing
+# anything: the deploy-pages step only succeeds once Pages is manually
+# enabled on this repo (Settings -> Pages -> Source: GitHub Actions),
+# which is a separate decision not made in this commit (see PLAN.md —
+# private/public repo + GitHub plan still unresolved). Until then:
+#   - schedule/workflow_dispatch can still fire the fetch/score/render
+#     steps (useful to verify the pipeline runs in CI), but
+#   - the final deploy-pages step will fail with no Pages site to deploy
+#     to, which is the expected/safe failure mode, not a bug.
+# Also: this repo has no remote configured yet, so none of this runs
+# anywhere until it's pushed to GitHub in the first place.
+
+on:
+  schedule:
+    # 12:00 UTC, weekdays — ~7-8am US Eastern. Decision #7: daily-only to
+    # start. Adjust anytime; not a load-bearing choice.
+    - cron: "0 12 * * 1-5"
+  workflow_dispatch: {}   # manual "Run workflow" button — no Pages requirement to exist as an option
+
+permissions:
+  contents: read   # checkout only — nothing is committed back to the repo
+  pages: write     # required by actions/deploy-pages
+  id-token: write  # required by actions/deploy-pages (OIDC)
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline (fetch -> score -> capex -> render)
+        run: python main.py --now
+        # No secrets needed: yfinance and the RSS feeds fetch_market.py
+        # uses are both unauthenticated (verified — grepped this project's
+        # own fetch code and reference/fetch_market.py for API-key/env-var
+        # usage, found none). GITHUB_TOKEN above is the only credential
+        # involved, and Actions provides it automatically.
+
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+        # Only the generated dashboard is uploaded — not the whole repo
+        # (source files, PLAN.md, reference/, etc. stay out of the
+        # deployed site regardless of the repo's own visibility).
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
