@@ -312,6 +312,23 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
    3-day confirmation as-is. Apply decisions #2 and #3 for single-ticker
    sub-layers. No capex logic yet — commit and checkpoint here.
 
+   **Two persistence files, both intentional, neither previously
+   documented:**
+   - `audit_log.json` — written by `score_engine.py`'s `_append_audit()`
+     once per ticker on every run (rolling log, capped at 500 entries:
+     score/color/regime/sub_scores/fund_delta/stages_used/data_status).
+     Generated and working now. Nothing reads it yet — write-only audit
+     trail, carried over from the reference design.
+   - `scores_history.json` — `main.py`'s 3-day color confirmation
+     (`_load_recent_layer_scores`/`_confirmed_color`) **reads** it; the
+     **write** side is `render.py`'s `save_scores_history()` in the
+     reference (step 6, not built yet). Doesn't exist on disk yet — every
+     run currently falls into "unconfirmed — building baseline" until
+     step 6 exists. Both are in `.gitignore` (runtime artifacts, not
+     source) — `scores_history.json` was added there pre-emptively when
+     5a was built, anticipating step 6, not because anything writes it
+     today.
+
 5b. **`main.py` — capex direction + beneficiary map.** Add the capex
    direction classification per decision #4 (single-quarter YoY snapshot,
    named thresholds, no nearest-quarter fallback, insufficient-data
