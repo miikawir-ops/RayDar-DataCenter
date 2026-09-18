@@ -15,3 +15,10 @@ __pycache__/
 # Runtime artifacts (score_engine.py / main.py generate these, not source)
 audit_log.json
 scores_history.json
+Output/
+
+# Generated dashboard — committing this at repo root is PLAN.md step 7's
+# job (deploy plumbing), not step 6 (render.py just needs to be able to
+# generate it). Dynamic content (prices/scores/timestamp) would also make
+# every test run a noisy diff before there's an actual publish mechanism.
+index.html

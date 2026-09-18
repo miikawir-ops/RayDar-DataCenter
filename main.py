@@ -1,12 +1,12 @@
 """
-main.py — Pipeline orchestration for RayDar Data Center (PLAN.md steps 5a/5b).
+main.py — Pipeline orchestration for RayDar Data Center (PLAN.md steps 5a/5b/6).
 
-Scope of this file right now: fetch + score (aggregation, 5a) and the capex
-direction overlay (5b). analyze.py, render.py, next_nvidia.py, publish.py
-don't exist yet (PLAN.md steps 6-7) — this deliberately doesn't wire up a
-full run_full_pipeline()/scheduler against files that aren't built, matching
-the same "don't get ahead of the build order" discipline used for
-score_engine.py (step 3).
+Scope: fetch + score (aggregation, 5a), the capex direction overlay (5b),
+and render (step 6, render.py). run_full_pipeline() / --now runs all three.
+analyze.py, next_nvidia.py, publish.py still don't exist (no AI narrative,
+no radar, no auto-publish) — matching the "don't get ahead of the build
+order" discipline used for score_engine.py (step 3). --now writes
+index.html but doesn't deploy it; that's step 7.
 
 Adapted from reference/main.py. Reuses market-cap weighting, bottleneck
 leader boost, Red reality check, and 3-day color confirmation AS-IS in
@@ -475,17 +475,43 @@ def stage_capex() -> dict:
     }
 
 
+def stage_render(market_data: dict, macro_data: dict, scored_data: dict, capex_data: dict) -> str:
+    """
+    Writes index.html at repo root (GitHub Pages bare-URL requirement,
+    CLAUDE.md) and prints the console summary. analyze.py's AI narrative
+    and next_nvidia.py's radar aren't part of this pipeline (see
+    render.py's module docstring) — this is fetch -> score -> capex ->
+    render only.
+    """
+    log.info("[3/3] Rendering dashboard...")
+    from render import generate_dashboard, deliver
+    html_path = generate_dashboard(scored_data, macro_data, market_data, capex_data)
+    deliver(html_path)
+    return html_path
+
+
+def run_full_pipeline():
+    market_data, macro_data = stage_fetch()
+    scored_data = stage_score(market_data, macro_data)
+    capex_data  = stage_capex()
+    stage_render(market_data, macro_data, scored_data, capex_data)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="RayDar Data Center — pipeline (steps 5a/5b: fetch + score, capex overlay)"
+        description="RayDar Data Center — pipeline (steps 5a/5b/6: fetch + score, capex overlay, render)"
     )
     parser.add_argument("--score", action="store_true",
-                        help="Fetch + score. analyze/render/deploy (PLAN.md steps 6-7) aren't built yet.")
+                        help="Fetch + score only.")
     parser.add_argument("--capex", action="store_true",
                         help="Capex direction overlay only (5b) — aggregate direction + beneficiary map.")
+    parser.add_argument("--now", action="store_true",
+                        help="Full pipeline: fetch -> score -> capex -> render index.html.")
     args = parser.parse_args()
 
-    if args.capex:
+    if args.now:
+        run_full_pipeline()
+    elif args.capex:
         print(json.dumps(stage_capex(), indent=2))
     elif args.score:
         market_data, macro_data = stage_fetch()
@@ -504,5 +530,7 @@ if __name__ == "__main__":
              for k, v in scored_data.items()
             }, indent=2))
     else:
-        print("Available now: --score (fetch+score) and --capex (5b capex overlay). "
-              "analyze.py/render.py/publish.py (PLAN.md steps 6-7) don't exist yet.")
+        print("Available: --score (fetch+score), --capex (5b capex overlay), "
+              "--now (full pipeline: fetch -> score -> capex -> render).\n"
+              "analyze.py/publish.py (PLAN.md step 7 deploy plumbing) don't exist yet — "
+              "--now writes index.html but doesn't auto-publish.")
