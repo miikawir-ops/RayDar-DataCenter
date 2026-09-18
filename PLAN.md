@@ -258,6 +258,50 @@ See CLAUDE.md and DATACENTER_RAYDAR_SPEC.md for full rules/spec.
    Revisit at build-order step 7 (deploy plumbing), when a real run
    cadence is actually needed.
 
+## Open questions (flagged, not resolved)
+
+Unlike "Decisions settled" above, nothing here has been decided. Recorded so
+findings don't get lost, not because a fix or a direction has been agreed.
+
+1. **Red (the flagship "confirmed bottleneck" threshold) structurally
+   cannot fire on constraint signal alone — in tension with B3's "surface
+   before revenue confirms" framing.** Found 2026-09-18 while checking
+   why optical read all-Green despite CIEN's real, correctly-detected
+   backlog/supply-constraint news (the 4a keyword fix's own finding).
+
+   The constraint calculation itself is not diluted or broken — CIEN's
+   `constraints=67.04` traces cleanly from real `news_velocity=7.0` and
+   `capex_div=0.407`, including the both-signal bonus firing correctly.
+   The ceiling is architectural: composite = accel×0.65 + constraints×0.20
+   + smart×0.15.
+
+   - **Orange (45) is reachable from constraint signal alone** at
+     optical's actual acceleration levels today (~35–48). COHR
+     (`capex_div=1.0`, constraints=94.3, accel=48.33) already clears it
+     this way. Generalizing: maxing constraints alone would push CIEN's
+     41.05 to ~47.6 — also across the line.
+   - **Red (65) requires `accel×0.65 + smart×0.15 ≥ 45`, independent of
+     how strong constraints gets** (constraints maxes out at 20 of the
+     100 points). At optical's realistic smart_money levels (5–12), that
+     means accel needs to reach roughly 67–69 — real acceleration-stage
+     strength (growth delta, growth level, or margin — not necessarily
+     narrow QoQ "acceleration"), not just a strong constraint reading.
+     None of the 4 optical tickers are within 20+ points of that today.
+
+   This weighting is inherited, unmodified parent logic (D1: "reuse the
+   three-signal structure... AS-IS," weights untouched per Part B). The
+   tension: B1/B3 describe constraint/capex signals as the *leading*
+   indicator, surfacing before revenue confirms — but the model's most
+   decisive threshold (Red) structurally requires revenue-side strength
+   to already be present, which sits close to the opposite of "leading."
+
+   **Explicitly unresolved.** Not a bug — the constraint calculation and
+   the aggregation both work correctly as designed. Not yet decided
+   whether this is the correct calibration for this project's stated
+   purpose, or a real gap worth reweighting later. No direction agreed;
+   do not treat silence on this as approval to change the weights, and
+   do not treat it as closed/accepted either.
+
 ## Build order
 
 1. **Data spike** (throwaway, not committed) — pull `quarterly_cashflow`
