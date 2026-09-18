@@ -54,8 +54,19 @@ CAPEX_YOY_DECELERATING_PCT = 0.05  # <5% YoY = decelerating; 5-30% = stable
 # to speak of — it would just be one company's number mislabeled as a
 # consensus. 2+ is the minimum bar for an averaged magnitude to mean anything
 # as an aggregate, even though it's still a partial one (always disclosed via
-# "reporting": "N/4", never silently presented as if it were 4/4). Untested
-# against real data as of 2026-09-18 — every run so far has been 4/4;
+# "reporting": "N/4", never silently presented as if it were 4/4).
+#
+# HONEST CAVEAT: that reasoning only actually justifies "must be >=2" (ruling
+# out the degenerate 1-company case) — it does NOT establish why 2 specifically
+# rather than 3 (a stricter majority-of-4 bar). 3 would be a legitimate,
+# arguably more conservative alternative given GOOGL's documented fragility
+# (decision #4 — exactly 5 quarters total, zero margin on the 4-back slot,
+# one bad data pull from flipping to insufficient-data). That tradeoff wasn't
+# actually weighed when 2 was picked; this isn't a data-derived cutoff like
+# the two thresholds above, it's the simplest floor above the degenerate case.
+# Revisit if a real run ever drops below 4/4 and 2 vs 3 starts to matter in
+# practice. Untested against real data as of 2026-09-18 — every run so far
+# has been 4/4;
 # documented so the rule exists before the branch is ever exercised.
 CAPEX_MIN_REPORTING = 2
 

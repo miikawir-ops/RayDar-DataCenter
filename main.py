@@ -420,9 +420,13 @@ def stage_capex() -> dict:
     Partial-reporting rule (config.CAPEX_MIN_REPORTING = 2): fewer than 2 of
     4 hyperscalers reporting means direction/magnitude_pct are None
     ("insufficient data") rather than computed from a 1-company sample
-    mislabeled as an aggregate. Untested against real data as of
-    2026-09-18 (every run so far has been 4/4) — documented so the rule
-    exists before the branch is ever exercised, not discovered later.
+    mislabeled as an aggregate. Honest caveat (see config.py comment): this
+    only really justifies ">=2", not "2 rather than 3" — 3 (majority-of-4)
+    would be a legitimate, more conservative alternative given GOOGL's
+    documented fragility, but that tradeoff wasn't actually weighed when 2
+    was picked. Untested against real data as of 2026-09-18 (every run so
+    far has been 4/4) — documented so the rule exists before the branch is
+    ever exercised, not discovered later.
 
     "reporting" (e.g. "3/4") and "insufficient" (ticker + reason) are
     always present, even at 4/4 — decision #4's "don't drop an

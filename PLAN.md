@@ -387,6 +387,17 @@ findings don't get lost, not because a fix or a direction has been agreed.
    in the spec — it's on the code path where someone would otherwise miss
    it.
 
+   **`CAPEX_MIN_REPORTING = 2` rationale, stated honestly:** rules out the
+   degenerate case (0-1 of 4 reporting would just be one company's number
+   mislabeled as a market-wide aggregate) — that part is a real
+   justification. It does NOT establish why 2 specifically rather than 3
+   (a stricter majority-of-4 bar); 3 would be a legitimate, arguably more
+   conservative choice given GOOGL's documented fragility (decision #4).
+   That tradeoff wasn't actually weighed when 2 was picked — this isn't a
+   data-derived cutoff like the YoY thresholds, it's the simplest floor
+   above the degenerate case. Revisit if a real run ever drops below 4/4
+   and the 2-vs-3 choice starts to matter in practice.
+
 6. **`render.py`** — adapt layer cards to the 5 sub-layers. Add the
    top-level capex-direction strip and per-sub-layer beneficiary badge as
    a display-only addition (decision #1). Keep the dark hero/visual system
