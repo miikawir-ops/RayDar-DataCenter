@@ -49,6 +49,16 @@ CAPEX_TICKERS = ["MSFT", "GOOGL", "AMZN", "META"]  # Part B5 hyperscaler capex-t
 CAPEX_YOY_ACCELERATING_PCT = 0.30  # >30% YoY = accelerating
 CAPEX_YOY_DECELERATING_PCT = 0.05  # <5% YoY = decelerating; 5-30% = stable
 
+# Minimum hyperscalers required to compute an aggregate capex direction
+# (PLAN.md step 5b). With only 0-1 of 4 reporting, there's no real "aggregate"
+# to speak of — it would just be one company's number mislabeled as a
+# consensus. 2+ is the minimum bar for an averaged magnitude to mean anything
+# as an aggregate, even though it's still a partial one (always disclosed via
+# "reporting": "N/4", never silently presented as if it were 4/4). Untested
+# against real data as of 2026-09-18 — every run so far has been 4/4;
+# documented so the rule exists before the branch is ever exercised.
+CAPEX_MIN_REPORTING = 2
+
 SUB_LAYERS = {
     "cooling": {
         "name": "Cooling",
@@ -104,5 +114,37 @@ SUB_LAYERS = {
             "data center leasing", "data center REIT", "powered shell",
             "data center campus",
         ] + GENERIC_BOTTLENECK_KEYWORDS,
+    },
+}
+
+# Capex beneficiary taxonomy (Part B3), consumed by render (step 6), not
+# score_engine (decision #1 — display overlay only, never a scoring input).
+#
+# STATIC CONTEXTUAL TAXONOMY, NOT A PER-CATEGORY BREAKDOWN. fetch_capex_trend()
+# reports one YoY% per hyperscaler (MSFT/GOOGL/AMZN/META) — it does NOT
+# differentiate what that capex is actually being spent on (GPU clusters vs.
+# interconnect vs. facilities). So when the aggregate direction reads
+# "accelerating," ALL THREE categories below surface together as context for
+# where AI capex generally flows — this is not a claim that this specific
+# run's capex went disproportionately toward GPUs, or interconnect, or
+# facilities. A future version with spend-category-level data could make this
+# targeted; this one can't, and shouldn't be read as if it already is.
+#
+# Part B4 boundary: this map covers IN-BUILDING power distribution only
+# (PDUs/UPS, folded into the cooling/compute GPU-cluster category below).
+# Site-level power delivery (generation, grid, transmission, substations)
+# belongs to the parent's Energy layer — do not add it here.
+CAPEX_BENEFICIARY_MAP = {
+    "gpu_clusters": {
+        "description": "More GPU clusters deployed",
+        "sub_layers":  ["cooling", "compute"],
+    },
+    "interconnect": {
+        "description": "More interconnect bandwidth needed",
+        "sub_layers":  ["networking", "optical"],
+    },
+    "facilities": {
+        "description": "More data center facilities/capacity",
+        "sub_layers":  ["colocation"],
     },
 }

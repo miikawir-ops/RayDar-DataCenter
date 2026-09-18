@@ -1,11 +1,12 @@
 """
-main.py — Pipeline orchestration for RayDar Data Center (PLAN.md step 5a).
+main.py — Pipeline orchestration for RayDar Data Center (PLAN.md steps 5a/5b).
 
-Scope of this file right now: fetch + score only (aggregation). analyze.py,
-render.py, next_nvidia.py, publish.py don't exist yet (PLAN.md steps 6-7) —
-this deliberately doesn't wire up a full run_full_pipeline()/scheduler
-against files that aren't built, matching the same "don't get ahead of the
-build order" discipline used for score_engine.py (step 3) and capex (5b).
+Scope of this file right now: fetch + score (aggregation, 5a) and the capex
+direction overlay (5b). analyze.py, render.py, next_nvidia.py, publish.py
+don't exist yet (PLAN.md steps 6-7) — this deliberately doesn't wire up a
+full run_full_pipeline()/scheduler against files that aren't built, matching
+the same "don't get ahead of the build order" discipline used for
+score_engine.py (step 3).
 
 Adapted from reference/main.py. Reuses market-cap weighting, bottleneck
 leader boost, Red reality check, and 3-day color confirmation AS-IS in
@@ -401,19 +402,88 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
     return results
 
 
+def stage_capex() -> dict:
+    """
+    Capex direction overlay (PLAN.md step 5b, decision #1: display overlay
+    only — never fed into ScoreEngine or its weights, independent of
+    stage_score()).
+
+    Aggregation rule: average capex_yoy_pct across only the REPORTING
+    hyperscalers (excluding any with data_missing), then classify that
+    average against CAPEX_YOY_ACCELERATING_PCT/DECELERATING_PCT. Chosen
+    over a majority-vote-of-labels approach because individual hyperscalers
+    can vary by 30+ points while all being genuinely "accelerating" (the 4b
+    real spread was 76.7-109.6%) — a single averaged magnitude is more
+    informative than collapsing that to a vote, and matches decision #4's
+    "show magnitude, not just the label" principle.
+
+    Partial-reporting rule (config.CAPEX_MIN_REPORTING = 2): fewer than 2 of
+    4 hyperscalers reporting means direction/magnitude_pct are None
+    ("insufficient data") rather than computed from a 1-company sample
+    mislabeled as an aggregate. Untested against real data as of
+    2026-09-18 (every run so far has been 4/4) — documented so the rule
+    exists before the branch is ever exercised, not discovered later.
+
+    "reporting" (e.g. "3/4") and "insufficient" (ticker + reason) are
+    always present, even at 4/4 — decision #4's "don't drop an
+    insufficient-data ticker from the aggregate silently" rule.
+    """
+    from fetch_market import fetch_capex_trend
+    from config import CAPEX_YOY_ACCELERATING_PCT, CAPEX_YOY_DECELERATING_PCT, \
+        CAPEX_MIN_REPORTING, CAPEX_BENEFICIARY_MAP, CAPEX_TICKERS
+
+    capex = fetch_capex_trend()
+    reporting = [c for c in capex if not c["data_missing"]]
+    insufficient = [
+        {"ticker": c["ticker"], "reason": f"missing: {c['data_missing']}"}
+        for c in capex if c["data_missing"]
+    ]
+
+    if len(reporting) < CAPEX_MIN_REPORTING:
+        log.warning(f"  Capex: only {len(reporting)}/{len(capex)} hyperscalers reporting "
+                    f"(minimum {CAPEX_MIN_REPORTING}) — direction insufficient data")
+        return {
+            "direction":       None,
+            "magnitude_pct":   None,
+            "reporting":       f"{len(reporting)}/{len(capex)}",
+            "insufficient":    insufficient,
+            "beneficiary_map": CAPEX_BENEFICIARY_MAP,
+        }
+
+    magnitude_pct = round(sum(c["capex_yoy_pct"] for c in reporting) / len(reporting), 4)
+
+    if magnitude_pct > CAPEX_YOY_ACCELERATING_PCT:
+        direction = "accelerating"
+    elif magnitude_pct < CAPEX_YOY_DECELERATING_PCT:
+        direction = "decelerating"
+    else:
+        direction = "stable"
+
+    log.info(f"  Capex: {direction} ({magnitude_pct*100:.1f}% avg YoY, "
+             f"{len(reporting)}/{len(capex)} hyperscalers reporting)")
+
+    return {
+        "direction":       direction,
+        "magnitude_pct":   magnitude_pct,
+        "reporting":       f"{len(reporting)}/{len(capex)}",
+        "insufficient":    insufficient,
+        "beneficiary_map": CAPEX_BENEFICIARY_MAP,
+    }
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="RayDar Data Center — pipeline (step 5a: fetch + score only)"
+        description="RayDar Data Center — pipeline (steps 5a/5b: fetch + score, capex overlay)"
     )
     parser.add_argument("--score", action="store_true",
-                        help="Fetch + score. Only mode available — "
-                             "analyze/render/deploy (PLAN.md steps 6-7) aren't built yet.")
+                        help="Fetch + score. analyze/render/deploy (PLAN.md steps 6-7) aren't built yet.")
+    parser.add_argument("--capex", action="store_true",
+                        help="Capex direction overlay only (5b) — aggregate direction + beneficiary map.")
     args = parser.parse_args()
 
-    if not args.score:
-        print("Only --score is available right now — analyze.py/render.py/publish.py "
-              "(PLAN.md steps 6-7) don't exist yet.\nRun: python main.py --score")
-    else:
+    if args.capex:
+        print(json.dumps(stage_capex(), indent=2))
+    elif args.score:
         market_data, macro_data = stage_fetch()
         scored_data = stage_score(market_data, macro_data)
         print(json.dumps(
@@ -429,3 +499,6 @@ if __name__ == "__main__":
              }
              for k, v in scored_data.items()
             }, indent=2))
+    else:
+        print("Available now: --score (fetch+score) and --capex (5b capex overlay). "
+              "analyze.py/render.py/publish.py (PLAN.md steps 6-7) don't exist yet.")
