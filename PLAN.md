@@ -373,6 +373,18 @@ findings don't get lost, not because a fix or a direction has been agreed.
      5a was built, anticipating step 6, not because anything writes it
      today.
 
+     **Update (step 6, 2026-09-18): the write path is verified** —
+     `render.py`'s `save_scores_history()` ran against live data and
+     produced a real `scores_history.json` entry. **The read-back side
+     (3-day color confirmation logic) is still unverified against real
+     multi-day data** — only one day of history exists as of this run,
+     so `_confirmed_color()`'s actual confirm/hold/instant-Red branches
+     have never fired on real data, only been exercised in isolation
+     during earlier design work. Needs a real check after 2-3 more daily
+     runs accumulate enough history — not now. Flagged so this doesn't
+     get silently assumed solid just because the file exists and the
+     write succeeded.
+
 5b. **`main.py` — capex direction + beneficiary map.** Add the capex
    direction classification per decision #4 (single-quarter YoY snapshot,
    named thresholds, no nearest-quarter fallback, insufficient-data
