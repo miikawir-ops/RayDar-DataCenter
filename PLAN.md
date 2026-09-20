@@ -481,23 +481,27 @@ findings don't get lost, not because a fix or a direction has been agreed.
      enabled as the cause. The Pages artifact built and uploaded
      successfully before that (`artifact_id: 10600248442`) — only the
      Pages handoff failed, nothing upstream.
-   - **CI data-fetch behavior: verified against the actual step log
-     (not inferred from duration).** 12/12 tickers fetched, 170
-     headlines, live macro (VIX 14.81), sub-layer scores 29.9–44.3,
-     capex 4/4 hyperscalers reporting at 92.1% avg YoY — consistent with
-     local run ranges and the exact 92.1% figure seen locally on
-     2026-09-17/18.
-   - **No GitHub-IP rate-limiting/blocking observed** — no HTTP 429s, no
-     empty results, no `data_missing` entries that don't also appear
-     locally. **Conclusion: unauthenticated `yfinance`/RSS access works
-     from GitHub-hosted runners as it does locally — no authenticated
-     data source and no GitHub Secret are needed**, now verified against
-     a real CI run rather than inferred from the earlier code grep
-     alone.
-   - `scores_history.json` confirmed writing in CI — multi-day history
-     will accumulate once scheduled (non-manual) runs start, which is
-     what the still-unverified 3-day color-confirmation read-back
-     (noted earlier this section) actually needs.
+   - **CI data-fetch behavior: verified.** The `python main.py --now`
+     step log (run 2026-09-20, 06:48 UTC) shows real data fetched from
+     GitHub's runners: 120 ticker-specific + 50 generic headlines, all
+     12 tickers fetched successfully across all 5 sub-layers (1/1
+     cooling, 2/2 networking, 4/4 optical, 3/3 compute, 2/2 colocation),
+     live macro (VIX 14.81, yield +30.2bps), sub-layer weighted scores
+     29.9–44.3 (all Green), and capex 4/4 hyperscalers reporting at
+     92.1% avg YoY — consistent with local run ranges. No HTTP 429s, no
+     empty results, no CI-only `data_missing` entries, and per-ticker
+     fetch timings (~0.5–1s sequential) consistent with genuine network
+     calls.
+
+     **Conclusion, now evidence-based rather than inferred:**
+     unauthenticated `yfinance`/RSS access works from GitHub Actions
+     runners. No authenticated data source is required, and no API key
+     or GitHub Secret is needed — this supersedes the earlier
+     code-grep-based inference with a verified real-environment result.
+   - `scores_history.json` confirmed writing in CI (`Scores history
+     saved (1 days)`) — multi-day color-confirmation data will
+     accumulate once scheduled runs begin, relevant to the still-open
+     read-back verification item noted earlier this section.
 
    **Remaining before live: only the Pages enablement / repo visibility
    decision** — everything else in this step is now built and verified.
