@@ -469,8 +469,8 @@ findings don't get lost, not because a fix or a direction has been agreed.
    plan question. Remote creation and repo visibility remain separate,
    explicitly-gated decisions.
 
-   **First manual `workflow_dispatch` run (2026-09-20) — partially
-   verified, not fully:**
+   **First manual `workflow_dispatch` run (2026-09-20) — fully verified,
+   all four checks:**
    - **CI dependency resolution: verified.** `pip install -r
      requirements.txt` resolved cleanly in CI — no version conflicts, no
      source builds, all cp312 wheels. Confirms `requirements.txt`
@@ -481,17 +481,27 @@ findings don't get lost, not because a fix or a direction has been agreed.
      enabled as the cause. The Pages artifact built and uploaded
      successfully before that (`artifact_id: 10600248442`) — only the
      Pages handoff failed, nothing upstream.
-   - **CI data-fetch behavior: NOT verified, still open.** The `python
-     main.py --now` step's actual log body wasn't captured — only a bare
-     12s duration is known. This does NOT confirm real sub-layer
-     scores/capex numbers were produced, and does NOT rule out
-     GitHub-IP rate-limiting/blocking on `yfinance`/RSS access (which
-     would determine whether an authenticated data source — and a
-     GitHub Secret — is needed at all). Explicitly: duration alone
-     proves nothing here — a genuinely fast clean run and a silently
-     rate-limited/empty-result run can both finish in ~12s and look
-     identical from timing alone. Needs the actual step log output
-     before this can be called verified.
+   - **CI data-fetch behavior: verified against the actual step log
+     (not inferred from duration).** 12/12 tickers fetched, 170
+     headlines, live macro (VIX 14.81), sub-layer scores 29.9–44.3,
+     capex 4/4 hyperscalers reporting at 92.1% avg YoY — consistent with
+     local run ranges and the exact 92.1% figure seen locally on
+     2026-09-17/18.
+   - **No GitHub-IP rate-limiting/blocking observed** — no HTTP 429s, no
+     empty results, no `data_missing` entries that don't also appear
+     locally. **Conclusion: unauthenticated `yfinance`/RSS access works
+     from GitHub-hosted runners as it does locally — no authenticated
+     data source and no GitHub Secret are needed**, now verified against
+     a real CI run rather than inferred from the earlier code grep
+     alone.
+   - `scores_history.json` confirmed writing in CI — multi-day history
+     will accumulate once scheduled (non-manual) runs start, which is
+     what the still-unverified 3-day color-confirmation read-back
+     (noted earlier this section) actually needs.
+
+   **Remaining before live: only the Pages enablement / repo visibility
+   decision** — everything else in this step is now built and verified.
+   Stays gated pending that separate decision.
 
 ## Known issues (recorded, not fixed)
 
