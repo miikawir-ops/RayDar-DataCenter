@@ -462,16 +462,36 @@ findings don't get lost, not because a fix or a direction has been agreed.
    across every `.py` file in this project (not `reference/`, which
    pulls in `schedule`/`dotenv` for features already dropped here).
 
-   **Not live yet, deliberately.** No remote configured — this repo has
-   never been pushed to GitHub, so nothing in the workflow can run
-   anywhere yet. Even once pushed, the final `deploy-pages` step only
-   succeeds once Pages is manually enabled (Settings → Pages → Source:
-   GitHub Actions) — not done, gated on the still-open private/public
-   repo + GitHub plan question. Until both happen, `workflow_dispatch`/
-   `schedule` could at most run the fetch/score/render steps in CI and
-   fail cleanly at the deploy step — expected, not a bug. Remote
-   creation and repo visibility remain separate, explicitly-gated
-   decisions, not made in this commit.
+   **Not live yet, deliberately.** Repo pushed to
+   `github.com/miikawir-ops/RayDar-DataCenter` (2026-09-19, `main`
+   branch) — but Pages is still not enabled (Settings → Pages → Source:
+   GitHub Actions), gated on the still-open private/public repo + GitHub
+   plan question. Remote creation and repo visibility remain separate,
+   explicitly-gated decisions.
+
+   **First manual `workflow_dispatch` run (2026-09-20) — partially
+   verified, not fully:**
+   - **CI dependency resolution: verified.** `pip install -r
+     requirements.txt` resolved cleanly in CI — no version conflicts, no
+     source builds, all cp312 wheels. Confirms `requirements.txt`
+     (created by inference from this project's actual imports, not
+     ported from anywhere) is sufficient in a clean environment.
+   - **Failure point: verified as expected.** Only `deploy-pages` failed,
+     with the expected 404 and GitHub's own message naming Pages-not-
+     enabled as the cause. The Pages artifact built and uploaded
+     successfully before that (`artifact_id: 10600248442`) — only the
+     Pages handoff failed, nothing upstream.
+   - **CI data-fetch behavior: NOT verified, still open.** The `python
+     main.py --now` step's actual log body wasn't captured — only a bare
+     12s duration is known. This does NOT confirm real sub-layer
+     scores/capex numbers were produced, and does NOT rule out
+     GitHub-IP rate-limiting/blocking on `yfinance`/RSS access (which
+     would determine whether an authenticated data source — and a
+     GitHub Secret — is needed at all). Explicitly: duration alone
+     proves nothing here — a genuinely fast clean run and a silently
+     rate-limited/empty-result run can both finish in ~12s and look
+     identical from timing alone. Needs the actual step log output
+     before this can be called verified.
 
 ## Known issues (recorded, not fixed)
 
