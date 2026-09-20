@@ -514,9 +514,43 @@ findings don't get lost, not because a fix or a direction has been agreed.
      accumulate once scheduled runs begin, relevant to the still-open
      read-back verification item noted earlier this section.
 
-   **Remaining before live: only the Pages enablement / repo visibility
-   decision** — everything else in this step is now built and verified.
-   Stays gated pending that separate decision.
+   **LIVE (2026-09-20).** Repo made public, Pages enabled (Settings →
+   Pages → Source: GitHub Actions), deploy verified working end to end.
+   Dashboard is reachable at `miikawir-ops.github.io/RayDar-DataCenter/`.
+   Weekday cron (`0 12 * * 1-5`) is now active — the first scheduled
+   (non-manual) run will fire on the next weekday.
+
+   **Two things checked on the live site before calling this done:**
+   - **Heat trail at n=1 day of history: confirmed correct, not a bug —
+     but visually ambiguous, worth revisiting.** Pulled the live page's
+     embedded `HISTORY` data directly: exactly 1 real day (2026-09-20,
+     all 5 sub-layers Green), 89/90 days still `"none"`. `buildHeat()`'s
+     default 7-day view filters its display slice to only real-data
+     days, and the grid's `minmax(32px,1fr)` column sizing stretches a
+     single real day to fill the full row width — which is what reads
+     as "solid full-width green bars." Not fabricated data, correctly
+     showing the one real day that exists. Confirmed by code review
+     (not yet observed live) that it will correctly grow into a genuine
+     multi-day trail as `scores_history.json` accumulates. **The
+     ambiguity:** 7 real green days (7 narrow columns) could look
+     visually similar to today's 1-day-stretched state at a glance,
+     without hovering per-cell tooltips. Revisit once real multi-day
+     history exists to see whether it actually reads clearly, or needs
+     a visual treatment for low-history states (e.g. an explicit
+     "building history" label instead of stretching one day wide).
+   - **"Deep dive with Claude" button — documented, not just inherited.**
+     In the ticker expand panel, opens `claude.ai/new?q=<prompt>` in a
+     new tab, pre-filling a claude.ai conversation about that ticker or
+     sub-layer. No API call from the page, no credentials, nothing sent
+     except the prompt text (ticker/company info already visible on the
+     page) in the URL — visitor needs their own claude.ai account to see
+     a response. The mechanism (`sendPrompt()`, the `window.open(...)`
+     pattern) was ported unchanged from `reference/render.py`; the
+     prompt text itself was rewritten during this build for data-center
+     context. This was a deliberate keep-decision made during the
+     render.py build but not previously called out as its own
+     documented item — done now since it's a user-facing interactive
+     element on a now-public page.
 
 ## Known issues (recorded, not fixed)
 
