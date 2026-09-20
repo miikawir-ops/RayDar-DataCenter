@@ -67,6 +67,9 @@ Each independent part committed and verified against the real pipeline path befo
 Pushed to origin — confirm with git status (ahead/behind), not assumed.
 Deploy triggered or confirmed — check the Actions run is green, not just that the push succeeded.
 Live output re-checked against the original symptom, same view, before and after, side by side.
+Post-launch (once the site is live)
+Any change to scoring logic, weights, or thresholds requires checking live output before and after the change, not just a local run.
+Known limitations recorded in PLAN.md stay tracked after launch — a working dashboard is not evidence an open question got resolved.
 When stuck or uncertain
 If a request is ambiguous, ask — don't guess and build the wrong thing.
 Always surface an improvement when you notice one — a bug, a risk, a better pattern, a cheaper approach — even outside the current task. Never suppress it to stay narrowly in scope, and never act on it unasked; surfacing and doing are different steps. When there's more than one, tag by urgency: must-fix-now (correctness-breaking), real-but-not-urgent, and minor/cosmetic (my call, no action needed). Keep each item to a line or two unless asked to elaborate.

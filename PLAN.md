@@ -302,6 +302,17 @@ findings don't get lost, not because a fix or a direction has been agreed.
    do not treat silence on this as approval to change the weights, and
    do not treat it as closed/accepted either.
 
+   **Launch decision (2026-09-20): going live with this open, not
+   blocking.** This question can only be evaluated against weeks of real
+   running data — whether Red genuinely never fires when it should, or
+   whether the weighting is fine and today's data simply hasn't produced
+   a case that needed it — not against a single snapshot from one or two
+   days of runs. Holding launch until it's resolved would mean waiting
+   on data that launching is what generates. **Still not resolved** —
+   this is a decision to launch with it open and tracked, not a decision
+   about the question itself. Revisit once there's real multi-week
+   history to actually judge against.
+
 ## Build order
 
 1. **Data spike** (throwaway, not committed) — pull `quarterly_cashflow`
