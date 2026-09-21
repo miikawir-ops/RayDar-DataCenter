@@ -764,6 +764,10 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
             background:#E6F1FB;color:#0C447C;cursor:pointer;white-space:nowrap;
             flex-shrink:0;display:flex;align-items:center;gap:6px"
             id="about-btn">ℹ️ About this dashboard</button>
+    <a href="ecosystem.html" style="font-size:12px;font-weight:500;
+            padding:8px 16px;border:1.5px solid #AFA9EC;border-radius:6px;
+            background:#EEEDFE;color:#3C3489;cursor:pointer;white-space:nowrap;
+            flex-shrink:0;display:flex;align-items:center;gap:6px;text-decoration:none">🗺️ Data Center Ecosystem</a>
   </div>
   <div id="about-section" style="display:none;background:#F8F8F7;border:0.5px solid #E0DFDC;
        border-radius:8px;padding:14px;margin-bottom:10px;font-size:12px;color:#5F5E5A;line-height:1.7">

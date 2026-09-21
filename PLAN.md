@@ -592,3 +592,29 @@ findings don't get lost, not because a fix or a direction has been agreed.
   data-convention verification (2026-09-17), unrelated to that fix —
   pre-existing in the original `--news` print statements. Not fixed;
   noted here so it isn't lost before someone hits it unprepared.
+
+- **`ecosystem.html`'s static mockup image (`assets/ecosystem.webp`) has
+  three known content issues, interim not fixed.** This page is a
+  deliberately temporary educational reference for business stakeholders
+  (Part of the interim-feature scope agreed 2026-09-21), meant to be
+  replaced by an interactive build later. Known issues in the current
+  static image, to carry over into that rebuild:
+  - **Supplier duplication — three suppliers listed twice.** The
+    "Equipment & Technology Suppliers" box lists Cooling, Storage, and
+    Backup power as bullet items, while "Cooling & HVAC Suppliers,"
+    "Storage Providers," and "Backup Power & Fuel" also each appear as
+    their own separate stakeholder box.
+  - **Two arrow colors contradict the legend** (Ray's and Claude's visual
+    reading of the image, not independently re-derived): the
+    District Heating ↔ Data Center Operator "waste heat (heat sales)"
+    arrow is colored red, which the legend defines as "Data" — it should
+    read as "Energy/Heat" (green). The Backup Power & Fuel ↔ Data Center
+    Operator arrow is colored yellow, which the legend defines as
+    "Capital/Financing" — it should read as "Goods/Services" (blue) or
+    "Energy/Heat" (green), not a financing flow.
+  - **All non-image UI shown in the picture is illustration only** — the
+    "Selected stakeholder" side panel, "View details," "Back to
+    overview," and "?" buttons are baked into the static image and are
+    not functional on the actual page (the page has its own real
+    "← Back to dashboard" link, separate from the illustrated one inside
+    the image).

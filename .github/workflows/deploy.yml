@@ -59,11 +59,14 @@ jobs:
 
       - name: Prepare Pages artifact
         run: |
-          mkdir -p _site
+          mkdir -p _site/assets
           cp index.html _site/index.html
-        # Only the generated dashboard is uploaded — not the whole repo
-        # (source files, PLAN.md, reference/, etc. stay out of the
-        # deployed site regardless of the repo's own visibility).
+          cp ecosystem.html _site/ecosystem.html
+          cp assets/ecosystem.webp _site/assets/ecosystem.webp
+        # Only the generated dashboard + the hand-authored ecosystem page
+        # and its image are uploaded — not the whole repo (source files,
+        # PLAN.md, reference/, etc. stay out of the deployed site
+        # regardless of the repo's own visibility).
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Data Center Ecosystem — RayDar Data Center</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+     background:#0E1628;color:#1A1A1A;min-height:100vh;padding:0 0 32px}
+.hero{background:linear-gradient(135deg,#08081A 0%,#0C1A3A 30%,#1A0830 60%,#0A0818 100%);
+      padding:22px 24px 20px;position:relative;overflow:hidden}
+.hero-laser{position:absolute;top:0;left:0;right:0;height:3px;
+            background:linear-gradient(90deg,transparent 0%,transparent 10%,#534AB7 28%,#85B7EB 45%,#ffffff 50%,#85B7EB 55%,#534AB7 72%,transparent 90%,transparent 100%);
+            opacity:0.9}
+.hero-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.hero-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hero-sub{font-size:11px;color:#8A9AB8;margin-top:3px}
+.back-link{font-size:12px;font-weight:500;color:#fff;text-decoration:none;
+           border:1px solid rgba(175,169,236,0.7);padding:4px 10px;border-radius:10px;
+           background:#3C3489;box-shadow:0 0 8px rgba(133,183,235,0.35);
+           display:inline-flex;align-items:center;gap:4px;
+           transition:background .15s,box-shadow .15s}
+.back-link:hover{background:#4a3fb0;box-shadow:0 0 14px rgba(133,183,235,0.6)}
+.body{padding:16px 16px 0;position:relative;
+      background:linear-gradient(180deg,#0E1628 0%,#101C32 40%,#13182A 75%,#0F1420 100%);
+      min-height:100vh}
+.card{background:white;border:0.5px solid #E0DFDC;border-radius:12px;
+      padding:16px;margin-bottom:12px;max-width:1100px;margin-left:auto;margin-right:auto}
+.page-title{font-size:18px;font-weight:500;color:#1A1A1A;margin-bottom:4px}
+.page-sub{font-size:12px;color:#888780;margin-bottom:16px}
+.ecosystem-img{width:100%;height:auto;border-radius:8px;border:0.5px solid #E0DFDC;display:block}
+.caption{margin-top:14px;padding:12px 14px;background:#F8F8F7;border-left:2px solid #378ADD;
+         border-radius:0 6px 6px 0;font-size:12px;color:#5F5E5A;line-height:1.6}
+.caption strong{color:#1A1A1A}
+.footer{font-size:12px;color:#8A9AB8;text-align:center;margin-top:16px;
+        padding:20px 16px;border-top:1px solid rgba(255,255,255,0.06);
+        background:#080812;border-radius:8px;line-height:2.0}
+@media(max-width:768px){
+  .hero{padding:14px 12px 16px}
+  .card{padding:10px 8px;border-radius:8px}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-laser"></div>
+  <div class="hero-top">
+    <div>
+      <div class="hero-title">
+        <span style="font-size:26px;font-weight:500;letter-spacing:-1px;color:#fff">Ray<span style="color:#85B7EB;font-weight:300">Dar</span></span>
+        <span style="font-size:11px;font-weight:600;color:#0A0818;background:#85B7EB;padding:2px 8px;border-radius:10px;letter-spacing:.04em">DATA CENTER</span>
+      </div>
+      <div class="hero-sub">Data Center Ecosystem — stakeholders and relationships</div>
+    </div>
+    <a href="index.html" class="back-link">&larr; Back to dashboard</a>
+  </div>
+</div>
+
+<div class="body">
+  <div class="card">
+    <div class="page-title">Data Center Ecosystem</div>
+    <div class="page-sub">Stakeholders, relationships, and value flows — educational reference for business context.</div>
+    <img src="assets/ecosystem.webp" alt="Diagram of the data center ecosystem centered on the Data Center Operator, showing its relationships with: Public Sector/Municipality (zoning, permits), Energy &amp; Power Generation, Grid &amp; Transmission (TSO), Construction &amp; Real Estate, District Heating/Energy Recovery, Cooling &amp; HVAC Suppliers, Backup Power &amp; Fuel, Equipment &amp; Technology Suppliers (compute, networking, storage, cooling, power equipment), Capital &amp; Finance (infrastructure funds, REITs, lenders), Network &amp; Connectivity, Storage Providers, Hyperscaler/Cloud customers, and Enterprise &amp; End Users. Colored arrows indicate five relationship types: energy/heat, goods/services, contracts/agreements, data flows, and capital/financing, with a legend and cross-cutting factors (regulation, incentives, water/environment, talent, cybersecurity, supply chain) shown at the bottom." class="ecosystem-img">
+    <div class="caption">
+      <strong>Illustrative overview — static reference content, not live data.</strong> Interactive elements shown in the image (the "Selected stakeholder" panel, "View details" and other buttons) are part of the illustration only and are not functional on this page. This is an interim version; a future interactive build will replace it.
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div><strong>RayDar Data Center</strong></div>
+  <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
+</div>
+
+</body>
+</html>
