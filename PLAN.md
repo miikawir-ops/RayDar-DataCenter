@@ -313,6 +313,28 @@ findings don't get lost, not because a fix or a direction has been agreed.
    about the question itself. Revisit once there's real multi-week
    history to actually judge against.
 
+2. **Family cross-linking — one convention settled, the broader plan is
+   still open.** B7's parent↔Data Center link is now built in both
+   directions (`AI_valuechain`'s `infra` layer card → here; here's hero
+   + footer → `AI_valuechain`). The wider question — a shared,
+   data-driven nav across every RayDar-family site (RayDar Vice, TP
+   Special Agent, Café Ellu, Quantum RayDar once built), which pattern
+   to standardize on, and whether tax-domain agents belong in the same
+   navigation as the investment dashboards — is unresolved, tracked
+   separately, not decided here.
+
+   **Settled (2026-09-21): same-tab vs new-tab convention for family
+   links.** "Up/back" navigation to the parent uses the same tab — this
+   hero link is the first family link anywhere that doesn't open
+   `target="_blank"`, a deliberate exception, not an oversight. Reasoning:
+   it's a navigational move within one coherent family experience (going
+   back up), not a reference opened alongside the current page — and it
+   avoids tab pile-up on the common parent → Data Center → back path.
+   Every other family link (footer, sibling references, `AI_valuechain`'s
+   own Data Center card link) stays `target="_blank"`. The future family
+   cross-linking plan should formalize this same-tab/new-tab convention
+   explicitly rather than leave it to be inferred from this one instance.
+
 ## Build order
 
 1. **Data spike** (throwaway, not committed) — pull `quarterly_cashflow`
