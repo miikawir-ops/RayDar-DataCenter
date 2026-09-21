@@ -492,12 +492,13 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
            margin-bottom:14px;position:relative;flex-wrap:wrap;gap:8px}}
 .hero-title{{font-size:22px;color:#fff;line-height:1.2;letter-spacing:-0.3px}}
 .hero-sub{{font-size:11px;color:#8A9AB8;margin-top:3px}}
-.hero-sibling-link{{font-size:12px;font-weight:500;color:#AFA9EC;text-decoration:none;
-                    border:1px solid rgba(175,169,236,0.7);padding:3px 9px;border-radius:10px;
-                    background:rgba(175,169,236,0.12);
+.hero-sibling-link{{font-size:12px;font-weight:600;color:#fff;text-decoration:none;
+                    border:1px solid rgba(175,169,236,0.5);padding:4px 10px;border-radius:10px;
+                    background:#3C3489;
+                    box-shadow:0 0 8px rgba(133,183,235,0.35);
                     display:inline-flex;align-items:center;gap:4px;
-                    transition:border-color .15s,background .15s}}
-.hero-sibling-link:hover{{border-color:rgba(175,169,236,1);background:rgba(175,169,236,0.22)}}
+                    transition:background .15s,box-shadow .15s}}
+.hero-sibling-link:hover{{background:#4a3fb0;box-shadow:0 0 14px rgba(133,183,235,0.6)}}
 .reg-pill{{font-size:11px;font-weight:500;padding:5px 14px;border-radius:20px;
            border:1px solid rgba(255,255,255,.3);color:#fff;
            background:rgba(255,255,255,.15);cursor:pointer;position:relative}}
