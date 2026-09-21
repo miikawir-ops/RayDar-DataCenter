@@ -593,12 +593,24 @@ findings don't get lost, not because a fix or a direction has been agreed.
   pre-existing in the original `--news` print statements. Not fixed;
   noted here so it isn't lost before someone hits it unprepared.
 
-- **`ecosystem.html`'s static mockup image (`assets/ecosystem.webp`) has
-  three known content issues, interim not fixed.** This page is a
-  deliberately temporary educational reference for business stakeholders
-  (Part of the interim-feature scope agreed 2026-09-21), meant to be
-  replaced by an interactive build later. Known issues in the current
-  static image, to carry over into that rebuild:
+- **`ecosystem.html`'s static mockup image (`assets/ecosystem.webp`) —
+  interim page, Phase A improvements landed 2026-09-21, Phase B still
+  open.** This page is a deliberately temporary educational reference
+  for business stakeholders (agreed 2026-09-21), meant to be replaced by
+  an interactive build later.
+
+  **Resolved (Phase A):** the image's fake top navigation bar (RayDar
+  logo, "Back to overview," a repeated "Data Center Ecosystem" title,
+  the "Static reference" badge, and the "?" button) is cropped out of
+  `assets/ecosystem.webp` entirely — those two non-functional buttons no
+  longer sit directly below the page's own real "← Back to dashboard"
+  link. The uncropped original stays in `Output/` only, never committed.
+  Also added: click-to-enlarge (opens the full image in a new tab), a
+  plain-language explanation section with one real, sourced Finnish
+  example (Fortum/Microsoft district heating in Espoo/Kirkkonummi), and
+  a full-width entry banner replacing the old small button.
+
+  **Still open for Phase B (the future interactive build):**
   - **Supplier duplication — three suppliers listed twice.** The
     "Equipment & Technology Suppliers" box lists Cooling, Storage, and
     Backup power as bullet items, while "Cooling & HVAC Suppliers,"
@@ -612,9 +624,7 @@ findings don't get lost, not because a fix or a direction has been agreed.
     Operator arrow is colored yellow, which the legend defines as
     "Capital/Financing" — it should read as "Goods/Services" (blue) or
     "Energy/Heat" (green), not a financing flow.
-  - **All non-image UI shown in the picture is illustration only** — the
-    "Selected stakeholder" side panel, "View details," "Back to
-    overview," and "?" buttons are baked into the static image and are
-    not functional on the actual page (the page has its own real
-    "← Back to dashboard" link, separate from the illustrated one inside
-    the image).
+  - **The "Selected stakeholder" side panel is illustration only** — it
+    shows a static "Hyperscaler / Cloud" example with a "View details →"
+    button baked into the image; neither selecting a different
+    stakeholder nor "View details" does anything on the actual page.

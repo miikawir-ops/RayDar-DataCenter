@@ -627,6 +627,13 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .capex-strip{{background:linear-gradient(135deg,#1A1830,#0F1A2E);border:1px solid rgba(175,169,236,0.35);
              border-radius:10px;padding:14px 16px;margin-bottom:12px;color:#E8E6DF}}
 .capex-strip.insufficient{{opacity:0.75;border-style:dashed}}
+.ecosystem-banner{{display:flex;align-items:center;justify-content:center;gap:8px;
+                   font-size:13px;font-weight:600;color:#fff;text-decoration:none;
+                   padding:10px 16px;border-radius:8px;margin-bottom:12px;
+                   background:linear-gradient(135deg,#0C1A3A,#3C3489);
+                   box-shadow:0 0 0 1px rgba(133,183,235,0.35),0 0 10px rgba(83,74,183,0.4);
+                   transition:box-shadow .15s;text-align:center;flex-wrap:wrap}}
+.ecosystem-banner:hover{{box-shadow:0 0 0 1px rgba(133,183,235,0.7),0 0 16px rgba(83,74,183,0.7)}}
 .capex-lbl{{font-size:10px;font-weight:500;color:#AFA9EC;letter-spacing:.06em;margin-bottom:6px}}
 .capex-dir{{font-size:18px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}}
 .capex-meta{{font-size:11px;color:#8A9AB8;margin-bottom:10px}}
@@ -744,6 +751,8 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 <div class="capex-strip" id="capex-strip"></div>
 
+<a href="ecosystem.html" class="ecosystem-banner">🗺️ Explore the Data Center Ecosystem — who the players are and how they connect →</a>
+
 <div class="card">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
     <div style="font-size:12px;font-weight:500;color:#C8D4E8;letter-spacing:0.02em;margin-bottom:0">Data center infrastructure — signal scores</div>
@@ -764,10 +773,6 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
             background:#E6F1FB;color:#0C447C;cursor:pointer;white-space:nowrap;
             flex-shrink:0;display:flex;align-items:center;gap:6px"
             id="about-btn">ℹ️ About this dashboard</button>
-    <a href="ecosystem.html" style="font-size:12px;font-weight:500;
-            padding:8px 16px;border:1.5px solid #AFA9EC;border-radius:6px;
-            background:#EEEDFE;color:#3C3489;cursor:pointer;white-space:nowrap;
-            flex-shrink:0;display:flex;align-items:center;gap:6px;text-decoration:none">🗺️ Data Center Ecosystem</a>
   </div>
   <div id="about-section" style="display:none;background:#F8F8F7;border:0.5px solid #E0DFDC;
        border-radius:8px;padding:14px;margin-bottom:10px;font-size:12px;color:#5F5E5A;line-height:1.7">

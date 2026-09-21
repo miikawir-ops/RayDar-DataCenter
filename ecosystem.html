@@ -24,15 +24,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .back-link:hover{background:#4a3fb0;box-shadow:0 0 14px rgba(133,183,235,0.6)}
 .body{padding:16px 16px 0;position:relative;
       background:linear-gradient(180deg,#0E1628 0%,#101C32 40%,#13182A 75%,#0F1420 100%);
-      min-height:100vh}
+      min-height:100vh;max-width:1100px;margin-left:auto;margin-right:auto}
+.page-title{font-size:18px;font-weight:500;color:#fff;margin-bottom:4px}
+.page-sub{font-size:12px;color:#8A9AB8;margin-bottom:16px}
+.ecosystem-img{width:100%;height:auto;border-radius:8px;border:0.5px solid rgba(175,169,236,0.25);display:block}
+.img-hint{text-align:center;font-size:11px;color:#8A9AB8;margin-top:6px}
+.caption{margin-top:14px;padding:12px 14px;background:rgba(255,255,255,0.06);border-left:2px solid #378ADD;
+         border-radius:0 6px 6px 0;font-size:12px;color:#C8D4E8;line-height:1.6}
+.caption strong{color:#fff}
 .card{background:white;border:0.5px solid #E0DFDC;border-radius:12px;
-      padding:16px;margin-bottom:12px;max-width:1100px;margin-left:auto;margin-right:auto}
-.page-title{font-size:18px;font-weight:500;color:#1A1A1A;margin-bottom:4px}
-.page-sub{font-size:12px;color:#888780;margin-bottom:16px}
-.ecosystem-img{width:100%;height:auto;border-radius:8px;border:0.5px solid #E0DFDC;display:block}
-.caption{margin-top:14px;padding:12px 14px;background:#F8F8F7;border-left:2px solid #378ADD;
-         border-radius:0 6px 6px 0;font-size:12px;color:#5F5E5A;line-height:1.6}
-.caption strong{color:#1A1A1A}
+      padding:16px;margin-top:20px}
+.explain-title{font-size:15px;font-weight:600;color:#1A1A1A;margin-bottom:10px}
+.explain p{font-size:12.5px;color:#3C3C3C;line-height:1.7;margin-bottom:12px}
+.explain strong{color:#1A1A1A}
+.sources{font-size:10.5px;color:#888780;line-height:1.6;margin-top:4px}
+.sources a{color:#378ADD}
 .footer{font-size:12px;color:#8A9AB8;text-align:center;margin-top:16px;
         padding:20px 16px;border-top:1px solid rgba(255,255,255,0.06);
         background:#080812;border-radius:8px;line-height:2.0}
@@ -59,12 +65,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 </div>
 
 <div class="body">
-  <div class="card">
-    <div class="page-title">Data Center Ecosystem</div>
-    <div class="page-sub">Stakeholders, relationships, and value flows — educational reference for business context.</div>
+  <div class="page-title">Data Center Ecosystem</div>
+  <div class="page-sub">Stakeholders, relationships, and value flows — educational reference for business context.</div>
+
+  <a href="assets/ecosystem.webp" target="_blank" rel="noopener">
     <img src="assets/ecosystem.webp" alt="Diagram of the data center ecosystem centered on the Data Center Operator, showing its relationships with: Public Sector/Municipality (zoning, permits), Energy &amp; Power Generation, Grid &amp; Transmission (TSO), Construction &amp; Real Estate, District Heating/Energy Recovery, Cooling &amp; HVAC Suppliers, Backup Power &amp; Fuel, Equipment &amp; Technology Suppliers (compute, networking, storage, cooling, power equipment), Capital &amp; Finance (infrastructure funds, REITs, lenders), Network &amp; Connectivity, Storage Providers, Hyperscaler/Cloud customers, and Enterprise &amp; End Users. Colored arrows indicate five relationship types: energy/heat, goods/services, contracts/agreements, data flows, and capital/financing, with a legend and cross-cutting factors (regulation, incentives, water/environment, talent, cybersecurity, supply chain) shown at the bottom." class="ecosystem-img">
-    <div class="caption">
-      <strong>Illustrative overview — static reference content, not live data.</strong> Interactive elements shown in the image (the "Selected stakeholder" panel, "View details" and other buttons) are part of the illustration only and are not functional on this page. This is an interim version; a future interactive build will replace it.
+  </a>
+  <div class="img-hint">Click to open full size</div>
+
+  <div class="caption">
+    <strong>Illustrative overview — static reference content, not live data.</strong> Interactive elements shown in the image (the "Selected stakeholder" panel, "View details" and other buttons) are part of the illustration only and are not functional on this page. This is an interim version; a future interactive build will replace it.
+  </div>
+
+  <div class="card">
+    <div class="explain-title">How a data center actually works, in business terms</div>
+    <div class="explain">
+      <p>A data center is rarely operated by one company. The site itself might be run by a <strong>colocation provider</strong> (renting space, power, and cooling to many customers), a <strong>hyperscaler operating its own facility</strong> (companies like Microsoft, Google, and Amazon building and running data centers to power their cloud platforms, which serve external customers — hyperscalers also often lease capacity from colocation providers rather than building everywhere themselves), or a <strong>third-party operator</strong> managing a facility on behalf of an owner. The diagram's central "Data Center Operator" box can be any of these, depending on the site.</p>
+
+      <p><strong>Power</strong> comes from the grid. In Finland, the national high-voltage transmission grid is operated by the transmission system operator (TSO), Fingrid; regional and local distribution runs through separate distribution system operators (DSOs), such as Caruna. A large data center may connect directly to either, depending on its size and location. Large operators also often sign long-term <strong>power purchase agreements (PPAs)</strong> with renewable energy producers — these typically fix the price for an agreed volume of electricity from a specific project, often paired with guarantees of origin, while the physical power itself still flows through the shared grid rather than a direct wire; some PPAs are purely financial contracts with no physical delivery at all.</p>
+
+      <p><strong>Capacity is sold in different shapes</strong> depending on the customer. Colocation itself comes in two common forms: <strong>retail colocation</strong>, where a tenant rents racks or a cage inside a shared hall, and <strong>wholesale colocation</strong>, where a tenant leases an entire dedicated hall or building, typically on a long-term contract. A <strong>powered shell</strong> deal is narrower still — the landlord provides the building and the power connection, and the tenant fits out its own cooling and electrical infrastructure inside. Cloud capacity is sold differently again: hyperscalers sell compute, storage, and networking as an ongoing service, not as physical space.</p>
+
+      <p><strong>Waste heat</strong> from a data center's cooling systems can be sold into a district heating network instead of being released into the air. A concrete, currently unfolding example: Fortum's heat pump plants at Kolabacken (Kirkkonummi) and Hepokorpi (Espoo) started operating in spring 2026, today producing district heat from ambient air and electric boilers. Actual waste-heat recovery from Microsoft's nearby data centers begins step by step from 2027, following Microsoft's own construction and commissioning schedule. Once fully implemented, the project is expected to supply around 40% of the roughly 2 TWh yearly district heat demand of about 250,000 users across Espoo, Kauniainen, and Kirkkonummi. Fortum names Microsoft, the cities of Espoo and Kirkkonummi, distribution operator Caruna, and transmission operator Fingrid as partners — a concrete illustration of how many of the diagram's stakeholder types (operator, DSO, TSO, municipality) show up in a single real project.</p>
+
+      <p><strong>Financing</strong> for data center construction and operation typically comes from a mix of <strong>infrastructure funds</strong> (specialist investors who fund and often co-own large facilities), <strong>REITs</strong> — real estate investment trusts that own data center buildings and lease them out for rental income, and <strong>lenders</strong> providing project financing secured against the facility and its contracts.</p>
+
+      <div class="sources">
+        Sources: Fortum, <a href="https://www.fortum.com/en/media/2026/05/fortum-has-started-heat-production-two-large-data-centre-sites-finland" target="_blank" rel="noopener">"Fortum has started heat production at two large data centre sites in Finland"</a> (May 2026, primary); Microsoft, <a href="https://news.microsoft.com/europe/2022/03/17/microsoft-announces-intent-to-build-a-new-datacenter-region-in-finland-accelerating-sustainable-digital-transformation-and-enabling-large-scale-carbon-free-district-heating/" target="_blank" rel="noopener">"Microsoft announces intent to build a new datacenter region in Finland..."</a> (2022, background).
+      </div>
     </div>
   </div>
 </div>
