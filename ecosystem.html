@@ -27,6 +27,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       min-height:100vh;max-width:1600px;margin-left:auto;margin-right:auto}
 .page-title{font-size:18px;font-weight:500;color:#fff;margin-bottom:4px}
 .page-sub{font-size:12px;color:#8A9AB8;margin-bottom:16px}
+.static-badge{display:inline-block;font-size:10px;font-weight:600;color:#0A0818;
+              background:#85B7EB;padding:3px 10px;border-radius:10px;letter-spacing:.03em;margin-bottom:14px}
+
+/* ── Interactive map card ── */
+.map-card{background:#101C32;border:1px solid rgba(175,169,236,0.2);border-radius:12px;
+          padding:16px;margin-bottom:16px}
+.map-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.map-title{font-size:14px;font-weight:600;color:#fff}
+.legend{display:flex;gap:6px;flex-wrap:wrap}
+.legend-chip{font-size:10.5px;font-weight:500;padding:4px 10px;border-radius:12px;cursor:pointer;
+            border:1px solid transparent;color:#fff;transition:opacity .15s,border-color .15s;
+            display:inline-flex;align-items:center;gap:5px}
+.legend-chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.legend-chip[aria-pressed="false"]{opacity:0.35}
+.legend-chip:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
+.map-layout{display:flex;gap:14px;flex-wrap:wrap}
+.map-wrap{flex:1;min-width:320px;background:#0A0F1E;border-radius:8px;padding:6px}
+#map-svg{width:100%;height:auto;display:block}
+.node-box{cursor:pointer}
+.node-box:focus-visible{outline:none}
+.node-box rect{transition:opacity .2s}
+.edge-line{transition:opacity .2s}
+.edge-line:focus-visible{outline:none}
+.side-panel{width:280px;flex-shrink:0;background:#0A0F1E;border-radius:8px;padding:14px;
+           font-size:12px;color:#C8D4E8;line-height:1.6}
+.side-panel-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:8px}
+.side-panel-empty{color:#6A7A9A;font-style:italic}
+.side-rel{margin-top:8px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:11px}
+.side-rel-flow{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:8px;color:#0A0818;margin-bottom:3px}
+.map-tooltip{position:fixed;display:none;background:#1A1A1A;color:#F8F8F7;font-size:11px;
+            padding:8px 10px;border-radius:6px;max-width:240px;line-height:1.5;z-index:200;
+            pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+
+/* ── Walkthrough ── */
+.walkthrough{margin-top:14px;padding:12px 14px;background:rgba(175,169,236,0.08);
+            border-radius:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.wt-btn{font-size:11px;font-weight:600;color:#fff;background:#3C3489;border:none;
+       padding:6px 12px;border-radius:6px;cursor:pointer}
+.wt-btn:disabled{opacity:0.3;cursor:default}
+.wt-btn:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
+.wt-text{flex:1;min-width:200px}
+.wt-title{font-size:12px;font-weight:600;color:#fff}
+.wt-desc{font-size:11.5px;color:#C8D4E8;margin-top:2px;line-height:1.5}
+
+/* ── Case card ── */
+.case-card{margin-top:14px;padding:14px;background:linear-gradient(135deg,#1A1830,#0F1A2E);
+          border:1px solid rgba(175,169,236,0.3);border-radius:8px}
+.case-title{font-size:12.5px;font-weight:600;color:#fff;margin-bottom:6px}
+.case-body{font-size:11.5px;color:#C8D4E8;line-height:1.6;margin-bottom:8px}
+.case-sources{font-size:10px;color:#6A7A9A;line-height:1.5;margin-bottom:10px}
+.case-sources a{color:#85B7EB}
+
+/* ── Mobile accordion (map replacement below 768px) ── */
+.mobile-list{display:none}
+.mobile-item{border:0.5px solid rgba(175,169,236,0.25);border-radius:8px;margin-bottom:6px;overflow:hidden}
+.mobile-item summary{padding:10px 12px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;list-style:none}
+.mobile-item summary::-webkit-details-marker{display:none}
+.mobile-item[open] summary{background:rgba(175,169,236,0.1)}
+.mobile-item-body{padding:0 12px 12px;font-size:11.5px;color:#C8D4E8;line-height:1.6}
+
+/* ── Explanation card (unchanged from Phase A) ── */
 .ecosystem-img{width:100%;max-width:1536px;height:auto;margin-left:auto;margin-right:auto;
                border-radius:8px;border:0.5px solid rgba(175,169,236,0.25);display:block}
 .img-hint{text-align:center;font-size:11px;color:#8A9AB8;margin-top:6px}
@@ -40,12 +101,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .explain strong{color:#1A1A1A}
 .sources{font-size:10.5px;color:#888780;line-height:1.6;margin-top:4px}
 .sources a{color:#378ADD}
+
+/* ── Poster section ── */
+.poster-section{margin-top:20px}
+.poster-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px;text-align:center}
+.poster-sub{font-size:11.5px;color:#8A9AB8;margin-bottom:12px;text-align:center}
+.poster-limits{max-width:760px;margin:14px auto 0;padding:12px 14px;background:rgba(239,159,39,0.08);
+              border-left:2px solid #EF9F27;border-radius:0 6px 6px 0;font-size:11.5px;color:#C8D4E8;line-height:1.6}
+.poster-limits strong{color:#fff}
+
 .footer{font-size:12px;color:#8A9AB8;text-align:center;margin-top:16px;
         padding:20px 16px;border-top:1px solid rgba(255,255,255,0.06);
         background:#080812;border-radius:8px;line-height:2.0}
 @media(max-width:768px){
   .hero{padding:14px 12px 16px}
   .card{padding:10px 8px;border-radius:8px}
+  .map-wrap{display:none}
+  .side-panel{display:none}
+  .mobile-list{display:block}
 }
 </style>
 </head>
@@ -68,16 +141,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="body">
   <div class="page-title">Data Center Ecosystem</div>
   <div class="page-sub">Stakeholders, relationships, and value flows — educational reference for business context.</div>
+  <div class="static-badge">Static reference &middot; not live data</div>
 
-  <a href="assets/ecosystem-v2.webp" target="_blank" rel="noopener">
-    <img src="assets/ecosystem-v2.webp" alt="Diagram of the data center ecosystem centered on the Data Center Operator, showing its relationships with: Public Sector/Municipality (zoning, permits), Energy &amp; Power Generation, Grid &amp; Transmission (TSO), Construction &amp; Real Estate, District Heating/Energy Recovery, Cooling &amp; HVAC Suppliers, Backup Power &amp; Fuel, Equipment &amp; Technology Suppliers (compute, networking, storage, cooling, power equipment), Capital &amp; Finance (infrastructure funds, REITs, lenders), Network &amp; Connectivity, Storage Providers, Hyperscaler/Cloud customers, and Enterprise &amp; End Users. Colored arrows indicate five relationship types: energy/heat, goods/services, contracts/agreements, data flows, and capital/financing, with a legend and cross-cutting factors (regulation, incentives, water/environment, talent, cybersecurity, supply chain) shown at the bottom." class="ecosystem-img">
-  </a>
-  <div class="img-hint">Click to open full size</div>
+  <!-- ── Interactive map ── -->
+  <div class="map-card">
+    <div class="map-toolbar">
+      <div class="map-title">Explore the ecosystem</div>
+      <div class="legend" id="legend" role="group" aria-label="Filter by relationship type"></div>
+    </div>
 
-  <div class="caption">
-    <strong>Illustrative overview — static reference content, not live data.</strong> Interactive elements shown in the image (the "Selected stakeholder" panel, "View details" and other buttons) are part of the illustration only and are not functional on this page. This is an interim version; a future interactive build will replace it.
+    <div class="map-layout">
+      <div class="map-wrap">
+        <svg id="map-svg" viewBox="0 0 1000 700" role="img" aria-label="Interactive diagram of data center ecosystem stakeholders and relationships"></svg>
+      </div>
+      <div class="side-panel" id="side-panel" role="region" aria-live="polite" aria-label="Selected stakeholder details">
+        <div class="side-panel-empty">Click a stakeholder, or use the legend to filter by relationship type.</div>
+      </div>
+    </div>
+
+    <!-- Mobile fallback: accordion list instead of the SVG diagram -->
+    <div class="mobile-list" id="mobile-list"></div>
+
+    <div class="walkthrough">
+      <button class="wt-btn" id="wt-prev" aria-label="Previous step">&larr; Prev</button>
+      <div class="wt-text">
+        <div class="wt-title" id="wt-title">Follow the life of a data center</div>
+        <div class="wt-desc" id="wt-desc">Use Next to walk through land &amp; permits, financing, construction, grid connection, equipment, customers, and waste heat.</div>
+      </div>
+      <button class="wt-btn" id="wt-next">Next &rarr;</button>
+    </div>
+
+    <div class="case-card">
+      <div class="case-title" id="case-title"></div>
+      <div class="case-body" id="case-body"></div>
+      <div class="case-sources" id="case-sources"></div>
+      <button class="wt-btn" id="case-show">Show on map</button>
+    </div>
   </div>
 
+  <div id="map-tooltip" class="map-tooltip"></div>
+
+  <!-- ── Explanation text (unchanged, already approved) ── -->
   <div class="card">
     <div class="explain-title">How a data center actually works, in business terms</div>
     <div class="explain">
@@ -96,12 +200,302 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       </div>
     </div>
   </div>
+
+  <!-- ── Poster section ── -->
+  <div class="poster-section">
+    <div class="poster-title">Overview poster</div>
+    <div class="poster-sub">An illustrative poster version of this map, suitable for slides and printing.</div>
+
+    <a href="assets/ecosystem-v2.webp" target="_blank" rel="noopener">
+      <img src="assets/ecosystem-v2.webp" alt="Illustrative poster of the data center ecosystem centered on the Data Center Operator, showing stakeholder boxes and colored relationship arrows across energy, goods/services, contracts, data, and capital/financing flows, with a legend and cross-cutting factors shown at the bottom. Treat the interactive map above as authoritative where this poster differs from it." class="ecosystem-img">
+    </a>
+    <div class="img-hint">Click to open / download full size</div>
+
+    <div class="poster-limits">
+      <strong>Known limitations of this poster</strong> (the interactive map above is authoritative where they differ): two of its relationship arrows use colors that don't match its own legend (waste heat, and backup power &amp; fuel); three suppliers (cooling, storage, backup power) are listed both as their own boxes and inside "Equipment &amp; Technology Suppliers"; and the "Selected stakeholder" panel shown in the image is part of the illustration only, not a real interactive element.
+    </div>
+  </div>
 </div>
 
 <div class="footer">
   <div><strong>RayDar Data Center</strong></div>
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
 </div>
+
+<script src="ecosystem-data.v1.js"></script>
+<script>
+(function() {
+  const svg = document.getElementById("map-svg");
+  const NS = "http://www.w3.org/2000/svg";
+  const byId = {};
+  STAKEHOLDERS.forEach(s => byId[s.id] = s);
+
+  let selectedStakeholder = null;
+  let highlightSet = null;
+  let activeFlowTypes = new Set(Object.keys(FLOW_TYPES));
+
+  // ── SVG defs: one arrowhead marker per flow type ──
+  const defs = document.createElementNS(NS, "defs");
+  Object.entries(FLOW_TYPES).forEach(([key, ft]) => {
+    const marker = document.createElementNS(NS, "marker");
+    marker.setAttribute("id", "arrow-" + key);
+    marker.setAttribute("viewBox", "0 0 10 10");
+    marker.setAttribute("refX", "9");
+    marker.setAttribute("refY", "5");
+    marker.setAttribute("markerWidth", "7");
+    marker.setAttribute("markerHeight", "7");
+    marker.setAttribute("orient", "auto-start-reverse");
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", "M0,0 L10,5 L0,10 Z");
+    path.setAttribute("fill", ft.color);
+    marker.appendChild(path);
+    defs.appendChild(marker);
+  });
+  svg.appendChild(defs);
+
+  function wrapLines(text, maxChars) {
+    const words = text.split(" ");
+    const lines = [];
+    let cur = "";
+    words.forEach(w => {
+      if ((cur + " " + w).trim().length > maxChars && cur) {
+        lines.push(cur.trim());
+        cur = w;
+      } else {
+        cur = (cur + " " + w).trim();
+      }
+    });
+    if (cur) lines.push(cur);
+    return lines.slice(0, 3);
+  }
+
+  // ── Edges (drawn first, under nodes) ──
+  RELATIONSHIPS.forEach((rel, i) => {
+    const a = byId[rel.from], b = byId[rel.to];
+    const line = document.createElementNS(NS, "line");
+    line.setAttribute("id", "edge-" + i);
+    line.setAttribute("class", "edge-line");
+    line.setAttribute("x1", a.x); line.setAttribute("y1", a.y);
+    line.setAttribute("x2", b.x); line.setAttribute("y2", b.y);
+    line.setAttribute("stroke", FLOW_TYPES[rel.type].color);
+    line.setAttribute("stroke-width", "2.5");
+    line.setAttribute("marker-end", "url(#arrow-" + rel.type + ")");
+    line.setAttribute("tabindex", "0");
+    line.setAttribute("role", "img");
+    line.setAttribute("aria-label", a.name + " to " + b.name + ": " + rel.label + ". " + rel.explanation);
+    const title = document.createElementNS(NS, "title");
+    title.textContent = rel.label + " — " + rel.explanation;
+    line.appendChild(title);
+
+    const showTip = (evt) => {
+      const tip = document.getElementById("map-tooltip");
+      tip.textContent = rel.label + " — " + rel.explanation;
+      tip.style.display = "block";
+      const x = evt.clientX !== undefined ? evt.clientX : (svg.getBoundingClientRect().left + 20);
+      const y = evt.clientY !== undefined ? evt.clientY : (svg.getBoundingClientRect().top + 20);
+      tip.style.left = Math.min(x + 12, window.innerWidth - 260) + "px";
+      tip.style.top = (y + 12) + "px";
+    };
+    const hideTip = () => { document.getElementById("map-tooltip").style.display = "none"; };
+    line.addEventListener("mouseenter", showTip);
+    line.addEventListener("mousemove", showTip);
+    line.addEventListener("mouseleave", hideTip);
+    line.addEventListener("focus", showTip);
+    line.addEventListener("blur", hideTip);
+
+    svg.appendChild(line);
+  });
+
+  // ── Nodes ──
+  STAKEHOLDERS.forEach(s => {
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("id", "node-" + s.id);
+    g.setAttribute("class", "node-box");
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("role", "button");
+    g.setAttribute("aria-label", s.name + ": " + s.description);
+
+    const w = 160, h = 54;
+    const rect = document.createElementNS(NS, "rect");
+    rect.setAttribute("x", s.x - w/2); rect.setAttribute("y", s.y - h/2);
+    rect.setAttribute("width", w); rect.setAttribute("height", h);
+    rect.setAttribute("rx", 8);
+    rect.setAttribute("fill", s.id === "operator" ? "#3C3489" : "#1A2540");
+    rect.setAttribute("stroke", "rgba(175,169,236,0.5)");
+    rect.setAttribute("stroke-width", "1");
+    g.appendChild(rect);
+
+    const lines = wrapLines(s.name, 20);
+    const text = document.createElementNS(NS, "text");
+    text.setAttribute("x", s.x);
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("fill", "#fff");
+    text.setAttribute("font-size", "11");
+    text.setAttribute("font-weight", "600");
+    const startY = s.y - ((lines.length - 1) * 7);
+    lines.forEach((line, li) => {
+      const tspan = document.createElementNS(NS, "tspan");
+      tspan.setAttribute("x", s.x);
+      tspan.setAttribute("y", startY + li * 14);
+      tspan.textContent = line;
+      text.appendChild(tspan);
+    });
+    g.appendChild(text);
+
+    const select = () => {
+      if (selectedStakeholder === s.id) {
+        selectedStakeholder = null;
+      } else {
+        selectedStakeholder = s.id;
+        highlightSet = null;
+      }
+      render();
+      updateSidePanel();
+    };
+    g.addEventListener("click", select);
+    g.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(); }
+    });
+
+    svg.appendChild(g);
+  });
+
+  function edgeConnects(rel, id) { return rel.from === id || rel.to === id; }
+
+  function isEdgeHighlighted(rel) {
+    if (highlightSet) return highlightSet.has(rel.from) && highlightSet.has(rel.to);
+    if (selectedStakeholder) return edgeConnects(rel, selectedStakeholder);
+    return true;
+  }
+  function isNodeHighlighted(id) {
+    if (highlightSet) return highlightSet.has(id);
+    if (selectedStakeholder) {
+      if (id === selectedStakeholder) return true;
+      return RELATIONSHIPS.some(r => edgeConnects(r, selectedStakeholder) && (r.from === id || r.to === id));
+    }
+    return true;
+  }
+
+  function render() {
+    const anySelection = !!(highlightSet || selectedStakeholder);
+    RELATIONSHIPS.forEach((rel, i) => {
+      const el = document.getElementById("edge-" + i);
+      const typeOk = activeFlowTypes.has(rel.type);
+      const selOk = isEdgeHighlighted(rel);
+      el.style.opacity = !typeOk ? 0.06 : (anySelection && !selOk) ? 0.12 : 1;
+    });
+    STAKEHOLDERS.forEach(s => {
+      const el = document.getElementById("node-" + s.id);
+      const on = isNodeHighlighted(s.id);
+      el.style.opacity = (anySelection && !on) ? 0.3 : 1;
+    });
+  }
+
+  function updateSidePanel() {
+    const panel = document.getElementById("side-panel");
+    if (!selectedStakeholder) {
+      panel.innerHTML = '<div class="side-panel-empty">Click a stakeholder, or use the legend to filter by relationship type.</div>';
+      return;
+    }
+    const s = byId[selectedStakeholder];
+    const rels = RELATIONSHIPS.filter(r => edgeConnects(r, selectedStakeholder));
+    let html = '<div class="side-panel-title">' + s.name + '</div><div>' + s.description + '</div>';
+    rels.forEach(r => {
+      const other = byId[r.from === selectedStakeholder ? r.to : r.from];
+      const ft = FLOW_TYPES[r.type];
+      html += '<div class="side-rel"><span class="side-rel-flow" style="background:' + ft.color + '">' + ft.label + '</span><br>'
+            + '<strong>' + r.label + '</strong> — ' + other.name + '<br>' + r.explanation + '</div>';
+    });
+    panel.innerHTML = html;
+  }
+
+  // ── Legend / filter ──
+  const legend = document.getElementById("legend");
+  Object.entries(FLOW_TYPES).forEach(([key, ft]) => {
+    const btn = document.createElement("button");
+    btn.className = "legend-chip";
+    btn.type = "button";
+    btn.setAttribute("aria-pressed", "true");
+    btn.style.background = "rgba(255,255,255,0.06)";
+    btn.innerHTML = '<span class="dot" style="background:' + ft.color + '"></span>' + ft.label;
+    btn.addEventListener("click", () => {
+      const pressed = btn.getAttribute("aria-pressed") === "true";
+      if (pressed) { activeFlowTypes.delete(key); btn.setAttribute("aria-pressed", "false"); }
+      else { activeFlowTypes.add(key); btn.setAttribute("aria-pressed", "true"); }
+      render();
+    });
+    legend.appendChild(btn);
+  });
+
+  // ── Mobile accordion (same data, no SVG) ──
+  const mobileList = document.getElementById("mobile-list");
+  STAKEHOLDERS.forEach(s => {
+    const det = document.createElement("details");
+    det.className = "mobile-item";
+    const sum = document.createElement("summary");
+    sum.textContent = s.name;
+    det.appendChild(sum);
+    const body = document.createElement("div");
+    body.className = "mobile-item-body";
+    let bodyHtml = "<p>" + s.description + "</p>";
+    RELATIONSHIPS.filter(r => edgeConnects(r, s.id)).forEach(r => {
+      const other = byId[r.from === s.id ? r.to : r.from];
+      const ft = FLOW_TYPES[r.type];
+      bodyHtml += '<div class="side-rel"><span class="side-rel-flow" style="background:' + ft.color + '">' + ft.label + '</span><br>'
+                + '<strong>' + r.label + '</strong> — ' + other.name + '<br>' + r.explanation + '</div>';
+    });
+    body.innerHTML = bodyHtml;
+    det.appendChild(body);
+    mobileList.appendChild(det);
+  });
+
+  // ── Walkthrough ──
+  let wtStep = -1;
+  const wtTitle = document.getElementById("wt-title");
+  const wtDesc = document.getElementById("wt-desc");
+  const wtPrev = document.getElementById("wt-prev");
+  const wtNext = document.getElementById("wt-next");
+  function showStep(i) {
+    wtStep = i;
+    if (i < 0) {
+      wtTitle.textContent = "Follow the life of a data center";
+      wtDesc.textContent = "Use Next to walk through land & permits, financing, construction, grid connection, equipment, customers, and waste heat.";
+      highlightSet = null; selectedStakeholder = null;
+    } else {
+      const step = WALKTHROUGH_STEPS[i];
+      wtTitle.textContent = step.title;
+      wtDesc.textContent = step.description;
+      highlightSet = new Set(step.highlightIds);
+      selectedStakeholder = null;
+    }
+    wtPrev.disabled = (i <= -1);
+    wtNext.disabled = (i >= WALKTHROUGH_STEPS.length - 1);
+    wtNext.textContent = (i >= WALKTHROUGH_STEPS.length - 1) ? "Next →" : "Next →";
+    render();
+    updateSidePanel();
+  }
+  wtPrev.addEventListener("click", () => { if (wtStep > -1) showStep(wtStep - 1); });
+  wtNext.addEventListener("click", () => { if (wtStep < WALKTHROUGH_STEPS.length - 1) showStep(wtStep + 1); });
+  showStep(-1);
+
+  // ── Case card ──
+  document.getElementById("case-title").textContent = CASE_STUDY.title;
+  document.getElementById("case-body").textContent = CASE_STUDY.body;
+  document.getElementById("case-sources").innerHTML = "Sources: " + CASE_STUDY.sources.map(s =>
+    '<a href="' + s.url + '" target="_blank" rel="noopener">' + s.label + '</a>'
+  ).join(" · ");
+  document.getElementById("case-show").addEventListener("click", () => {
+    highlightSet = new Set(CASE_STUDY.highlightIds);
+    selectedStakeholder = null;
+    wtStep = -1;
+    render();
+    updateSidePanel();
+    document.getElementById("side-panel").scrollIntoView({behavior: "smooth", block: "nearest"});
+  });
+
+  render();
+})();
+</script>
 
 </body>
 </html>

@@ -62,6 +62,7 @@ jobs:
           mkdir -p _site/assets
           cp index.html _site/index.html
           cp ecosystem.html _site/ecosystem.html
+          cp ecosystem-data.v1.js _site/ecosystem-data.v1.js
           cp assets/ecosystem-v2.webp _site/assets/ecosystem-v2.webp
         # Only the generated dashboard + the hand-authored ecosystem page
         # and its image are uploaded — not the whole repo (source files,

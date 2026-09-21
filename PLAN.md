@@ -593,38 +593,53 @@ findings don't get lost, not because a fix or a direction has been agreed.
   pre-existing in the original `--news` print statements. Not fixed;
   noted here so it isn't lost before someone hits it unprepared.
 
-- **`ecosystem.html`'s static mockup image (`assets/ecosystem.webp`) —
-  interim page, Phase A improvements landed 2026-09-21, Phase B still
-  open.** This page is a deliberately temporary educational reference
-  for business stakeholders (agreed 2026-09-21), meant to be replaced by
-  an interactive build later.
+- **`ecosystem.html` — interactive map live (Phase B, 2026-09-21).** What
+  started as a static mockup image is now `ecosystem-data.v1.js` (single
+  source of truth: `STAKEHOLDERS`, `RELATIONSHIPS`, `FLOW_TYPES`,
+  `WALKTHROUGH_STEPS`, `CASE_STUDY`) driving an interactive SVG map —
+  plain HTML/CSS/SVG/vanilla JS, no graph library (fixed hand-tuned
+  layout, ~15 nodes/17 edges was judged too small to justify one).
+  Page order: interactive map (primary) → the approved plain-language
+  explanation text (unchanged) → the original mockup image, relabeled
+  "Overview poster," kept per Ray's request as a slide/print-friendly
+  reference, with a limitations note on the page itself.
 
-  **Resolved (Phase A):** the image's fake top navigation bar (RayDar
-  logo, "Back to overview," a repeated "Data Center Ecosystem" title,
-  the "Static reference" badge, and the "?" button) is cropped out of
-  `assets/ecosystem.webp` entirely — those two non-functional buttons no
-  longer sit directly below the page's own real "← Back to dashboard"
-  link. The uncropped original stays in `Output/` only, never committed.
-  Also added: click-to-enlarge (opens the full image in a new tab), a
-  plain-language explanation section with one real, sourced Finnish
-  example (Fortum/Microsoft district heating in Espoo/Kirkkonummi), and
-  a full-width entry banner replacing the old small button.
+  **All three image-era known issues are now resolved by construction,
+  not just noted:**
+  - **Supplier duplication** — resolved by giving Cooling & HVAC,
+    Storage Providers, and Backup Power & Fuel their own stakeholder
+    nodes, and trimming "Equipment & Technology Suppliers" to only what
+    has no dedicated node (compute, power/electrical equipment). Every
+    category now has exactly one home.
+  - **Arrow-color/legend mismatch** — impossible by construction: one
+    `FLOW_TYPES` object defines the 5 relationship-type colors once, and
+    the map, legend, and side panel all render from it. The two
+    previously-wrong arrows (waste heat, backup power & fuel) now carry
+    the correct type in `RELATIONSHIPS`.
+  - **"Selected stakeholder" panel** — now real. Clicking a stakeholder
+    highlights its connections and populates a live side panel from the
+    same data (also reachable via keyboard: `tabindex`, `role="button"`,
+    Enter/Space).
 
-  **Still open for Phase B (the future interactive build):**
-  - **Supplier duplication — three suppliers listed twice.** The
-    "Equipment & Technology Suppliers" box lists Cooling, Storage, and
-    Backup power as bullet items, while "Cooling & HVAC Suppliers,"
-    "Storage Providers," and "Backup Power & Fuel" also each appear as
-    their own separate stakeholder box.
-  - **Two arrow colors contradict the legend** (Ray's and Claude's visual
-    reading of the image, not independently re-derived): the
-    District Heating ↔ Data Center Operator "waste heat (heat sales)"
-    arrow is colored red, which the legend defines as "Data" — it should
-    read as "Energy/Heat" (green). The Backup Power & Fuel ↔ Data Center
-    Operator arrow is colored yellow, which the legend defines as
-    "Capital/Financing" — it should read as "Goods/Services" (blue) or
-    "Energy/Heat" (green), not a financing flow.
-  - **The "Selected stakeholder" side panel is illustration only** — it
-    shows a static "Hyperscaler / Cloud" example with a "View details →"
-    button baked into the image; neither selecting a different
-    stakeholder nor "View details" does anything on the actual page.
+  **The poster (`assets/ecosystem-v2.webp`) keeps its original three
+  issues, documented in a limitations note directly under it on the
+  page** (supplier duplication, the two arrow-color mismatches, and its
+  baked-in non-functional "Selected stakeholder" panel) — readers are
+  told explicitly to treat the interactive map above it as authoritative
+  where the two differ.
+
+  **Deliberate additions beyond the original image**, flagged in
+  `ecosystem-data.v1.js` with `added: true` on each: `dso↔operator`
+  (needed once the original single "TSO" box was split into TSO/DSO),
+  `hyperscaler→enterprise`, and three general-mechanism edges
+  (`energy_gen→tso`, `tso→dso`, `capital→construction`) — none of these
+  were literal arrows in the source mockup.
+
+  **Verified with a real headless browser (Playwright/Chromium), not
+  just static analysis** — installed and run locally, then removed
+  (not a project dependency): stakeholder click + side panel, legend
+  filter toggle, walkthrough next/prev, case-card "Show on map"
+  highlighting the intended 6 stakeholders, keyboard selection
+  (Tab+Enter), and the mobile accordion (viewport < 768px, map hidden,
+  15-item list shown, expands on click) — all passed, zero JS console
+  errors through the full interaction sequence.
