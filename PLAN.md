@@ -335,6 +335,13 @@ findings don't get lost, not because a fix or a direction has been agreed.
    cross-linking plan should formalize this same-tab/new-tab convention
    explicitly rather than leave it to be inferred from this one instance.
 
+   **Live and verified (2026-09-21).** Ray confirmed both links in a
+   browser on the deployed site: hero "← RayDar AI value chain" opens
+   in the same tab as intended, footer "Part of the RayDar family" opens
+   in a new tab as intended. The parent↔Data Center cross-link is now
+   genuinely two-way, not just built — click behavior confirmed, not
+   just markup-inspected.
+
 ## Build order
 
 1. **Data spike** (throwaway, not committed) — pull `quarterly_cashflow`
