@@ -1,4 +1,4 @@
-// ecosystem-data.v2.js — single source of truth for the interactive Data
+// ecosystem-data.v3.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -6,8 +6,9 @@
 //
 // Versioned filename: any future content edit gets a new suffix (v2, v3...)
 // rather than reusing this one, so browser/CDN caches can't silently serve
-// stale content (the same lesson as the poster image rename). v2 adds
-// posterBox/panelRegion/POSTER_GROUPS for the poster-primary redesign.
+// stale content (the same lesson as the poster image rename). v2 added
+// posterBox/panelRegion/POSTER_GROUPS. v3 adds posterAccent, GLOSSARY,
+// MONEY_WALKTHROUGH_STEPS, CONTENT_REVIEWED.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -22,6 +23,13 @@
 // estimated. The source poster has one "Grid & Transmission (TSO)" box
 // covering both transmission and distribution — dso has no posterBox of
 // its own; see POSTER_GROUPS below for how it's folded into tso's box.
+//
+// posterAccent — each stakeholder's illustrated neon border color, sampled
+// directly from the image (max-saturation pixel along the box's border),
+// not chosen by eye. Used only for the compact/full panel's accent stripe —
+// the hotspot's own selection glow stays the uniform family blue/purple
+// language, since that's a "this is selected" affordance, not a category
+// color, and conflating the two would make selection state harder to read.
 
 const FLOW_TYPES = {
   energy:   { label: "Energy / Heat",        color: "#639922" },
@@ -35,54 +43,54 @@ const FLOW_TYPES = {
 const STAKEHOLDERS = [
   { id: "operator", name: "Data Center Operator", x: 500, y: 360,
     description: "Runs the facility itself — as a colocation provider (rents space, power, and cooling to many customers), a hyperscaler operating its own site, or a third-party operator managing it on behalf of an owner.",
-    posterBox: { x: 32.8, y: 40.2, w: 20.4, h: 10.8 } },
+    posterBox: { x: 32.8, y: 40.2, w: 20.4, h: 10.8 }, posterAccent: "#02AAEA" },
 
   { id: "public_sector", name: "Public Sector / Municipality", x: 350, y: 80,
     description: "Grants zoning, land use, and permits, and coordinates infrastructure access for new data center developments.",
-    posterBox: { x: 36.5, y: 9.7, w: 17.0, h: 9.7 } },
+    posterBox: { x: 36.5, y: 9.7, w: 17.0, h: 9.7 }, posterAccent: "#44059C" },
   { id: "construction", name: "Construction & Real Estate", x: 650, y: 80,
     description: "Land and site developers, construction contractors, and permitting specialists who build the physical facility.",
-    posterBox: { x: 55.5, y: 16.5, w: 16.7, h: 7.7 } },
+    posterBox: { x: 55.5, y: 16.5, w: 16.7, h: 7.7 }, posterAccent: "#21E4FF" },
 
   { id: "energy_gen", name: "Energy & Power Generation", x: 100, y: 140,
     description: "Producers supplying the grid — renewables (wind, solar, hydro), nuclear, gas, and other sources — that a data center's power ultimately comes from.",
-    posterBox: { x: 2.1, y: 19.7, w: 16.7, h: 9.8 } },
+    posterBox: { x: 2.1, y: 19.7, w: 16.7, h: 9.8 }, posterAccent: "#008644" },
   { id: "tso", name: "Transmission (TSO)", x: 100, y: 230,
     description: "Operates the national high-voltage transmission grid and substations. In Finland: Fingrid.",
-    posterBox: { x: 19.9, y: 17.7, w: 17.9, h: 8.4 } },
+    posterBox: { x: 19.9, y: 17.7, w: 17.9, h: 8.4 }, posterAccent: "#25E5FF" },
   { id: "dso", name: "Distribution (DSO)", x: 100, y: 320,
     description: "Operates regional and local electricity distribution networks, separate from the national transmission grid — e.g. Caruna in Finland." },
     // no posterBox: the source poster has one combined "Grid & Transmission
     // (TSO)" box — see POSTER_GROUPS, which folds dso into tso's box.
   { id: "district_heating", name: "District Heating / Energy Recovery", x: 100, y: 410,
     description: "Utilities capturing a data center's waste heat and distributing it as district heating (kaukolämpö) to homes, offices, and industrial users — e.g. Fortum in Finland.",
-    posterBox: { x: 2.1, y: 33.0, w: 18.0, h: 9.7 } },
+    posterBox: { x: 2.1, y: 33.0, w: 18.0, h: 9.7 }, posterAccent: "#CA3D6A" },
   { id: "cooling", name: "Cooling & HVAC Suppliers", x: 100, y: 500,
     description: "Suppliers of chillers, cooling systems, liquid cooling, and heat rejection equipment.",
-    posterBox: { x: 2.1, y: 43.8, w: 17.4, h: 10.0 } },
+    posterBox: { x: 2.1, y: 43.8, w: 17.4, h: 10.0 }, posterAccent: "#2DCBEC" },
   { id: "backup_power", name: "Backup Power & Fuel", x: 100, y: 590,
     description: "Suppliers of generators, fuel, UPS systems, and backup power distribution.",
-    posterBox: { x: 2.1, y: 55.5, w: 17.4, h: 11.6 } },
+    posterBox: { x: 2.1, y: 55.5, w: 17.4, h: 11.6 }, posterAccent: "#D4A017" },
 
   { id: "equipment", name: "Equipment & Technology Suppliers", x: 900, y: 140,
     description: "Suppliers of compute (GPU/ASIC) hardware and power/electrical equipment for the facility.",
-    posterBox: { x: 58.4, y: 27.0, w: 18.9, h: 12.8 } },
+    posterBox: { x: 58.4, y: 27.0, w: 18.9, h: 12.8 }, posterAccent: "#22DCF8" },
   { id: "capital", name: "Capital & Finance", x: 900, y: 230,
     description: "Infrastructure funds, data center REITs, lenders, and equity partners financing construction and operation.",
-    posterBox: { x: 61.2, y: 42.2, w: 15.2, h: 9.6 } },
+    posterBox: { x: 61.2, y: 42.2, w: 15.2, h: 9.6 }, posterAccent: "#1CBAE0" },
   { id: "hyperscaler", name: "Hyperscaler / Cloud", x: 900, y: 320,
     description: "Large cloud platforms — Microsoft, Google, Amazon, and similar — buying or operating compute capacity, serving their own external customers.",
-    posterBox: { x: 61.2, y: 54.9, w: 16.1, h: 9.7 } },
+    posterBox: { x: 61.2, y: 54.9, w: 16.1, h: 9.7 }, posterAccent: "#AD2661" },
 
   { id: "network", name: "Network & Connectivity", x: 650, y: 620,
     description: "Suppliers of fiber, cabling, switches, routers, optical transport, and interconnection.",
-    posterBox: { x: 22.0, y: 65.1, w: 16.2, h: 9.8 } },
+    posterBox: { x: 22.0, y: 65.1, w: 16.2, h: 9.8 }, posterAccent: "#0679AB" },
   { id: "storage", name: "Storage Providers", x: 500, y: 650,
     description: "Suppliers of storage arrays, data protection, and backup & recovery systems.",
-    posterBox: { x: 39.9, y: 65.6, w: 16.0, h: 9.3 } },
+    posterBox: { x: 39.9, y: 65.6, w: 16.0, h: 9.3 }, posterAccent: "#099FBC" },
   { id: "enterprise", name: "Enterprise & End Users", x: 350, y: 620,
     description: "Businesses, developers, and consumers — the end users of the compute, storage, and connectivity a data center provides.",
-    posterBox: { x: 55.8, y: 64.8, w: 16.3, h: 10.1 } },
+    posterBox: { x: 55.8, y: 64.8, w: 16.3, h: 10.1 }, posterAccent: "#5C2FB0" },
 ];
 
 // Poster-only grouping: stakeholders that share one illustrated box in the
@@ -171,3 +179,41 @@ const CASE_STUDY = {
       url: "https://news.microsoft.com/europe/2022/03/17/microsoft-announces-intent-to-build-a-new-datacenter-region-in-finland-accelerating-sustainable-digital-transformation-and-enabling-large-scale-carbon-free-district-heating/" },
   ],
 };
+
+// Second guided walkthrough: who pays whom. Business relationships only,
+// deliberately no tax framing (Ray's instruction). Drafted from and
+// consistent with RELATIONSHIPS above — no new facts, just a payment-
+// direction framing of the same relationships.
+const MONEY_WALKTHROUGH_STEPS = [
+  { title: "1. Customers pay for capacity", highlightIds: ["enterprise", "hyperscaler", "operator"],
+    description: "Enterprises and hyperscalers pay data center operators for colocation space, landlords receive rent for powered shells, and enterprises pay hyperscalers for cloud services." },
+  { title: "2. Paying for the build", highlightIds: ["operator", "construction", "capital"],
+    description: "The operator or developer pays construction firms to build the facility, largely funded up front by lenders and investors." },
+  { title: "3. The operator pays its suppliers", highlightIds: ["operator", "equipment", "cooling", "network", "storage", "backup_power"],
+    description: "The operator pays equipment, cooling, network, storage and backup power suppliers for the hardware and systems that keep the facility running." },
+  { title: "4. The operator pays for energy", highlightIds: ["operator", "energy_gen", "tso", "dso"],
+    description: "The operator pays for electricity, through a supplier or the market, often combined with a long-term PPA with a producer, plus network fees to the grid operator it's connected to (usually the DSO; the TSO for large direct connections)." },
+  { title: "5. Returns to capital providers", highlightIds: ["operator", "capital"],
+    description: "Lenders receive interest and repayments, equity investors such as infrastructure funds receive returns, and where a REIT owns the building, the operator pays it rent." },
+  { title: "6. Heat flows back as revenue", highlightIds: ["operator", "district_heating"],
+    description: "Where waste heat is captured and sold into a district heating network, money flows the other way: the district heating company pays the operator for the heat." },
+];
+
+// Glossary — dotted-underlined terms in the explanation card link here.
+// Definitions kept to one line each; consistent with (not adding facts
+// beyond) the explanation card's own prose.
+const GLOSSARY = {
+  ppa: { term: "PPA", definition: "Power purchase agreement. A long-term contract to buy electricity from a specific generator, often a renewable project, typically at a fixed or pre-agreed price. The power itself usually flows through the shared grid." },
+  tso: { term: "TSO", definition: "Transmission system operator: runs the national high-voltage electricity grid. In Finland: Fingrid." },
+  dso: { term: "DSO", definition: "Distribution system operator: runs regional and local electricity networks — e.g. Caruna in Finland." },
+  powered_shell: { term: "Powered shell", definition: "A lease where the landlord provides the building and power connection, and the tenant fits out its own cooling and electrical systems." },
+  reit: { term: "REIT", definition: "Real estate investment trust: a company that owns income-producing property (like data centers) and leases it out for rental income." },
+  colocation: { term: "Colocation", definition: "Renting space, power, and cooling inside a shared data center facility, rather than building and operating your own." },
+  retail_colocation: { term: "Retail colocation", definition: "Renting racks or a cage inside a shared data center hall." },
+  wholesale_colocation: { term: "Wholesale colocation", definition: "Leasing an entire dedicated hall or building within a data center, typically on a long-term contract." },
+};
+
+// Shown on the page and used as a PLAN.md review-cadence reminder — content
+// (especially the Fortum/Microsoft case study) should be re-checked
+// periodically since real projects move; see PLAN.md.
+const CONTENT_REVIEWED = "September 2026";

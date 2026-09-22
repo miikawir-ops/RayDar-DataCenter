@@ -687,3 +687,103 @@ findings don't get lost, not because a fix or a direction has been agreed.
   panel-below as the only path, and mobile confirmed toggle/explorer/
   hotspots/cover all hidden, accordion visible immediately after the
   poster and functional on tap. Zero JS console errors throughout.
+
+- **`ecosystem.html` — bug fixes, light-card redesign, hero, and six
+  E-items (Phase D, 2026-09-22).** Data file bumped to
+  `ecosystem-data.v3.js` (content change: `posterAccent`, `GLOSSARY`,
+  `MONEY_WALKTHROUGH_STEPS`, `CONTENT_REVIEWED` added).
+
+  **Real bug found and fixed, diagnosed against the live URL before any
+  fix was proposed** (per Ray's explicit ask): clicking a poster hotspot
+  directly always worked — verified with Playwright against the actual
+  deployed page, not just localhost. The real, reproducible gap was that
+  the walkthrough and case card (`highlightSet`, not `selectedStakeholder`)
+  lit up boxes but left the panel on its generic placeholder — confirmed
+  live via a scripted "click Next" that produced correct glow with zero
+  panel explanation. Fixed by giving the panel a third state: a
+  "Currently highlighted" summary when `highlightSet` is active with no
+  specific selection, in addition to the selected-stakeholder and empty
+  states. This also explains Ray's "dimmed by default" report — a
+  walkthrough step left mid-way (not literally the default -1 state) was
+  correctly dimmed but visually unexplained.
+
+  **Selected-state dim opacity** lowered `rgba(8,8,20,0.55)` →
+  `rgba(8,8,20,0.32)`; default (no selection) state confirmed at zero
+  dimming both before and after (mask `display:none`), so what read as
+  "dimmed by default" live was the bug above, not the base state.
+
+  **Panel redesign**: the covered illustration region (formerly a static
+  dark cover) is now a real light card (`#compact-card`) — white
+  background, dark text, 5px top accent stripe in the clicked
+  stakeholder's own `posterAccent` color (sampled directly from the
+  poster image's neon border per stakeholder, same measure-don't-guess
+  approach as `posterBox`), relationship chips with flow-type dots (a
+  thin `rgba(0,0,0,.18)` outline keeps pale dots visible on the light
+  background), default state shows a small cursor icon + "Click any box
+  to explore," and a single 90ms opacity fade on content swap (no
+  continuous animation, per spec A5). Verified legible at both 1850px
+  (~313px wide) and 1280px (~248px wide) via screenshot — narrower than
+  what killed the original overlay-panel attempt, because this content
+  is deliberately compact (name + one-line description + chip labels,
+  no full explanation paragraphs) rather than the full detail text.
+  "More details ↓" scrolls to the full panel, which gets the same
+  light-card/accent-stripe treatment and sits below the walkthrough —
+  both panels now read as one system, per Ray's instruction. Muted text
+  on the light cards was contrast-checked (not just eyeballed): default
+  empty-state gray landed on `#5F5E58` (~6.5:1 on white) and the "More
+  details" link on `#2563EB` (~5.2:1) specifically because the more
+  obvious choices (`#6B7280`, the existing `#378ADD` link blue) computed
+  under or barely at the 4.5:1 AA floor for normal-size text.
+
+  **Layout**: hero → toggle → poster (with compact card) → walkthrough →
+  full detail panel → case card → explanation text → footer, via a flex
+  `.stack` with `order` values so mobile can reorder to poster →
+  accordion → walkthrough → (panel hidden) → case card without
+  duplicating markup. Explorer tab hides the shared full-detail panel
+  (it already has its own inline side-panel) — a design call Ray
+  confirmed rather than an assumption.
+
+  **Combined hero**: single hero (family gradient + laser, unchanged
+  shape) replacing the old two-block header. New "ECOSYSTEM MAP" badge
+  and a teal accent (`#2DD4BF`) on the badge, laser highlight, and
+  tagline gradient only — confirmed scope, not extended elsewhere on the
+  page, so the established parent-matched glow language on buttons/
+  hotspots stays consistent with the rest of the family.
+
+  **E-items, all six built**: deep links (`#stakeholder-id`, updates via
+  `history.replaceState` on selection — found and fixed a real bug here
+  too: the initial hash must be captured *before* `showStep(-1)`'s
+  internal `updateHash()` call overwrites it, or the deep link silently
+  no-ops); glossary tooltips (dotted-underline spans in the explanation
+  card, content pulled from `GLOSSARY` at render time so definitions
+  can't drift from a second copy); a second "Follow the money" walkthrough
+  (mode toggle inside the walkthrough bar, business-relationship framing
+  only, no tax framing per instruction, drafted from and cross-checked
+  against existing `RELATIONSHIPS` — no new facts introduced); a
+  "Download poster" button (plain `download` attribute on the existing
+  full-res image, no new asset); a "Content reviewed: September 2026"
+  note driven by `CONTENT_REVIEWED` (see reminder below); Left/Right
+  arrow keys step the active walkthrough, with the existing 90ms fade
+  applied to the walkthrough text too.
+
+  **Content-review reminder**: the Fortum/Microsoft case study describes
+  a project whose waste-heat recovery phases in from 2027 — re-check
+  `CASE_STUDY` and the explanation card's waste-heat paragraph against
+  Fortum's public reporting periodically (at least whenever
+  `CONTENT_REVIEWED` is bumped), since "today" language in that text
+  will go stale as the project progresses.
+
+  **Verified with a real headless browser (Playwright/Chromium)** at
+  1850px/1280px/375px: before/after screenshots against the live
+  pre-Phase-D page (confirms the panel-ghosting fix and lighter chrome
+  side by side — the poster's own night-photo mood is unchanged, that's
+  the source image, not a bug); light-card screenshots for the default,
+  single-selected, and combined TSO/DSO states at both desktop widths;
+  a walkthrough step and the case-card highlight both showing the fixed
+  "Currently highlighted" panel state; the money-walkthrough toggle and
+  its own highlight set; keyboard Left/Right stepping; glossary tooltip
+  content sourced correctly from `GLOSSARY`; the download button's
+  `download` attribute; deep-link preselection (caught and fixed the
+  hash-ordering bug above during this pass); and mobile's toggle/
+  compact-card hidden, accordion visible. Zero JS console errors across
+  every viewport and interaction tested.

@@ -8,31 +8,37 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
      background:#0E1628;color:#1A1A1A;min-height:100vh;padding:0 0 32px}
+
+/* ── Hero (combined, C6): family gradient + laser, teal accent here only ── */
 .hero{background:linear-gradient(135deg,#08081A 0%,#0C1A3A 30%,#1A0830 60%,#0A0818 100%);
-      padding:22px 24px 20px;position:relative;overflow:hidden}
+      padding:20px 24px 24px;position:relative;overflow:hidden}
 .hero-laser{position:absolute;top:0;left:0;right:0;height:3px;
-            background:linear-gradient(90deg,transparent 0%,transparent 10%,#534AB7 28%,#85B7EB 45%,#ffffff 50%,#85B7EB 55%,#534AB7 72%,transparent 90%,transparent 100%);
+            background:linear-gradient(90deg,transparent 0%,transparent 10%,#534AB7 28%,#2DD4BF 45%,#ffffff 50%,#2DD4BF 55%,#534AB7 72%,transparent 90%,transparent 100%);
             opacity:0.9}
-.hero-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-.hero-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.hero-sub{font-size:11px;color:#8A9AB8;margin-top:3px}
+.hero-top{display:flex;justify-content:flex-end;margin-bottom:16px}
 .back-link{font-size:12px;font-weight:500;color:#fff;text-decoration:none;
            border:1px solid rgba(175,169,236,0.7);padding:4px 10px;border-radius:10px;
            background:#3C3489;box-shadow:0 0 8px rgba(133,183,235,0.35);
            display:inline-flex;align-items:center;gap:4px;
            transition:background .15s,box-shadow .15s}
 .back-link:hover{background:#4a3fb0;box-shadow:0 0 14px rgba(133,183,235,0.6)}
-.body{padding:16px 16px 0;position:relative;
-      background:linear-gradient(180deg,#0E1628 0%,#101C32 40%,#13182A 75%,#0F1420 100%);
-      min-height:100vh;max-width:1600px;margin-left:auto;margin-right:auto}
-.page-title{font-size:18px;font-weight:500;color:#fff;margin-bottom:4px}
-.page-sub{font-size:12px;color:#8A9AB8;margin-bottom:16px}
+.hero-badge{display:inline-block;font-size:10px;font-weight:700;color:#062A28;
+            background:#2DD4BF;padding:3px 10px;border-radius:10px;letter-spacing:.06em;margin-bottom:10px}
+.hero-title-lg{font-size:30px;font-weight:600;color:#fff;letter-spacing:-0.5px;line-height:1.15}
+.hero-tagline{font-size:14px;font-weight:600;margin-top:4px;margin-bottom:12px;
+              background:linear-gradient(90deg,#2DD4BF,#85B7EB);-webkit-background-clip:text;background-clip:text;color:transparent}
 .static-badge{display:inline-block;font-size:10px;font-weight:600;color:#0A0818;
-              background:#85B7EB;padding:3px 10px;border-radius:10px;letter-spacing:.03em;margin-bottom:14px}
+              background:#85B7EB;padding:3px 10px;border-radius:10px;letter-spacing:.03em;margin-right:8px}
+.reviewed-note{display:inline-block;font-size:10.5px;color:#9FB0CC}
+
+/* ── D: lighter body, lighter card surfaces ── */
+.body{padding:16px 16px 0;position:relative;
+      background:linear-gradient(180deg,#141F38 0%,#17233F 40%,#1A2035 75%,#161C2E 100%);
+      min-height:100vh;max-width:1600px;margin-left:auto;margin-right:auto}
 
 /* ── View toggle ── */
-.view-toggle{display:flex;gap:8px;margin-bottom:14px}
-.view-toggle-btn{font-size:12px;font-weight:600;color:#C8D4E8;background:#101C32;
+.view-toggle{display:flex;gap:8px;margin:16px 0 14px}
+.view-toggle-btn{font-size:12px;font-weight:600;color:#C8D4E8;background:#16223D;
                  border:1px solid rgba(175,169,236,0.25);padding:7px 16px;border-radius:8px;
                  cursor:pointer;transition:background .15s,box-shadow .15s,color .15s}
 .view-toggle-btn:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
@@ -40,9 +46,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
                  box-shadow:0 0 0 1px rgba(133,183,235,0.35),0 0 10px rgba(83,74,183,0.4)}
 .view-section.hidden{display:none}
 
+.stack{display:flex;flex-direction:column}
+#view-poster,#view-explorer{order:1}
+.walkthrough{order:2}
+#panel-below{order:3}
+.case-card{order:4}
+.mobile-list{order:5}
+
 /* ── Poster view (primary) ── */
-.poster-card{background:#101C32;border:1px solid rgba(175,169,236,0.2);border-radius:12px;
-            padding:16px;margin-bottom:16px}
+.poster-card{background:#16223D;border:1px solid rgba(175,169,236,0.2);border-radius:12px;
+            padding:16px}
 .poster-frame{position:relative;max-width:1536px;margin:0 auto}
 .ecosystem-img{width:100%;height:auto;border-radius:8px;border:0.5px solid rgba(175,169,236,0.25);display:block}
 .poster-mask-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none}
@@ -52,25 +65,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .hotspot.glow{box-shadow:0 0 0 2px rgba(133,183,235,0.6),0 0 14px 2px rgba(83,74,183,0.55)}
 .hotspot.glow:hover,.hotspot.glow:focus-visible{box-shadow:0 0 0 2px rgba(133,183,235,0.9),0 0 22px 4px rgba(83,74,183,0.9)}
 .hotspot:focus-visible{outline:none}
-.panel-cover{position:absolute;background:rgba(10,15,25,0.92);border:1px solid rgba(175,169,236,0.3);
-             border-radius:8px;padding:14px;font-size:11.5px;color:#8A9AB8;line-height:1.6;
-             display:flex;align-items:center;justify-content:center;text-align:center}
-.panel-below{margin-top:14px;background:#0A0F1E;border-radius:8px;padding:14px;
-            font-size:12px;color:#C8D4E8;line-height:1.6}
-.side-panel-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:8px}
-.side-panel-empty{color:#6A7A9A;font-style:italic}
-.side-rel{margin-top:8px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:11px}
-.side-rel-flow{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:8px;color:#0A0818;margin-bottom:3px}
-.panel-sub{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)}
-.panel-sub:first-of-type{margin-top:8px;padding-top:0;border-top:none}
-.panel-sub-title{font-size:12px;font-weight:600;color:#fff;margin-bottom:4px}
+.img-hint{text-align:center;font-size:11px;color:#9FB0CC;margin-top:6px}
+.img-hint a{color:#85B7EB}
+.download-btn{font-size:11px;font-weight:600;color:#fff;background:#3C3489;border:none;
+              padding:4px 10px;border-radius:6px;cursor:pointer;text-decoration:none;
+              display:inline-flex;align-items:center;margin-left:8px}
 .poster-note{max-width:760px;margin:14px auto 0;padding:12px 14px;background:rgba(255,255,255,0.05);
-             border-left:2px solid #6A7A9A;border-radius:0 6px 6px 0;font-size:11px;color:#8A9AB8;line-height:1.6}
-.img-hint{text-align:center;font-size:11px;color:#8A9AB8;margin-top:6px}
+             border-left:2px solid #7E90B4;border-radius:0 6px 6px 0;font-size:11px;color:#9FB0CC;line-height:1.6}
+
+/* ── B: light cards (compact card over poster, full panel below walkthrough) ── */
+.light-card{position:absolute;background:#FFFFFF;border-radius:10px;
+            border-top:5px solid #85B7EB;padding:14px;color:#1A1A1A;
+            box-shadow:0 3px 16px rgba(0,0,0,0.35);overflow-y:auto}
+.light-card-content{transition:opacity .15s ease}
+.light-card-title{font-size:13px;font-weight:700;color:#1A1A1A;margin-bottom:6px}
+.light-card-desc{font-size:11.5px;color:#3C3C3C;line-height:1.6;margin-bottom:8px}
+.light-card-empty{color:#5F5E58;font-size:12px;display:flex;align-items:center;gap:8px}
+.chip-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:500;
+      color:#1A1A1A;background:#F1F2F6;border-radius:10px;padding:3px 9px 3px 6px}
+.chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,0.18)}
+.chip-plain{display:inline-block;font-size:10.5px;font-weight:600;color:#1A1A1A;
+           background:#F1F2F6;border-radius:10px;padding:3px 9px}
+.more-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;
+           color:#2563EB;text-decoration:none;margin-top:10px}
+.more-link:hover{text-decoration:underline}
+.compact-sub{margin-top:10px;padding-top:10px;border-top:1px solid #E5E7EB}
+.compact-sub:first-of-type{margin-top:6px;padding-top:0;border-top:none}
+.compact-sub-title{font-size:11.5px;font-weight:700;color:#1A1A1A;margin-bottom:4px}
+.panel-sub{margin-top:10px;padding-top:10px;border-top:1px solid #E5E7EB}
+.panel-sub:first-of-type{margin-top:6px;padding-top:0;border-top:none}
+.panel-sub-title{font-size:12px;font-weight:700;color:#1A1A1A;margin-bottom:4px}
+
+#compact-card{font-size:11.5px}
+#panel-below{position:static;max-width:100%;margin-top:0;font-size:12px}
 
 /* ── Relationship explorer (secondary) ── */
-.map-card{background:#101C32;border:1px solid rgba(175,169,236,0.2);border-radius:12px;
-          padding:16px;margin-bottom:16px}
+.map-card{background:#16223D;border:1px solid rgba(175,169,236,0.2);border-radius:12px;
+          padding:16px}
 .map-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
 .map-title{font-size:14px;font-weight:600;color:#fff}
 .legend{display:flex;gap:6px;flex-wrap:wrap}
@@ -81,40 +113,48 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .legend-chip[aria-pressed="false"]{opacity:0.35}
 .legend-chip:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
 .map-layout{display:flex;gap:14px;flex-wrap:wrap}
-.map-wrap{flex:1;min-width:320px;background:#0A0F1E;border-radius:8px;padding:6px}
+.map-wrap{flex:1;min-width:320px;background:#0F1830;border-radius:8px;padding:6px}
 #map-svg{width:100%;height:auto;display:block}
 .node-box{cursor:pointer}
 .node-box:focus-visible{outline:none}
 .node-box rect{transition:opacity .2s}
 .edge-line{transition:opacity .2s}
 .edge-line:focus-visible{outline:none}
-.side-panel{width:280px;flex-shrink:0;background:#0A0F1E;border-radius:8px;padding:14px;
+.side-panel{width:280px;flex-shrink:0;background:#0F1830;border-radius:8px;padding:14px;
            font-size:12px;color:#C8D4E8;line-height:1.6;max-height:620px;overflow-y:auto}
+.side-panel-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:8px}
+.side-panel-empty{color:#7E90B4;font-style:italic}
+.side-rel{margin-top:8px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:11px}
+.side-rel-flow{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:8px;color:#0A0818;margin-bottom:3px}
 .map-tooltip{position:fixed;display:none;background:#1A1A1A;color:#F8F8F7;font-size:11px;
             padding:8px 10px;border-radius:6px;max-width:240px;line-height:1.5;z-index:200;
             pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 
 /* ── Walkthrough / case card (shared, drive whichever view is active) ── */
-.walkthrough{margin-top:0;padding:12px 14px;background:rgba(175,169,236,0.08);
-            border-radius:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.wt-btn{font-size:11px;font-weight:600;color:#fff;background:#3C3489;border:none;
+.walkthrough{margin-top:14px;padding:12px 14px;background:rgba(175,169,236,0.09);
+            border-radius:8px}
+.wt-mode-toggle{display:flex;gap:6px;margin-bottom:10px}
+.wt-mode-btn{font-size:10.5px;font-weight:600;color:#C8D4E8;background:rgba(255,255,255,0.05);
+            border:1px solid rgba(175,169,236,0.25);padding:4px 10px;border-radius:10px;cursor:pointer}
+.wt-mode-btn[aria-pressed="true"]{color:#fff;background:#3C3489;border-color:rgba(175,169,236,0.6)}
+.wt-mode-btn:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
+.wt-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.wt-btn{font-size:11px;font-weight:600;color:#fff;background:linear-gradient(135deg,#4a3fb0,#3C3489);border:none;
        padding:6px 12px;border-radius:6px;cursor:pointer}
 .wt-btn:disabled{opacity:0.3;cursor:default}
 .wt-btn:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
-.wt-text{flex:1;min-width:200px}
+.wt-text{flex:1;min-width:200px;transition:opacity .15s ease}
 .wt-title{font-size:12px;font-weight:600;color:#fff}
 .wt-desc{font-size:11.5px;color:#C8D4E8;margin-top:2px;line-height:1.5}
 
-.case-card{margin-bottom:16px;padding:14px;background:linear-gradient(135deg,#1A1830,#0F1A2E);
+.case-card{margin-top:14px;padding:14px;background:linear-gradient(135deg,#221F3D,#16243A);
           border:1px solid rgba(175,169,236,0.3);border-radius:8px}
 .case-title{font-size:12.5px;font-weight:600;color:#fff;margin-bottom:6px}
 .case-body{font-size:11.5px;color:#C8D4E8;line-height:1.6;margin-bottom:8px}
-.case-sources{font-size:10px;color:#6A7A9A;line-height:1.5;margin-bottom:10px}
+.case-sources{font-size:10px;color:#7E90B4;line-height:1.5;margin-bottom:10px}
 .case-sources a{color:#85B7EB}
 
-/* ── Mobile accordion (lives outside the tab toggle; poster + explorer both
-   reduce to the same accordion below 768px, so it's a single top-level
-   element instead of being duplicated per view) ── */
+/* ── Mobile accordion ── */
 .mobile-list{display:none}
 .mobile-item{border:0.5px solid rgba(175,169,236,0.25);border-radius:8px;margin-bottom:6px;overflow:hidden}
 .mobile-item summary{padding:10px 12px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;list-style:none}
@@ -122,10 +162,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .mobile-item[open] summary{background:rgba(175,169,236,0.1)}
 .mobile-item-body{padding:0 12px 12px;font-size:11.5px;color:#C8D4E8;line-height:1.6}
 
-/* ── Explanation card (unchanged from Phase A) ── */
-.caption{margin-top:14px;padding:12px 14px;background:rgba(255,255,255,0.06);border-left:2px solid #378ADD;
-         border-radius:0 6px 6px 0;font-size:12px;color:#C8D4E8;line-height:1.6}
-.caption strong{color:#fff}
+/* ── Explanation card + glossary ── */
 .card{background:white;border:0.5px solid #E0DFDC;border-radius:12px;
       padding:16px;margin-top:20px;max-width:760px;margin-left:auto;margin-right:auto}
 .explain-title{font-size:15px;font-weight:600;color:#1A1A1A;margin-bottom:10px}
@@ -133,21 +170,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .explain strong{color:#1A1A1A}
 .sources{font-size:10.5px;color:#888780;line-height:1.6;margin-top:4px}
 .sources a{color:#378ADD}
+.gloss{border-bottom:1px dotted #888780;cursor:help;position:relative}
+.gloss-tip{position:absolute;left:0;bottom:125%;background:#1A1A1A;color:#F8F8F7;font-size:11px;
+           padding:8px 10px;border-radius:6px;width:230px;line-height:1.5;z-index:50;
+           box-shadow:0 4px 16px rgba(0,0,0,.3);display:none;font-weight:400}
+.gloss:hover .gloss-tip,.gloss:focus .gloss-tip{display:block}
 
-.footer{font-size:12px;color:#8A9AB8;text-align:center;margin-top:16px;
+.footer{font-size:12px;color:#9FB0CC;text-align:center;margin-top:16px;
         padding:20px 16px;border-top:1px solid rgba(255,255,255,0.06);
-        background:#080812;border-radius:8px;line-height:2.0}
+        background:#0B0F1E;border-radius:8px;line-height:2.0}
 @media(max-width:768px){
   .hero{padding:14px 12px 16px}
   .card{padding:10px 8px;border-radius:8px}
   .view-toggle{display:none}
-  #view-explorer{display:none} /* toggle is gone on mobile; poster always shows, explorer's SVG/side-panel unused */
+  #view-explorer{display:none}
   .map-wrap{display:none}
   .side-panel{display:none}
   .hotspot{display:none}
-  .panel-cover{display:none}
-  .panel-below{display:none} /* redundant with the accordion below; its "click a box" prompt doesn't apply here */
-  .mobile-list{display:block}
+  #compact-card{display:none}
+  #panel-below{display:none}
+  .mobile-list{display:block;order:2}
+  .walkthrough{order:3}
+  .case-card{order:5}
 }
 </style>
 </head>
@@ -156,110 +200,115 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="hero">
   <div class="hero-laser"></div>
   <div class="hero-top">
-    <div>
-      <div class="hero-title">
-        <span style="font-size:26px;font-weight:500;letter-spacing:-1px;color:#fff">Ray<span style="color:#85B7EB;font-weight:300">Dar</span></span>
-        <span style="font-size:11px;font-weight:600;color:#0A0818;background:#85B7EB;padding:2px 8px;border-radius:10px;letter-spacing:.04em">DATA CENTER</span>
-      </div>
-      <div class="hero-sub">Data Center Ecosystem — stakeholders and relationships</div>
-    </div>
     <a href="index.html" class="back-link">&larr; Back to dashboard</a>
   </div>
+  <div class="hero-badge">ECOSYSTEM MAP</div>
+  <h1 class="hero-title-lg">Data Center Ecosystem</h1>
+  <div class="hero-tagline">Stakeholders, relationships and value flows</div>
+  <div class="static-badge">Static reference &middot; not live data</div>
+  <span class="reviewed-note">Content reviewed: <span id="reviewed-date"></span></span>
 </div>
 
 <div class="body">
-  <div class="page-title">Data Center Ecosystem</div>
-  <div class="page-sub">Stakeholders, relationships, and value flows — educational reference for business context.</div>
-  <div class="static-badge">Static reference &middot; not live data</div>
-
   <div class="view-toggle" role="group" aria-label="Choose view">
     <button class="view-toggle-btn" id="toggle-poster" type="button" aria-pressed="true">Poster</button>
     <button class="view-toggle-btn" id="toggle-explorer" type="button" aria-pressed="false">Relationship explorer</button>
   </div>
 
-  <div class="walkthrough">
-    <button class="wt-btn" id="wt-prev" aria-label="Previous step">&larr; Prev</button>
-    <div class="wt-text">
-      <div class="wt-title" id="wt-title">Follow the life of a data center</div>
-      <div class="wt-desc" id="wt-desc">Use Next to walk through land &amp; permits, financing, construction, grid connection, equipment, customers, and waste heat.</div>
-    </div>
-    <button class="wt-btn" id="wt-next">Next &rarr;</button>
-  </div>
-
-  <div class="case-card">
-    <div class="case-title" id="case-title"></div>
-    <div class="case-body" id="case-body"></div>
-    <div class="case-sources" id="case-sources"></div>
-    <button class="wt-btn" id="case-show">Show highlighted</button>
-  </div>
-
-  <!-- ── Poster view (primary) ── -->
-  <div class="view-section" id="view-poster">
-    <div class="poster-card">
-      <div class="poster-frame" id="poster-frame">
-        <img src="assets/ecosystem-v2.webp" alt="Illustrative poster of the data center ecosystem centered on the Data Center Operator, showing stakeholder boxes and colored relationship arrows across energy, goods/services, contracts, data, and capital/financing flows, with a legend and cross-cutting factors shown at the bottom." class="ecosystem-img" id="poster-img">
-        <svg class="poster-mask-svg" id="poster-mask-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          <defs>
-            <mask id="poster-dim-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
-              <rect x="0" y="0" width="100" height="100" fill="white" id="poster-mask-base"></rect>
-            </mask>
-          </defs>
-          <rect x="0" y="0" width="100" height="100" fill="rgba(8,8,20,0.55)" mask="url(#poster-dim-mask)"></rect>
-        </svg>
-        <div id="poster-hotspots"></div>
-        <div class="panel-cover" id="panel-cover" aria-hidden="true">
-          Click any box on the map, details appear below &darr;
+  <div class="stack">
+    <!-- ── Poster view (primary) ── -->
+    <div class="view-section" id="view-poster">
+      <div class="poster-card">
+        <div class="poster-frame" id="poster-frame">
+          <img src="assets/ecosystem-v2.webp" alt="Illustrative poster of the data center ecosystem centered on the Data Center Operator, showing stakeholder boxes and colored relationship arrows across energy, goods/services, contracts, data, and capital/financing flows, with a legend and cross-cutting factors shown at the bottom." class="ecosystem-img" id="poster-img">
+          <svg class="poster-mask-svg" id="poster-mask-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <mask id="poster-dim-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+                <rect x="0" y="0" width="100" height="100" fill="white" id="poster-mask-base"></rect>
+              </mask>
+            </defs>
+            <rect x="0" y="0" width="100" height="100" fill="rgba(8,8,20,0.32)" mask="url(#poster-dim-mask)"></rect>
+          </svg>
+          <div id="poster-hotspots"></div>
+          <div class="light-card" id="compact-card" role="region" aria-live="polite" aria-label="Selected stakeholder">
+            <div class="light-card-content" id="compact-card-content"></div>
+          </div>
         </div>
+        <div class="img-hint">Click any highlighted box · <a href="assets/ecosystem-v2.webp" target="_blank" rel="noopener">open full size</a><a href="assets/ecosystem-v2.webp" download class="download-btn">Download poster</a></div>
       </div>
-      <div class="panel-below" id="panel-below" role="region" aria-live="polite" aria-label="Selected stakeholder details">
-        <div class="side-panel-empty">Click any box to explore.</div>
+      <div class="poster-note">
+        <strong>Note:</strong> the data behind this map is authoritative where it differs from the illustration — two relationship arrows in the poster use colors that don't match its own legend (waste heat, and backup power &amp; fuel), and three suppliers (cooling, storage, backup power) are shown both as their own boxes and inside "Equipment &amp; Technology Suppliers."
       </div>
-      <div class="img-hint">Click any highlighted box · <a href="assets/ecosystem-v2.webp" target="_blank" rel="noopener" style="color:#85B7EB">open full size</a></div>
     </div>
-    <div class="poster-note">
-      <strong>Note:</strong> the data behind this map is authoritative where it differs from the illustration — two relationship arrows in the poster use colors that don't match its own legend (waste heat, and backup power &amp; fuel), and three suppliers (cooling, storage, backup power) are shown both as their own boxes and inside "Equipment &amp; Technology Suppliers."
-    </div>
-  </div>
 
-  <!-- Mobile accordion: lives outside both views (own top-level element,
-       one generator function in the script below) so poster and explorer
-       both collapse to it below 768px without duplicating markup. -->
-  <div class="mobile-list" id="mobile-list"></div>
-
-  <!-- ── Relationship explorer (secondary) ── -->
-  <div class="view-section hidden" id="view-explorer">
-    <div class="map-card">
-      <div class="map-toolbar">
-        <div class="map-title">Explore the ecosystem</div>
-        <div class="legend" id="legend" role="group" aria-label="Filter by relationship type"></div>
-      </div>
-
-      <div class="map-layout">
-        <div class="map-wrap">
-          <svg id="map-svg" viewBox="-20 -20 1040 740" role="img" aria-label="Interactive diagram of data center ecosystem stakeholders and relationships"></svg>
+    <!-- ── Relationship explorer (secondary) ── -->
+    <div class="view-section hidden" id="view-explorer">
+      <div class="map-card">
+        <div class="map-toolbar">
+          <div class="map-title">Explore the ecosystem</div>
+          <div class="legend" id="legend" role="group" aria-label="Filter by relationship type"></div>
         </div>
-        <div class="side-panel" id="side-panel" role="region" aria-live="polite" aria-label="Selected stakeholder details">
-          <div class="side-panel-empty">Click a stakeholder, or use the legend to filter by relationship type.</div>
+        <div class="map-layout">
+          <div class="map-wrap">
+            <svg id="map-svg" viewBox="-20 -20 1040 740" role="img" aria-label="Interactive diagram of data center ecosystem stakeholders and relationships"></svg>
+          </div>
+          <div class="side-panel" id="side-panel" role="region" aria-live="polite" aria-label="Selected stakeholder details">
+            <div class="side-panel-empty">Click a stakeholder, or use the legend to filter by relationship type.</div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- ── Walkthrough (drives whichever view is active) ── -->
+    <div class="walkthrough">
+      <div class="wt-mode-toggle" role="group" aria-label="Choose walkthrough">
+        <button class="wt-mode-btn" id="wt-mode-life" type="button" aria-pressed="true">Life of a data center</button>
+        <button class="wt-mode-btn" id="wt-mode-money" type="button" aria-pressed="false">Follow the money</button>
+      </div>
+      <div class="wt-controls">
+        <button class="wt-btn" id="wt-prev" aria-label="Previous step">&larr; Prev</button>
+        <div class="wt-text" id="wt-text">
+          <div class="wt-title" id="wt-title">Follow the life of a data center</div>
+          <div class="wt-desc" id="wt-desc">Use Next to walk through land &amp; permits, financing, construction, grid connection, equipment, customers, and waste heat.</div>
+        </div>
+        <button class="wt-btn" id="wt-next">Next &rarr;</button>
+      </div>
+    </div>
+
+    <!-- ── Full detail panel (light card, same accent system as the compact card) ── -->
+    <div class="light-card" id="panel-below" role="region" aria-live="polite" aria-label="Selected stakeholder details">
+      <div class="light-card-content" id="panel-below-content"></div>
+    </div>
+
+    <!-- ── Case card ── -->
+    <div class="case-card">
+      <div class="case-title" id="case-title"></div>
+      <div class="case-body" id="case-body"></div>
+      <div class="case-sources" id="case-sources"></div>
+      <button class="wt-btn" id="case-show">Show highlighted</button>
+    </div>
+
+    <!-- Mobile accordion: lives outside both views (own top-level element,
+         one generator function in the script below) so poster and explorer
+         both collapse to it below 768px without duplicating markup. -->
+    <div class="mobile-list" id="mobile-list"></div>
   </div>
 
   <div id="map-tooltip" class="map-tooltip"></div>
 
-  <!-- ── Explanation text (unchanged, already approved) ── -->
+  <!-- ── Explanation text (unchanged content, glossary spans added) ── -->
   <div class="card">
     <div class="explain-title">How a data center actually works, in business terms</div>
     <div class="explain">
-      <p>A data center is rarely operated by one company. The site itself might be run by a <strong>colocation provider</strong> (renting space, power, and cooling to many customers), a <strong>hyperscaler operating its own facility</strong> (companies like Microsoft, Google, and Amazon building and running data centers to power their cloud platforms, which serve external customers — hyperscalers also often lease capacity from colocation providers rather than building everywhere themselves), or a <strong>third-party operator</strong> managing a facility on behalf of an owner. The diagram's central "Data Center Operator" box can be any of these, depending on the site.</p>
+      <p>A data center is rarely operated by one company. The site itself might be run by a <strong><span class="gloss" data-g="colocation" tabindex="0">colocation</span> provider</strong> (renting space, power, and cooling to many customers), a <strong>hyperscaler operating its own facility</strong> (companies like Microsoft, Google, and Amazon building and running data centers to power their cloud platforms, which serve external customers — hyperscalers also often lease capacity from colocation providers rather than building everywhere themselves), or a <strong>third-party operator</strong> managing a facility on behalf of an owner. The diagram's central "Data Center Operator" box can be any of these, depending on the site.</p>
 
-      <p><strong>Power</strong> comes from the grid. In Finland, the national high-voltage transmission grid is operated by the transmission system operator (TSO), Fingrid; regional and local distribution runs through separate distribution system operators (DSOs), such as Caruna. A large data center may connect directly to either, depending on its size and location. Large operators also often sign long-term <strong>power purchase agreements (PPAs)</strong> with renewable energy producers — these typically fix the price for an agreed volume of electricity from a specific project, often paired with guarantees of origin, while the physical power itself still flows through the shared grid rather than a direct wire; some PPAs are purely financial contracts with no physical delivery at all.</p>
+      <p><strong>Power</strong> comes from the grid. In Finland, the national high-voltage transmission grid is operated by the transmission system operator (<span class="gloss" data-g="tso" tabindex="0">TSO</span>), Fingrid; regional and local distribution runs through separate distribution system operators (<span class="gloss" data-g="dso" tabindex="0">DSOs</span>), such as Caruna. A large data center may connect directly to either, depending on its size and location. Large operators also often sign long-term <strong>power purchase agreements (<span class="gloss" data-g="ppa" tabindex="0">PPAs</span>)</strong> with renewable energy producers — these typically fix the price for an agreed volume of electricity from a specific project, often paired with guarantees of origin, while the physical power itself still flows through the shared grid rather than a direct wire; some PPAs are purely financial contracts with no physical delivery at all.</p>
 
-      <p><strong>Capacity is sold in different shapes</strong> depending on the customer. Colocation itself comes in two common forms: <strong>retail colocation</strong>, where a tenant rents racks or a cage inside a shared hall, and <strong>wholesale colocation</strong>, where a tenant leases an entire dedicated hall or building, typically on a long-term contract. A <strong>powered shell</strong> deal is narrower still — the landlord provides the building and the power connection, and the tenant fits out its own cooling and electrical infrastructure inside. Cloud capacity is sold differently again: hyperscalers sell compute, storage, and networking as an ongoing service, not as physical space.</p>
+      <p><strong>Capacity is sold in different shapes</strong> depending on the customer. Colocation itself comes in two common forms: <strong><span class="gloss" data-g="retail_colocation" tabindex="0">retail colocation</span></strong>, where a tenant rents racks or a cage inside a shared hall, and <strong><span class="gloss" data-g="wholesale_colocation" tabindex="0">wholesale colocation</span></strong>, where a tenant leases an entire dedicated hall or building, typically on a long-term contract. A <strong><span class="gloss" data-g="powered_shell" tabindex="0">powered shell</span></strong> deal is narrower still — the landlord provides the building and the power connection, and the tenant fits out its own cooling and electrical infrastructure inside. Cloud capacity is sold differently again: hyperscalers sell compute, storage, and networking as an ongoing service, not as physical space.</p>
 
       <p><strong>Waste heat</strong> from a data center's cooling systems can be sold into a district heating network instead of being released into the air. A concrete, currently unfolding example: Fortum's heat pump plants at Kolabacken (Kirkkonummi) and Hepokorpi (Espoo) started operating in spring 2026, today producing district heat from ambient air and electric boilers. Actual waste-heat recovery from Microsoft's nearby data centers begins step by step from 2027, following Microsoft's own construction and commissioning schedule. Once fully implemented, the project is expected to supply around 40% of the roughly 2 TWh yearly district heat demand of about 250,000 users across Espoo, Kauniainen, and Kirkkonummi. Fortum names Microsoft, the cities of Espoo and Kirkkonummi, distribution operator Caruna, and transmission operator Fingrid as partners — a concrete illustration of how many of the diagram's stakeholder types (operator, DSO, TSO, municipality) show up in a single real project.</p>
 
-      <p><strong>Financing</strong> for data center construction and operation typically comes from a mix of <strong>infrastructure funds</strong> (specialist investors who fund and often co-own large facilities), <strong>REITs</strong> — real estate investment trusts that own data center buildings and lease them out for rental income, and <strong>lenders</strong> providing project financing secured against the facility and its contracts.</p>
+      <p><strong>Financing</strong> for data center construction and operation typically comes from a mix of <strong>infrastructure funds</strong> (specialist investors who fund and often co-own large facilities), <strong><span class="gloss" data-g="reit" tabindex="0">REITs</span></strong> — real estate investment trusts that own data center buildings and lease them out for rental income, and <strong>lenders</strong> providing project financing secured against the facility and its contracts.</p>
 
       <div class="sources">
         Sources: Fortum, <a href="https://www.fortum.com/en/media/2026/05/fortum-has-started-heat-production-two-large-data-centre-sites-finland" target="_blank" rel="noopener">"Fortum has started heat production at two large data centre sites in Finland"</a> (May 2026, primary); Microsoft, <a href="https://news.microsoft.com/europe/2022/03/17/microsoft-announces-intent-to-build-a-new-datacenter-region-in-finland-accelerating-sustainable-digital-transformation-and-enabling-large-scale-carbon-free-district-heating/" target="_blank" rel="noopener">"Microsoft announces intent to build a new datacenter region in Finland..."</a> (2022, background).
@@ -273,7 +322,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
 </div>
 
-<script src="ecosystem-data.v2.js"></script>
+<script src="ecosystem-data.v3.js"></script>
 <script>
 (function() {
   const svg = document.getElementById("map-svg");
@@ -284,6 +333,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   let selectedStakeholder = null;
   let highlightSet = null;
   let activeFlowTypes = new Set(Object.keys(FLOW_TYPES));
+
+  document.getElementById("reviewed-date").textContent = CONTENT_REVIEWED;
 
   function edgeConnects(rel, id) { return rel.from === id || rel.to === id; }
 
@@ -299,8 +350,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     ids.forEach(id => out.add(posterOwnerId(id)));
     return out;
   }
+  function accentFor(id) {
+    const s = byId[posterOwnerId(id)];
+    return (s && s.posterAccent) || "#85B7EB";
+  }
+  function displayLabel(ownerId) {
+    return POSTER_GROUPS[ownerId] ? POSTER_GROUPS[ownerId].panelLabel : byId[ownerId].name;
+  }
 
-  // ── Shared relationship-list markup (side panel, mobile list, poster panel) ──
+  const CLICK_ICON = '<svg width="20" height="20" viewBox="0 0 16 16" fill="#9AA0AE" aria-hidden="true"><path d="M3 1l11 4.5-4.5 1.8L8 12z"/></svg>';
+
+  // ── Shared relationship-list markup (side panel, mobile list — dark theme) ──
   function relHtml(id) {
     let html = "";
     RELATIONSHIPS.filter(r => edgeConnects(r, id)).forEach(r => {
@@ -315,24 +375,107 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     const s = byId[id];
     return '<div class="side-panel-title">' + s.name + '</div><div>' + s.description + '</div>' + relHtml(id);
   }
-  function posterPanelHtml(id) {
+
+  // ── Light-card relationship chips (compact + full panel) ──
+  function chipsHtml(id) {
+    const rels = RELATIONSHIPS.filter(r => edgeConnects(r, id));
+    if (!rels.length) return "";
+    return '<div class="chip-list">' + rels.map(r => {
+      const ft = FLOW_TYPES[r.type];
+      return '<span class="chip"><span class="dot" style="background:' + ft.color + '"></span>' + r.label + '</span>';
+    }).join('') + '</div>';
+  }
+  function fullRelsHtml(id) {
+    return relHtml(id).replace(/class="side-rel"/g, 'class="side-rel" style="background:#F7F8FA;color:#1A1A1A"')
+                       .replace(/<strong>/g, '<strong style="color:#1A1A1A">');
+  }
+
+  function defaultLightHtml() {
+    return '<div class="light-card-empty">' + CLICK_ICON + '<span>Click any box to explore.</span></div>';
+  }
+  function highlightedSummaryHtml(full) {
+    const ids = Array.from(posterActiveIds(highlightSet));
+    let html = '<div class="light-card-title">Currently highlighted</div>';
+    if (!full) {
+      html += '<div class="chip-list">' + ids.map(id => '<span class="chip-plain">' + displayLabel(id) + '</span>').join('') + '</div>';
+    } else {
+      ids.forEach(id => {
+        const group = POSTER_GROUPS[id];
+        html += '<div class="panel-sub"><div class="panel-sub-title">' + displayLabel(id) + '</div>'
+              + (group ? '' : ('<div class="light-card-desc">' + byId[id].description + '</div>'))
+              + '</div>';
+      });
+    }
+    return html;
+  }
+  function compactSelectedHtml(id) {
     const owner = posterOwnerId(id);
     const group = POSTER_GROUPS[owner];
-    if (!group) return stakeholderDetailHtml(id);
-    let html = '<div class="side-panel-title">' + group.panelLabel + '</div>';
-    [owner].concat(group.extraIds).forEach(subId => {
-      const s = byId[subId];
-      const label = (group.subLabels && group.subLabels[subId]) || s.name;
-      html += '<div class="panel-sub"><div class="panel-sub-title">' + label + '</div><div>' + s.description + '</div>' + relHtml(subId) + '</div>';
-    });
-    return html;
+    if (group) {
+      let html = '<div class="light-card-title">' + group.panelLabel + '</div>';
+      [owner].concat(group.extraIds).forEach(subId => {
+        const s = byId[subId];
+        const label = (group.subLabels && group.subLabels[subId]) || s.name;
+        html += '<div class="compact-sub"><div class="compact-sub-title">' + label + '</div>' + chipsHtml(subId) + '</div>';
+      });
+      html += '<a href="#panel-below" class="more-link">More details &darr;</a>';
+      return html;
+    }
+    const s = byId[owner];
+    return '<div class="light-card-title">' + s.name + '</div>'
+         + '<div class="light-card-desc">' + s.description + '</div>'
+         + chipsHtml(owner)
+         + '<a href="#panel-below" class="more-link">More details &darr;</a>';
+  }
+  function fullSelectedHtml(id) {
+    const owner = posterOwnerId(id);
+    const group = POSTER_GROUPS[owner];
+    if (group) {
+      let html = '<div class="light-card-title">' + group.panelLabel + '</div>';
+      [owner].concat(group.extraIds).forEach(subId => {
+        const s = byId[subId];
+        const label = (group.subLabels && group.subLabels[subId]) || s.name;
+        html += '<div class="panel-sub"><div class="panel-sub-title">' + label + '</div><div class="light-card-desc">' + s.description + '</div>' + fullRelsHtml(subId) + '</div>';
+      });
+      return html;
+    }
+    const s = byId[owner];
+    return '<div class="light-card-title">' + s.name + '</div><div class="light-card-desc">' + s.description + '</div>' + fullRelsHtml(owner);
+  }
+
+  function fadeSwap(el, html) {
+    el.style.opacity = 0;
+    setTimeout(() => { el.innerHTML = html; el.style.opacity = 1; }, 90);
+  }
+
+  function updateLightCards() {
+    const compactWrap = document.getElementById("compact-card");
+    const compactContent = document.getElementById("compact-card-content");
+    const panelWrap = document.getElementById("panel-below");
+    const panelContent = document.getElementById("panel-below-content");
+
+    let accent = "#85B7EB", compactHtml, fullHtml;
+    if (selectedStakeholder) {
+      accent = accentFor(selectedStakeholder);
+      compactHtml = compactSelectedHtml(selectedStakeholder);
+      fullHtml = fullSelectedHtml(selectedStakeholder);
+    } else if (highlightSet) {
+      compactHtml = highlightedSummaryHtml(false);
+      fullHtml = highlightedSummaryHtml(true);
+    } else {
+      compactHtml = defaultLightHtml();
+      fullHtml = defaultLightHtml();
+    }
+    compactWrap.style.borderTopColor = accent;
+    panelWrap.style.borderTopColor = accent;
+    fadeSwap(compactContent, compactHtml);
+    fadeSwap(panelContent, fullHtml);
   }
 
   // ══════════════════════════════════════════════════════════════
   // Relationship explorer (SVG map)
   // ══════════════════════════════════════════════════════════════
 
-  // ── SVG defs: one arrowhead marker per flow type ──
   const defs = document.createElementNS(NS, "defs");
   Object.entries(FLOW_TYPES).forEach(([key, ft]) => {
     const marker = document.createElementNS(NS, "marker");
@@ -369,8 +512,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
   const NODE_W = 160, NODE_H = 54;
 
-  // Clip a line endpoint to the edge of a node's box (instead of its exact
-  // center), so edges stop at the border instead of drawing through boxes.
   function boxEdgePoint(cx, cy, hw, hh, px, py) {
     const dx = px - cx, dy = py - cy;
     if (dx === 0 && dy === 0) return { x: cx, y: cy };
@@ -380,7 +521,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return { x: cx + dx * t, y: cy + dy * t };
   }
 
-  // ── Edges (drawn first, under nodes) ──
   RELATIONSHIPS.forEach((rel, i) => {
     const a = byId[rel.from], b = byId[rel.to];
     const pa = boxEdgePoint(a.x, a.y, NODE_W / 2, NODE_H / 2, b.x, b.y);
@@ -419,7 +559,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     svg.appendChild(line);
   });
 
-  // ── Nodes ──
   STAKEHOLDERS.forEach(s => {
     const g = document.createElementNS(NS, "g");
     g.setAttribute("id", "node-" + s.id);
@@ -501,7 +640,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     panel.innerHTML = stakeholderDetailHtml(selectedStakeholder);
   }
 
-  // ── Legend / filter ──
   const legend = document.getElementById("legend");
   Object.entries(FLOW_TYPES).forEach(([key, ft]) => {
     const btn = document.createElement("button");
@@ -519,7 +657,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     legend.appendChild(btn);
   });
 
-  // ── Mobile accordion (same data, no SVG/poster) ──
   const mobileList = document.getElementById("mobile-list");
   STAKEHOLDERS.forEach(s => {
     const det = document.createElement("details");
@@ -538,12 +675,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   // Poster view (primary)
   // ══════════════════════════════════════════════════════════════
 
-  const posterFrame = document.getElementById("poster-frame");
   const hotspotsWrap = document.getElementById("poster-hotspots");
   const maskSvg = document.getElementById("poster-mask-svg");
   const maskEl = document.getElementById("poster-dim-mask");
-  const panelCover = document.getElementById("panel-cover");
-  const panelBelow = document.getElementById("panel-below");
+  const compactCard = document.getElementById("compact-card");
 
   const posterStakeholders = STAKEHOLDERS.filter(s => s.posterBox);
 
@@ -563,24 +698,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     hotspotsWrap.appendChild(btn);
   });
 
-  // Static cover over the poster's illustrated (non-functional) "Selected
-  // stakeholder" panel, from PANEL_REGION (% of poster-frame). The overlay
-  // panel design was dropped: PANEL_REGION.w (20.4%) of the frame's capped
-  // max-width (1536px, the image's native size) tops out at ~313px at any
-  // viewport width, under the ~320px readability floor — so an on-image
-  // overlay panel can never actually render there. The real panel always
-  // renders below the poster instead; this cover just hides the fake one
-  // and points at where the real answer is.
-  panelCover.style.left = PANEL_REGION.x + "%";
-  panelCover.style.top = PANEL_REGION.y + "%";
-  panelCover.style.width = PANEL_REGION.w + "%";
-  panelCover.style.height = PANEL_REGION.h + "%";
-
-  function updatePosterPanel() {
-    panelBelow.innerHTML = selectedStakeholder
-      ? posterPanelHtml(selectedStakeholder)
-      : '<div class="side-panel-empty">Click any box to explore.</div>';
-  }
+  compactCard.style.left = PANEL_REGION.x + "%";
+  compactCard.style.top = PANEL_REGION.y + "%";
+  compactCard.style.width = PANEL_REGION.w + "%";
+  compactCard.style.height = PANEL_REGION.h + "%";
 
   function updatePosterVisual() {
     const anySelection = !!(highlightSet || selectedStakeholder);
@@ -598,8 +719,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       return;
     }
     maskSvg.style.display = "block";
-    // Rebuild mask: base white rect (dim everywhere) + one black cutout
-    // rect per active posterBox (reveals that box, no dimming there).
     while (maskEl.children.length > 1) maskEl.removeChild(maskEl.lastChild);
     activeOwnerIds.forEach(id => {
       const s = byId[id];
@@ -617,7 +736,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   }
 
   // ══════════════════════════════════════════════════════════════
-  // Shared render / selection
+  // Shared render / selection / deep links
   // ══════════════════════════════════════════════════════════════
 
   function render() {
@@ -626,7 +745,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   }
   function updatePanels() {
     updateSidePanel();
-    updatePosterPanel();
+    updateLightCards();
+  }
+
+  function updateHash() {
+    const hash = selectedStakeholder ? "#" + selectedStakeholder : location.pathname + location.search;
+    history.replaceState(null, "", hash);
   }
 
   function select(id) {
@@ -638,6 +762,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     }
     render();
     updatePanels();
+    updateHash();
   }
 
   // ── View toggle ──
@@ -651,36 +776,78 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     toggleExplorer.setAttribute("aria-pressed", String(!isPoster));
     viewPoster.classList.toggle("hidden", !isPoster);
     viewExplorer.classList.toggle("hidden", isPoster);
+    document.getElementById("panel-below").style.display = isPoster ? "" : "none";
   }
   togglePoster.addEventListener("click", () => setView("poster"));
   toggleExplorer.addEventListener("click", () => setView("explorer"));
 
-  // ── Walkthrough ──
+  // ── Walkthrough (two modes: life / money) ──
   let wtStep = -1;
+  let wtMode = "life";
   const wtTitle = document.getElementById("wt-title");
   const wtDesc = document.getElementById("wt-desc");
+  const wtText = document.getElementById("wt-text");
   const wtPrev = document.getElementById("wt-prev");
   const wtNext = document.getElementById("wt-next");
+  const wtModeLife = document.getElementById("wt-mode-life");
+  const wtModeMoney = document.getElementById("wt-mode-money");
+
+  function activeSteps() { return wtMode === "life" ? WALKTHROUGH_STEPS : MONEY_WALKTHROUGH_STEPS; }
+  function defaultWtCopy() {
+    return wtMode === "life"
+      ? { title: "Follow the life of a data center", desc: "Use Next to walk through land & permits, financing, construction, grid connection, equipment, customers, and waste heat." }
+      : { title: "Follow the money", desc: "Use Next to walk through who pays whom, from customers through to capital providers and district heating revenue." };
+  }
+
   function showStep(i) {
     wtStep = i;
+    const steps = activeSteps();
+    let title, desc;
     if (i < 0) {
-      wtTitle.textContent = "Follow the life of a data center";
-      wtDesc.textContent = "Use Next to walk through land & permits, financing, construction, grid connection, equipment, customers, and waste heat.";
+      const d = defaultWtCopy();
+      title = d.title; desc = d.desc;
       highlightSet = null; selectedStakeholder = null;
     } else {
-      const step = WALKTHROUGH_STEPS[i];
-      wtTitle.textContent = step.title;
-      wtDesc.textContent = step.description;
+      const step = steps[i];
+      title = step.title; desc = step.description;
       highlightSet = new Set(step.highlightIds);
       selectedStakeholder = null;
     }
+    wtText.style.opacity = 0;
+    setTimeout(() => {
+      wtTitle.textContent = title;
+      wtDesc.textContent = desc;
+      wtText.style.opacity = 1;
+    }, 90);
     wtPrev.disabled = (i <= -1);
-    wtNext.disabled = (i >= WALKTHROUGH_STEPS.length - 1);
+    wtNext.disabled = (i >= steps.length - 1);
     render();
     updatePanels();
+    updateHash();
   }
   wtPrev.addEventListener("click", () => { if (wtStep > -1) showStep(wtStep - 1); });
-  wtNext.addEventListener("click", () => { if (wtStep < WALKTHROUGH_STEPS.length - 1) showStep(wtStep + 1); });
+  wtNext.addEventListener("click", () => { if (wtStep < activeSteps().length - 1) showStep(wtStep + 1); });
+  wtModeLife.addEventListener("click", () => {
+    if (wtMode === "life") return;
+    wtMode = "life";
+    wtModeLife.setAttribute("aria-pressed", "true");
+    wtModeMoney.setAttribute("aria-pressed", "false");
+    showStep(-1);
+  });
+  wtModeMoney.addEventListener("click", () => {
+    if (wtMode === "money") return;
+    wtMode = "money";
+    wtModeLife.setAttribute("aria-pressed", "false");
+    wtModeMoney.setAttribute("aria-pressed", "true");
+    showStep(-1);
+  });
+
+  // Keyboard: Left/Right steps the active walkthrough (Enter/Space still
+  // handled per-hotspot/per-node above for selection).
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft" && wtStep > -1) { e.preventDefault(); showStep(wtStep - 1); }
+    if (e.key === "ArrowRight" && wtStep < activeSteps().length - 1) { e.preventDefault(); showStep(wtStep + 1); }
+  });
 
   // ── Case card ──
   document.getElementById("case-title").textContent = CASE_STUDY.title;
@@ -694,12 +861,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     wtStep = -1;
     render();
     updatePanels();
+    updateHash();
   });
 
-  // ── Init ──
+  // ── Glossary tooltips (content from GLOSSARY, single source of truth) ──
+  document.querySelectorAll(".gloss[data-g]").forEach(el => {
+    const g = GLOSSARY[el.getAttribute("data-g")];
+    if (!g) return;
+    const tip = document.createElement("span");
+    tip.className = "gloss-tip";
+    tip.textContent = g.definition;
+    el.appendChild(tip);
+  });
+
+  // ── Init (+ deep link: #<stakeholder-id> preselects it) ──
+  // Capture the incoming hash before showStep(-1) below calls updateHash()
+  // and overwrites it with the URL's bare path.
+  const initialId = location.hash.replace("#", "");
   showStep(-1);
   render();
   updatePanels();
+  if (initialId && byId[initialId]) select(initialId);
 })();
 </script>
 
