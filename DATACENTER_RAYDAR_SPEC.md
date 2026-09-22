@@ -63,6 +63,10 @@ identical to parent.
 - Macro/context cards, chain status bar, scrolling ticker band, heat trail — same
   components and color language as parent.
 - Footer carries RayDar family branding and cross-links.
+- **Professional but not boring** (family-wide, not Data-Center-only): visual richness
+  (glow, depth, illustration, interactivity) is part of the product, not decoration to
+  trim. Keep it purposeful: no continuous animation, and nothing that competes with the
+  data or makes text harder to read.
 
 ## A6. Technical architecture (reuse from parent)
 

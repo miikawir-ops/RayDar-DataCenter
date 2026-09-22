@@ -1,11 +1,13 @@
-// ecosystem-data.v1.js — single source of truth for the interactive Data
-// Center Ecosystem map. Diagram arrows, the legend, and the side panel are
-// all generated from this file, so they can't drift apart the way the
-// static poster image's arrow colors drifted from its own legend.
+// ecosystem-data.v2.js — single source of truth for the interactive Data
+// Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
+// poster hotspots are all generated from this file, so they can't drift
+// apart the way the static poster image's arrow colors drifted from its
+// own legend.
 //
 // Versioned filename: any future content edit gets a new suffix (v2, v3...)
 // rather than reusing this one, so browser/CDN caches can't silently serve
-// stale content (the same lesson as the poster image rename).
+// stale content (the same lesson as the poster image rename). v2 adds
+// posterBox/panelRegion/POSTER_GROUPS for the poster-primary redesign.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -14,6 +16,12 @@
 // district-heating stakeholder descriptions deliberately say "e.g." before
 // naming a company — Finland has many DSOs and district heating companies,
 // so naming one as *the* operator would be inaccurate.
+//
+// posterBox {x,y,w,h} — % of assets/ecosystem-v2.webp (1536x966), measured
+// directly off the image (crop+zoom per region, read pixel edges), not
+// estimated. The source poster has one "Grid & Transmission (TSO)" box
+// covering both transmission and distribution — dso has no posterBox of
+// its own; see POSTER_GROUPS below for how it's folded into tso's box.
 
 const FLOW_TYPES = {
   energy:   { label: "Energy / Heat",        color: "#639922" },
@@ -26,40 +34,75 @@ const FLOW_TYPES = {
 // Fixed hand-tuned layout, viewBox 0 0 1000 700.
 const STAKEHOLDERS = [
   { id: "operator", name: "Data Center Operator", x: 500, y: 360,
-    description: "Runs the facility itself — as a colocation provider (rents space, power, and cooling to many customers), a hyperscaler operating its own site, or a third-party operator managing it on behalf of an owner." },
+    description: "Runs the facility itself — as a colocation provider (rents space, power, and cooling to many customers), a hyperscaler operating its own site, or a third-party operator managing it on behalf of an owner.",
+    posterBox: { x: 32.8, y: 40.2, w: 20.4, h: 10.8 } },
 
   { id: "public_sector", name: "Public Sector / Municipality", x: 350, y: 80,
-    description: "Grants zoning, land use, and permits, and coordinates infrastructure access for new data center developments." },
+    description: "Grants zoning, land use, and permits, and coordinates infrastructure access for new data center developments.",
+    posterBox: { x: 36.5, y: 9.7, w: 17.0, h: 9.7 } },
   { id: "construction", name: "Construction & Real Estate", x: 650, y: 80,
-    description: "Land and site developers, construction contractors, and permitting specialists who build the physical facility." },
+    description: "Land and site developers, construction contractors, and permitting specialists who build the physical facility.",
+    posterBox: { x: 55.5, y: 16.5, w: 16.7, h: 7.7 } },
 
   { id: "energy_gen", name: "Energy & Power Generation", x: 100, y: 140,
-    description: "Producers supplying the grid — renewables (wind, solar, hydro), nuclear, gas, and other sources — that a data center's power ultimately comes from." },
+    description: "Producers supplying the grid — renewables (wind, solar, hydro), nuclear, gas, and other sources — that a data center's power ultimately comes from.",
+    posterBox: { x: 2.1, y: 19.7, w: 16.7, h: 9.8 } },
   { id: "tso", name: "Transmission (TSO)", x: 100, y: 230,
-    description: "Operates the national high-voltage transmission grid and substations. In Finland: Fingrid." },
+    description: "Operates the national high-voltage transmission grid and substations. In Finland: Fingrid.",
+    posterBox: { x: 19.9, y: 17.7, w: 17.9, h: 8.4 } },
   { id: "dso", name: "Distribution (DSO)", x: 100, y: 320,
     description: "Operates regional and local electricity distribution networks, separate from the national transmission grid — e.g. Caruna in Finland." },
+    // no posterBox: the source poster has one combined "Grid & Transmission
+    // (TSO)" box — see POSTER_GROUPS, which folds dso into tso's box.
   { id: "district_heating", name: "District Heating / Energy Recovery", x: 100, y: 410,
-    description: "Utilities capturing a data center's waste heat and distributing it as district heating (kaukolämpö) to homes, offices, and industrial users — e.g. Fortum in Finland." },
+    description: "Utilities capturing a data center's waste heat and distributing it as district heating (kaukolämpö) to homes, offices, and industrial users — e.g. Fortum in Finland.",
+    posterBox: { x: 2.1, y: 33.0, w: 18.0, h: 9.7 } },
   { id: "cooling", name: "Cooling & HVAC Suppliers", x: 100, y: 500,
-    description: "Suppliers of chillers, cooling systems, liquid cooling, and heat rejection equipment." },
+    description: "Suppliers of chillers, cooling systems, liquid cooling, and heat rejection equipment.",
+    posterBox: { x: 2.1, y: 43.8, w: 17.4, h: 10.0 } },
   { id: "backup_power", name: "Backup Power & Fuel", x: 100, y: 590,
-    description: "Suppliers of generators, fuel, UPS systems, and backup power distribution." },
+    description: "Suppliers of generators, fuel, UPS systems, and backup power distribution.",
+    posterBox: { x: 2.1, y: 55.5, w: 17.4, h: 11.6 } },
 
   { id: "equipment", name: "Equipment & Technology Suppliers", x: 900, y: 140,
-    description: "Suppliers of compute (GPU/ASIC) hardware and power/electrical equipment for the facility." },
+    description: "Suppliers of compute (GPU/ASIC) hardware and power/electrical equipment for the facility.",
+    posterBox: { x: 58.4, y: 27.0, w: 18.9, h: 12.8 } },
   { id: "capital", name: "Capital & Finance", x: 900, y: 230,
-    description: "Infrastructure funds, data center REITs, lenders, and equity partners financing construction and operation." },
+    description: "Infrastructure funds, data center REITs, lenders, and equity partners financing construction and operation.",
+    posterBox: { x: 61.2, y: 42.2, w: 15.2, h: 9.6 } },
   { id: "hyperscaler", name: "Hyperscaler / Cloud", x: 900, y: 320,
-    description: "Large cloud platforms — Microsoft, Google, Amazon, and similar — buying or operating compute capacity, serving their own external customers." },
+    description: "Large cloud platforms — Microsoft, Google, Amazon, and similar — buying or operating compute capacity, serving their own external customers.",
+    posterBox: { x: 61.2, y: 54.9, w: 16.1, h: 9.7 } },
 
   { id: "network", name: "Network & Connectivity", x: 650, y: 620,
-    description: "Suppliers of fiber, cabling, switches, routers, optical transport, and interconnection." },
+    description: "Suppliers of fiber, cabling, switches, routers, optical transport, and interconnection.",
+    posterBox: { x: 22.0, y: 65.1, w: 16.2, h: 9.8 } },
   { id: "storage", name: "Storage Providers", x: 500, y: 650,
-    description: "Suppliers of storage arrays, data protection, and backup & recovery systems." },
+    description: "Suppliers of storage arrays, data protection, and backup & recovery systems.",
+    posterBox: { x: 39.9, y: 65.6, w: 16.0, h: 9.3 } },
   { id: "enterprise", name: "Enterprise & End Users", x: 350, y: 620,
-    description: "Businesses, developers, and consumers — the end users of the compute, storage, and connectivity a data center provides." },
+    description: "Businesses, developers, and consumers — the end users of the compute, storage, and connectivity a data center provides.",
+    posterBox: { x: 55.8, y: 64.8, w: 16.3, h: 10.1 } },
 ];
+
+// Poster-only grouping: stakeholders that share one illustrated box in the
+// source poster image. Keyed by the id that owns the posterBox; each entry
+// lists the id(s) folded into that box for hotspot/highlight/panel purposes
+// on the poster view only — the Relationship explorer and mobile list keep
+// tso/dso fully separate.
+const POSTER_GROUPS = {
+  tso: {
+    extraIds: ["dso"],
+    panelLabel: "Grid: transmission & distribution",
+    subLabels: { tso: "TSO (Fingrid)", dso: "DSO (e.g. Caruna)" },
+  },
+};
+
+// Overlay panel placement on the poster, matching the illustration's
+// "Selected stakeholder" panel region (% of image). If the panel renders
+// narrower than ~320px at a given width, ecosystem.html falls back to
+// placing the panel below the image instead of overlaying it.
+const PANEL_REGION = { x: 78.8, y: 2.3, w: 20.4, h: 64.8 };
 
 // "added: true" entries are not literal arrows from the source poster image —
 // flagged explicitly rather than presented as if they were always there.

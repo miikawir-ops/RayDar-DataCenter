@@ -30,7 +30,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .static-badge{display:inline-block;font-size:10px;font-weight:600;color:#0A0818;
               background:#85B7EB;padding:3px 10px;border-radius:10px;letter-spacing:.03em;margin-bottom:14px}
 
-/* ── Interactive map card ── */
+/* ── View toggle ── */
+.view-toggle{display:flex;gap:8px;margin-bottom:14px}
+.view-toggle-btn{font-size:12px;font-weight:600;color:#C8D4E8;background:#101C32;
+                 border:1px solid rgba(175,169,236,0.25);padding:7px 16px;border-radius:8px;
+                 cursor:pointer;transition:background .15s,box-shadow .15s,color .15s}
+.view-toggle-btn:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
+.view-toggle-btn[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#0C1A3A,#3C3489);
+                 box-shadow:0 0 0 1px rgba(133,183,235,0.35),0 0 10px rgba(83,74,183,0.4)}
+.view-section.hidden{display:none}
+
+/* ── Poster view (primary) ── */
+.poster-card{background:#101C32;border:1px solid rgba(175,169,236,0.2);border-radius:12px;
+            padding:16px;margin-bottom:16px}
+.poster-frame{position:relative;max-width:1536px;margin:0 auto}
+.ecosystem-img{width:100%;height:auto;border-radius:8px;border:0.5px solid rgba(175,169,236,0.25);display:block}
+.poster-mask-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none}
+.hotspot{position:absolute;background:transparent;border:none;border-radius:10px;
+        cursor:pointer;padding:0;transition:box-shadow .15s}
+.hotspot:hover,.hotspot:focus-visible{box-shadow:0 0 0 2px rgba(133,183,235,0.9),0 0 20px 4px rgba(83,74,183,0.85)}
+.hotspot.glow{box-shadow:0 0 0 2px rgba(133,183,235,0.6),0 0 14px 2px rgba(83,74,183,0.55)}
+.hotspot.glow:hover,.hotspot.glow:focus-visible{box-shadow:0 0 0 2px rgba(133,183,235,0.9),0 0 22px 4px rgba(83,74,183,0.9)}
+.hotspot:focus-visible{outline:none}
+.panel-cover{position:absolute;background:rgba(10,15,25,0.92);border:1px solid rgba(175,169,236,0.3);
+             border-radius:8px;padding:14px;font-size:11.5px;color:#8A9AB8;line-height:1.6;
+             display:flex;align-items:center;justify-content:center;text-align:center}
+.panel-below{margin-top:14px;background:#0A0F1E;border-radius:8px;padding:14px;
+            font-size:12px;color:#C8D4E8;line-height:1.6}
+.side-panel-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:8px}
+.side-panel-empty{color:#6A7A9A;font-style:italic}
+.side-rel{margin-top:8px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:11px}
+.side-rel-flow{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:8px;color:#0A0818;margin-bottom:3px}
+.panel-sub{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)}
+.panel-sub:first-of-type{margin-top:8px;padding-top:0;border-top:none}
+.panel-sub-title{font-size:12px;font-weight:600;color:#fff;margin-bottom:4px}
+.poster-note{max-width:760px;margin:14px auto 0;padding:12px 14px;background:rgba(255,255,255,0.05);
+             border-left:2px solid #6A7A9A;border-radius:0 6px 6px 0;font-size:11px;color:#8A9AB8;line-height:1.6}
+.img-hint{text-align:center;font-size:11px;color:#8A9AB8;margin-top:6px}
+
+/* ── Relationship explorer (secondary) ── */
 .map-card{background:#101C32;border:1px solid rgba(175,169,236,0.2);border-radius:12px;
           padding:16px;margin-bottom:16px}
 .map-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
@@ -51,18 +89,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .edge-line{transition:opacity .2s}
 .edge-line:focus-visible{outline:none}
 .side-panel{width:280px;flex-shrink:0;background:#0A0F1E;border-radius:8px;padding:14px;
-           font-size:12px;color:#C8D4E8;line-height:1.6}
-.side-panel-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:8px}
-.side-panel-empty{color:#6A7A9A;font-style:italic}
-.side-rel{margin-top:8px;padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:11px}
-.side-rel-flow{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:8px;color:#0A0818;margin-bottom:3px}
+           font-size:12px;color:#C8D4E8;line-height:1.6;max-height:620px;overflow-y:auto}
 .map-tooltip{position:fixed;display:none;background:#1A1A1A;color:#F8F8F7;font-size:11px;
             padding:8px 10px;border-radius:6px;max-width:240px;line-height:1.5;z-index:200;
             pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 
-/* ── Walkthrough ── */
-.walkthrough{margin-top:14px;padding:12px 14px;background:rgba(175,169,236,0.08);
-            border-radius:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* ── Walkthrough / case card (shared, drive whichever view is active) ── */
+.walkthrough{margin-top:0;padding:12px 14px;background:rgba(175,169,236,0.08);
+            border-radius:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .wt-btn{font-size:11px;font-weight:600;color:#fff;background:#3C3489;border:none;
        padding:6px 12px;border-radius:6px;cursor:pointer}
 .wt-btn:disabled{opacity:0.3;cursor:default}
@@ -71,15 +105,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .wt-title{font-size:12px;font-weight:600;color:#fff}
 .wt-desc{font-size:11.5px;color:#C8D4E8;margin-top:2px;line-height:1.5}
 
-/* ── Case card ── */
-.case-card{margin-top:14px;padding:14px;background:linear-gradient(135deg,#1A1830,#0F1A2E);
+.case-card{margin-bottom:16px;padding:14px;background:linear-gradient(135deg,#1A1830,#0F1A2E);
           border:1px solid rgba(175,169,236,0.3);border-radius:8px}
 .case-title{font-size:12.5px;font-weight:600;color:#fff;margin-bottom:6px}
 .case-body{font-size:11.5px;color:#C8D4E8;line-height:1.6;margin-bottom:8px}
 .case-sources{font-size:10px;color:#6A7A9A;line-height:1.5;margin-bottom:10px}
 .case-sources a{color:#85B7EB}
 
-/* ── Mobile accordion (map replacement below 768px) ── */
+/* ── Mobile accordion (lives outside the tab toggle; poster + explorer both
+   reduce to the same accordion below 768px, so it's a single top-level
+   element instead of being duplicated per view) ── */
 .mobile-list{display:none}
 .mobile-item{border:0.5px solid rgba(175,169,236,0.25);border-radius:8px;margin-bottom:6px;overflow:hidden}
 .mobile-item summary{padding:10px 12px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;list-style:none}
@@ -88,9 +123,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .mobile-item-body{padding:0 12px 12px;font-size:11.5px;color:#C8D4E8;line-height:1.6}
 
 /* ── Explanation card (unchanged from Phase A) ── */
-.ecosystem-img{width:100%;max-width:1536px;height:auto;margin-left:auto;margin-right:auto;
-               border-radius:8px;border:0.5px solid rgba(175,169,236,0.25);display:block}
-.img-hint{text-align:center;font-size:11px;color:#8A9AB8;margin-top:6px}
 .caption{margin-top:14px;padding:12px 14px;background:rgba(255,255,255,0.06);border-left:2px solid #378ADD;
          border-radius:0 6px 6px 0;font-size:12px;color:#C8D4E8;line-height:1.6}
 .caption strong{color:#fff}
@@ -102,22 +134,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .sources{font-size:10.5px;color:#888780;line-height:1.6;margin-top:4px}
 .sources a{color:#378ADD}
 
-/* ── Poster section ── */
-.poster-section{margin-top:20px}
-.poster-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px;text-align:center}
-.poster-sub{font-size:11.5px;color:#8A9AB8;margin-bottom:12px;text-align:center}
-.poster-limits{max-width:760px;margin:14px auto 0;padding:12px 14px;background:rgba(239,159,39,0.08);
-              border-left:2px solid #EF9F27;border-radius:0 6px 6px 0;font-size:11.5px;color:#C8D4E8;line-height:1.6}
-.poster-limits strong{color:#fff}
-
 .footer{font-size:12px;color:#8A9AB8;text-align:center;margin-top:16px;
         padding:20px 16px;border-top:1px solid rgba(255,255,255,0.06);
         background:#080812;border-radius:8px;line-height:2.0}
 @media(max-width:768px){
   .hero{padding:14px 12px 16px}
   .card{padding:10px 8px;border-radius:8px}
+  .view-toggle{display:none}
+  #view-explorer{display:none} /* toggle is gone on mobile; poster always shows, explorer's SVG/side-panel unused */
   .map-wrap{display:none}
   .side-panel{display:none}
+  .hotspot{display:none}
+  .panel-cover{display:none}
+  .panel-below{display:none} /* redundant with the accordion below; its "click a box" prompt doesn't apply here */
   .mobile-list{display:block}
 }
 </style>
@@ -143,39 +172,76 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div class="page-sub">Stakeholders, relationships, and value flows — educational reference for business context.</div>
   <div class="static-badge">Static reference &middot; not live data</div>
 
-  <!-- ── Interactive map ── -->
-  <div class="map-card">
-    <div class="map-toolbar">
-      <div class="map-title">Explore the ecosystem</div>
-      <div class="legend" id="legend" role="group" aria-label="Filter by relationship type"></div>
+  <div class="view-toggle" role="group" aria-label="Choose view">
+    <button class="view-toggle-btn" id="toggle-poster" type="button" aria-pressed="true">Poster</button>
+    <button class="view-toggle-btn" id="toggle-explorer" type="button" aria-pressed="false">Relationship explorer</button>
+  </div>
+
+  <div class="walkthrough">
+    <button class="wt-btn" id="wt-prev" aria-label="Previous step">&larr; Prev</button>
+    <div class="wt-text">
+      <div class="wt-title" id="wt-title">Follow the life of a data center</div>
+      <div class="wt-desc" id="wt-desc">Use Next to walk through land &amp; permits, financing, construction, grid connection, equipment, customers, and waste heat.</div>
     </div>
+    <button class="wt-btn" id="wt-next">Next &rarr;</button>
+  </div>
 
-    <div class="map-layout">
-      <div class="map-wrap">
-        <svg id="map-svg" viewBox="0 0 1000 700" role="img" aria-label="Interactive diagram of data center ecosystem stakeholders and relationships"></svg>
+  <div class="case-card">
+    <div class="case-title" id="case-title"></div>
+    <div class="case-body" id="case-body"></div>
+    <div class="case-sources" id="case-sources"></div>
+    <button class="wt-btn" id="case-show">Show highlighted</button>
+  </div>
+
+  <!-- ── Poster view (primary) ── -->
+  <div class="view-section" id="view-poster">
+    <div class="poster-card">
+      <div class="poster-frame" id="poster-frame">
+        <img src="assets/ecosystem-v2.webp" alt="Illustrative poster of the data center ecosystem centered on the Data Center Operator, showing stakeholder boxes and colored relationship arrows across energy, goods/services, contracts, data, and capital/financing flows, with a legend and cross-cutting factors shown at the bottom." class="ecosystem-img" id="poster-img">
+        <svg class="poster-mask-svg" id="poster-mask-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <mask id="poster-dim-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+              <rect x="0" y="0" width="100" height="100" fill="white" id="poster-mask-base"></rect>
+            </mask>
+          </defs>
+          <rect x="0" y="0" width="100" height="100" fill="rgba(8,8,20,0.55)" mask="url(#poster-dim-mask)"></rect>
+        </svg>
+        <div id="poster-hotspots"></div>
+        <div class="panel-cover" id="panel-cover" aria-hidden="true">
+          Click any box on the map, details appear below &darr;
+        </div>
       </div>
-      <div class="side-panel" id="side-panel" role="region" aria-live="polite" aria-label="Selected stakeholder details">
-        <div class="side-panel-empty">Click a stakeholder, or use the legend to filter by relationship type.</div>
+      <div class="panel-below" id="panel-below" role="region" aria-live="polite" aria-label="Selected stakeholder details">
+        <div class="side-panel-empty">Click any box to explore.</div>
       </div>
+      <div class="img-hint">Click any highlighted box · <a href="assets/ecosystem-v2.webp" target="_blank" rel="noopener" style="color:#85B7EB">open full size</a></div>
     </div>
-
-    <!-- Mobile fallback: accordion list instead of the SVG diagram -->
-    <div class="mobile-list" id="mobile-list"></div>
-
-    <div class="walkthrough">
-      <button class="wt-btn" id="wt-prev" aria-label="Previous step">&larr; Prev</button>
-      <div class="wt-text">
-        <div class="wt-title" id="wt-title">Follow the life of a data center</div>
-        <div class="wt-desc" id="wt-desc">Use Next to walk through land &amp; permits, financing, construction, grid connection, equipment, customers, and waste heat.</div>
-      </div>
-      <button class="wt-btn" id="wt-next">Next &rarr;</button>
+    <div class="poster-note">
+      <strong>Note:</strong> the data behind this map is authoritative where it differs from the illustration — two relationship arrows in the poster use colors that don't match its own legend (waste heat, and backup power &amp; fuel), and three suppliers (cooling, storage, backup power) are shown both as their own boxes and inside "Equipment &amp; Technology Suppliers."
     </div>
+  </div>
 
-    <div class="case-card">
-      <div class="case-title" id="case-title"></div>
-      <div class="case-body" id="case-body"></div>
-      <div class="case-sources" id="case-sources"></div>
-      <button class="wt-btn" id="case-show">Show on map</button>
+  <!-- Mobile accordion: lives outside both views (own top-level element,
+       one generator function in the script below) so poster and explorer
+       both collapse to it below 768px without duplicating markup. -->
+  <div class="mobile-list" id="mobile-list"></div>
+
+  <!-- ── Relationship explorer (secondary) ── -->
+  <div class="view-section hidden" id="view-explorer">
+    <div class="map-card">
+      <div class="map-toolbar">
+        <div class="map-title">Explore the ecosystem</div>
+        <div class="legend" id="legend" role="group" aria-label="Filter by relationship type"></div>
+      </div>
+
+      <div class="map-layout">
+        <div class="map-wrap">
+          <svg id="map-svg" viewBox="-20 -20 1040 740" role="img" aria-label="Interactive diagram of data center ecosystem stakeholders and relationships"></svg>
+        </div>
+        <div class="side-panel" id="side-panel" role="region" aria-live="polite" aria-label="Selected stakeholder details">
+          <div class="side-panel-empty">Click a stakeholder, or use the legend to filter by relationship type.</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -200,21 +266,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       </div>
     </div>
   </div>
-
-  <!-- ── Poster section ── -->
-  <div class="poster-section">
-    <div class="poster-title">Overview poster</div>
-    <div class="poster-sub">An illustrative poster version of this map, suitable for slides and printing.</div>
-
-    <a href="assets/ecosystem-v2.webp" target="_blank" rel="noopener">
-      <img src="assets/ecosystem-v2.webp" alt="Illustrative poster of the data center ecosystem centered on the Data Center Operator, showing stakeholder boxes and colored relationship arrows across energy, goods/services, contracts, data, and capital/financing flows, with a legend and cross-cutting factors shown at the bottom. Treat the interactive map above as authoritative where this poster differs from it." class="ecosystem-img">
-    </a>
-    <div class="img-hint">Click to open / download full size</div>
-
-    <div class="poster-limits">
-      <strong>Known limitations of this poster</strong> (the interactive map above is authoritative where they differ): two of its relationship arrows use colors that don't match its own legend (waste heat, and backup power &amp; fuel); three suppliers (cooling, storage, backup power) are listed both as their own boxes and inside "Equipment &amp; Technology Suppliers"; and the "Selected stakeholder" panel shown in the image is part of the illustration only, not a real interactive element.
-    </div>
-  </div>
 </div>
 
 <div class="footer">
@@ -222,7 +273,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
 </div>
 
-<script src="ecosystem-data.v1.js"></script>
+<script src="ecosystem-data.v2.js"></script>
 <script>
 (function() {
   const svg = document.getElementById("map-svg");
@@ -233,6 +284,53 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   let selectedStakeholder = null;
   let highlightSet = null;
   let activeFlowTypes = new Set(Object.keys(FLOW_TYPES));
+
+  function edgeConnects(rel, id) { return rel.from === id || rel.to === id; }
+
+  // ── Poster owner-id resolution (dso folds into tso's box) ──
+  function posterOwnerId(id) {
+    for (const ownerId in POSTER_GROUPS) {
+      if (POSTER_GROUPS[ownerId].extraIds.includes(id)) return ownerId;
+    }
+    return id;
+  }
+  function posterActiveIds(ids) {
+    const out = new Set();
+    ids.forEach(id => out.add(posterOwnerId(id)));
+    return out;
+  }
+
+  // ── Shared relationship-list markup (side panel, mobile list, poster panel) ──
+  function relHtml(id) {
+    let html = "";
+    RELATIONSHIPS.filter(r => edgeConnects(r, id)).forEach(r => {
+      const other = byId[r.from === id ? r.to : r.from];
+      const ft = FLOW_TYPES[r.type];
+      html += '<div class="side-rel"><span class="side-rel-flow" style="background:' + ft.color + '">' + ft.label + '</span><br>'
+            + '<strong>' + r.label + '</strong> — ' + other.name + '<br>' + r.explanation + '</div>';
+    });
+    return html;
+  }
+  function stakeholderDetailHtml(id) {
+    const s = byId[id];
+    return '<div class="side-panel-title">' + s.name + '</div><div>' + s.description + '</div>' + relHtml(id);
+  }
+  function posterPanelHtml(id) {
+    const owner = posterOwnerId(id);
+    const group = POSTER_GROUPS[owner];
+    if (!group) return stakeholderDetailHtml(id);
+    let html = '<div class="side-panel-title">' + group.panelLabel + '</div>';
+    [owner].concat(group.extraIds).forEach(subId => {
+      const s = byId[subId];
+      const label = (group.subLabels && group.subLabels[subId]) || s.name;
+      html += '<div class="panel-sub"><div class="panel-sub-title">' + label + '</div><div>' + s.description + '</div>' + relHtml(subId) + '</div>';
+    });
+    return html;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Relationship explorer (SVG map)
+  // ══════════════════════════════════════════════════════════════
 
   // ── SVG defs: one arrowhead marker per flow type ──
   const defs = document.createElementNS(NS, "defs");
@@ -269,14 +367,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return lines.slice(0, 3);
   }
 
+  const NODE_W = 160, NODE_H = 54;
+
+  // Clip a line endpoint to the edge of a node's box (instead of its exact
+  // center), so edges stop at the border instead of drawing through boxes.
+  function boxEdgePoint(cx, cy, hw, hh, px, py) {
+    const dx = px - cx, dy = py - cy;
+    if (dx === 0 && dy === 0) return { x: cx, y: cy };
+    const tx = dx !== 0 ? hw / Math.abs(dx) : Infinity;
+    const ty = dy !== 0 ? hh / Math.abs(dy) : Infinity;
+    const t = Math.min(tx, ty);
+    return { x: cx + dx * t, y: cy + dy * t };
+  }
+
   // ── Edges (drawn first, under nodes) ──
   RELATIONSHIPS.forEach((rel, i) => {
     const a = byId[rel.from], b = byId[rel.to];
+    const pa = boxEdgePoint(a.x, a.y, NODE_W / 2, NODE_H / 2, b.x, b.y);
+    const pb = boxEdgePoint(b.x, b.y, NODE_W / 2, NODE_H / 2, a.x, a.y);
     const line = document.createElementNS(NS, "line");
     line.setAttribute("id", "edge-" + i);
     line.setAttribute("class", "edge-line");
-    line.setAttribute("x1", a.x); line.setAttribute("y1", a.y);
-    line.setAttribute("x2", b.x); line.setAttribute("y2", b.y);
+    line.setAttribute("x1", pa.x); line.setAttribute("y1", pa.y);
+    line.setAttribute("x2", pb.x); line.setAttribute("y2", pb.y);
     line.setAttribute("stroke", FLOW_TYPES[rel.type].color);
     line.setAttribute("stroke-width", "2.5");
     line.setAttribute("marker-end", "url(#arrow-" + rel.type + ")");
@@ -315,7 +428,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     g.setAttribute("role", "button");
     g.setAttribute("aria-label", s.name + ": " + s.description);
 
-    const w = 160, h = 54;
+    const w = NODE_W, h = NODE_H;
     const rect = document.createElementNS(NS, "rect");
     rect.setAttribute("x", s.x - w/2); rect.setAttribute("y", s.y - h/2);
     rect.setAttribute("width", w); rect.setAttribute("height", h);
@@ -342,25 +455,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     });
     g.appendChild(text);
 
-    const select = () => {
-      if (selectedStakeholder === s.id) {
-        selectedStakeholder = null;
-      } else {
-        selectedStakeholder = s.id;
-        highlightSet = null;
-      }
-      render();
-      updateSidePanel();
-    };
-    g.addEventListener("click", select);
+    g.addEventListener("click", () => select(s.id));
     g.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(); }
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(s.id); }
     });
 
     svg.appendChild(g);
   });
-
-  function edgeConnects(rel, id) { return rel.from === id || rel.to === id; }
 
   function isEdgeHighlighted(rel) {
     if (highlightSet) return highlightSet.has(rel.from) && highlightSet.has(rel.to);
@@ -376,18 +477,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return true;
   }
 
-  function render() {
+  function renderExplorer() {
     const anySelection = !!(highlightSet || selectedStakeholder);
     RELATIONSHIPS.forEach((rel, i) => {
       const el = document.getElementById("edge-" + i);
       const typeOk = activeFlowTypes.has(rel.type);
       const selOk = isEdgeHighlighted(rel);
-      el.style.opacity = !typeOk ? 0.06 : (anySelection && !selOk) ? 0.12 : 1;
+      el.style.opacity = !typeOk ? 0.06 : (anySelection && !selOk) ? 0.45 : 1;
     });
     STAKEHOLDERS.forEach(s => {
       const el = document.getElementById("node-" + s.id);
       const on = isNodeHighlighted(s.id);
-      el.style.opacity = (anySelection && !on) ? 0.3 : 1;
+      el.style.opacity = (anySelection && !on) ? 0.45 : 1;
     });
   }
 
@@ -397,16 +498,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       panel.innerHTML = '<div class="side-panel-empty">Click a stakeholder, or use the legend to filter by relationship type.</div>';
       return;
     }
-    const s = byId[selectedStakeholder];
-    const rels = RELATIONSHIPS.filter(r => edgeConnects(r, selectedStakeholder));
-    let html = '<div class="side-panel-title">' + s.name + '</div><div>' + s.description + '</div>';
-    rels.forEach(r => {
-      const other = byId[r.from === selectedStakeholder ? r.to : r.from];
-      const ft = FLOW_TYPES[r.type];
-      html += '<div class="side-rel"><span class="side-rel-flow" style="background:' + ft.color + '">' + ft.label + '</span><br>'
-            + '<strong>' + r.label + '</strong> — ' + other.name + '<br>' + r.explanation + '</div>';
-    });
-    panel.innerHTML = html;
+    panel.innerHTML = stakeholderDetailHtml(selectedStakeholder);
   }
 
   // ── Legend / filter ──
@@ -422,12 +514,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       const pressed = btn.getAttribute("aria-pressed") === "true";
       if (pressed) { activeFlowTypes.delete(key); btn.setAttribute("aria-pressed", "false"); }
       else { activeFlowTypes.add(key); btn.setAttribute("aria-pressed", "true"); }
-      render();
+      renderExplorer();
     });
     legend.appendChild(btn);
   });
 
-  // ── Mobile accordion (same data, no SVG) ──
+  // ── Mobile accordion (same data, no SVG/poster) ──
   const mobileList = document.getElementById("mobile-list");
   STAKEHOLDERS.forEach(s => {
     const det = document.createElement("details");
@@ -437,17 +529,131 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     det.appendChild(sum);
     const body = document.createElement("div");
     body.className = "mobile-item-body";
-    let bodyHtml = "<p>" + s.description + "</p>";
-    RELATIONSHIPS.filter(r => edgeConnects(r, s.id)).forEach(r => {
-      const other = byId[r.from === s.id ? r.to : r.from];
-      const ft = FLOW_TYPES[r.type];
-      bodyHtml += '<div class="side-rel"><span class="side-rel-flow" style="background:' + ft.color + '">' + ft.label + '</span><br>'
-                + '<strong>' + r.label + '</strong> — ' + other.name + '<br>' + r.explanation + '</div>';
-    });
-    body.innerHTML = bodyHtml;
+    body.innerHTML = "<p>" + s.description + "</p>" + relHtml(s.id);
     det.appendChild(body);
     mobileList.appendChild(det);
   });
+
+  // ══════════════════════════════════════════════════════════════
+  // Poster view (primary)
+  // ══════════════════════════════════════════════════════════════
+
+  const posterFrame = document.getElementById("poster-frame");
+  const hotspotsWrap = document.getElementById("poster-hotspots");
+  const maskSvg = document.getElementById("poster-mask-svg");
+  const maskEl = document.getElementById("poster-dim-mask");
+  const panelCover = document.getElementById("panel-cover");
+  const panelBelow = document.getElementById("panel-below");
+
+  const posterStakeholders = STAKEHOLDERS.filter(s => s.posterBox);
+
+  posterStakeholders.forEach(s => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "hotspot";
+    btn.id = "hotspot-" + s.id;
+    btn.style.left = s.posterBox.x + "%";
+    btn.style.top = s.posterBox.y + "%";
+    btn.style.width = s.posterBox.w + "%";
+    btn.style.height = s.posterBox.h + "%";
+    const group = POSTER_GROUPS[s.id];
+    const label = group ? (group.panelLabel + " (includes " + group.extraIds.map(id => byId[id].name).join(", ") + ")") : (s.name + ": " + s.description);
+    btn.setAttribute("aria-label", label);
+    btn.addEventListener("click", () => select(s.id));
+    hotspotsWrap.appendChild(btn);
+  });
+
+  // Static cover over the poster's illustrated (non-functional) "Selected
+  // stakeholder" panel, from PANEL_REGION (% of poster-frame). The overlay
+  // panel design was dropped: PANEL_REGION.w (20.4%) of the frame's capped
+  // max-width (1536px, the image's native size) tops out at ~313px at any
+  // viewport width, under the ~320px readability floor — so an on-image
+  // overlay panel can never actually render there. The real panel always
+  // renders below the poster instead; this cover just hides the fake one
+  // and points at where the real answer is.
+  panelCover.style.left = PANEL_REGION.x + "%";
+  panelCover.style.top = PANEL_REGION.y + "%";
+  panelCover.style.width = PANEL_REGION.w + "%";
+  panelCover.style.height = PANEL_REGION.h + "%";
+
+  function updatePosterPanel() {
+    panelBelow.innerHTML = selectedStakeholder
+      ? posterPanelHtml(selectedStakeholder)
+      : '<div class="side-panel-empty">Click any box to explore.</div>';
+  }
+
+  function updatePosterVisual() {
+    const anySelection = !!(highlightSet || selectedStakeholder);
+    let activeOwnerIds = new Set();
+    if (highlightSet) activeOwnerIds = posterActiveIds(highlightSet);
+    else if (selectedStakeholder) activeOwnerIds = posterActiveIds([selectedStakeholder]);
+
+    posterStakeholders.forEach(s => {
+      const btn = document.getElementById("hotspot-" + s.id);
+      btn.classList.toggle("glow", anySelection && activeOwnerIds.has(s.id));
+    });
+
+    if (!anySelection) {
+      maskSvg.style.display = "none";
+      return;
+    }
+    maskSvg.style.display = "block";
+    // Rebuild mask: base white rect (dim everywhere) + one black cutout
+    // rect per active posterBox (reveals that box, no dimming there).
+    while (maskEl.children.length > 1) maskEl.removeChild(maskEl.lastChild);
+    activeOwnerIds.forEach(id => {
+      const s = byId[id];
+      if (!s || !s.posterBox) return;
+      const pad = 1.2;
+      const r = document.createElementNS(NS, "rect");
+      r.setAttribute("x", Math.max(0, s.posterBox.x - pad));
+      r.setAttribute("y", Math.max(0, s.posterBox.y - pad));
+      r.setAttribute("width", s.posterBox.w + pad * 2);
+      r.setAttribute("height", s.posterBox.h + pad * 2);
+      r.setAttribute("rx", 1.2);
+      r.setAttribute("fill", "black");
+      maskEl.appendChild(r);
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Shared render / selection
+  // ══════════════════════════════════════════════════════════════
+
+  function render() {
+    renderExplorer();
+    updatePosterVisual();
+  }
+  function updatePanels() {
+    updateSidePanel();
+    updatePosterPanel();
+  }
+
+  function select(id) {
+    if (selectedStakeholder === id) {
+      selectedStakeholder = null;
+    } else {
+      selectedStakeholder = id;
+      highlightSet = null;
+    }
+    render();
+    updatePanels();
+  }
+
+  // ── View toggle ──
+  const togglePoster = document.getElementById("toggle-poster");
+  const toggleExplorer = document.getElementById("toggle-explorer");
+  const viewPoster = document.getElementById("view-poster");
+  const viewExplorer = document.getElementById("view-explorer");
+  function setView(view) {
+    const isPoster = view === "poster";
+    togglePoster.setAttribute("aria-pressed", String(isPoster));
+    toggleExplorer.setAttribute("aria-pressed", String(!isPoster));
+    viewPoster.classList.toggle("hidden", !isPoster);
+    viewExplorer.classList.toggle("hidden", isPoster);
+  }
+  togglePoster.addEventListener("click", () => setView("poster"));
+  toggleExplorer.addEventListener("click", () => setView("explorer"));
 
   // ── Walkthrough ──
   let wtStep = -1;
@@ -470,13 +676,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     }
     wtPrev.disabled = (i <= -1);
     wtNext.disabled = (i >= WALKTHROUGH_STEPS.length - 1);
-    wtNext.textContent = (i >= WALKTHROUGH_STEPS.length - 1) ? "Next →" : "Next →";
     render();
-    updateSidePanel();
+    updatePanels();
   }
   wtPrev.addEventListener("click", () => { if (wtStep > -1) showStep(wtStep - 1); });
   wtNext.addEventListener("click", () => { if (wtStep < WALKTHROUGH_STEPS.length - 1) showStep(wtStep + 1); });
-  showStep(-1);
 
   // ── Case card ──
   document.getElementById("case-title").textContent = CASE_STUDY.title;
@@ -489,11 +693,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     selectedStakeholder = null;
     wtStep = -1;
     render();
-    updateSidePanel();
-    document.getElementById("side-panel").scrollIntoView({behavior: "smooth", block: "nearest"});
+    updatePanels();
   });
 
+  // ── Init ──
+  showStep(-1);
   render();
+  updatePanels();
 })();
 </script>
 

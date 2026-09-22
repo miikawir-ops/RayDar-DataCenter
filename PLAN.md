@@ -593,53 +593,97 @@ findings don't get lost, not because a fix or a direction has been agreed.
   pre-existing in the original `--news` print statements. Not fixed;
   noted here so it isn't lost before someone hits it unprepared.
 
-- **`ecosystem.html` — interactive map live (Phase B, 2026-09-21).** What
-  started as a static mockup image is now `ecosystem-data.v1.js` (single
-  source of truth: `STAKEHOLDERS`, `RELATIONSHIPS`, `FLOW_TYPES`,
-  `WALKTHROUGH_STEPS`, `CASE_STUDY`) driving an interactive SVG map —
-  plain HTML/CSS/SVG/vanilla JS, no graph library (fixed hand-tuned
-  layout, ~15 nodes/17 edges was judged too small to justify one).
-  Page order: interactive map (primary) → the approved plain-language
-  explanation text (unchanged) → the original mockup image, relabeled
-  "Overview poster," kept per Ray's request as a slide/print-friendly
-  reference, with a limitations note on the page itself.
+- **`ecosystem.html` — poster-primary redesign (Phase C, 2026-09-22).**
+  Ray: the poster "looked far better than the plain SVG map" — restored
+  it as the primary, now-interactive view, with the SVG map demoted to a
+  secondary "Relationship explorer" tab. Single source of truth is now
+  `ecosystem-data.v2.js` (bumped from v1 — content changed: added
+  `posterBox`, `POSTER_GROUPS`, `PANEL_REGION`). `posterBox {x,y,w,h}`
+  (% of `assets/ecosystem-v2.webp`, 1536×966) was measured directly off
+  the image — crop+zoom each region, read pixel edges — not estimated;
+  Playwright screenshots at 1850px/1280px confirmed the resulting hotspot
+  buttons align with the illustrated boxes.
 
-  **All three image-era known issues are now resolved by construction,
-  not just noted:**
-  - **Supplier duplication** — resolved by giving Cooling & HVAC,
-    Storage Providers, and Backup Power & Fuel their own stakeholder
-    nodes, and trimming "Equipment & Technology Suppliers" to only what
-    has no dedicated node (compute, power/electrical equipment). Every
-    category now has exactly one home.
-  - **Arrow-color/legend mismatch** — impossible by construction: one
-    `FLOW_TYPES` object defines the 5 relationship-type colors once, and
-    the map, legend, and side panel all render from it. The two
-    previously-wrong arrows (waste heat, backup power & fuel) now carry
-    the correct type in `RELATIONSHIPS`.
-  - **"Selected stakeholder" panel** — now real. Clicking a stakeholder
-    highlights its connections and populates a live side panel from the
-    same data (also reachable via keyboard: `tabindex`, `role="button"`,
-    Enter/Space).
+  **TSO/DSO share one poster hotspot.** The source poster has a single
+  "Grid & Transmission (TSO)" box — no separate DSO box exists to
+  measure. `POSTER_GROUPS.tso` folds `dso` into `tso`'s `posterBox`;
+  clicking it opens a combined panel with two labeled sub-sections
+  ("TSO (Fingrid)" / "DSO (e.g. Caruna)" — the Finland hedge on DSO
+  matters, there are many). `tso`/`dso` stay fully separate everywhere
+  else (Relationship explorer, mobile accordion).
 
-  **The poster (`assets/ecosystem-v2.webp`) keeps its original three
-  issues, documented in a limitations note directly under it on the
-  page** (supplier duplication, the two arrow-color mismatches, and its
-  baked-in non-functional "Selected stakeholder" panel) — readers are
-  told explicitly to treat the interactive map above it as authoritative
-  where the two differ.
+  **Multi-highlight dimming uses an SVG `<mask>`** (`#poster-dim-mask`),
+  not a single-exclusion overlay — a base white rect dims the whole
+  poster, and one black cutout rect per active `posterBox` is added/
+  removed as the highlight set changes. This is what lets the walkthrough
+  and case card (which highlight several stakeholders at once) light up
+  multiple boxes simultaneously on the poster; verified via screenshot
+  showing all 5 poster boxes lit for the 6-stakeholder case-card set
+  (`tso`+`dso` collapse to one box). Hotspot glow ring reuses the
+  parent's "Enter RayDar Data Center ↗" glow language (same two colors,
+  `rgba(133,183,235,·)` / `rgba(83,74,183,·)`, same base/hover intensity
+  split), adapted from a filled button to an outline ring since hotspots
+  sit on top of the photo rather than having their own background.
 
-  **Deliberate additions beyond the original image**, flagged in
-  `ecosystem-data.v1.js` with `added: true` on each: `dso↔operator`
-  (needed once the original single "TSO" box was split into TSO/DSO),
-  `hyperscaler→enterprise`, and three general-mechanism edges
-  (`energy_gen→tso`, `tso→dso`, `capital→construction`) — none of these
-  were literal arrows in the source mockup.
+  **The real "Selected stakeholder" panel always renders below the
+  poster, not as an overlay on top of it.** The original plan called for
+  an on-image overlay positioned over the illustration's panel region,
+  falling back to below only if that region rendered narrower than
+  ~320px. Verification found the fallback is the *only* reachable state:
+  `.poster-frame` is capped at `max-width:1536px` (the image's native
+  size), so `PANEL_REGION.w` (20.4%) tops out at ~313px at any viewport
+  width — confirmed 313px at 1850px and 248px at 1280px, both under the
+  threshold. Rather than ship dead overlay code, the overlay/below
+  branching and the resize-driven width measurement were removed
+  entirely; the panel always renders in `#panel-below`. A static
+  `#panel-cover` (no JS, no width logic) sits over the illustration's
+  fake panel region instead, reading "Click any box on the map, details
+  appear below ↓" — hides the non-functional baked-in panel and points
+  at where the real one lives.
 
-  **Verified with a real headless browser (Playwright/Chromium), not
-  just static analysis** — installed and run locally, then removed
-  (not a project dependency): stakeholder click + side panel, legend
-  filter toggle, walkthrough next/prev, case-card "Show on map"
-  highlighting the intended 6 stakeholders, keyboard selection
-  (Tab+Enter), and the mobile accordion (viewport < 768px, map hidden,
-  15-item list shown, expands on click) — all passed, zero JS console
-  errors through the full interaction sequence.
+  **Mobile (<768px): static poster image, no hotspots, no toggle, the
+  accordion directly underneath.** The view toggle is hidden below
+  768px (poster and explorer would show the same accordion content
+  either way), and the accordion (`#mobile-list`) was moved out of the
+  explorer's markup to a top-level element between the two views — one
+  generator function populates it regardless of which view is "active,"
+  so mobile and desktop can't drift apart into two different stakeholder
+  lists. `#panel-below`'s "click a box" placeholder is also hidden on
+  mobile (misleading once hotspots are gone — the accordion is the real
+  interactive element there).
+
+  **All three original image-era issues remain resolved by
+  construction** (same mechanism as Phase B, now serving the poster
+  hotspots too): `FLOW_TYPES` defines relationship colors once for the
+  map, legend, side panel, *and* poster panel; every supplier category
+  has exactly one stakeholder node; the "Selected stakeholder" panel is
+  real. The poster's own two remaining illustration issues (arrow-color/
+  legend mismatch on waste heat and backup power & fuel; three suppliers
+  shown both standalone and inside "Equipment & Technology Suppliers")
+  are called out in a short note under the poster, same as before.
+
+  **Explorer-tab layout fixes**: edges now clip to each node's box
+  border instead of terminating at its center (`boxEdgePoint()`), so
+  lines stop at the edge instead of drawing through boxes; dimmed
+  opacity raised from 0.12/0.3 to 0.45; side panel gets `max-height` +
+  scroll so it can't overflow the viewport; viewBox padded
+  (`-20 -20 1040 740`) against edge clipping.
+
+  **Deliberate additions beyond the original image**, unchanged from
+  Phase B, still flagged in `ecosystem-data.v2.js` with `added: true`:
+  `dso↔operator`, `hyperscaler→enterprise`, `energy_gen→tso`,
+  `tso→dso`, `capital→construction`.
+
+  **Verified with a real headless browser (Playwright/Chromium)**,
+  installed locally and removed after (not a project dependency): two
+  full passes. First pass covered hotspot alignment at 1850px/1280px
+  (screenshots with hotspots outlined), multi-cutout dimming, the
+  combined TSO/DSO panel, walkthrough/case-card poster highlighting,
+  keyboard selection (Tab+Enter, focus-visible), the view toggle, and
+  the original mobile accordion path — all passed, which is what
+  surfaced the overlay-panel and mobile-accordion findings above. A
+  second pass re-verified after fixing both: panel-cover text and
+  positioning at both widths, combined-panel content still correct with
+  panel-below as the only path, and mobile confirmed toggle/explorer/
+  hotspots/cover all hidden, accordion visible immediately after the
+  poster and functional on tap. Zero JS console errors throughout.
