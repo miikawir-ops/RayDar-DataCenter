@@ -932,3 +932,100 @@ findings don't get lost, not because a fix or a direction has been agreed.
   exact 80vw, fade shows/hides correctly at scroll start/end, the expand
   panel still opens below the row on tap, and desktop card width is
   pixel-identical before and after (249.1875px). Zero console errors.
+
+- **`ecosystem.html` — compact-card collapse bug fixed (root-caused, not
+  patched around) + body text brightened (2026-09-22).** Ray reported the
+  compact card intermittently rendering as a thin strip (title only,
+  description cut off mid-sentence) for some stakeholders but not others
+  in the same session — plus the standing backlog item that the card
+  sometimes ended short of its frosted column.
+
+  **Reproduced deliberately before any fix was written**: routed the
+  poster image request through a 1.5s artificial delay (Playwright
+  `page.route`) and loaded `ecosystem.html#equipment` (a deep link
+  auto-selects on load, the same as a fast click right after page load).
+  Sampled `#compact-card`'s height every 300ms through the load. Result:
+  at t=743ms the image hadn't loaded (`img.complete === false`,
+  `naturalHeight === 0`), `#panel-backdrop`'s rendered height was only
+  20px (its own padding — `.poster-frame` has no height yet, since
+  nothing else in normal flow gives it one before the image paints), and
+  `#compact-card`'s height got locked to the 60px floor at that instant.
+  At t=1987ms the image finished loading and the backdrop correctly grew
+  to 625.6px — but the card's height **stayed at 60px for the rest of
+  the 3.5s observation window**. Root cause: `syncCompactCardMaxHeight()`
+  was only ever called from `updateLightCards()` (on selection change)
+  and on window `resize` — neither fires when the image finishes loading
+  after the initial synchronous script run, which is exactly what
+  happens on an uncached hard reload or a deep link that auto-selects
+  before the image has painted. Once locked in, nothing re-measured it,
+  because a click on a *different* stakeholder re-measures fine (image
+  is loaded by then) — which is why it looked stakeholder-specific and
+  intermittent rather than a clean, obvious, always-reproducing bug.
+
+  **Fixed the root cause, not the symptom**: added a `ResizeObserver` on
+  `#panel-backdrop` itself, so any future change to its rendered size —
+  image load, orientation change, zoom, a reflow from something above it
+  — triggers a re-measurement automatically, without needing every
+  possible trigger enumerated by hand (which is exactly how this bug was
+  introduced: `resize` was wired up, image `load` wasn't). Kept an
+  explicit `poster-img` `load` listener alongside it (redundant with the
+  observer once the image loads, but a fast, obvious first re-sync
+  rather than depending solely on the observer's own scheduling) with an
+  `img.complete` check for the already-cached case. This ResizeObserver
+  fix is also the fix for the "card ends short of the column" backlog
+  item — same stale-measurement root cause, just a smaller gap most of
+  the time rather than a full collapse. **Also added the requested
+  safety net regardless of cause**: the height floor went from 60px
+  (visibly a broken sliver) to 200px (`COMPACT_CARD_MIN_H` — enough for
+  the icon row + name + a couple of lines), so even a future, unforeseen
+  measurement failure can't render as a collapsed strip.
+
+  **Verified**: re-ran the exact reproduction with the fix in place —
+  card now correctly reaches 605.6px once the delayed image loads,
+  instead of staying at 60px. 8 consecutive hard reloads at normal speed
+  (no artificial delay): all 8 landed at 605.6px, backdrop 625.6px, a
+  consistent 20px gap (the backdrop's own padding — not a bug) instead
+  of the variable/large gap reported before. Checked 4 viewport heights
+  (700/900/1100/1400px at fixed width): identical result at all four,
+  since the poster's rendered size is width-driven, not height-driven,
+  ruling out a height-dependent race too.
+
+  **Body text brightened** (separate from the collapse fix, same round):
+  stakeholder descriptions (`.sc-subtitle`), relationship explanations
+  (`.sc-rel-list li`), value-flow labels (`.sc-flow`), the compact card's
+  "How to use this map" body copy (`.sc-howto-list li`), walkthrough step
+  text (`.wt-desc`), and the explanation section's paragraphs
+  (`.explain p`) all moved from muted blue-gray (`#AEB9CC`/`#C8D2E4`) to
+  near-white `#E8EDF5`. Left untouched, deliberately: section headings
+  (`.sc-heading`/`.sc-heading-sm`, already `#fff` bold — hierarchy was
+  already coming from weight, not dimming, exactly as intended), the
+  "Content reviewed" note, source lines, and the "All stakeholders" list
+  item labels (kept at the dimmer tone specifically so the `#fff`
+  active-item state still reads as a distinct highlight, not requested
+  to change and would have removed a working signal). The case card's
+  body text (`.case-body`) wasn't in Ray's original four named regions
+  but was brightened too on review — same reading content on the same
+  page, no principled reason to leave it dimmer.
+
+  **Contrast re-checked, not assumed improved**: worst case is a bright
+  (white) patch of poster behind the glass, composited with the card's
+  0.82-opacity dark-navy base to roughly rgb(54,59,71) — the same
+  worst-case background used for the dark-glass panel contrast check.
+  `#E8EDF5` against that computes to ~9.5:1, clearing AA's 4.5:1 with
+  a large margin and exceeding AAA's 7:1 for normal text too.
+
+  **General lesson, reusable beyond this one bug**: when a layout
+  dimension is measured in JS rather than left to CSS, watch the
+  measured element with `ResizeObserver` rather than re-triggering the
+  measurement from a hand-picked list of events (`resize`, `load`, a
+  click handler, …). An enumerated trigger list is a claim that every
+  way the element's size can change has been anticipated — this bug
+  existed because that claim was wrong (image `load` wasn't wired up,
+  only `resize` was), and the next missed trigger (a font swap, an
+  orientation change, a dynamically inserted sibling) would reproduce
+  the same class of bug through a different door. `ResizeObserver`
+  reports the actual current size whenever it changes, for any reason,
+  which removes the category of bug instead of patching one instance of
+  it. This applies equally to the parent `AI_valuechain` repo's own code
+  if it measures any element's layout in JS — worth checking there too,
+  not just here.

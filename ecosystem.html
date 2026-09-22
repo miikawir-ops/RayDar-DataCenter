@@ -102,17 +102,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
              border:1.5px solid currentColor;box-shadow:0 0 8px currentColor;
              display:flex;align-items:center;justify-content:center}
 .sc-name{font-size:13px;font-weight:700;color:#fff}
-.sc-subtitle{font-size:11px;color:#AEB9CC;line-height:1.5;margin-top:2px}
+.sc-subtitle{font-size:11px;color:#E8EDF5;line-height:1.5;margin-top:2px}
 .sc-divider{height:1px;background:rgba(255,255,255,0.12);margin:10px 0}
 .sc-heading{font-size:11.5px;font-weight:700;color:#fff;margin-bottom:6px}
 .sc-heading-sm{font-size:10.5px;font-weight:700;color:#fff;margin:8px 0 5px;letter-spacing:.02em}
 .sc-rel-list{list-style:none;display:flex;flex-direction:column;gap:6px}
-.sc-rel-list li{font-size:11px;color:#C8D2E4;line-height:1.5;padding-left:13px;position:relative}
+.sc-rel-list li{font-size:11px;color:#E8EDF5;line-height:1.5;padding-left:13px;position:relative}
 .sc-rel-list li::before{content:"";position:absolute;left:0;top:6px;width:5px;height:5px;
                         border-radius:50%;background:#85B7EB}
 .sc-rel-list strong{color:#fff}
 .sc-flow-list{display:flex;flex-direction:column;gap:6px}
-.sc-flow{display:flex;align-items:center;gap:8px;font-size:11px;color:#C8D2E4}
+.sc-flow{display:flex;align-items:center;gap:8px;font-size:11px;color:#E8EDF5}
 .sc-more-btn{display:flex;align-items:center;justify-content:space-between;
              margin-top:12px;padding:8px 12px;border-radius:8px;text-decoration:none;
              background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);
@@ -126,7 +126,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 /* Default-state fill (item 3): how-to-use block + always-visible clickable
    stakeholder list, so the compact card's column is never mostly empty. */
 .sc-howto-list{list-style:none;display:flex;flex-direction:column;gap:3px}
-.sc-howto-list li{font-size:10.5px;color:#C8D2E4;line-height:1.4;padding-left:13px;position:relative}
+.sc-howto-list li{font-size:10.5px;color:#E8EDF5;line-height:1.4;padding-left:13px;position:relative}
 .sc-howto-list li::before{content:"";position:absolute;left:0;top:5px;width:5px;height:5px;
                           border-radius:50%;background:#2DD4BF}
 .sc-stakeholder-list{list-style:none;display:flex;flex-direction:column;margin-top:4px}
@@ -223,12 +223,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .wt-btn:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
 .wt-text{flex:1;min-width:200px;transition:opacity .15s ease}
 .wt-title{font-size:12px;font-weight:600;color:#fff}
-.wt-desc{font-size:11.5px;color:#C8D4E8;margin-top:2px;line-height:1.5}
+.wt-desc{font-size:11.5px;color:#E8EDF5;margin-top:2px;line-height:1.5}
 
 .case-card{margin-top:14px;padding:14px;background:linear-gradient(135deg,#221F3D,#16243A);
           border:1px solid rgba(175,169,236,0.3);border-radius:8px}
 .case-title{font-size:12.5px;font-weight:600;color:#fff;margin-bottom:6px}
-.case-body{font-size:11.5px;color:#C8D4E8;line-height:1.6;margin-bottom:8px}
+.case-body{font-size:11.5px;color:#E8EDF5;line-height:1.6;margin-bottom:8px}
 .case-sources{font-size:10px;color:#7E90B4;line-height:1.5;margin-bottom:10px}
 .case-sources a{color:#85B7EB}
 
@@ -251,7 +251,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   .card{background-color:rgba(10,16,30,0.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 }
 .explain-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:10px}
-.explain p{font-size:12.5px;color:#C8D2E4;line-height:1.7;margin-bottom:12px}
+.explain p{font-size:12.5px;color:#E8EDF5;line-height:1.7;margin-bottom:12px}
 .explain strong{color:#fff}
 .sources{font-size:10.5px;color:#AEB9CC;line-height:1.6;margin-top:4px}
 .sources a{color:#85B7EB}
@@ -641,10 +641,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   // max-height) so the card always fills the column exactly, per Ray's
   // explicit ask — short content just leaves room inside the card's own
   // border rather than a gap between the card and the backdrop below it.
+  // Minimum readable height regardless of a bad backdrop measurement —
+  // enough for the icon row + name + a couple of lines, so even a worst-
+  // case fallback never renders as a collapsed sliver. Root cause of the
+  // collapse this guards against: see the ResizeObserver note below.
+  const COMPACT_CARD_MIN_H = 200;
   function syncCompactCardMaxHeight() {
     const backdropH = panelBackdrop.getBoundingClientRect().height;
     const compactCard = document.getElementById("compact-card");
-    compactCard.style.height = Math.max(60, backdropH - 20) + "px";
+    compactCard.style.height = Math.max(COMPACT_CARD_MIN_H, backdropH - 20) + "px";
   }
   function syncFade() {
     const el = document.getElementById("compact-card");
@@ -919,6 +924,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   panelBackdrop.style.top = PANEL_REGION.y + "%";
   panelBackdrop.style.width = PANEL_REGION.w + "%";
   panelBackdrop.style.height = PANEL_REGION.h + "%";
+
+  // Root cause of the compact-card collapse bug (reproduced with a
+  // deliberately delayed image response, not guessed): syncCompactCardMaxHeight()
+  // was only called from updateLightCards() (on selection change) and on
+  // window "resize" — neither fires when the poster image finishes loading
+  // after the initial script run (the common case on an uncached hard
+  // reload, or when a deep link auto-selects a stakeholder before the
+  // image has painted). At that moment .poster-frame has no height yet
+  // (nothing else in normal flow gives it one), so panel-backdrop's
+  // percentage height resolves to ~0, and the card's measured height gets
+  // locked to the minimum floor — permanently, since nothing re-measured
+  // it afterward. A ResizeObserver on the backdrop itself is the general
+  // fix: it fires on *any* future size change (image load, orientation
+  // change, zoom, font-driven reflow above it), not just the two cases we
+  // happened to think to wire up by hand — which is also the fix for the
+  // "card ends short of the column" backlog item, since that was the same
+  // stale-measurement problem, just with a smaller gap. The explicit image
+  // "load" listener below is redundant with it but kept as a fast, obvious
+  // first re-sync rather than relying solely on the observer's own timing.
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => syncCompactCardMaxHeight()).observe(panelBackdrop);
+  }
+  const posterImgEl = document.getElementById("poster-img");
+  if (posterImgEl.complete) {
+    syncCompactCardMaxHeight();
+  } else {
+    posterImgEl.addEventListener("load", syncCompactCardMaxHeight);
+  }
 
   function updatePosterVisual() {
     const anySelection = !!(highlightSet || selectedStakeholder);
