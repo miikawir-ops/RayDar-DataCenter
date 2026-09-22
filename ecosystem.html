@@ -11,24 +11,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 /* ── Hero (combined, C6): family gradient + laser, teal accent here only ── */
 .hero{background:linear-gradient(135deg,#08081A 0%,#0C1A3A 30%,#1A0830 60%,#0A0818 100%);
-      padding:20px 24px 24px;position:relative;overflow:hidden}
+      padding:14px 28px 14px;position:relative}
 .hero-laser{position:absolute;top:0;left:0;right:0;height:3px;
             background:linear-gradient(90deg,transparent 0%,transparent 10%,#534AB7 28%,#2DD4BF 45%,#ffffff 50%,#2DD4BF 55%,#534AB7 72%,transparent 90%,transparent 100%);
             opacity:0.9}
-.hero-top{display:flex;justify-content:flex-end;margin-bottom:16px}
+.hero-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px}
+.hero-row-top{margin-top:6px}
+.hero-row-bottom{margin-top:6px}
+.hero-title-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .back-link{font-size:12px;font-weight:500;color:#fff;text-decoration:none;
            border:1px solid rgba(175,169,236,0.7);padding:4px 10px;border-radius:10px;
            background:#3C3489;box-shadow:0 0 8px rgba(133,183,235,0.35);
-           display:inline-flex;align-items:center;gap:4px;
+           display:inline-flex;align-items:center;gap:4px;flex-shrink:0;
            transition:background .15s,box-shadow .15s}
 .back-link:hover{background:#4a3fb0;box-shadow:0 0 14px rgba(133,183,235,0.6)}
 .hero-badge{display:inline-block;font-size:10px;font-weight:700;color:#062A28;
-            background:#2DD4BF;padding:3px 10px;border-radius:10px;letter-spacing:.06em;margin-bottom:10px}
-.hero-title-lg{font-size:30px;font-weight:600;color:#fff;letter-spacing:-0.5px;line-height:1.15}
-.hero-tagline{font-size:14px;font-weight:600;margin-top:4px;margin-bottom:12px;
+            background:#2DD4BF;padding:3px 10px;border-radius:10px;letter-spacing:.06em;flex-shrink:0}
+.hero-title-lg{font-size:22px;font-weight:600;color:#fff;letter-spacing:-0.4px;line-height:1.2;margin:0}
+.hero-tagline{font-size:13px;font-weight:600;margin:0;
               background:linear-gradient(90deg,#2DD4BF,#85B7EB);-webkit-background-clip:text;background-clip:text;color:transparent}
-.static-badge{display:inline-block;font-size:10px;font-weight:600;color:#0A0818;
-              background:#85B7EB;padding:3px 10px;border-radius:10px;letter-spacing:.03em;margin-right:8px}
+.static-badge{display:inline-block;font-size:10px;font-weight:600;color:#2DD4BF;
+              background:rgba(45,212,191,0.10);border:1px solid rgba(45,212,191,0.6);
+              padding:2px 9px;border-radius:10px;letter-spacing:.03em}
 .reviewed-note{display:inline-block;font-size:10.5px;color:#9FB0CC}
 
 /* ── D: lighter body, lighter card surfaces ── */
@@ -48,10 +52,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 .stack{display:flex;flex-direction:column}
 #view-poster,#view-explorer{order:1}
-.walkthrough{order:2}
-#panel-below{order:3}
-.case-card{order:4}
-.mobile-list{order:5}
+#panel-below{order:2}
+.case-card{order:3}
+.mobile-list{order:4}
 
 /* ── Poster view (primary) ── */
 .poster-card{background:#16223D;border:1px solid rgba(175,169,236,0.2);border-radius:12px;
@@ -73,31 +76,105 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .poster-note{max-width:760px;margin:14px auto 0;padding:12px 14px;background:rgba(255,255,255,0.05);
              border-left:2px solid #7E90B4;border-radius:0 6px 6px 0;font-size:11px;color:#9FB0CC;line-height:1.6}
 
-/* ── B: light cards (compact card over poster, full panel below walkthrough) ── */
-.light-card{position:absolute;background:#FFFFFF;border-radius:10px;
-            border-top:5px solid #85B7EB;padding:14px;color:#1A1A1A;
-            box-shadow:0 3px 16px rgba(0,0,0,0.35);overflow-y:auto}
+/* ── B: dark glass cards, styled after the poster's own illustrated
+   "Selected stakeholder" panel (Output/Datacenter environment.webp, right
+   side) — dark navy glass with a neon border in the selected stakeholder's
+   accent, round icon ring, "Typical relationships"/"Typical value flows"
+   sections, and a "View details"-style button. Base opacity (0.82 with
+   blur, 0.94 fallback) chosen so light text stays high-contrast even
+   against a worst-case BRIGHT patch of poster behind it (the inverse risk
+   from the earlier light-card version) — see PLAN.md for the worked
+   contrast calculation. */
+.light-card{position:absolute;border-radius:10px;padding:14px;color:#E8ECF5;
+            background-color:rgba(10,16,30,0.94);
+            border:1px solid rgba(133,183,235,0.45);
+            box-shadow:0 0 0 1px rgba(133,183,235,0.25),0 0 14px rgba(133,183,235,0.3),0 3px 16px rgba(0,0,0,0.45);
+            transition:border-color .2s ease,box-shadow .2s ease}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .light-card{background-color:rgba(10,16,30,0.82);
+              backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+}
 .light-card-content{transition:opacity .15s ease}
-.light-card-title{font-size:13px;font-weight:700;color:#1A1A1A;margin-bottom:6px}
-.light-card-desc{font-size:11.5px;color:#3C3C3C;line-height:1.6;margin-bottom:8px}
-.light-card-empty{color:#5F5E58;font-size:12px;display:flex;align-items:center;gap:8px}
-.chip-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:500;
-      color:#1A1A1A;background:#F1F2F6;border-radius:10px;padding:3px 9px 3px 6px}
-.chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,0.18)}
-.chip-plain{display:inline-block;font-size:10.5px;font-weight:600;color:#1A1A1A;
-           background:#F1F2F6;border-radius:10px;padding:3px 9px}
-.more-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;
-           color:#2563EB;text-decoration:none;margin-top:10px}
-.more-link:hover{text-decoration:underline}
-.compact-sub{margin-top:10px;padding-top:10px;border-top:1px solid #E5E7EB}
-.compact-sub:first-of-type{margin-top:6px;padding-top:0;border-top:none}
-.compact-sub-title{font-size:11.5px;font-weight:700;color:#1A1A1A;margin-bottom:4px}
-.panel-sub{margin-top:10px;padding-top:10px;border-top:1px solid #E5E7EB}
-.panel-sub:first-of-type{margin-top:6px;padding-top:0;border-top:none}
-.panel-sub-title{font-size:12px;font-weight:700;color:#1A1A1A;margin-bottom:4px}
+.light-card-empty{color:#AEB9CC;font-size:12px;display:flex;align-items:center;gap:8px}
 
-#compact-card{font-size:11.5px}
+.sc-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:4px}
+.sc-icon-ring{width:38px;height:38px;border-radius:50%;flex-shrink:0;
+             border:1.5px solid currentColor;box-shadow:0 0 8px currentColor;
+             display:flex;align-items:center;justify-content:center}
+.sc-name{font-size:13px;font-weight:700;color:#fff}
+.sc-subtitle{font-size:11px;color:#AEB9CC;line-height:1.5;margin-top:2px}
+.sc-divider{height:1px;background:rgba(255,255,255,0.12);margin:10px 0}
+.sc-heading{font-size:11.5px;font-weight:700;color:#fff;margin-bottom:6px}
+.sc-heading-sm{font-size:10.5px;font-weight:700;color:#fff;margin:8px 0 5px;letter-spacing:.02em}
+.sc-rel-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.sc-rel-list li{font-size:11px;color:#C8D2E4;line-height:1.5;padding-left:13px;position:relative}
+.sc-rel-list li::before{content:"";position:absolute;left:0;top:6px;width:5px;height:5px;
+                        border-radius:50%;background:#85B7EB}
+.sc-rel-list strong{color:#fff}
+.sc-flow-list{display:flex;flex-direction:column;gap:6px}
+.sc-flow{display:flex;align-items:center;gap:8px;font-size:11px;color:#C8D2E4}
+.sc-more-btn{display:flex;align-items:center;justify-content:space-between;
+             margin-top:12px;padding:8px 12px;border-radius:8px;text-decoration:none;
+             background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.2);
+             color:#fff;font-size:11.5px;font-weight:600;
+             transition:background .15s,border-color .15s}
+.sc-more-btn:hover{background:rgba(255,255,255,0.13);border-color:rgba(255,255,255,0.4)}
+.sc-subgroup{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1)}
+.sc-subgroup:first-of-type{margin-top:6px;padding-top:0;border-top:none}
+.sc-subgroup-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:2px}
+
+/* Default-state fill (item 3): how-to-use block + always-visible clickable
+   stakeholder list, so the compact card's column is never mostly empty. */
+.sc-howto-list{list-style:none;display:flex;flex-direction:column;gap:3px}
+.sc-howto-list li{font-size:10.5px;color:#C8D2E4;line-height:1.4;padding-left:13px;position:relative}
+.sc-howto-list li::before{content:"";position:absolute;left:0;top:5px;width:5px;height:5px;
+                          border-radius:50%;background:#2DD4BF}
+.sc-stakeholder-list{list-style:none;display:flex;flex-direction:column;margin-top:4px}
+.sc-stakeholder-item{display:flex;align-items:center;gap:7px;width:100%;padding:2px 6px;
+                     background:none;border:none;border-radius:6px;cursor:pointer;
+                     font-size:10.5px;color:#C8D2E4;text-align:left;
+                     transition:background .12s}
+.sc-stakeholder-item:hover,.sc-stakeholder-item:focus-visible{background:rgba(255,255,255,0.07)}
+.sc-stakeholder-item.active{background:rgba(255,255,255,0.1);color:#fff;font-weight:600}
+.sc-num{width:14px;flex-shrink:0;color:#7E90B4;font-size:9.5px;text-align:right}
+.sc-mini-icon{width:22px;height:22px;border-radius:50%;flex-shrink:0;
+             border:1.5px solid currentColor;box-shadow:0 0 5px currentColor;
+             display:flex;align-items:center;justify-content:center}
+
+/* Collapsible "All stakeholders" list (item 1b): a <details> so it can
+   collapse to one row once a stakeholder is selected (freeing room for
+   that stakeholder's own content) without extra JS state to track — the
+   open/closed default is just computed into the markup on each render. */
+.sc-list-details summary{list-style:none;cursor:pointer;display:flex;align-items:center;
+                         gap:6px;font-size:11.5px;font-weight:700;color:#fff;padding:2px 0}
+.sc-list-details summary::-webkit-details-marker{display:none}
+.sc-list-details summary::after{content:"\25BE";font-size:10px;color:#AEB9CC;
+                                transition:transform .15s}
+.sc-list-details[open] summary::after{transform:rotate(180deg)}
+
+/* Visible scrollbar + bottom fade so overflow is obvious (item 1c) rather
+   than a silent, easy-to-miss native scrollbar. */
+#compact-card{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.35) rgba(255,255,255,0.06)}
+#compact-card::-webkit-scrollbar{width:8px}
+#compact-card::-webkit-scrollbar-track{background:rgba(255,255,255,0.06);border-radius:4px}
+#compact-card::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.35);border-radius:4px}
+#compact-card::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.5)}
+.sc-fade{position:absolute;left:10px;right:10px;bottom:10px;height:28px;
+        background:linear-gradient(180deg, rgba(16,20,36,0) 0%, rgba(16,20,36,0.9) 100%);
+        border-radius:0 0 8px 8px;pointer-events:none;opacity:0;transition:opacity .15s}
+.sc-fade.visible{opacity:1}
+
+/* Permanent full-height backdrop over the illustration's fake panel region
+   (independent of the glass card's own content-sized height below) — keeps
+   the poster's non-functional baked-in "×"/"View details" fully hidden at
+   all times, not just while the card happens to be tall. */
+.panel-backdrop{position:absolute;border-radius:10px;padding:10px;
+                background-color:rgba(16,20,36,0.55)}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .panel-backdrop{background-color:rgba(16,20,36,0.30);
+                  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+}
+#compact-card{position:static;width:100%;height:100%;overflow-y:auto;font-size:11.5px}
 #panel-below{position:static;max-width:100%;margin-top:0;font-size:12px}
 
 /* ── Relationship explorer (secondary) ── */
@@ -130,10 +207,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
             padding:8px 10px;border-radius:6px;max-width:240px;line-height:1.5;z-index:200;
             pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 
-/* ── Walkthrough / case card (shared, drive whichever view is active) ── */
-.walkthrough{margin-top:14px;padding:12px 14px;background:rgba(175,169,236,0.09);
+/* ── Walkthrough (compact bar, item 2: above the poster/explorer so its
+   highlights are visible in the same view at wide widths) / case card ── */
+.walkthrough{margin-bottom:14px;padding:9px 14px;background:rgba(175,169,236,0.09);
             border-radius:8px}
-.wt-mode-toggle{display:flex;gap:6px;margin-bottom:10px}
+.wt-mode-toggle{display:flex;gap:6px;margin-bottom:7px}
 .wt-mode-btn{font-size:10.5px;font-weight:600;color:#C8D4E8;background:rgba(255,255,255,0.05);
             border:1px solid rgba(175,169,236,0.25);padding:4px 10px;border-radius:10px;cursor:pointer}
 .wt-mode-btn[aria-pressed="true"]{color:#fff;background:#3C3489;border-color:rgba(175,169,236,0.6)}
@@ -162,18 +240,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .mobile-item[open] summary{background:rgba(175,169,236,0.1)}
 .mobile-item-body{padding:0 12px 12px;font-size:11.5px;color:#C8D4E8;line-height:1.6}
 
-/* ── Explanation card + glossary ── */
-.card{background:white;border:0.5px solid #E0DFDC;border-radius:12px;
-      padding:16px;margin-top:20px;max-width:760px;margin-left:auto;margin-right:auto}
-.explain-title{font-size:15px;font-weight:600;color:#1A1A1A;margin-bottom:10px}
-.explain p{font-size:12.5px;color:#3C3C3C;line-height:1.7;margin-bottom:12px}
-.explain strong{color:#1A1A1A}
-.sources{font-size:10.5px;color:#888780;line-height:1.6;margin-top:4px}
-.sources a{color:#378ADD}
-.gloss{border-bottom:1px dotted #888780;cursor:help;position:relative}
-.gloss-tip{position:absolute;left:0;bottom:125%;background:#1A1A1A;color:#F8F8F7;font-size:11px;
+/* ── Explanation card: same dark-glass treatment as the stakeholder panels
+   (item 3), so it reads as part of the same system instead of a leftover
+   white card. Contrast re-checked for this context — see PLAN.md. ── */
+.card{border-radius:12px;padding:16px;margin-top:20px;max-width:760px;margin-left:auto;margin-right:auto;
+      color:#E8ECF5;background-color:rgba(10,16,30,0.94);
+      border:1px solid rgba(133,183,235,0.35);
+      box-shadow:0 0 0 1px rgba(133,183,235,0.15),0 3px 16px rgba(0,0,0,0.4)}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .card{background-color:rgba(10,16,30,0.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+}
+.explain-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:10px}
+.explain p{font-size:12.5px;color:#C8D2E4;line-height:1.7;margin-bottom:12px}
+.explain strong{color:#fff}
+.sources{font-size:10.5px;color:#AEB9CC;line-height:1.6;margin-top:4px}
+.sources a{color:#85B7EB}
+.gloss{border-bottom:1px dotted rgba(133,183,235,0.85);cursor:help;position:relative}
+.gloss-tip{position:absolute;left:0;bottom:125%;background:#050810;color:#F8F8F7;font-size:11px;
            padding:8px 10px;border-radius:6px;width:230px;line-height:1.5;z-index:50;
-           box-shadow:0 4px 16px rgba(0,0,0,.3);display:none;font-weight:400}
+           border:1px solid rgba(133,183,235,0.4);
+           box-shadow:0 4px 16px rgba(0,0,0,.5);display:none;font-weight:400}
 .gloss:hover .gloss-tip,.gloss:focus .gloss-tip{display:block}
 
 .footer{font-size:12px;color:#9FB0CC;text-align:center;margin-top:16px;
@@ -190,8 +276,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   #compact-card{display:none}
   #panel-below{display:none}
   .mobile-list{display:block;order:2}
-  .walkthrough{order:3}
-  .case-card{order:5}
+  .case-card{order:3}
 }
 </style>
 </head>
@@ -199,20 +284,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 <div class="hero">
   <div class="hero-laser"></div>
-  <div class="hero-top">
+  <div class="hero-row hero-row-top">
+    <div class="hero-title-group">
+      <span class="hero-badge">ECOSYSTEM MAP</span>
+      <h1 class="hero-title-lg">Data Center Ecosystem</h1>
+    </div>
     <a href="index.html" class="back-link">&larr; Back to dashboard</a>
   </div>
-  <div class="hero-badge">ECOSYSTEM MAP</div>
-  <h1 class="hero-title-lg">Data Center Ecosystem</h1>
-  <div class="hero-tagline">Stakeholders, relationships and value flows</div>
-  <div class="static-badge">Static reference &middot; not live data</div>
-  <span class="reviewed-note">Content reviewed: <span id="reviewed-date"></span></span>
+  <div class="hero-row hero-row-bottom">
+    <div class="hero-tagline">Stakeholders, relationships and value flows</div>
+    <div>
+      <span class="static-badge">Static reference &middot; not live data</span>
+      <span class="reviewed-note">Content reviewed: <span id="reviewed-date"></span></span>
+    </div>
+  </div>
 </div>
 
 <div class="body">
   <div class="view-toggle" role="group" aria-label="Choose view">
     <button class="view-toggle-btn" id="toggle-poster" type="button" aria-pressed="true">Poster</button>
     <button class="view-toggle-btn" id="toggle-explorer" type="button" aria-pressed="false">Relationship explorer</button>
+  </div>
+
+  <!-- ── Walkthrough: above the poster/explorer (item 2) so its highlights
+       are visible in the same view at wide widths, instead of scrolled
+       off-screen below a full-height poster. Drives whichever view is
+       active. ── -->
+  <div class="walkthrough">
+    <div class="wt-mode-toggle" role="group" aria-label="Choose walkthrough">
+      <button class="wt-mode-btn" id="wt-mode-life" type="button" aria-pressed="true">Life of a data center</button>
+      <button class="wt-mode-btn" id="wt-mode-money" type="button" aria-pressed="false">Follow the money</button>
+    </div>
+    <div class="wt-controls">
+      <button class="wt-btn" id="wt-prev" aria-label="Previous step">&larr; Prev</button>
+      <div class="wt-text" id="wt-text">
+        <div class="wt-title" id="wt-title">Follow the life of a data center</div>
+        <div class="wt-desc" id="wt-desc">Use Next to walk through land &amp; permits, financing, construction, grid connection, equipment, customers, and waste heat.</div>
+      </div>
+      <button class="wt-btn" id="wt-next">Next &rarr;</button>
+    </div>
   </div>
 
   <div class="stack">
@@ -230,8 +340,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
             <rect x="0" y="0" width="100" height="100" fill="rgba(8,8,20,0.32)" mask="url(#poster-dim-mask)"></rect>
           </svg>
           <div id="poster-hotspots"></div>
-          <div class="light-card" id="compact-card" role="region" aria-live="polite" aria-label="Selected stakeholder">
-            <div class="light-card-content" id="compact-card-content"></div>
+          <div class="panel-backdrop" id="panel-backdrop">
+            <div class="light-card" id="compact-card" role="region" aria-live="polite" aria-label="Selected stakeholder">
+              <div class="light-card-content" id="compact-card-content"></div>
+            </div>
+            <div class="sc-fade" id="sc-fade"></div>
           </div>
         </div>
         <div class="img-hint">Click any highlighted box · <a href="assets/ecosystem-v2.webp" target="_blank" rel="noopener">open full size</a><a href="assets/ecosystem-v2.webp" download class="download-btn">Download poster</a></div>
@@ -256,22 +369,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
             <div class="side-panel-empty">Click a stakeholder, or use the legend to filter by relationship type.</div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- ── Walkthrough (drives whichever view is active) ── -->
-    <div class="walkthrough">
-      <div class="wt-mode-toggle" role="group" aria-label="Choose walkthrough">
-        <button class="wt-mode-btn" id="wt-mode-life" type="button" aria-pressed="true">Life of a data center</button>
-        <button class="wt-mode-btn" id="wt-mode-money" type="button" aria-pressed="false">Follow the money</button>
-      </div>
-      <div class="wt-controls">
-        <button class="wt-btn" id="wt-prev" aria-label="Previous step">&larr; Prev</button>
-        <div class="wt-text" id="wt-text">
-          <div class="wt-title" id="wt-title">Follow the life of a data center</div>
-          <div class="wt-desc" id="wt-desc">Use Next to walk through land &amp; permits, financing, construction, grid connection, equipment, customers, and waste heat.</div>
-        </div>
-        <button class="wt-btn" id="wt-next">Next &rarr;</button>
       </div>
     </div>
 
@@ -322,7 +419,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
 </div>
 
-<script src="ecosystem-data.v3.js"></script>
+<script src="ecosystem-data.v4.js"></script>
 <script>
 (function() {
   const svg = document.getElementById("map-svg");
@@ -360,6 +457,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
   const CLICK_ICON = '<svg width="20" height="20" viewBox="0 0 16 16" fill="#9AA0AE" aria-hidden="true"><path d="M3 1l11 4.5-4.5 1.8L8 12z"/></svg>';
 
+  // ── Simple stroke icons, one per stakeholder category (dso reuses tso's) ──
+  const ICON_PATHS = {
+    operator: '<rect x="4" y="3" width="12" height="14" rx="1.5"/><line x1="7" y1="7" x2="13" y2="7"/><line x1="7" y1="11" x2="13" y2="11"/>',
+    public_sector: '<path d="M3 8l7-4 7 4"/><line x1="4" y1="8" x2="16" y2="8"/><line x1="5" y1="8" x2="5" y2="15"/><line x1="9" y1="8" x2="9" y2="15"/><line x1="13" y1="8" x2="13" y2="15"/><line x1="3" y1="16" x2="17" y2="16"/>',
+    construction: '<line x1="5" y1="17" x2="5" y2="4"/><line x1="5" y1="5" x2="16" y2="5"/><line x1="12" y1="5" x2="12" y2="9"/><line x1="3" y1="17" x2="8" y2="17"/>',
+    energy_gen: '<circle cx="10" cy="10" r="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="10" y1="16" x2="10" y2="18"/><line x1="2" y1="10" x2="4" y2="10"/><line x1="16" y1="10" x2="18" y2="10"/>',
+    tso: '<path d="M11 2L5 11h4l-1 7 7-10h-4l1-6z"/>',
+    district_heating: '<path d="M10 2c2 4-3 5-2 9a3 3 0 006 0c0-2-1-3-1-5 2 1 3 3 3 5a6 6 0 01-12 0c0-4 4-6 6-9z"/>',
+    cooling: '<line x1="10" y1="2" x2="10" y2="18"/><line x1="2" y1="10" x2="18" y2="10"/><line x1="4.2" y1="4.2" x2="15.8" y2="15.8"/><line x1="15.8" y1="4.2" x2="4.2" y2="15.8"/>',
+    backup_power: '<rect x="3" y="6" width="12" height="8" rx="1"/><rect x="15" y="9" width="2" height="2"/><line x1="6" y1="9" x2="6" y2="11"/><line x1="9" y1="9" x2="9" y2="11"/>',
+    equipment: '<rect x="5" y="5" width="10" height="10" rx="1"/><line x1="7" y1="2" x2="7" y2="5"/><line x1="13" y1="2" x2="13" y2="5"/><line x1="7" y1="15" x2="7" y2="18"/><line x1="13" y1="15" x2="13" y2="18"/><line x1="2" y1="7" x2="5" y2="7"/><line x1="2" y1="13" x2="5" y2="13"/><line x1="15" y1="7" x2="18" y2="7"/><line x1="15" y1="13" x2="18" y2="13"/>',
+    capital: '<ellipse cx="10" cy="6" rx="6" ry="2.5"/><path d="M4 6v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V6"/><path d="M4 10v4c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-4"/>',
+    hyperscaler: '<path d="M6 15a3.5 3.5 0 01-.5-6.96A4 4 0 0113.9 6.1 3.5 3.5 0 0114 15H6z"/>',
+    network: '<circle cx="10" cy="10" r="7"/><ellipse cx="10" cy="10" rx="3" ry="7"/><line x1="3" y1="10" x2="17" y2="10"/>',
+    storage: '<ellipse cx="10" cy="5" rx="6" ry="2.5"/><path d="M4 5v10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V5"/><path d="M4 10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5"/>',
+    enterprise: '<circle cx="7" cy="7" r="2.5"/><circle cx="14" cy="8" r="2"/><path d="M2.5 17c0-2.8 2-4.5 4.5-4.5s4.5 1.7 4.5 4.5"/><path d="M12 17c0-1.8.9-3.3 2.3-4"/>',
+  };
+  function iconSvg(id, size) {
+    size = size || 20;
+    const inner = ICON_PATHS[posterOwnerId(id)] || ICON_PATHS.operator;
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
+  }
+  function flowArrowSvg(color) {
+    return '<svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="1" y1="5" x2="13" y2="5"/><path d="M9 1l4 4-4 4"/></svg>';
+  }
+
   // ── Shared relationship-list markup (side panel, mobile list — dark theme) ──
   function relHtml(id) {
     let html = "";
@@ -376,76 +499,157 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return '<div class="side-panel-title">' + s.name + '</div><div>' + s.description + '</div>' + relHtml(id);
   }
 
-  // ── Light-card relationship chips (compact + full panel) ──
-  function chipsHtml(id) {
+  // ── Dark-glass card content, styled after the poster's illustrated panel.
+  // Shared by the compact card and the full panel below the walkthrough. ──
+  function relListHtml(id) {
     const rels = RELATIONSHIPS.filter(r => edgeConnects(r, id));
     if (!rels.length) return "";
-    return '<div class="chip-list">' + rels.map(r => {
-      const ft = FLOW_TYPES[r.type];
-      return '<span class="chip"><span class="dot" style="background:' + ft.color + '"></span>' + r.label + '</span>';
-    }).join('') + '</div>';
+    return '<ul class="sc-rel-list">' + rels.map(r =>
+      '<li><strong>' + r.label + '</strong> — ' + r.explanation + '</li>'
+    ).join('') + '</ul>';
   }
-  function fullRelsHtml(id) {
-    return relHtml(id).replace(/class="side-rel"/g, 'class="side-rel" style="background:#F7F8FA;color:#1A1A1A"')
-                       .replace(/<strong>/g, '<strong style="color:#1A1A1A">');
+  function flowListHtml(id) {
+    const rels = RELATIONSHIPS.filter(r => edgeConnects(r, id));
+    if (!rels.length) return "";
+    const seen = new Set();
+    let html = "";
+    rels.forEach(r => {
+      const key = r.type + "|" + r.label;
+      if (seen.has(key)) return;
+      seen.add(key);
+      html += '<div class="sc-flow">' + flowArrowSvg(FLOW_TYPES[r.type].color) + '<span>' + r.label + '</span></div>';
+    });
+    return '<div class="sc-flow-list">' + html + '</div>';
   }
-
+  function scHeaderHtml(id, name, subtitle) {
+    return '<div class="sc-header"><div class="sc-icon-ring" style="color:' + accentFor(id) + '">' + iconSvg(id, 20) + '</div>'
+         + '<div><div class="sc-name">' + name + '</div>' + (subtitle ? '<div class="sc-subtitle">' + subtitle + '</div>' : '') + '</div></div>';
+  }
   function defaultLightHtml() {
     return '<div class="light-card-empty">' + CLICK_ICON + '<span>Click any box to explore.</span></div>';
   }
-  function highlightedSummaryHtml(full) {
+  function howToHtml() {
+    return '<div class="sc-heading">How to use this map</div>'
+         + '<ul class="sc-howto-list">'
+         + '<li>Click any box to see its details.</li>'
+         + '<li>Try "Life of a data center" or "Follow the money" above.</li>'
+         + '<li>Hover underlined terms below for definitions.</li>'
+         + '</ul>';
+  }
+  function highlightedSummaryHtml() {
     const ids = Array.from(posterActiveIds(highlightSet));
-    let html = '<div class="light-card-title">Currently highlighted</div>';
-    if (!full) {
-      html += '<div class="chip-list">' + ids.map(id => '<span class="chip-plain">' + displayLabel(id) + '</span>').join('') + '</div>';
-    } else {
-      ids.forEach(id => {
-        const group = POSTER_GROUPS[id];
-        html += '<div class="panel-sub"><div class="panel-sub-title">' + displayLabel(id) + '</div>'
-              + (group ? '' : ('<div class="light-card-desc">' + byId[id].description + '</div>'))
-              + '</div>';
-      });
-    }
+    let html = '<div class="sc-heading">Currently highlighted</div>';
+    ids.forEach(id => {
+      const group = POSTER_GROUPS[id];
+      html += scHeaderHtml(id, displayLabel(id), group ? "" : byId[id].description);
+    });
     return html;
   }
-  function compactSelectedHtml(id) {
+  function selectedCardHtml(id, withMoreLink) {
     const owner = posterOwnerId(id);
     const group = POSTER_GROUPS[owner];
     if (group) {
-      let html = '<div class="light-card-title">' + group.panelLabel + '</div>';
+      let html = scHeaderHtml(owner, group.panelLabel, "");
       [owner].concat(group.extraIds).forEach(subId => {
-        const s = byId[subId];
-        const label = (group.subLabels && group.subLabels[subId]) || s.name;
-        html += '<div class="compact-sub"><div class="compact-sub-title">' + label + '</div>' + chipsHtml(subId) + '</div>';
+        const sub = byId[subId];
+        const label = (group.subLabels && group.subLabels[subId]) || sub.name;
+        html += '<div class="sc-subgroup"><div class="sc-subgroup-title">' + label + '</div>'
+              + '<div class="sc-subtitle">' + sub.description + '</div>'
+              + '<div class="sc-heading-sm">Typical relationships</div>' + relListHtml(subId)
+              + '<div class="sc-heading-sm">Typical value flows</div>' + flowListHtml(subId)
+              + '</div>';
       });
-      html += '<a href="#panel-below" class="more-link">More details &darr;</a>';
+      if (withMoreLink) html += '<a href="#panel-below" class="sc-more-btn">More details <span>&rarr;</span></a>';
       return html;
     }
     const s = byId[owner];
-    return '<div class="light-card-title">' + s.name + '</div>'
-         + '<div class="light-card-desc">' + s.description + '</div>'
-         + chipsHtml(owner)
-         + '<a href="#panel-below" class="more-link">More details &darr;</a>';
-  }
-  function fullSelectedHtml(id) {
-    const owner = posterOwnerId(id);
-    const group = POSTER_GROUPS[owner];
-    if (group) {
-      let html = '<div class="light-card-title">' + group.panelLabel + '</div>';
-      [owner].concat(group.extraIds).forEach(subId => {
-        const s = byId[subId];
-        const label = (group.subLabels && group.subLabels[subId]) || s.name;
-        html += '<div class="panel-sub"><div class="panel-sub-title">' + label + '</div><div class="light-card-desc">' + s.description + '</div>' + fullRelsHtml(subId) + '</div>';
-      });
-      return html;
-    }
-    const s = byId[owner];
-    return '<div class="light-card-title">' + s.name + '</div><div class="light-card-desc">' + s.description + '</div>' + fullRelsHtml(owner);
+    return scHeaderHtml(owner, s.name, s.description)
+         + '<div class="sc-heading-sm">Typical relationships</div>' + relListHtml(owner)
+         + '<div class="sc-heading-sm">Typical value flows</div>' + flowListHtml(owner)
+         + (withMoreLink ? '<a href="#panel-below" class="sc-more-btn">More details <span>&rarr;</span></a>' : '');
   }
 
-  function fadeSwap(el, html) {
+  // ── Always-visible clickable stakeholder list (compact card only, item 3):
+  // keeps the column filled and gives a second way to select any box. ──
+  function stakeholderListHtml() {
+    const activeOwnerIds = selectedStakeholder ? posterActiveIds([selectedStakeholder])
+                          : highlightSet ? posterActiveIds(highlightSet) : new Set();
+    let items = '<ol class="sc-stakeholder-list">';
+    posterStakeholders.forEach((s, i) => {
+      const active = activeOwnerIds.has(s.id);
+      const label = s.id === "tso" ? "Grid (TSO &amp; DSO)" : s.name;
+      items += '<li><button type="button" class="sc-stakeholder-item' + (active ? " active" : "") + '" data-select="' + s.id + '">'
+            + '<span class="sc-num">' + (i + 1) + '</span>'
+            + '<span class="sc-mini-icon" style="color:' + brighten(s.posterAccent, 75) + '">' + iconSvg(s.id, 13) + '</span>'
+            + '<span>' + label + '</span></button></li>';
+    });
+    items += '</ol>';
+    // Collapsed to a single toggle row once something's selected (item 1b:
+    // frees room for that stakeholder's own content) — expanded by default
+    // only in the true default state. Recomputed fresh on every render
+    // rather than tracking open/closed across updates, matching the spec.
+    const openAttr = selectedStakeholder ? "" : " open";
+    return '<details class="sc-list-details"' + openAttr + '><summary>All stakeholders</summary>' + items + '</details>';
+  }
+
+  // Central fade helper — every opacity-fade content update on this page
+  // routes through this, specifically so the firstRender guard can't be
+  // forgotten on some future addition. It was forgotten twice already: an
+  // unguarded opacity+setTimeout fade left the default-state compact card
+  // at opacity:0 on first paint (found via a Playwright timing trace), and
+  // the walkthrough intro text had the identical hand-rolled pattern,
+  // independently reproducing the same bug. `apply` does the actual DOM
+  // update (innerHTML swap, textContent, etc.); this only owns the timing.
+  let firstRender = true;
+  function safeFade(el, apply) {
+    if (firstRender) { apply(); el.style.opacity = 1; return; }
     el.style.opacity = 0;
-    setTimeout(() => { el.innerHTML = html; el.style.opacity = 1; }, 90);
+    setTimeout(() => { apply(); el.style.opacity = 1; }, 90);
+  }
+  function fadeSwap(el, html, onDone) {
+    safeFade(el, () => { el.innerHTML = html; if (onDone) onDone(); });
+  }
+
+  function hexToRgb(hex) {
+    const n = parseInt(hex.replace("#", ""), 16);
+    return ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255);
+  }
+  // Lightens a hex color for use on the dark cards (item 4) — the "true"
+  // sampled posterAccent stays unchanged for borders/glows elsewhere, which
+  // already read fine against the dark backdrop; only the small mini-icons
+  // needed a boost, since several accents (e.g. public_sector's deep
+  // purple, energy_gen's dark green) are too dark to read at 16px.
+  function brighten(hex, amt) {
+    const n = parseInt(hex.replace("#", ""), 16);
+    const r = Math.min(255, ((n >> 16) & 255) + amt);
+    const g = Math.min(255, ((n >> 8) & 255) + amt);
+    const b = Math.min(255, (n & 255) + amt);
+    return "#" + [r, g, b].map(v => Math.round(v).toString(16).padStart(2, "0")).join("");
+  }
+  function applyAccent(el, hex) {
+    const rgb = hexToRgb(hex);
+    el.style.borderColor = "rgba(" + rgb + ",0.6)";
+    el.style.boxShadow = "0 0 0 1px rgba(" + rgb + ",0.4), 0 0 18px rgba(" + rgb + ",0.5), 0 3px 16px rgba(0,0,0,0.45)";
+  }
+
+  // Pixel-measured, fixed height (not max-height) rather than a CSS
+  // percentage chain: #compact-card's height needs to resolve against
+  // .panel-backdrop, whose own height is itself a percentage against
+  // .poster-frame's auto height — that two-level percentage chain doesn't
+  // reliably resolve to the full available space. Measuring the backdrop's
+  // real pixel height sidesteps the ambiguity entirely. Fixed height (not
+  // max-height) so the card always fills the column exactly, per Ray's
+  // explicit ask — short content just leaves room inside the card's own
+  // border rather than a gap between the card and the backdrop below it.
+  function syncCompactCardMaxHeight() {
+    const backdropH = panelBackdrop.getBoundingClientRect().height;
+    const compactCard = document.getElementById("compact-card");
+    compactCard.style.height = Math.max(60, backdropH - 20) + "px";
+  }
+  function syncFade() {
+    const el = document.getElementById("compact-card");
+    const fade = document.getElementById("sc-fade");
+    fade.classList.toggle("visible", el.scrollHeight > el.clientHeight + 1);
   }
 
   function updateLightCards() {
@@ -454,23 +658,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     const panelWrap = document.getElementById("panel-below");
     const panelContent = document.getElementById("panel-below-content");
 
-    let accent = "#85B7EB", compactHtml, fullHtml;
+    let accent = "#85B7EB", topHtml, fullHtml;
     if (selectedStakeholder) {
       accent = accentFor(selectedStakeholder);
-      compactHtml = compactSelectedHtml(selectedStakeholder);
-      fullHtml = fullSelectedHtml(selectedStakeholder);
+      topHtml = selectedCardHtml(selectedStakeholder, true);
+      fullHtml = selectedCardHtml(selectedStakeholder, false);
     } else if (highlightSet) {
-      compactHtml = highlightedSummaryHtml(false);
-      fullHtml = highlightedSummaryHtml(true);
+      // The compact card (right beside the poster) already explains what's
+      // highlighted — the full panel below no longer duplicates it (item 2),
+      // now that the walkthrough sits above the poster instead of below it.
+      topHtml = highlightedSummaryHtml();
+      fullHtml = defaultLightHtml();
     } else {
-      compactHtml = defaultLightHtml();
+      topHtml = howToHtml();
       fullHtml = defaultLightHtml();
     }
-    compactWrap.style.borderTopColor = accent;
-    panelWrap.style.borderTopColor = accent;
-    fadeSwap(compactContent, compactHtml);
+    applyAccent(compactWrap, accent);
+    applyAccent(panelWrap, accent);
+    syncCompactCardMaxHeight();
+    fadeSwap(compactContent, topHtml + '<div class="sc-divider"></div>' + stakeholderListHtml(), syncFade);
     fadeSwap(panelContent, fullHtml);
   }
+  window.addEventListener("resize", () => { syncCompactCardMaxHeight(); syncFade(); });
+  // Event delegation on the stable container (innerHTML gets replaced on
+  // every update, so per-button listeners would be lost) — clicking any
+  // stakeholder in the always-visible list selects it exactly like clicking
+  // its poster hotspot.
+  document.getElementById("compact-card-content").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-select]");
+    if (btn) select(btn.getAttribute("data-select"));
+  });
 
   // ══════════════════════════════════════════════════════════════
   // Relationship explorer (SVG map)
@@ -678,7 +895,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   const hotspotsWrap = document.getElementById("poster-hotspots");
   const maskSvg = document.getElementById("poster-mask-svg");
   const maskEl = document.getElementById("poster-dim-mask");
-  const compactCard = document.getElementById("compact-card");
+  const panelBackdrop = document.getElementById("panel-backdrop");
 
   const posterStakeholders = STAKEHOLDERS.filter(s => s.posterBox);
 
@@ -698,10 +915,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     hotspotsWrap.appendChild(btn);
   });
 
-  compactCard.style.left = PANEL_REGION.x + "%";
-  compactCard.style.top = PANEL_REGION.y + "%";
-  compactCard.style.width = PANEL_REGION.w + "%";
-  compactCard.style.height = PANEL_REGION.h + "%";
+  panelBackdrop.style.left = PANEL_REGION.x + "%";
+  panelBackdrop.style.top = PANEL_REGION.y + "%";
+  panelBackdrop.style.width = PANEL_REGION.w + "%";
+  panelBackdrop.style.height = PANEL_REGION.h + "%";
 
   function updatePosterVisual() {
     const anySelection = !!(highlightSet || selectedStakeholder);
@@ -813,12 +1030,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       highlightSet = new Set(step.highlightIds);
       selectedStakeholder = null;
     }
-    wtText.style.opacity = 0;
-    setTimeout(() => {
-      wtTitle.textContent = title;
-      wtDesc.textContent = desc;
-      wtText.style.opacity = 1;
-    }, 90);
+    safeFade(wtText, () => { wtTitle.textContent = title; wtDesc.textContent = desc; });
     wtPrev.disabled = (i <= -1);
     wtNext.disabled = (i >= steps.length - 1);
     render();
@@ -862,6 +1074,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     render();
     updatePanels();
     updateHash();
+    // The case card sits below the poster, so unlike the walkthrough (now
+    // above the poster) its highlight isn't already in view — scroll the
+    // poster/explorer into view so the glow is visible without a manual scroll.
+    document.getElementById(togglePoster.getAttribute("aria-pressed") === "true" ? "view-poster" : "view-explorer")
+      .scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   // ── Glossary tooltips (content from GLOSSARY, single source of truth) ──
@@ -876,12 +1093,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
   // ── Init (+ deep link: #<stakeholder-id> preselects it) ──
   // Capture the incoming hash before showStep(-1) below calls updateHash()
-  // and overwrites it with the URL's bare path.
+  // and overwrites it with the URL's bare path. showStep(-1) already calls
+  // render()/updatePanels()/updateHash() internally — no need to repeat
+  // them here (that duplication was the root cause of the opacity race
+  // fixed above: two overlapping fadeSwap timers from two back-to-back
+  // update calls on the same initial paint).
   const initialId = location.hash.replace("#", "");
   showStep(-1);
-  render();
-  updatePanels();
   if (initialId && byId[initialId]) select(initialId);
+  firstRender = false;
 })();
 </script>
 

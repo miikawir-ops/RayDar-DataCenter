@@ -787,3 +787,79 @@ findings don't get lost, not because a fix or a direction has been agreed.
   hash-ordering bug above during this pass); and mobile's toggle/
   compact-card hidden, accordion visible. Zero JS console errors across
   every viewport and interaction tested.
+
+- **`ecosystem.html` — dark-glass panel redesign, layout, and first-render
+  fixes (Phase E, 2026-09-22).** Data file bumped to `ecosystem-data.v4.js`
+  (equipment stakeholder's description corrected — it listed cooling/
+  storage/networking/backup power as its own items while those already
+  have dedicated stakeholder nodes, contradicting the poster's own box).
+
+  **Panel restyle**: the light frosted-glass card from Phase D was
+  restyled to match the poster's own illustrated "Selected stakeholder"
+  panel (measured directly from `Output/Datacenter environment.webp`,
+  not memory) — dark navy glass, neon border/glow in the selected
+  stakeholder's own sampled accent color, a round icon ring (14 hand-
+  authored stroke icons), "Typical relationships" / "Typical value flows"
+  sections (the latter as colored arrows matching the flow-type legend),
+  and a "More details →" button styled after the illustration's "View
+  details." Applied identically to the full panel below the walkthrough
+  and to the "How a data center actually works" explanation card, so all
+  three read as one system. Contrast re-verified for light-on-dark (the
+  inverse risk from Phase D's dark-on-light) — worst case is a *bright*
+  patch of poster behind the card; at 0.82 base opacity, dark navy over
+  white still composites to ~11:1 contrast for white text.
+
+  **Column-fill mechanics, tuned twice**: the compact card was first
+  built with `max-height` (a ceiling, so short content left a large gap
+  below the card) — changed to a **pixel-measured fixed height**
+  (`panelBackdrop.getBoundingClientRect().height`, not a CSS percentage
+  chain, which didn't reliably resolve through `.panel-backdrop`'s own
+  percentage height against `.poster-frame`'s auto height) so the card
+  always fills the column regardless of content length. For content that
+  still overflows the fixed height (e.g. combined TSO/DSO), the "All
+  stakeholders" list collapses to a single `<details>` toggle row once a
+  stakeholder is selected — expanded only in the true default state —
+  freeing most of the column; a bottom-edge fade plus a styled (not
+  browser-default-invisible) scrollbar make remaining overflow obvious.
+  List row spacing and icon size (22px, brightened via a `brighten()`
+  helper for legibility — the *true* sampled accent stays unchanged for
+  borders/glows) were tuned so all 14 entries fit without scrolling in
+  the default state at 1850px; 1280px scrolls, which is accepted.
+
+  **Layout**: the walkthrough (both paths, Prev/Next, step text) moved to
+  sit directly between the view toggle and the poster/explorer, so its
+  highlights land in the same viewport as the poster at wide widths
+  instead of being scrolled off below a full-height poster image. The
+  full panel below no longer duplicates the "Currently highlighted"
+  summary the compact card already shows next to the glowing boxes.
+  "Show highlighted" on the case card (which still sits below the fold)
+  scrolls the poster/explorer into view.
+
+  **Two first-render bugs, one root cause, now one fix point**: a hand-
+  rolled opacity+`setTimeout(…, 90)` fade pattern, used both for the
+  compact card's content swap and for the walkthrough's intro text, left
+  each at `opacity:0` on a cold first paint (confirmed via a Playwright
+  timing trace: two overlapping fade timers racing during init). Fixing
+  the card's instance didn't prevent the same pattern from being
+  hand-rolled again for the walkthrough text days later — so both were
+  replaced with a single `safeFade(el, apply)` helper that every fading
+  update on this page now routes through, skipping the timer entirely on
+  the very first paint. New fades added in the future can't reintroduce
+  this bug by forgetting a guard, because there's no longer a second
+  place to forget it. **General lesson**: a hand-rolled async-UI-timing
+  pattern (fade, debounce, delayed reveal) that gets copy-pasted instead
+  of centralized will reproduce its bugs at each copy — centralize the
+  first time a second copy is about to be written, not after a third bug
+  report.
+
+  **Verified with Playwright** at 1850px/1280px/375px across every round
+  of this phase: hotspot/list-click selection, the collapsed-list state
+  under long combined content (confirmed complete text via scroll-to-
+  bottom, not just "doesn't visibly clip"), fixed-height column-fill in
+  both long- and short-content states (gap consistently ~10px, matching
+  intended padding, vs. up to ~280px before), walkthrough-above-poster
+  glow visibility without scrolling, case-card scroll-into-view, the
+  centralized fade fix (3 fresh-load trials, opacity:1 and correct text
+  immediately, both card and walkthrough), and a full click-through
+  regression (select → walkthrough → case card → view toggle) at all
+  three widths. Zero JS console errors throughout.

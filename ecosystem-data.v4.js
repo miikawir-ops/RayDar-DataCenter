@@ -1,4 +1,4 @@
-// ecosystem-data.v3.js — single source of truth for the interactive Data
+// ecosystem-data.v4.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -7,8 +7,11 @@
 // Versioned filename: any future content edit gets a new suffix (v2, v3...)
 // rather than reusing this one, so browser/CDN caches can't silently serve
 // stale content (the same lesson as the poster image rename). v2 added
-// posterBox/panelRegion/POSTER_GROUPS. v3 adds posterAccent, GLOSSARY,
-// MONEY_WALKTHROUGH_STEPS, CONTENT_REVIEWED.
+// posterBox/panelRegion/POSTER_GROUPS. v3 added posterAccent, GLOSSARY,
+// MONEY_WALKTHROUGH_STEPS, CONTENT_REVIEWED. v4 clarifies the equipment
+// stakeholder's description (it listed cooling/storage/networking/backup
+// power as its own bullets while those already have dedicated stakeholder
+// nodes elsewhere on the map — contradicted the poster's own box).
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -73,7 +76,7 @@ const STAKEHOLDERS = [
     posterBox: { x: 2.1, y: 55.5, w: 17.4, h: 11.6 }, posterAccent: "#D4A017" },
 
   { id: "equipment", name: "Equipment & Technology Suppliers", x: 900, y: 140,
-    description: "Suppliers of compute (GPU/ASIC) hardware and power/electrical equipment for the facility.",
+    description: "Suppliers of compute (GPU/ASIC) hardware and power/electrical equipment for the facility. Cooling, storage, networking and backup power suppliers are shown as their own stakeholders on the map.",
     posterBox: { x: 58.4, y: 27.0, w: 18.9, h: 12.8 }, posterAccent: "#22DCF8" },
   { id: "capital", name: "Capital & Finance", x: 900, y: 230,
     description: "Infrastructure funds, data center REITs, lenders, and equity partners financing construction and operation.",
