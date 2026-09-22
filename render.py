@@ -524,9 +524,10 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .card-label{{font-size:10px;font-weight:500;color:#888780;
              letter-spacing:.05em;margin-bottom:12px}}
 .fetch-note{{font-size:10px;color:#B4B2A9;margin-top:4px}}
-.layer{{flex-shrink:0;width:148px;border:1.5px solid;border-radius:10px;
+.layer{{flex:1;min-width:120px;width:148px;border:1.5px solid;border-radius:10px;
         padding:11px 10px;cursor:pointer;transition:transform .1s,box-shadow .1s}}
 .layer:hover{{transform:translateY(-2px)}}
+.chain-arrow{{display:flex;align-items:center;padding:20px 3px 0;flex-shrink:0}}
 .layer.insufficient{{border-style:dashed}}
 .lyr-pill{{font-size:9px;font-weight:500;padding:2px 8px;border-radius:10px;
            display:inline-block;margin-bottom:6px}}
@@ -680,6 +681,24 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   .hero-top{{gap:6px}}
   #hero-chain-status{{flex-wrap:wrap}}
   #hero-chain-status > div{{min-width:calc(33.3% - 1px);flex:none}}
+
+  /* Swipeable sub-layer row (mobile only; desktop #chain is untouched).
+     Peek-width cards (80vw) are the primary swipe cue since mobile
+     browsers hide scrollbars; scroll-snap makes each swipe land cleanly
+     on a card. #chain .layer's specificity (id+class) overrides the
+     bare .layer rule above without needing !important. */
+  #chain{{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
+         -webkit-overflow-scrolling:touch;gap:10px;
+         margin:0 -8px;padding:2px 8px 6px;scroll-padding-left:8px}}
+  #chain .layer{{flex:0 0 80vw;max-width:80vw;min-width:0;scroll-snap-align:start}}
+  .chain-arrow{{display:none}} /* doesn't fit naturally at 80vw card width */
+  .chain-fade{{position:absolute;top:0;right:0;bottom:6px;width:32px;
+              background:linear-gradient(90deg,rgba(14,22,40,0) 0%,#101C32 100%);
+              pointer-events:none;opacity:1;transition:opacity .15s}}
+  .chain-fade.hidden{{opacity:0}}
+}}
+@media(min-width:769px){{
+  .chain-fade{{display:none}} /* desktop: row never overflows, no fade needed */
 }}
 @media(max-width:380px){{
   .hm-grid{{grid-template-columns:1fr 1fr}}
@@ -800,7 +819,10 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     <p style="margin-bottom:2px">Stock prices &amp; fundamentals, capex data — Yahoo Finance · News signals — Reuters, Yahoo Finance, MarketWatch, CNBC</p>
     <p style="margin-top:8px;font-size:10px;color:#B4B2A9">Quarterly financials may be up to 90 days old · Not financial advice · Always do your own research</p>
   </div>
-  <div style="display:flex;align-items:stretch;gap:0" id="chain"></div>
+  <div id="chain-wrap" style="position:relative">
+    <div style="display:flex;align-items:stretch;gap:0" id="chain"></div>
+    <div id="chain-fade" class="chain-fade"></div>
+  </div>
   <div id="expand-area"></div>
   <div style="margin-top:14px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -1032,6 +1054,19 @@ function buildBottleneckStrip() {{
   strip.innerHTML = html;
 }}
 
+// Reusable mobile swipe-row pattern (see .chain-arrow/.chain-fade/#chain-wrap
+// in the <style> block for the CSS half) — horizontally scroll-snapping row
+// with a peek-width next card and an edge fade that hides once scrolled to
+// the end. Self-contained: only touches #chain/#chain-fade by id, so the
+// parent AI_valuechain dashboard's own layer row can reuse it as-is.
+function updateChainFade() {{
+  const chain = document.getElementById("chain");
+  const fade = document.getElementById("chain-fade");
+  if (!chain || !fade) return;
+  const atEnd = chain.scrollLeft + chain.clientWidth >= chain.scrollWidth - 4;
+  fade.classList.toggle("hidden", atEnd);
+}}
+
 function buildChain() {{
   const wrap = document.getElementById("chain");
   wrap.innerHTML = "";
@@ -1040,7 +1075,7 @@ function buildChain() {{
     div.className = "layer" + (l.insufficient ? " insufficient" : "");
 
     if (l.insufficient) {{
-      div.style.cssText = `flex:1;min-width:120px;background:#F1EFE8;border-color:#B4B2A9;`;
+      div.style.cssText = `background:#F1EFE8;border-color:#B4B2A9;`;
       div.innerHTML = `
         <div class="lyr-pill" style="background:#B4B2A9;color:#fff">No data</div>
         <div class="lyr-name" style="margin-top:6px">${{l.n1}}<br><span style="color:#888780;font-weight:400">${{l.n2}}</span></div>
@@ -1051,7 +1086,7 @@ function buildChain() {{
       wrap.appendChild(div);
       if (idx < LAYERS.length - 1) {{
         const arrow = document.createElement("div");
-        arrow.style.cssText = "display:flex;align-items:center;padding:0 3px;flex-shrink:0;padding-top:20px";
+        arrow.className = "chain-arrow";
         arrow.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="#B4B2A9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         wrap.appendChild(arrow);
       }}
@@ -1073,7 +1108,7 @@ function buildChain() {{
     }}).join("");
 
     const div_ = div;
-    div_.style.cssText = `flex:1;min-width:120px;background:${{c.bg}};border-color:${{c.border}};${{active===l.id?"box-shadow:0 0 0 2px "+c.border:""}}`;
+    div_.style.cssText = `background:${{c.bg}};border-color:${{c.border}};${{active===l.id?"box-shadow:0 0 0 2px "+c.border:""}}`;
     div_.innerHTML = `
       <div style="display:flex;align-items:center;flex-wrap:wrap;gap:3px;margin-bottom:6px">
         <span class="lyr-pill" style="background:${{c.pill}};color:${{c.pft}}">${{c.lbl}}</span>
@@ -1104,7 +1139,7 @@ function buildChain() {{
 
     if (idx < LAYERS.length - 1) {{
       const arrow = document.createElement("div");
-      arrow.style.cssText = "display:flex;align-items:center;padding:0 3px;flex-shrink:0;padding-top:20px";
+      arrow.className = "chain-arrow";
       arrow.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M3 8h10M9 4l4 4-4 4" stroke="#B4B2A9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>`;
@@ -1112,6 +1147,7 @@ function buildChain() {{
     }}
   }});
   buildBottleneckStrip();
+  updateChainFade();
 }}
 
 function buildExpand() {{
@@ -1404,6 +1440,8 @@ function buildHeroStatus() {{
 
 buildChain(); buildExpand(); buildHeat(); buildHeroStatus();
 buildTopTicker(LAYERS); buildSignalBars(); buildCapexStrip();
+document.getElementById("chain").addEventListener("scroll", updateChainFade, {{passive:true}});
+window.addEventListener("resize", updateChainFade);
 </script>
 </body>
 </html>"""

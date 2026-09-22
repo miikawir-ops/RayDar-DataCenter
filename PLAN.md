@@ -889,3 +889,46 @@ findings don't get lost, not because a fix or a direction has been agreed.
      height stale. Likely fix: also listen for zoom-affecting signals
      (e.g. `visualViewport.resize` where available) or recompute on a
      broader trigger — not yet investigated in depth.
+
+- **`render.py` — swipeable sub-layer cards on mobile (2026-09-22).** The
+  5-card `#chain` row didn't fit 375px screens — `min-width:120px` per
+  card forced `body.scrollWidth` to 705px, dragging the whole page into
+  horizontal overflow (confirmed the hero's compact sub-layer status
+  strip and the ticker band were never independently overflowing; they
+  were just collateral damage from `#chain`'s overflow). Fixed with a
+  standard horizontal scroll-snap row, mobile-only: `overflow-x:auto` +
+  `scroll-snap-type:x mandatory` on `#chain`, `scroll-snap-align:start`
+  per `.layer` card, cards at `flex:0 0 80vw` so the next card peeks in
+  as the swipe cue, a right-edge fade (`#chain-fade`, JS-toggled on
+  scroll/resize) that hides once scrolled to the end, and `.chain-arrow`
+  connectors hidden below 768px since they don't fit at 80vw card width.
+  Desktop untouched (all new CSS scoped inside the existing
+  `@media(max-width:768px)` block). Dots were considered and dropped —
+  5 cards plus the peek+fade cue was judged clear enough without the
+  added scroll-position-tracking complexity.
+
+  **Root cause of two sub-bugs while building this, both the same
+  pattern**: `buildChain()` was setting layout properties (`flex`,
+  `min-width` on cards; `display` on the arrow connectors) as **inline
+  styles** via `el.style.cssText`, which always wins over any external
+  CSS rule regardless of specificity — so the new mobile media-query
+  overrides were silently losing to values JS had already set inline.
+  Fixed by moving the static layout values into proper CSS rules (the
+  base `.layer` rule, a new `.chain-arrow` rule) and leaving only the
+  genuinely per-score dynamic values (`background`, `border-color`, the
+  conditional selected-state `box-shadow`) inline. **General lesson**:
+  in this codebase, layout properties assigned via inline styles in JS
+  are invisible to CSS media queries and will silently block them —
+  static/structural layout values belong in CSS rules; only values that
+  must be computed per data point (a color from a score, a computed
+  glow) belong inline.
+
+  **Verified** against a real pipeline run (`python main.py --now`, live
+  data — this is a template/CSS change, not a scoring change, but the
+  embedded `LAYERS` JS data still needs to come from a real run to test
+  against) with Playwright at 375px/414px/1400px: `body.scrollWidth`
+  matches the viewport exactly at both mobile widths (was 705px
+  overflowing a 375px viewport before the fix), card width resolves to
+  exact 80vw, fade shows/hides correctly at scroll start/end, the expand
+  panel still opens below the row on tap, and desktop card width is
+  pixel-identical before and after (249.1875px). Zero console errors.
