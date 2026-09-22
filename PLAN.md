@@ -863,3 +863,29 @@ findings don't get lost, not because a fix or a direction has been agreed.
   immediately, both card and walkthrough), and a full click-through
   regression (select → walkthrough → case card → view toggle) at all
   three widths. Zero JS console errors throughout.
+
+- **`ecosystem.html` — COMPLETE (2026-09-22).** Ray reviewed the live
+  page after Phase E and considers it done. Final feature set: poster-
+  primary interactive view (measured hotspots, dark-glass compact card,
+  clickable "All stakeholders" list), a secondary "Relationship explorer"
+  SVG tab, two guided walkthroughs ("Life of a data center" and "Follow
+  the money") positioned above the poster, a case card (Fortum ×
+  Microsoft) with scroll-into-view, glossary tooltips, URL deep links
+  (`#stakeholder-id`), a dark-glass explanation section, and a mobile
+  fallback (static poster + accordion). No further changes planned
+  unless Ray reports something from his phone or from the deep-link
+  check specifically.
+
+  Two small backlog items, not urgent:
+  1. **Case card text width** — its paragraph runs the full card width
+     (~250 characters/line on wide screens) while the explanation
+     section below it constrains to `max-width:760px`. Should match.
+  2. **Compact card occasionally falls short of its backdrop column** at
+     certain window sizes or zoom levels. The card's height is measured
+     in pixels from `.panel-backdrop`'s rendered `getBoundingClientRect()`
+     at render time (see Phase E above) but is only recalculated on the
+     `resize` event — browser zoom doesn't reliably fire `resize` in
+     every engine, so a zoom change after page load can leave the cached
+     height stale. Likely fix: also listen for zoom-affecting signals
+     (e.g. `visualViewport.resize` where available) or recompute on a
+     broader trigger — not yet investigated in depth.
