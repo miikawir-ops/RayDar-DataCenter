@@ -34,6 +34,23 @@ Verify against the real pipeline path (the actual fetch → score → render cha
 If you can't verify something, say so explicitly rather than assuming.
 When a change could break the pipeline (fetch → score → render → deploy), sanity-check the whole chain, not just the file you touched.
 When a fix has multiple independent parts, land them as separate commits, each verified against real output before the next starts. This is what makes a regression traceable to one change instead of a tangle of several.
+Approval scope — what needs Ray's sign-off before committing, and what doesn't
+Needs Ray's approval before committing:
+- Anything that changes how something looks (layout, color, styling, visual hierarchy) — share screenshots first; a passing test run verifies function, not whether it looks right to Ray.
+- Any user-facing text, especially content colleagues may rely on.
+- Any change on the live public site that alters rendered output.
+- Any change to scoring logic, weights, or thresholds.
+- Any architecture decision, new dependency, or change spanning multiple files.
+Proceed without approval, report afterwards:
+- Bug fixes where the root cause has been reproduced and verified.
+- Refactors with no behavior change.
+- Documentation updates.
+- Test and verification tooling.
+- Conditions for all of the above: verification passes, and the change is committed separately so it can be reverted on its own.
+Always stop and ask, regardless of which list a change would otherwise fall into:
+- When the fix would change agreed behavior.
+- When the root cause isn't actually understood.
+- When the change affects more than the reported problem.
 Data & honesty (dashboards)
 Never fabricate data, metrics, or milestones. If data is sparse or estimated, mark it.
 Financial data may be stale (quarterly financials up to 90 days old) — disclose it.
