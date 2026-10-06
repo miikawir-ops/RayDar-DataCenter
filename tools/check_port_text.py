@@ -4,11 +4,16 @@ Compares the visible text of a Claude Design export (Output/business-models-sour
 *.dc.html) with its port in business-models/, in document order. Formatting,
 markup and whitespace are ignored; any added, dropped or changed word is reported.
 Text the port adds on purpose (e.g. matrix row labels repeated inside each cell for
-phones) is excluded with --ignore-class.
+phones) is excluded with --ignore-class. Text the port drops on purpose (e.g. the model
+cards' in-page stepper, replaced by the shared header) is declared with --expect-removed:
+that exact word sequence must occur exactly once in the source, and is removed from the
+source before comparing. Anything else that differs still fails.
 
 Usage:
     python tools/check_port_text.py Output/business-models-source/Main.dc.html \
         business-models/index.html --ignore-class cell-label
+    python tools/check_port_text.py Output/business-models-source/Mallikortti2.dc.html \
+        business-models/gpu-cloud.html --expect-removed "AI OY:N KASVUPOLKU 1 Julkinen pilvi ..."
 
 Exit code 0 when the texts match, 1 when they differ.
 """
@@ -75,9 +80,19 @@ def main():
     ap.add_argument("port")
     ap.add_argument("--ignore-class", action="append", default=[],
                     help="class of elements whose text the port adds on purpose (repeatable)")
+    ap.add_argument("--expect-removed", action="append", default=[],
+                    help="word sequence the port drops on purpose; must occur exactly once in the source (repeatable)")
     args = ap.parse_args()
 
     src = page_words(args.source)
+    for phrase in args.expect_removed:
+        seq = phrase.split()
+        hits = [i for i in range(len(src) - len(seq) + 1) if src[i:i + len(seq)] == seq]
+        if len(hits) != 1:
+            print(f"ERROR: expected removal found {len(hits)} times in source (must be exactly 1): {phrase!r}")
+            return 1
+        del src[hits[0]:hits[0] + len(seq)]
+        print(f"removed as declared: {len(seq)} words ({' '.join(seq[:6])} ...)")
     port = page_words(args.port, args.ignore_class)
     if src == port:
         print(f"OK: {len(src)} words, identical and in the same order.")
