@@ -549,6 +549,34 @@ findings don't get lost, not because a fix or a direction has been agreed.
    Weekday cron (`0 12 * * 1-5`) is now active — the first scheduled
    (non-manual) run will fire on the next weekday.
 
+   **Correction (2026-10-06): the Pages source was in branch mode, not
+   "GitHub Actions" as recorded above. Fixed the same day.** The Pages API
+   reported `build_type: legacy` ("Deploy from a branch", `main`, `/`), with
+   branch builds running on every push since at least 2026-09-22 (the
+   earliest in the API's history). Branch mode was not fully replacing the
+   Actions deploys: both deployed to the same site, and whichever finished
+   last was live.
+   - A branch build serves the raw repo, and the dashboard `index.html` is
+     generated in CI and gitignored. So **every push 404'd the dashboard
+     root** (`/` and `/index.html`) until the next Actions run, while
+     committed files (`ecosystem.html`, `business-models/`) kept working.
+   - Confirmed on 2026-10-06. Ray's push at 11:44 UTC took the root down.
+     The step 8 push at 12:39 did the same: its branch build landed after
+     the manual Actions deploy. A second manual run brought the root back
+     at 12:44.
+   - Proof of the mechanism: the deployed artifact itself contained
+     `index.html` (82,902 bytes), and cache-busted requests still returned
+     404 from the origin.
+   - **Fixed at 12:47 UTC:** Pages switched to `build_type: workflow` via
+     the API (Ray's call), then the workflow was re-run green. Dashboard
+     root, `ecosystem.html` and `business-models/` all load live, with no
+     JS errors.
+   - How it got into branch mode isn't known. Not investigated further.
+   - Also seen: the 2026-10-05 scheduled run shows "failure", but its job
+     was cancelled by GitHub after 15 minutes without running any step and
+     has no logs. It looks like a runner issue, not a code issue. The next
+     day's runs were green.
+
    **Two things checked on the live site before calling this done:**
    - **Heat trail at n=1 day of history: confirmed correct, not a bug —
      but visually ambiguous, worth revisiting.** Pulled the live page's
@@ -590,12 +618,18 @@ findings don't get lost, not because a fix or a direction has been agreed.
    the ecosystem page, in the light editorial style of spec A5b, not the
    dark dashboard look.
 
-   **Step 1: scaffold + hub. Built and verified locally, NOT pushed.** Held
-   until Ray approves the screenshots and the Finnish UI strings. Commits:
+   **Step 1: scaffold + hub. LIVE since 2026-10-06** at
+   `miikawir-ops.github.io/RayDar-DataCenter/business-models/` (unlisted).
+   Ray approved it, and from step 2 on approved working in batches: each
+   batch is implemented, verified and committed, with screenshots shown
+   once per batch. Verified live after a green manual run: HTTP 200, all
+   chrome and 13 glossary terms working, fonts served from the site, no
+   third-party requests, no JS errors. Commits:
    `cfd46f3` (.gitignore no longer drops `business-models/index.html`),
    `3a3eaba` (spec A5b, CLAUDE.md live status), `12bbf05` (scaffold + hub),
    `fe1e857` (deploy.yml copies the folder), `63d20af` (header "Tilanne"
-   removed).
+   removed), `c53030b` (this record), `109f35d` (English slugs and glossary
+   keys).
 
    **Decisions settled (2026-10-06):**
    - Header and footer are rendered by `assets/chrome.js` from one page list.
