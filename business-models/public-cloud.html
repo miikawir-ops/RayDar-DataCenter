@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mallikortti: Julkinen pilvi — RayDar Data Center</title>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/explainer.css">
+</head>
+<body data-page="public-cloud">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--card">
+  <!-- Ported from Mallikortti1.dc.html (approved design, Tilanne 9/2026). The in-page
+       1-5 stepper is dropped: the shared header stepper replaces it (Ray, 2026-10-06). -->
+  <div class="page-head">
+    <div class="kicker">MALLIKORTTI · VAIHE 1 / 5 · TILANNE 9/2026</div>
+    <h1 class="page-title">Julkinen pilvi</h1>
+    <div class="page-lede"><span class="gloss" data-g="public_cloud">Public cloud</span>: AI Oy ostaa laskentakapasiteettia palveluna internetin yli</div>
+  </div>
+
+  <div class="band">
+    <div class="band-col"><div class="band-label">TILANNE</div><p class="band-text">AI Oy on juuri perustettu. Ensimmäisiä malleja pitää päästä kokeilemaan ja kouluttamaan heti, rahoitus on rajallinen, eikä tarvetta voi vielä ennustaa.</p></div>
+    <div class="band-col"><div class="band-label">PÄÄTÖS</div><p class="band-text band-text--strong">AI Oy avaa tilin <span class="gloss" data-g="hyperscaler">hyperskaalaajan</span> pilveen ja ottaa GPU-virtuaalikoneita käyttöön tarpeen mukaan.</p></div>
+    <div class="band-col"><div class="band-label">TODELLINEN VERTAILUKOHTA</div><p class="band-text">Microsoftin Azure on ollut OpenAI:n pääasiallinen pilvi vuodesta 2016.</p></div>
+  </div>
+
+  <div class="card-body">
+    <div class="card-main">
+      <div class="cake-head"><div class="section-label">KERROSKAKKU</div><div class="section-label">OPEROI</div><div class="section-label">OMISTAA</div></div>
+      <div class="cake cake--rows-2">
+        <div class="layer"><div class="layer-name">Sovellukset ja data</div><div class="layer-desc">AI Oy:n tekoälymallit ja niiden käsittelemä data</div></div>
+        <div class="layer"><div class="layer-name">Käyttöjärjestelmä ja alusta</div><div class="layer-desc">Virtuaalikoneet, käyttöjärjestelmä ja ohjelmistokirjastot</div></div>
+        <div class="role fill-own">AI Oy</div>
+        <div class="role fill-shared">Jaettu: IaaS:ssä AI Oy, PaaS:ssa CSP</div>
+        <div class="role fill-own">AI Oy</div>
+        <div class="role fill-shared">Jaettu: AI Oy:n ohjelmistot, CSP:n virtualisointi</div>
+      </div>
+      <div class="demarc"><div class="demarc-label">VASTUURAJA IAAS-PALVELUSSA: VIRTUALISOINTIKERROS (SHARED RESPONSIBILITY MODEL)</div><div class="demarc-line"></div></div>
+      <div class="cake cake--rows-3">
+        <div class="layer"><div class="layer-name">Palvelimet ja verkkolaitteet</div><div class="layer-desc">Pilvipalveluntarjoajan GPU-palvelimet, jaettu monen asiakkaan kesken (<span class="gloss" data-g="multi_tenant">multi-tenant</span>)</div></div>
+        <div class="layer"><div class="layer-name">Sähkö, jäähdytys ja turvallisuus</div><div class="layer-desc">UPS, varavoima, jäähdytys ja kulunvalvonta</div></div>
+        <div class="layer"><div class="layer-name">Kiinteistö</div><div class="layer-desc"><span class="gloss" data-g="csp">CSP</span>:n oma tai vuokrattu datakeskus</div></div>
+        <div class="role fill-green span-3">Pilvipalvelun&shy;tarjoaja (CSP)</div>
+        <div class="role fill-green span-2">Pilvipalvelun&shy;tarjoaja (CSP)</div>
+        <div class="role fill-sand">CSP tai kiinteistö&shy;sijoittaja*</div>
+      </div>
+      <div class="footnote">* Hyperskaalaajat omistavat suuren osan datakeskuksistaan itse, mutta vuokraavat myös kapasiteettia colocation- ja wholesale-operaattoreilta.</div>
+      <div class="key-list">
+        <div class="key-row"><span class="swatch swatch--key fill-own"></span><div><b>AI Oy</b>: kuvitteellinen tekoälyyhtiö, pilvipalvelun asiakas</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-green"></span><div><b>Pilvipalveluntarjoaja (cloud service provider, CSP)</b>: myy laskentaa, tallennusta ja ohjelmistoja palveluna, esim. AWS, Microsoft Azure ja Google Cloud</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-shared"></span><div><b>Jaettu</b>: vastuu jakautuu palvelutason mukaan (<span class="gloss" data-g="iaas_paas_saas">IaaS, PaaS tai SaaS</span>)</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-sand"></span><div><b>Kiinteistösijoittaja (landlord)</b>: omistaa osan keskuksista, joita CSP käyttää</div></div>
+      </div>
+      <div class="flows panel">
+        <div class="section-label">RAHAVIRRAT</div>
+        <div class="flow"><div class="pill fill-own">AI Oy</div><div class="flow-arrow">→</div><div class="pill fill-green">CSP</div><div class="flow-text">käyttöperusteiset maksut kuukausittain (<span class="gloss" data-g="pay_as_you_go">pay-as-you-go</span>)</div></div>
+        <div class="flow"><div class="pill fill-green">CSP</div><div class="flow-arrow">→</div><div class="pill fill-sand">Sijoittaja</div><div class="flow-text">vuokra niistä keskuksista, joita CSP ei omista</div></div>
+        <div class="flow"><div class="pill fill-green">CSP</div><div class="flow-arrow">→</div><div class="pill fill-stone">Sähköyhtiö</div><div class="flow-text">sähkö, joka sisältyy palvelun hintaan</div></div>
+      </div>
+    </div>
+
+    <div class="contract panel">
+      <div class="section-label">SOPIMUS</div>
+      <h3 class="contract-title">Pilvipalvelusopimus</h3>
+      <div class="callout"><div class="callout-label">MITÄ AI OY OSTAA</div><div class="callout-text">Palvelun. AI Oy ostaa kapasiteettia käytön mukaan eikä omista laitteita tai tiloja.</div></div>
+      <div class="crow"><div class="crow-label">OSAPUOLET</div><div class="crow-value">AI Oy ja pilvipalveluntarjoaja (CSP)</div></div>
+      <div class="crow"><div class="crow-label">SOPIMUSRAKENNE</div><div class="crow-value">Vakioehtoinen asiakassopimus ja palvelukohtaiset ehdot. Suurilla asiakkailla neuvoteltu yrityssopimus</div></div>
+      <div class="crow"><div class="crow-label">MITÄ TOIMITETAAN</div><div class="crow-value">GPU-virtuaalikoneita, tallennustilaa, verkkoa ja valmiita alustapalveluja, ei tiettyä fyysistä palvelinta</div></div>
+      <div class="crow"><div class="crow-label">MISTÄ MAKSETAAN</div><div class="crow-value">Käytön mukaan: GPU-tunnit, tallennettu ja siirretty data. Alennus, jos sitoutuu käyttömäärään 1–3 vuodeksi (<b><span class="gloss" data-g="committed_use">committed use</span></b>)</div></div>
+      <div class="crow"><div class="crow-label">KESTO</div><div class="crow-value">Ei vähimmäiskestoa; sitoumusalennukset 1–3 vuotta</div></div>
+      <div class="crow"><div class="crow-label">SLA</div><div class="crow-value">Palvelukohtainen käytettävyys, tyypillisesti 99,9–99,99 %. Poikkeamista hyvitykset (service credits)</div></div>
+      <div class="crow"><div class="crow-label">EI SISÄLLÄ</div><div class="crow-value">AI Oy:n sovellusten ja datan suojausta, josta AI Oy vastaa itse (<b><span class="gloss" data-g="shared_responsibility_model">shared responsibility model</span></b>)</div></div>
+      <div class="section-label section-label--spaced">KUKA KANTAA RISKIN</div>
+      <div class="risk-list">
+        <div class="risk-item"><div class="risk-item-name">Käyttöaste</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">CSP: AI Oy maksaa vain käytöstä, ellei sitoudu</div></div>
+        <div class="risk-item"><div class="risk-item-name">Laitteiden vanheneminen</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">CSP: omistaa palvelimet</div></div>
+        <div class="risk-item"><div class="risk-item-name">Sähkön hinta</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">CSP: sisältyy palvelun hintaan</div></div>
+        <div class="risk-item"><div class="risk-item-name">Kapasiteetin saatavuus</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: GPU-kapasiteettia ei aina saa heti</div></div>
+        <div class="risk-item"><div class="risk-item-name">Sovellukset ja data</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: jaetun vastuun mallin mukaisesti</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms panel">
+    <div class="section-label">KORTIN TERMIT</div>
+    <div class="term-grid">
+      <div class="term"><div class="term-head"><div class="term-name">Public cloud</div><div class="term-alt">julkinen pilvi</div></div><div class="term-def">kaupallinen, monen asiakkaan jakama pilvipalvelu, ei julkisen sektorin pilvi</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">CSP</div><div class="term-alt">cloud service provider</div></div><div class="term-def">pilvipalveluntarjoaja</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Hyperskaalaaja</div><div class="term-alt">hyperscaler</div></div><div class="term-def">suurimmat pilvitoimijat: AWS, Microsoft ja Google</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">IaaS</div><div class="term-alt">infrastructure as a service</div></div><div class="term-def">virtuaalikoneet, tallennus ja verkko palveluna</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">PaaS</div><div class="term-alt">platform as a service</div></div><div class="term-def">valmis alusta, jolle asiakas tuo sovelluksensa</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">SaaS</div><div class="term-alt">software as a service</div></div><div class="term-def">valmis ohjelmisto palveluna</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Multi-tenant</div></div><div class="term-def">sama infrastruktuuri on jaettu monen asiakkaan kesken</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Pay-as-you-go</div></div><div class="term-def">maksu käytön mukaan, ei sitoumusta</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Committed use</div><div class="term-alt">myös reserved</div></div><div class="term-def">alennus, kun asiakas sitoutuu käyttömäärään</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Shared responsibility model</div></div><div class="term-def">jaetun vastuun malli: mistä CSP ja asiakas kumpikin vastaavat</div></div>
+    </div>
+  </div>
+
+  <div class="card-note fine-print">AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimusehdot ovat toimialan tyypillisiä piirteitä, eivät yksittäisen yhtiön ehtoja. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="assets/glossary-fi.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

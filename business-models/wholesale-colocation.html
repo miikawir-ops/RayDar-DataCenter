@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mallikortti: Wholesale-colocation — RayDar Data Center</title>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/explainer.css">
+</head>
+<body data-page="wholesale-colocation">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--card">
+  <!-- Ported from Mallikortti4.dc.html (approved design, Tilanne 9/2026). The in-page
+       1-5 stepper is dropped: the shared header stepper replaces it (Ray, 2026-10-06). -->
+  <div class="page-head">
+    <div class="kicker">MALLIKORTTI · VAIHE 4 / 5 · TILANNE 9/2026</div>
+    <h1 class="page-title">Wholesale-colocation</h1>
+    <div class="page-lede"><span class="gloss" data-g="wholesale_colocation">Tukkutason colocation</span>: AI Oy vuokraa kokonaisen salin tai rakennuksen pitkällä sopimuksella</div>
+  </div>
+
+  <div class="band">
+    <div class="band-col"><div class="band-label">TILANNE</div><p class="band-text">AI Oy:n laskentatarve on kasvanut kymmeniin <span class="gloss" data-g="capacity">megawatteihin</span>. Retail-colocationista ei saa riittävästi tilaa ja sähköä yhdestä paikasta, ja yksikköhinta on korkea.</p></div>
+    <div class="band-col"><div class="band-label">PÄÄTÖS</div><p class="band-text band-text--strong">AI Oy vuokraa kokonaisen datakeskussalin kymmenen vuoden sopimuksella ja varustaa sen omilla palvelimillaan.</p></div>
+    <div class="band-col"><div class="band-label">TODELLINEN VERTAILUKOHTA</div><p class="band-text">Oracle vuokrasi OpenAI:n Stargate-hankkeen Abilenen kampuksen Teksasissa 15 vuodeksi Crusoelta ja Blue Owlilta ja myy laskentatehon OpenAI:lle.</p></div>
+  </div>
+
+  <div class="card-body">
+    <div class="card-main">
+      <div class="cake-head"><div class="section-label">KERROSKAKKU</div><div class="section-label">OPEROI</div><div class="section-label">OMISTAA</div></div>
+      <div class="cake cake--rows-3">
+        <div class="layer"><div class="layer-name">Sovellukset ja data</div><div class="layer-desc">AI Oy:n tekoälymallit ja niiden käsittelemä data</div></div>
+        <div class="layer"><div class="layer-name">Käyttöjärjestelmä ja alusta</div><div class="layer-desc">Ohjelmistot, joilla palvelimia ajetaan ja hallitaan</div></div>
+        <div class="layer"><div class="layer-name">Palvelimet ja verkkolaitteet</div><div class="layer-desc">AI Oy:n omat palvelimet; koko sali (<b>white space</b>) on AI Oy:n käytössä</div></div>
+        <div class="role fill-own span-3">AI Oy</div>
+        <div class="role fill-own span-3">AI Oy</div>
+      </div>
+      <div class="demarc"><div class="demarc-label">VASTUURAJA RIIPPUU MALLISTA: TURNKEY VAI POWERED SHELL</div><div class="demarc-line"></div></div>
+      <div class="cake cake--rows-2">
+        <div class="layer"><div class="layer-name">Sähkö, jäähdytys ja turvallisuus</div><div class="layer-desc"><b><span class="gloss" data-g="powered_shell_turnkey">Turnkey</span></b>: operaattori rakentaa. <b>Powered shell</b>: AI Oy rakentaa itse</div></div>
+        <div class="layer"><div class="layer-name">Kiinteistö</div><div class="layer-desc">Rakennus, maa ja sähköliittymä</div></div>
+        <div class="role fill-shared">Turnkey: operaattori · powered shell: AI Oy</div>
+        <div class="role fill-blue">Datakeskus&shy;operaattori</div>
+        <div class="role fill-shared">Turnkey: operaattori · powered shell: AI Oy</div>
+        <div class="role fill-sand">Operaattori tai kiinteistö&shy;sijoittaja*</div>
+      </div>
+      <div class="footnote">* Wholesale-kohteet rakennetaan usein yhdelle vuokralaiselle (<span class="gloss" data-g="build_to_suit">build-to-suit</span>) ja rahoitetaan infrarahastojen tai REITien pääomalla. Pitkä vuokrasopimus on rahoituksen tärkein vakuus.</div>
+      <div class="key-list">
+        <div class="key-row"><span class="swatch swatch--key fill-own"></span><div><b>AI Oy</b>: kuvitteellinen tekoälyyhtiö, vuokralainen (tenant)</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-blue"></span><div><b>Datakeskusoperaattori tai -kehittäjä (developer)</b>: rakentaa ja vuokraa kokonaisia saleja, esim. Digital Realty, Vantage ja QTS</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-shared"></span><div><b>Mallin mukaan</b>: vastuu riippuu siitä, onko kohde turnkey vai powered shell</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-sand"></span><div><b>Kiinteistösijoittaja (landlord)</b>: rahasto tai REIT, joka omistaa tai rahoittaa kohteen</div></div>
+      </div>
+      <div class="flows panel">
+        <div class="section-label">RAHAVIRRAT</div>
+        <div class="flow"><div class="pill fill-own">AI Oy</div><div class="flow-arrow">→</div><div class="pill fill-blue">Operaattori</div><div class="flow-text">vuokra varatusta tehosta (€/kW/kk) koko sopimuskauden</div></div>
+        <div class="flow"><div class="pill fill-blue">Operaattori</div><div class="flow-arrow">→</div><div class="pill fill-stone">Lainanantajat</div><div class="flow-text">korot ja lyhennykset; vakuutena AI Oy:n vuokrasopimus</div></div>
+        <div class="flow"><div class="pill fill-blue">Operaattori</div><div class="flow-arrow">→</div><div class="pill fill-sand">Sijoittajat</div><div class="flow-text">tuotto omalle pääomalle</div></div>
+        <div class="flow"><div class="pill fill-own">AI Oy</div><div class="flow-arrow">→</div><div class="pill fill-stone">Sähköyhtiö</div><div class="flow-text">sähkö omalla sopimuksella tai läpilaskutettuna</div></div>
+      </div>
+    </div>
+
+    <div class="contract panel">
+      <div class="section-label">SOPIMUS</div>
+      <h3 class="contract-title">Wholesale-vuokrasopimus</h3>
+      <div class="callout"><div class="callout-label">MITÄ AI OY OSTAA</div><div class="callout-text">Tilan käyttöoikeuden pitkällä vuokrasopimuksella. Sopimus on lähellä kiinteistövuokraa.</div></div>
+      <div class="crow"><div class="crow-label">OSAPUOLET</div><div class="crow-value">AI Oy (vuokralainen) ja datakeskusoperaattori (vuokranantaja)</div></div>
+      <div class="crow"><div class="crow-label">SOPIMUSRAKENNE</div><div class="crow-value">Pitkä vuokrasopimus (<b><span class="gloss" data-g="lease">lease</span></b>), joka muistuttaa kiinteistövuokrasopimusta. Usein laajennus- ja <span class="gloss" data-g="renewal_option">jatko-optiot</span></div></div>
+      <div class="crow"><div class="crow-label">MITÄ TOIMITETAAN</div><div class="crow-value">Sali tai rakennus ja varattu sähköteho (MW). Turnkey: myös sähkö- ja jäähdytysjärjestelmät. Powered shell: vain runko ja sähköliittymä</div></div>
+      <div class="crow"><div class="crow-label">MISTÄ MAKSETAAN</div><div class="crow-value">Kiinteä vuokra varatusta tehosta (€/kW kuukaudessa) koko kaudelta, usein vuosittaisin korotuksin (<b><span class="gloss" data-g="escalator">escalator</span></b>). Sähkö erikseen</div></div>
+      <div class="crow"><div class="crow-label">KESTO</div><div class="crow-value">Tyypillisesti 5–15 vuotta, usein jatko-optiot</div></div>
+      <div class="crow"><div class="crow-label">SLA</div><div class="crow-value">Turnkey-kohteissa sähkön ja jäähdytyksen käytettävyys; powered shell -kohteissa suppea</div></div>
+      <div class="crow"><div class="crow-label">EI SISÄLLÄ</div><div class="crow-value">Palvelimia, ohjelmistoja tai dataa, jotka ovat AI Oy:n</div></div>
+      <div class="section-label section-label--spaced">KUKA KANTAA RISKIN</div>
+      <div class="risk-list">
+        <div class="risk-item"><div class="risk-item-name">Käyttöaste</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: maksaa koko salista koko kauden</div></div>
+        <div class="risk-item"><div class="risk-item-name">Laitteiden vanheneminen</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: omistaa palvelimet</div></div>
+        <div class="risk-item"><div class="risk-item-name">Sähkön hinta</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: sähkö erikseen tai läpilaskutettuna</div></div>
+        <div class="risk-item"><div class="risk-item-name">Rakentaminen ja aikataulu</div><span class="swatch swatch--sq fill-blue"></span><div class="risk-item-text">Operaattori: ennen luovutusta</div></div>
+        <div class="risk-item"><div class="risk-item-name">Jäännösarvo</div><span class="swatch swatch--sq fill-blue"></span><div class="risk-item-text">Operaattori: kohteen arvo, jos AI Oy ei jatka</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms panel">
+    <div class="section-label">KORTIN TERMIT</div>
+    <div class="term-grid">
+      <div class="term"><div class="term-head"><div class="term-name">Wholesale-colocation</div></div><div class="term-def">kokonainen sali tai rakennus yhdelle vuokralaiselle pitkällä sopimuksella</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Powered shell</div></div><div class="term-def">rakennus valmiine sähköliittymineen; vuokralainen rakentaa sisätilat ja jäähdytyksen</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Turnkey</div></div><div class="term-def">käyttövalmis sali sähkö- ja jäähdytysjärjestelmineen</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Developer</div><div class="term-alt">datakeskuskehittäjä</div></div><div class="term-def">yhtiö, joka hankkii tontin, sähkön ja rakentaa kohteen</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Lease</div></div><div class="term-def">pitkäaikainen vuokrasopimus</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">MW ja €/kW</div></div><div class="term-def">koko ja hinta ilmaistaan varattuna sähkötehona, ei neliöinä</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Build-to-suit</div></div><div class="term-def">kohde rakennetaan yhden vuokralaisen vaatimusten mukaan</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Escalator</div></div><div class="term-def">sopimukseen kirjattu vuosittainen vuokrankorotus</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Jatko-optio</div><div class="term-alt">renewal option</div></div><div class="term-def">vuokralaisen oikeus jatkaa sopimusta</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Jäännösarvo</div><div class="term-alt">residual value</div></div><div class="term-def">kohteen arvo sopimuksen päättyessä</div></div>
+    </div>
+  </div>
+
+  <div class="card-note fine-print">AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimusehdot ovat toimialan tyypillisiä piirteitä, eivät yksittäisen yhtiön ehtoja. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="assets/glossary-fi.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

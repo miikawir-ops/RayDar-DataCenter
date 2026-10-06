@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mallikortti: GPU-pilvi — RayDar Data Center</title>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/explainer.css">
+</head>
+<body data-page="gpu-cloud">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--card">
+  <!-- Ported from Mallikortti2.dc.html (approved design, Tilanne 9/2026). The in-page
+       1-5 stepper is dropped: the shared header stepper replaces it (Ray, 2026-10-06). -->
+  <div class="page-head">
+    <div class="kicker">MALLIKORTTI · VAIHE 2 / 5 · TILANNE 9/2026</div>
+    <h1 class="page-title">GPU-pilvi</h1>
+    <div class="page-lede">GPU cloud / <span class="gloss" data-g="gpu_cloud">neocloud</span>: AI Oy varaa tekoälylaskentaan erikoistuneelta tarjoajalta <span class="gloss" data-g="gpu">GPU</span>-kapasiteettia omaan käyttöönsä</div>
+  </div>
+
+  <div class="band">
+    <div class="band-col"><div class="band-label">TILANNE</div><p class="band-text">AI Oy:n mallit ovat tuotannossa, ja GPU-käyttö on jatkuvaa. Julkisen pilven tuntihinta käy kalliiksi, eikä kapasiteettia aina saa silloin, kun sitä tarvitaan.</p></div>
+    <div class="band-col"><div class="band-label">PÄÄTÖS</div><p class="band-text band-text--strong">AI Oy tekee GPU-pilven kanssa kolmen vuoden sopimuksen, jolla se varaa omaan käyttöönsä kiinteän määrän GPU-kapasiteettia.</p></div>
+    <div class="band-col"><div class="band-label">TODELLINEN VERTAILUKOHTA</div><p class="band-text">Microsoft sopi syyskuussa 2025 Nebiuksen kanssa noin 17,4 miljardin dollarin viisivuotisesta GPU-kapasiteetista. OpenAI:lla on vastaavia sopimuksia CoreWeaven kanssa.</p></div>
+  </div>
+
+  <div class="card-body">
+    <div class="card-main">
+      <div class="cake-head"><div class="section-label">KERROSKAKKU</div><div class="section-label">OPEROI</div><div class="section-label">OMISTAA</div></div>
+      <div class="cake cake--rows-2">
+        <div class="layer"><div class="layer-name">Sovellukset ja data</div><div class="layer-desc">AI Oy:n tekoälymallit ja niiden käsittelemä data</div></div>
+        <div class="layer"><div class="layer-name">Käyttöjärjestelmä ja alusta</div><div class="layer-desc">Käyttöjärjestelmä, <span class="gloss" data-g="cluster">klusterin</span> hallinta ja ohjelmistokirjastot</div></div>
+        <div class="role fill-own">AI Oy</div>
+        <div class="role fill-shared">Jaettu sopimuksen mukaan</div>
+        <div class="role fill-own">AI Oy</div>
+        <div class="role fill-shared">Jaettu</div>
+      </div>
+      <div class="demarc"><div class="demarc-label">VASTUURAJA: PALVELIN- TAI KLUSTERITASO SOPIMUKSEN MUKAAN</div><div class="demarc-line"></div></div>
+      <div class="cake cake--rows-3">
+        <div class="layer"><div class="layer-name">Palvelimet ja verkkolaitteet</div><div class="layer-desc">GPU-pilven omistamat GPU-palvelimet, varattu AI Oy:lle</div></div>
+        <div class="layer"><div class="layer-name">Sähkö, jäähdytys ja turvallisuus</div><div class="layer-desc">UPS, varavoima, jäähdytys ja kulunvalvonta</div></div>
+        <div class="layer"><div class="layer-name">Kiinteistö</div><div class="layer-desc">GPU-pilven oma tai vuokrattu datakeskus</div></div>
+        <div class="role fill-green">GPU-pilvi</div>
+        <div class="role fill-blue span-2">Colocation-operaattori tai GPU-pilvi itse*</div>
+        <div class="role fill-green">GPU-pilvi</div>
+        <div class="role fill-blue">Colocation-operaattori tai GPU-pilvi*</div>
+        <div class="role fill-sand">GPU-pilvi, operaattori tai kiinteistö&shy;sijoittaja</div>
+      </div>
+      <div class="footnote">* GPU-pilvi voi rakentaa oman datakeskuksen (esim. Nebius Mäntsälässä) tai sijoittaa palvelimensa <span class="gloss" data-g="colocation">colocation</span>-operaattorin tiloihin (esim. Nebius Equinixin Pariisin keskuksessa). Jälkimmäisessä GPU-pilvi on itse colocation-asiakas, eli mallit ketjuuntuvat.</div>
+      <div class="key-list">
+        <div class="key-row"><span class="swatch swatch--key fill-own"></span><div><b>AI Oy</b>: kuvitteellinen tekoälyyhtiö, GPU-pilven asiakas</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-green"></span><div><b>GPU-pilvi (neocloud)</b>: omistaa GPU-palvelimet ja myy niiden kapasiteettia, esim. Nebius, Verda ja CoreWeave</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-blue"></span><div><b>Colocation-operaattori</b>: vuokraa tilaa GPU-pilvelle, jos sillä ei ole omaa keskusta</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-sand"></span><div><b>Kiinteistösijoittaja (landlord)</b>: omistaa rakennuksen, jos operaattori ei omista</div></div>
+      </div>
+      <div class="flows panel">
+        <div class="section-label">RAHAVIRRAT</div>
+        <div class="flow"><div class="pill fill-own">AI Oy</div><div class="flow-arrow">→</div><div class="pill fill-green">GPU-pilvi</div><div class="flow-text">kiinteä maksu <span class="gloss" data-g="reserved_capacity">varatusta kapasiteetista</span>, usein osin ennakkoon</div></div>
+        <div class="flow"><div class="pill fill-green">GPU-pilvi</div><div class="flow-arrow">→</div><div class="pill fill-blue">Operaattori</div><div class="flow-text">colocation-maksut, jos GPU-pilvi on vuokralla</div></div>
+        <div class="flow"><div class="pill fill-green">GPU-pilvi</div><div class="flow-arrow">→</div><div class="pill fill-stone">Laitetoimittaja</div><div class="flow-text">GPU-palvelimet</div></div>
+        <div class="flow"><div class="pill fill-green">GPU-pilvi</div><div class="flow-arrow">→</div><div class="pill fill-stone">Lainanantajat</div><div class="flow-text">korot ja lyhennykset; vakuutena GPU:t ja asiakassopimukset</div></div>
+      </div>
+    </div>
+
+    <div class="contract panel">
+      <div class="section-label">SOPIMUS</div>
+      <h3 class="contract-title">Kapasiteettisopimus</h3>
+      <div class="callout"><div class="callout-label">MITÄ AI OY OSTAA</div><div class="callout-text">Palvelun, mutta AI Oy sitoutuu maksamaan varatusta kapasiteetista koko sopimuskauden.</div></div>
+      <div class="crow"><div class="crow-label">OSAPUOLET</div><div class="crow-value">AI Oy ja GPU-pilvi</div></div>
+      <div class="crow"><div class="crow-label">SOPIMUSRAKENNE</div><div class="crow-value">Puitesopimus ja kapasiteettitilaus, esim. tietty määrä GPU:ita tietyssä datakeskuksessa</div></div>
+      <div class="crow"><div class="crow-label">MITÄ TOIMITETAAN</div><div class="crow-value">Omaan käyttöön varatut GPU-palvelimet tai klusteri, verkko, tallennus ja ylläpito</div></div>
+      <div class="crow"><div class="crow-label">MISTÄ MAKSETAAN</div><div class="crow-value">Kiinteä hinta per <span class="gloss" data-g="gpu_hour">GPU-tunti</span> tai kuukausi koko sopimuskaudelta. Maksetaan, käytti tai ei (<b><span class="gloss" data-g="take_or_pay">take-or-pay</span></b>). Usein osa ennakkoon</div></div>
+      <div class="crow"><div class="crow-label">KESTO</div><div class="crow-value">Tyypillisesti 1–5 vuotta</div></div>
+      <div class="crow"><div class="crow-label">SLA</div><div class="crow-value">Kapasiteetin käytettävyys ja suorituskyky. Poikkeamista hyvitykset (<span class="gloss" data-g="sla_service_credit">service credits</span>)</div></div>
+      <div class="crow"><div class="crow-label">EI SISÄLLÄ</div><div class="crow-value">AI Oy:n malleja, ohjelmistoja tai dataa</div></div>
+      <div class="section-label section-label--spaced">KUKA KANTAA RISKIN</div>
+      <div class="risk-list">
+        <div class="risk-item"><div class="risk-item-name">Käyttöaste</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: maksaa varatusta kapasiteetista koko kauden</div></div>
+        <div class="risk-item"><div class="risk-item-name">Laitteiden vanheneminen</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">GPU-pilvi: omistaa palvelimet</div></div>
+        <div class="risk-item"><div class="risk-item-name">Sähkön hinta</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">Yleensä GPU-pilvi: sisältyy hintaan</div></div>
+        <div class="risk-item"><div class="risk-item-name">Kapasiteetin saatavuus</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">GPU-pilvi: sitoutunut toimittamaan</div></div>
+        <div class="risk-item"><div class="risk-item-name">Vastapuoliriski</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: GPU-pilven kyky täyttää sitoumuksensa</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms panel">
+    <div class="section-label">KORTIN TERMIT</div>
+    <div class="term-grid">
+      <div class="term"><div class="term-head"><div class="term-name">GPU</div><div class="term-alt">graphics processing unit</div></div><div class="term-def">tekoälylaskennassa käytetty suoritin</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Neocloud</div><div class="term-alt">GPU-pilvi</div></div><div class="term-def">tekoälylaskentaan erikoistunut pilviyhtiö</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Klusteri</div><div class="term-alt">cluster</div></div><div class="term-def">yhteen kytketyt palvelimet, jotka toimivat yhtenä kokonaisuutena</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">GPU-tunti</div><div class="term-alt">GPU hour</div></div><div class="term-def">yhden GPU:n käyttö tunnin ajan; yleinen hinnoitteluyksikkö</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Reserved capacity</div><div class="term-alt">varattu kapasiteetti</div></div><div class="term-def">sopimuksella omaan käyttöön varattu kapasiteetti</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Take-or-pay</div></div><div class="term-def">sovitusta määrästä maksetaan, käytti tai ei</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Ennakkomaksu</div><div class="term-alt">prepayment</div></div><div class="term-def">maksu ennen toimitusta; rahoittaa GPU-pilven laitehankintoja</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Vastapuoliriski</div><div class="term-alt">counterparty risk</div></div><div class="term-def">riski, ettei sopimuskumppani pysty täyttämään sitoumustaan</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Colocation</div></div><div class="term-def">konesalitilan vuokraus omille laitteille</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">SLA ja service credit</div></div><div class="term-def">palvelutasolupaus ja hyvitys, jos lupaus ei täyty</div></div>
+    </div>
+  </div>
+
+  <div class="card-note fine-print">AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimusehdot ovat toimialan tyypillisiä piirteitä, eivät yksittäisen yhtiön ehtoja. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="assets/glossary-fi.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

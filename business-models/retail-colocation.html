@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mallikortti: Retail-colocation — RayDar Data Center</title>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/explainer.css">
+</head>
+<body data-page="retail-colocation">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--card">
+  <!-- Ported from Mallikortti3.dc.html (approved design, Tilanne 9/2026). The in-page
+       1-5 stepper is dropped: the shared header stepper replaces it (Ray, 2026-10-06). -->
+  <div class="page-head">
+    <div class="kicker">MALLIKORTTI · VAIHE 3 / 5 · TILANNE 9/2026</div>
+    <h1 class="page-title">Retail-colocation</h1>
+    <div class="page-lede">Vähittäistason colocation: AI Oy vuokraa konesalitilaa omille palvelimilleen</div>
+  </div>
+
+  <div class="band">
+    <div class="band-col"><div class="band-label">TILANNE</div><p class="band-text">AI Oy on käyttänyt GPU-pilveä jo pitkään, ja käyttö on jatkuvaa. Kuukausilasku kasvaa, ja omat palvelimet tulisivat pitkällä aikavälillä halvemmiksi.</p></div>
+    <div class="band-col"><div class="band-label">PÄÄTÖS</div><p class="band-text band-text--strong">AI Oy ostaa omat GPU-palvelimet ja vuokraa niille <span class="gloss" data-g="rack">räkkitilaa</span> colocation-operaattorin datakeskuksesta.</p></div>
+    <div class="band-col"><div class="band-label">TODELLINEN VERTAILUKOHTA</div><p class="band-text">GPU-pilvi Nebius sijoittaa omia palvelimiaan Equinixin Pariisin datakeskukseen, eli on itse colocation-asiakas.</p></div>
+  </div>
+
+  <div class="card-body">
+    <div class="card-main">
+      <div class="cake-head"><div class="section-label">KERROSKAKKU</div><div class="section-label">OPEROI</div><div class="section-label">OMISTAA</div></div>
+      <div class="cake cake--rows-3">
+        <div class="layer"><div class="layer-name">Sovellukset ja data</div><div class="layer-desc">AI Oy:n tekoälymallit ja niiden käsittelemä data</div></div>
+        <div class="layer"><div class="layer-name">Käyttöjärjestelmä ja alusta</div><div class="layer-desc">Ohjelmistot, joilla palvelimia ajetaan ja hallitaan</div></div>
+        <div class="layer"><div class="layer-name">Palvelimet ja verkkolaitteet</div><div class="layer-desc">AI Oy:n omat GPU-palvelimet räkeissä (<b><span class="gloss" data-g="white_space">white space</span></b>)</div></div>
+        <div class="role fill-own span-3">AI Oy</div>
+        <div class="role fill-own span-3">AI Oy</div>
+      </div>
+      <div class="demarc"><div class="demarc-label">VASTUURAJA (DEMARC): RÄKIN SÄHKÖ- JA VERKKOLIITÄNTÄ</div><div class="demarc-line"></div></div>
+      <div class="cake cake--rows-2">
+        <div class="layer"><div class="layer-name">Sähkö, jäähdytys ja turvallisuus</div><div class="layer-desc">UPS, varavoima, jäähdytys ja kulunvalvonta (<b><span class="gloss" data-g="grey_space">grey space</span></b>)</div></div>
+        <div class="layer"><div class="layer-name">Kiinteistö</div><div class="layer-desc">Rakennus, maa ja sähköliittymä</div></div>
+        <div class="role fill-blue span-2">Colocation-operaattori</div>
+        <div class="role fill-blue">Colocation-operaattori</div>
+        <div class="role fill-sand">Operaattori tai kiinteistö&shy;sijoittaja*</div>
+      </div>
+      <div class="footnote">* Usein operaattori omistaa rakennuksen itse. Joskus se on myynyt rakennuksen sijoittajalle ja vuokraa sen takaisin (sale-leaseback).</div>
+      <div class="key-list">
+        <div class="key-row"><span class="swatch swatch--key fill-own"></span><div><b>AI Oy</b>: kuvitteellinen tekoälyyhtiö, colocation-asiakas (tenant)</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-blue"></span><div><b>Colocation-operaattori</b>: rakentaa ja ylläpitää datakeskuksen ja vuokraa siitä tilaa, esim. Equinix tai Digital Realty</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-sand"></span><div><b>Kiinteistösijoittaja (landlord)</b>: rahasto tai REIT, joka omistaa rakennuksen ja vuokraa sen operaattorille</div></div>
+      </div>
+      <div class="flows panel">
+        <div class="section-label">RAHAVIRRAT</div>
+        <div class="flow"><div class="pill fill-own">AI Oy</div><div class="flow-arrow">→</div><div class="pill fill-blue">Operaattori</div><div class="flow-text">tila, sähkö, <span class="gloss" data-g="cross_connect">cross-connectit</span> ja <span class="gloss" data-g="remote_hands">remote hands</span> (<span class="gloss" data-g="mrc_nrc">MRC + NRC</span>)</div></div>
+        <div class="flow"><div class="pill fill-blue">Operaattori</div><div class="flow-arrow">→</div><div class="pill fill-sand">Sijoittaja</div><div class="flow-text">kiinteistövuokra, jos rakennus on sijoittajan</div></div>
+        <div class="flow"><div class="pill fill-blue">Operaattori</div><div class="flow-arrow">→</div><div class="pill fill-stone">Sähköyhtiö</div><div class="flow-text">sähkö, joka laskutetaan edelleen AI Oy:lle</div></div>
+      </div>
+    </div>
+
+    <div class="contract panel">
+      <div class="section-label">SOPIMUS</div>
+      <h3 class="contract-title">Colocation-sopimus</h3>
+      <div class="callout"><div class="callout-label">MITÄ AI OY OSTAA</div><div class="callout-text">Tilaa ja palveluja eli vuokran ja palvelun yhdistelmän. Palvelimet ovat AI Oy:n omia.</div></div>
+      <div class="crow"><div class="crow-label">OSAPUOLET</div><div class="crow-value">AI Oy (asiakas) ja colocation-operaattori</div></div>
+      <div class="crow"><div class="crow-label">SOPIMUSRAKENNE</div><div class="crow-value"><b><span class="gloss" data-g="msa">MSA</span></b> eli puitesopimus sekä erilliset tilaukset (order form) tilasta, sähköstä ja kytkennöistä</div></div>
+      <div class="crow"><div class="crow-label">MITÄ TOIMITETAAN</div><div class="crow-value">Räkkitila tai <span class="gloss" data-g="cage_suite">cage</span>, varattu sähköteho (kW), jäähdytys, fyysinen turvallisuus ja pääsy teleoperaattoreiden verkkoihin</div></div>
+      <div class="crow"><div class="crow-label">MISTÄ MAKSETAAN</div><div class="crow-value">Kuukausimaksut (<b>MRC</b>): tila per räkki, sähkö (kW tai kWh), cross-connectit per kpl. Lisäksi asennusten kertamaksut (<b>NRC</b>) ja remote hands -työt tunneittain</div></div>
+      <div class="crow"><div class="crow-label">KESTO</div><div class="crow-value">Tyypillisesti 1–5 vuotta, usein automaattinen jatko</div></div>
+      <div class="crow"><div class="crow-label">SLA</div><div class="crow-value">Sähkön ja jäähdytyksen käytettävyys, tyypillisesti 99,99–99,999 %. Poikkeamista hyvitykset (<span class="gloss" data-g="sla_service_credit">service credits</span>)</div></div>
+      <div class="crow"><div class="crow-label">EI SISÄLLÄ</div><div class="crow-value">Palvelimia, ohjelmistoja tai dataa, jotka ovat AI Oy:n</div></div>
+      <div class="section-label section-label--spaced">KUKA KANTAA RISKIN</div>
+      <div class="risk-list">
+        <div class="risk-item"><div class="risk-item-name">Käyttöaste</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: maksaa varatusta tilasta ja tehosta, käytti tai ei</div></div>
+        <div class="risk-item"><div class="risk-item-name">Laitteiden vanheneminen</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: omistaa GPU-palvelimet</div></div>
+        <div class="risk-item"><div class="risk-item-name">Sähkön hinta</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">Yleensä AI Oy: laskutetaan läpi (<span class="gloss" data-g="pass_through">pass-through</span>)</div></div>
+        <div class="risk-item"><div class="risk-item-name">Tilojen ja infran toimivuus</div><span class="swatch swatch--sq fill-blue"></span><div class="risk-item-text">Operaattori: SLA:n mukaisesti</div></div>
+        <div class="risk-item"><div class="risk-item-name">Tyhjät tilat</div><span class="swatch swatch--sq fill-blue"></span><div class="risk-item-text">Operaattori: vuokraamaton tila ei tuota</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms panel">
+    <div class="section-label">KORTIN TERMIT</div>
+    <div class="term-grid">
+      <div class="term"><div class="term-head"><div class="term-name">Räkki</div><div class="term-alt">rack</div></div><div class="term-def">standardikokoinen laitekaappi; pienin vuokrayksikkö</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Cage ja suite</div></div><div class="term-def">cage = aidattu alue salissa, suite = oma suljettu huone; kumpikin yhdelle asiakkaalle</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">White space</div></div><div class="term-def">palvelinsali, jossa asiakkaiden räkit ovat</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Grey space</div></div><div class="term-def">sähkö- ja jäähdytysjärjestelmien tekniset tilat</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Demarc</div><div class="term-alt">demarcation point</div></div><div class="term-def">vastuuraja: kohta, jossa operaattorin vastuu päättyy ja asiakkaan alkaa</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">MSA</div><div class="term-alt">master service agreement</div></div><div class="term-def">puitesopimus, jonka alle tehdään tilaukset</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">MRC ja NRC</div><div class="term-alt">monthly / non-recurring charge</div></div><div class="term-def">kuukausimaksu ja kertamaksu</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Cross-connect</div></div><div class="term-def">suora kaapeliyhteys kahden osapuolen välillä datakeskuksessa (suomeksi myös ristikytkentä)</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">SLA ja service credit</div></div><div class="term-def">palvelutasolupaus ja hyvitys, jos lupaus ei täyty</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Pass-through</div></div><div class="term-def">kustannus, joka laskutetaan asiakkaalta sellaisenaan, esim. sähkö</div></div>
+    </div>
+  </div>
+
+  <div class="card-note fine-print">AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimusehdot ovat toimialan tyypillisiä piirteitä, eivät yksittäisen operaattorin ehtoja. Remote hands = operaattorin henkilöstön tekemät laitetyöt. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="assets/glossary-fi.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

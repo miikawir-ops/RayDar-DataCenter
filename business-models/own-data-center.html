@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mallikortti: Oma datakeskus — RayDar Data Center</title>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/explainer.css">
+</head>
+<body data-page="own-data-center">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--card">
+  <!-- Ported from Mallikortti5.dc.html (approved design, Tilanne 9/2026). The in-page
+       1-5 stepper is dropped: the shared header stepper replaces it (Ray, 2026-10-06). -->
+  <div class="page-head">
+    <div class="kicker">MALLIKORTTI · VAIHE 5 / 5 · TILANNE 9/2026</div>
+    <h1 class="page-title">Oma datakeskus</h1>
+    <div class="page-lede"><span class="gloss" data-g="on_premise_self_build">On-premise / self-build</span>: AI Oy rakentaa, omistaa ja operoi oman datakeskuksen</div>
+  </div>
+
+  <div class="band">
+    <div class="band-col"><div class="band-label">TILANNE</div><p class="band-text">AI Oy tarvitsee satoja <span class="gloss" data-g="capacity">megawatteja</span> laskentatehoa ja haluaa hallita koko ketjun. Muiden rakentaminen on liian hidasta, eikä vuokralla oleminen tuo enää joustoa.</p></div>
+    <div class="band-col"><div class="band-label">PÄÄTÖS</div><p class="band-text band-text--strong">AI Oy hankkii tontin ja sähköliittymän, rakennuttaa datakeskuksen urakoitsijoilla ja operoi sen itse.</p></div>
+    <div class="band-col"><div class="band-label">TODELLINEN VERTAILUKOHTA</div><p class="band-text">xAI rakensi oman Colossus-keskuksensa Memphisiin. Google omistaa ja operoi Haminan datakeskuksensa itse.</p></div>
+  </div>
+
+  <div class="card-body">
+    <div class="card-main">
+      <div class="cake-head"><div class="section-label">KERROSKAKKU</div><div class="section-label">OPEROI</div><div class="section-label">OMISTAA</div></div>
+      <div class="cake cake--rows-5">
+        <div class="layer"><div class="layer-name">Sovellukset ja data</div><div class="layer-desc">AI Oy:n tekoälymallit ja niiden käsittelemä data</div></div>
+        <div class="layer"><div class="layer-name">Käyttöjärjestelmä ja alusta</div><div class="layer-desc">Ohjelmistot, joilla palvelimia ajetaan ja hallitaan</div></div>
+        <div class="layer"><div class="layer-name">Palvelimet ja verkkolaitteet</div><div class="layer-desc">AI Oy:n omat palvelimet ja verkko</div></div>
+        <div class="layer"><div class="layer-name">Sähkö, jäähdytys ja turvallisuus</div><div class="layer-desc">AI Oy:n oma sähköasema, UPS, varavoima ja jäähdytys</div></div>
+        <div class="layer"><div class="layer-name">Kiinteistö</div><div class="layer-desc">Tontti, rakennus ja <span class="gloss" data-g="transmission_grid_connection">kantaverkkoliittymä</span></div></div>
+        <div class="role fill-own span-5">AI Oy, koko ketju</div>
+        <div class="role fill-own span-5">AI Oy*</div>
+      </div>
+      <div class="footnote">* AI Oy voi myöhemmin myydä rakennuksen sijoittajalle ja vuokrata sen takaisin (<span class="gloss" data-g="sale_leaseback">sale-leaseback</span>) vapauttaakseen pääomaa. Silloin malli lähestyy wholesale-vuokrausta.</div>
+      <div class="key-list">
+        <div class="key-row"><span class="swatch swatch--key fill-own"></span><div><b>AI Oy</b>: kuvitteellinen tekoälyyhtiö, datakeskuksen omistaja ja operaattori</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-stone"></span><div><b>Toimittajat ja urakoitsijat</b>: rakentavat ja toimittavat laitteet ja sähkön, mutta eivät operoi</div></div>
+      </div>
+      <div class="flows panel">
+        <div class="section-label">RAHAVIRRAT</div>
+        <div class="flow"><div class="pill fill-own">AI Oy</div><div class="flow-arrow">→</div><div class="pill fill-stone">Urakoitsijat</div><div class="flow-text">rakentaminen (investointi)</div></div>
+        <div class="flow"><div class="pill fill-own">AI Oy</div><div class="flow-arrow">→</div><div class="pill fill-stone">Laitetoimittajat</div><div class="flow-text">palvelimet sekä sähkö- ja jäähdytyslaitteet</div></div>
+        <div class="flow"><div class="pill fill-own">AI Oy</div><div class="flow-arrow">→</div><div class="pill fill-stone">Sähkö- ja verkkoyhtiöt</div><div class="flow-text">liittymä, siirto ja sähkö, usein <span class="gloss" data-g="ppa">PPA</span>-sopimuksella</div></div>
+        <div class="flow"><div class="pill fill-own">AI Oy</div><div class="flow-arrow">→</div><div class="pill fill-stone">Lainanantajat</div><div class="flow-text">korot ja lyhennykset, jos rakentaminen rahoitetaan velalla</div></div>
+      </div>
+    </div>
+
+    <div class="contract panel">
+      <div class="section-label">SOPIMUS</div>
+      <h3 class="contract-title">Useita sopimuksia, ei yhtä pääsopimusta</h3>
+      <div class="callout"><div class="callout-label">MITÄ AI OY OSTAA</div><div class="callout-text">Ei valmista kapasiteettia: AI Oy rakentaa ja omistaa sen itse. Se ostaa rakentamista, laitteita ja sähköä.</div></div>
+      <div class="crow"><div class="crow-label">OSAPUOLET</div><div class="crow-value">AI Oy ja useita toimittajia: urakoitsijat, laitetoimittajat, sähkö- ja verkkoyhtiöt</div></div>
+      <div class="crow"><div class="crow-label">KESKEISET SOPIMUKSET</div><div class="crow-value">Rakennusurakka (esim. <b><span class="gloss" data-g="epc">EPC</span></b>), laitetoimitukset, sähköliittymä ja sähkön ostosopimus (<b>PPA</b>), huolto ja ylläpito</div></div>
+      <div class="crow"><div class="crow-label">MITÄ HANKITAAN</div><div class="crow-value">Tontti, rakennus, sähkö- ja jäähdytysjärjestelmät, palvelimet ja niiden ylläpito</div></div>
+      <div class="crow"><div class="crow-label">MISTÄ MAKSETAAN</div><div class="crow-value">Investointi (<b><span class="gloss" data-g="capex_opex">capex</span></b>) rakennukseen ja laitteisiin sekä jatkuvat käyttökulut (<b>opex</b>): sähkö, huolto ja henkilöstö</div></div>
+      <div class="crow"><div class="crow-label">KESTO</div><div class="crow-value">Rakennuksen käyttöikä vuosikymmeniä, palvelimien muutamia vuosia</div></div>
+      <div class="crow"><div class="crow-label">LUVAT</div><div class="crow-value">Kaavoitus, rakennuslupa ja ympäristöluvat kunnalta ja viranomaisilta</div></div>
+      <div class="crow"><div class="crow-label">EI SISÄLLÄ</div><div class="crow-value">Vuokrasopimusta, ellei AI Oy myöhemmin tee sale-leasebackia</div></div>
+      <div class="section-label section-label--spaced">KUKA KANTAA RISKIN</div>
+      <div class="risk-list">
+        <div class="risk-item"><div class="risk-item-name">Käyttöaste</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy kokonaan</div></div>
+        <div class="risk-item"><div class="risk-item-name">Laitteiden vanheneminen</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: omistaa kaiken</div></div>
+        <div class="risk-item"><div class="risk-item-name">Sähkön hinta</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: suojautuu PPA-sopimuksilla</div></div>
+        <div class="risk-item"><div class="risk-item-name">Rakentaminen ja aikataulu</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: osin siirrettävissä urakoitsijoille</div></div>
+        <div class="risk-item"><div class="risk-item-name">Jäännösarvo</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Oy: kohteen arvo, jos tarve muuttuu</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms panel">
+    <div class="section-label">KORTIN TERMIT</div>
+    <div class="term-grid">
+      <div class="term"><div class="term-head"><div class="term-name">On-premise</div></div><div class="term-def">omissa tiloissa ja omassa hallinnassa</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Self-build</div></div><div class="term-def">yhtiö rakennuttaa datakeskuksen itse</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Capex</div><div class="term-alt">capital expenditure</div></div><div class="term-def">investointimeno</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Opex</div><div class="term-alt">operating expenditure</div></div><div class="term-def">käyttökulu</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">EPC</div><div class="term-alt">engineering, procurement and construction</div></div><div class="term-def">kokonaisurakka suunnittelusta rakentamiseen</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">PPA</div><div class="term-alt">power purchase agreement</div></div><div class="term-def">pitkä sähkön ostosopimus, usein suoraan tuottajalta</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Kantaverkkoliittymä</div></div><div class="term-def">liityntä Fingridin hallinnoimaan kantaverkkoon</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">MW ja GW</div></div><div class="term-def">megawatti ja gigawatti; suurimmat kohteet ovat satoja megawatteja</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Sale-leaseback</div></div><div class="term-def">omistaja myy kiinteistön ja vuokraa sen takaisin</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Jäännösarvo</div><div class="term-alt">residual value</div></div><div class="term-def">kohteen arvo, kun alkuperäinen käyttö päättyy</div></div>
+    </div>
+  </div>
+
+  <div class="card-note fine-print">AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimusehdot ovat toimialan tyypillisiä piirteitä, eivät yksittäisen yhtiön ehtoja. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="assets/glossary-fi.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>
