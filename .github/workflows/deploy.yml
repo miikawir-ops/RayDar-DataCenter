@@ -3,17 +3,9 @@ name: Deploy RayDar Data Center dashboard
 # Actions-based Pages deploy (PLAN.md step 7): generates index.html fresh
 # each run and uploads it as a Pages artifact — never committed to git.
 #
-# NOT LIVE YET. This workflow can exist and be committed without doing
-# anything: the deploy-pages step only succeeds once Pages is manually
-# enabled on this repo (Settings -> Pages -> Source: GitHub Actions),
-# which is a separate decision not made in this commit (see PLAN.md —
-# private/public repo + GitHub plan still unresolved). Until then:
-#   - schedule/workflow_dispatch can still fire the fetch/score/render
-#     steps (useful to verify the pipeline runs in CI), but
-#   - the final deploy-pages step will fail with no Pages site to deploy
-#     to, which is the expected/safe failure mode, not a bug.
-# Also: this repo has no remote configured yet, so none of this runs
-# anywhere until it's pushed to GitHub in the first place.
+# LIVE since 2026-09-20 (miikawir-ops.github.io/RayDar-DataCenter/). There
+# is no push trigger: a pushed change goes live at the next scheduled run
+# or a manual workflow_dispatch.
 
 on:
   schedule:
@@ -64,10 +56,16 @@ jobs:
           cp ecosystem.html _site/ecosystem.html
           cp ecosystem-data.v4.js _site/ecosystem-data.v4.js
           cp assets/ecosystem-v2.webp _site/assets/ecosystem-v2.webp
-        # Only the generated dashboard + the hand-authored ecosystem page
-        # and its image are uploaded — not the whole repo (source files,
-        # PLAN.md, reference/, etc. stay out of the deployed site
-        # regardless of the repo's own visibility).
+          cp -r business-models _site/business-models
+          test -f _site/business-models/index.html
+        # Only the generated dashboard, the hand-authored ecosystem page
+        # and its image, and the Finnish business-models pages are uploaded
+        # — not the whole repo (source files, PLAN.md, reference/, etc. stay
+        # out of the deployed site regardless of the repo's own visibility).
+        # business-models/ is copied as a whole folder, so a new page or
+        # asset can't be silently left out. The test fails the run if the
+        # hub page is missing, e.g. if an ignore rule ever drops it from git
+        # again (a bare "index.html" pattern once matched it).
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
