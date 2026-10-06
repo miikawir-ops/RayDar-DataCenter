@@ -695,16 +695,29 @@ findings don't get lost, not because a fix or a direction has been agreed.
      in labels stay untagged (Vastapuoliriski, Jäännösarvo, Demarc,
      Developer, Ennakkomaksu).
 
+   **Batch 2: value chain, financing, specialised models, Why Finland,
+   glossary (2026-10-06).** Completes the eleven pages.
+   - Text check: every word identical (value chain compared as 42 text
+     blocks, since its canvas source isn't in reading order).
+   - Pixel diff at 1680px: 0 differing pixels on all five.
+   - value-chain: the canvas is now normal flow on one shared grid. On
+     narrow screens the diagram keeps its full size in a sideways scroller
+     (Ray's call; stacking the chains was offered as the alternative).
+   - glossary: renders from `glossary-fi.js`, with linkable cards (#g-<key>).
+   - **Found in the source:** financing's approved design overflowed its
+     1870px canvas by 78px, hiding the bottom of the term panel and the fine
+     print, which carries the caveat that the xAI arrangement is
+     unconfirmed. The port shows it.
+   - **Navigation (Ray, 2026-10-06):** the five page titles as links in the
+     header's top row ("Sivut" menu below 1280px), plus hub links from the
+     value-chain and specialised-models panel titles and "Termit:" to their
+     pages. Slugs: value-chain, financing, specialised-models, why-finland,
+     glossary.
+   - 279/279 checks on the new pages; hub and cards re-verified.
+   - **Open: the hub entry link.** All pages are now ported, which was the
+     condition for revisiting it.
+
    **Later rounds, each separate and not yet scheduled:**
-   - Batch 2: value chain, financing, specialised models, Why Finland,
-     glossary. `Arvoketju.dc.html` is an absolute-positioned canvas and
-     needs a normal-flow layout; it's the largest port.
-   - **Navigation to these five pages (Ray, 2026-10-06):** their titles as
-     links in the header's top row ("Sivut" menu on narrow screens), plus the
-     hub's own panel titles linking to their pages (value chain panel →
-     value-chain, specialised models panel → specialised-models, "Termit:" →
-     glossary), the same way model headings link to cards. Slugs: value-chain,
-     financing, specialised-models, why-finland, glossary.
    - Switch `ecosystem.html` to `glossary.js`, and fold in its confirmed live
      tooltip bug (see the ecosystem backlog item 3 below).
    - Cross-links from the ecosystem page's nodes into these pages; GPU cloud
