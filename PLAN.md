@@ -581,6 +581,71 @@ findings don't get lost, not because a fix or a direction has been agreed.
      documented item — done now since it's a user-facing interactive
      element on a now-public page.
 
+8. **Finnish business-models explainer (`business-models/`).** In progress
+   (2026-10-06). Eleven Finnish pages on data center business models,
+   ported from Ray's approved Claude Design export ("Tilanne 9/2026"; the
+   export is kept outside git in `Output/business-models-source/`): the hub
+   (one pager), five model cards, value chain, financing, specialised
+   models, Why Finland, glossary. A fourth level beside the dashboard and
+   the ecosystem page, in the light editorial style of spec A5b, not the
+   dark dashboard look.
+
+   **Step 1: scaffold + hub. Built and verified locally, NOT pushed.** Held
+   until Ray approves the screenshots and the Finnish UI strings. Commits:
+   `cfd46f3` (.gitignore no longer drops `business-models/index.html`),
+   `3a3eaba` (spec A5b, CLAUDE.md live status), `12bbf05` (scaffold + hub),
+   `fe1e857` (deploy.yml copies the folder), `63d20af` (header "Tilanne"
+   removed).
+
+   **Decisions settled (2026-10-06):**
+   - Header and footer are rendered by `assets/chrome.js` from one page list.
+   - Fonts are self-hosted, with no third-party requests.
+   - Finnish slugs serve as both deep-link hashes and file names
+     (`#gpu-pilvi`, `gpu-pilvi.html`).
+   - The "Tilanne 9/2026" marker sits in each page's own kicker and in the
+     footer, not in the header. The glossary page's kicker has none, so the
+     footer is its only marker.
+   - **Model cards (step 2): drop the in-page 1→5 stepper.** The shared
+     header stepper replaces it.
+   - **No entry link to the hub until all ten subpages are ported.** It stays
+     reachable by URL only, so visitors don't land on a hub whose links lead
+     nowhere. Until then, no live page may link to an unported page.
+     Revisit when the set is complete.
+   - Glossary:
+     - The 68 terms live in `assets/glossary-fi.js`, the single source of
+       truth. `sanasto.html` will render from it.
+     - One floating, viewport-clamped tooltip (`assets/glossary.js`), using
+       the same markup and data shape as `ecosystem.html`.
+     - Tagging rule: each term once per page, at its first appearance in
+       running text, never in headings or labels.
+     - Tooltips use the glossary page's wording. Some per-page term footers
+       word the same term differently, and the footers stay as authored.
+
+   **Verification method for every ported page:**
+   - `tools/check_port_text.py`: every word of the source is kept, in order.
+   - A pixel diff against the source at 1680px. Deviations must be explained
+     by deliberate changes, as shown by re-imposing the source's constraints
+     in a test run.
+   - Playwright functional checks from 1680px down to 360px.
+
+   For the hub: 641 words identical. Pixel-identical at 1680px apart from
+   rows growing to fit their text and no fixed canvas height. 56/56
+   functional checks pass. Touch was tested in Chromium emulation only, not
+   on a real device.
+
+   **Later rounds, each separate and not yet scheduled:**
+   - Steps 2+: the remaining ten pages. `Arvoketju.dc.html` is an
+     absolute-positioned canvas and needs a normal-flow layout; it's the
+     largest port.
+   - Switch `ecosystem.html` to `glossary.js`, and fold in its confirmed live
+     tooltip bug (see the ecosystem backlog item 3 below).
+   - Cross-links from the ecosystem page's nodes into these pages; GPU cloud
+     (neocloud) as its own ecosystem stakeholder; an English version.
+   - The hub entry link (see above).
+
+   **Known gap:** the hub's layer bars (the "KERROKSET" colour segments) have
+   no screen-reader text, the same as the source.
+
 ## Known issues (recorded, not fixed)
 
 - **`python fetch_market.py --news` crashes on Windows with
@@ -889,6 +954,14 @@ findings don't get lost, not because a fix or a direction has been agreed.
      height stale. Likely fix: also listen for zoom-affecting signals
      (e.g. `visualViewport.resize` where available) or recompute on a
      broader trigger — not yet investigated in depth.
+  3. **Glossary tooltip runs off-screen on phones. Confirmed on the live
+     site, 2026-10-06.** At 360px, tapping "colocation" opens a tooltip
+     spanning x=179–409 on a 360px screen, giving the whole page 49px of
+     sideways scroll. Cause: `.gloss-tip` is a fixed 230px wide, anchored
+     at the term's left edge, with no viewport clamping. Fix in the round
+     where this page switches to `business-models/assets/glossary.js`
+     (build-order step 8), which keeps every tooltip inside the screen. Not
+     fixed separately in the meantime.
 
 - **`render.py` — swipeable sub-layer cards on mobile (2026-09-22).** The
   5-card `#chain` row didn't fit 375px screens — `min-width:120px` per
