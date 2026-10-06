@@ -669,8 +669,10 @@ findings don't get lost, not because a fix or a direction has been agreed.
    functional checks pass. Touch was tested in Chromium emulation only, not
    on a real device.
 
-   **Batch 1: the five model cards (2026-10-06), committed locally, awaiting
-   Ray's batch screenshots.** `public-cloud`, `gpu-cloud`,
+   **Batch 1: the five model cards. LIVE 2026-10-06** (pushed on Ray's go;
+   verified live: all five 200, correct current step, every glossary tag
+   working, hub headings linking to them, dashboard root and ecosystem page
+   unaffected). `public-cloud`, `gpu-cloud`,
    `retail-colocation`, `wholesale-colocation`, `own-data-center` `.html`.
    - The in-page stepper is dropped (header stepper instead), and the hub's
      model headings now link to their cards.
@@ -696,10 +698,13 @@ findings don't get lost, not because a fix or a direction has been agreed.
    **Later rounds, each separate and not yet scheduled:**
    - Batch 2: value chain, financing, specialised models, Why Finland,
      glossary. `Arvoketju.dc.html` is an absolute-positioned canvas and
-     needs a normal-flow layout; it's the largest port. These pages have
-     no navigation route yet (the header stepper covers only the five
-     models, and "Miksi Suomi" isn't referenced on the hub). That needs
-     deciding before the hub gets its entry link.
+     needs a normal-flow layout; it's the largest port.
+   - **Navigation to these five pages (Ray, 2026-10-06):** their titles as
+     links in the header's top row ("Sivut" menu on narrow screens), plus the
+     hub's own panel titles linking to their pages (value chain panel →
+     value-chain, specialised models panel → specialised-models, "Termit:" →
+     glossary), the same way model headings link to cards. Slugs: value-chain,
+     financing, specialised-models, why-finland, glossary.
    - Switch `ecosystem.html` to `glossary.js`, and fold in its confirmed live
      tooltip bug (see the ecosystem backlog item 3 below).
    - Cross-links from the ecosystem page's nodes into these pages; GPU cloud
