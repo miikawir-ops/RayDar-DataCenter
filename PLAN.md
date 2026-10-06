@@ -600,8 +600,10 @@ findings don't get lost, not because a fix or a direction has been agreed.
    **Decisions settled (2026-10-06):**
    - Header and footer are rendered by `assets/chrome.js` from one page list.
    - Fonts are self-hosted, with no third-party requests.
-   - Finnish slugs serve as both deep-link hashes and file names
-     (`#gpu-pilvi`, `gpu-pilvi.html`).
+   - Slugs serve as both deep-link hashes and file names, in English
+     (`#gpu-cloud`, `gpu-cloud.html`). Changed from Finnish slugs on
+     2026-10-06, before the first push, together with English glossary
+     keys. All visible text stays Finnish.
    - The "Tilanne 9/2026" marker sits in each page's own kicker and in the
      footer, not in the header. The glossary page's kicker has none, so the
      footer is its only marker.

@@ -18,13 +18,13 @@
     dashboard: "../index.html",
     family: "https://miikawir-ops.github.io/AI_valuechain/",
     // AI Oy's growth path, in order. Slugs double as the hub's deep-link
-    // hashes (#gpu-pilvi) and as the model card file names (gpu-pilvi.html).
+    // hashes (#gpu-cloud) and as the model card file names (gpu-cloud.html).
     models: [
-      { slug: "julkinen-pilvi", name: "Julkinen pilvi" },
-      { slug: "gpu-pilvi", name: "GPU-pilvi" },
+      { slug: "public-cloud", name: "Julkinen pilvi" },
+      { slug: "gpu-cloud", name: "GPU-pilvi" },
       { slug: "retail-colocation", name: "Retail-colocation" },
       { slug: "wholesale-colocation", name: "Wholesale-colocation" },
-      { slug: "oma-datakeskus", name: "Oma datakeskus" },
+      { slug: "own-data-center", name: "Oma datakeskus" },
     ],
   };
   window.BM_SITE = SITE;
