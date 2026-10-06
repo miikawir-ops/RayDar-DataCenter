@@ -42,14 +42,14 @@ class TextExtractor(HTMLParser):
     def handle_starttag(self, tag, attrs):
         classes = set((dict(attrs).get("class") or "").split())
         if tag not in INLINE_TAGS:
-            self.parts.append(" ")  # block boundary separates words
+            self.parts.append("\n")  # block boundary separates words
         if tag in VOID_TAGS:
             return
         self.stack.append(self._skipped() or tag in SKIP_TAGS or bool(classes & self.ignore_classes))
 
     def handle_startendtag(self, tag, attrs):
         if tag not in INLINE_TAGS:
-            self.parts.append(" ")
+            self.parts.append("\n")
 
     def handle_endtag(self, tag):
         if tag in VOID_TAGS:
@@ -57,7 +57,7 @@ class TextExtractor(HTMLParser):
         if self.stack:
             self.stack.pop()
         if tag not in INLINE_TAGS:
-            self.parts.append(" ")
+            self.parts.append("\n")
 
     def handle_data(self, data):
         if not self._skipped():
@@ -66,12 +66,20 @@ class TextExtractor(HTMLParser):
     def words(self):
         return "".join(self.parts).split()
 
+    def blocks(self):
+        """Text of each block-level run (box, label, paragraph line), whitespace-normalised."""
+        return [" ".join(b.split()) for b in "".join(self.parts).split("\n") if b.strip()]
 
-def page_words(path, ignore_classes=()):
+
+def parse(path, ignore_classes=()):
     parser = TextExtractor(ignore_classes)
     with open(path, encoding="utf-8") as f:
         parser.feed(f.read())
-    return parser.words()
+    return parser
+
+
+def page_words(path, ignore_classes=()):
+    return parse(path, ignore_classes).words()
 
 
 def main():
@@ -80,9 +88,25 @@ def main():
     ap.add_argument("port")
     ap.add_argument("--ignore-class", action="append", default=[],
                     help="class of elements whose text the port adds on purpose (repeatable)")
+    ap.add_argument("--unordered", action="store_true",
+                    help="compare text blocks as a multiset, ignoring order (for canvas sources whose "
+                         "DOM order differs from reading order, e.g. Arvoketju)")
     ap.add_argument("--expect-removed", action="append", default=[],
                     help="word sequence the port drops on purpose; must occur exactly once in the source (repeatable)")
     args = ap.parse_args()
+
+    if args.unordered:
+        from collections import Counter
+        sb, pb = Counter(parse(args.source).blocks()), Counter(parse(args.port, args.ignore_class).blocks())
+        if sb == pb:
+            print(f"OK: {sum(sb.values())} text blocks, identical (order not compared).")
+            return 0
+        print("MISMATCH (blocks, order not compared):")
+        for b in sorted((sb - pb).elements()):
+            print("  only in source:", b)
+        for b in sorted((pb - sb).elements()):
+            print("  only in port:  ", b)
+        return 1
 
     src = page_words(args.source)
     for phrase in args.expect_removed:
