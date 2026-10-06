@@ -21,4 +21,7 @@ Output/
 # job (deploy plumbing), not step 6 (render.py just needs to be able to
 # generate it). Dynamic content (prices/scores/timestamp) would also make
 # every test run a noisy diff before there's an actual publish mechanism.
-index.html
+# Anchored with a leading slash: a bare "index.html" matches in every
+# directory and would silently drop committed hub pages such as
+# business-models/index.html.
+/index.html
