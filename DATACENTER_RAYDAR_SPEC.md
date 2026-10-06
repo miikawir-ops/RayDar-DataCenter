@@ -57,6 +57,11 @@ identical to parent.
 
 ## A5. Visual design (match parent for family consistency)
 
+The family has two visual modes. What ties them together is the shared header,
+footer and cross-links, not a single palette.
+
+### A5a. Dashboard mode — scan at a glance (dashboard, ecosystem page)
+
 - Dark "intelligence" hero: gradient `#08081A → #0C1A3A → #1A0830 → #0A0818`, laser
   beam at top, gradient tagline.
 - White signal cards on dark navy body gradient.
@@ -67,6 +72,24 @@ identical to parent.
   (glow, depth, illustration, interactivity) is part of the product, not decoration to
   trim. Keep it purposeful: no continuous animation, and nothing that competes with the
   data or makes text harder to read.
+
+### A5b. Explainer / briefing mode — read closely: light editorial (business-models/)
+
+- For documents that are read closely rather than scanned: the Finnish business-models
+  explainer. Long text and comparison tables read better on a calm, printed-page
+  surface than on the dark dashboard look.
+- Palette: cream `#F3F1EB` page, navy `#12222E` text and dark panels, rust `#9A4712`
+  accent. Type: Space Grotesk (headings), IBM Plex Sans (body), IBM Plex Mono (labels),
+  self-hosted, with no third-party requests.
+- **Rust is an accent, never a signal colour.** It sits close to Orange (Emerging) in
+  A3, so explainer pages must never use it, or any other colour, to suggest a
+  bottleneck state. Colours on explainer pages identify roles (who owns or operates
+  what); the A3 signal colours keep their meaning on dashboards only.
+- Family connection: a shared slim header (growth-path stepper, link back to the
+  ecosystem page, "Tilanne" date marker) and a footer with RayDar family branding and
+  cross-links, rendered from one page list so every page stays in sync.
+- Desk is the primary context, phone secondary: authored layouts are kept, and collapse
+  per page type on narrow screens rather than being redesigned.
 
 ## A6. Technical architecture (reuse from parent)
 

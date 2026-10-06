@@ -32,8 +32,9 @@ Needs Ray's approval before committing:
 - Pipeline for this project: fetch → score → render → deploy.
 
 ## Deploy status
-- No live deploy yet (PLAN.md step 7). The global Definition of done applies from the moment it exists.
+- LIVE since 2026-09-20 at miikawir-ops.github.io/RayDar-DataCenter/ (PLAN.md step 7). The global Definition of done and the live-site approval rules apply to every change that alters rendered output.
+- The workflow has no push trigger: a push goes live at the next weekday 12:00 UTC cron run or a manual workflow_dispatch.
 
-## Post-launch (once the site is live)
+## Post-launch
 - Any change to scoring logic, weights, or thresholds requires checking live output before and after the change, not just a local run.
 - Known limitations recorded in PLAN.md stay tracked after launch — a working dashboard is not evidence an open question got resolved.
