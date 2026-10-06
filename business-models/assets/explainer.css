@@ -99,6 +99,13 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 .panel{background:var(--white);border:1px solid var(--line);box-sizing:border-box}
 .panel--dark{background:var(--navy);border:none;color:var(--navy-text)}
 .fine-print{color:var(--ink-3)}
+/* A heading or label that links to its page: looks like the authored text
+   until hovered or focused (hub model headings, panel titles, "Termit:"). */
+.quiet-link{color:inherit;text-decoration:none}
+.quiet-link:hover,.quiet-link:focus-visible{text-decoration:underline;text-decoration-color:var(--rust);
+  text-decoration-thickness:2px;text-underline-offset:4px}
+.quiet-link:focus-visible{outline:2px solid var(--rust);outline-offset:2px;border-radius:2px}
+.panel--dark .quiet-link:hover,.panel--dark .quiet-link:focus-visible{text-decoration-color:var(--peach)}
 
 /* Role fills: who owns or operates a layer. Colours identify roles, never
    signal states (A5b). Named by colour, not role, because the role a colour
@@ -112,7 +119,7 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 .fill-green{background:var(--green);color:var(--white)}
 .fill-sand{background:var(--sand);color:var(--navy)}
 .fill-stone{background:var(--stone);color:var(--navy)}
-.fill-navy{background:var(--navy);border:1px solid var(--navy);color:var(--white)}
+.fill-navy{background:var(--navy);color:var(--white)}
 .swatch{display:inline-block;width:14px;height:11px;border-radius:2px;box-sizing:border-box;flex-shrink:0}
 .swatch--key{width:18px;height:14px;margin-top:2px;border-radius:3px}
 .swatch--sq{width:14px;height:14px;border-radius:3px}
@@ -121,11 +128,22 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 .page{max-width:1680px;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column}
 .page--hub{padding:26px 52px;gap:11px}
 .page--card{padding:48px 56px;gap:22px}
+.page--doc{padding:56px;gap:28px}
 .page-head{display:flex;flex-direction:column;gap:8px;padding-bottom:20px;border-bottom:2px solid var(--navy)}
 .page-head .kicker{font-size:13px}
 .page-title{margin:0;font-family:var(--f-display);font-size:48px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
 .page-lede{font-size:19px;color:var(--ink-3)}
+.page-head--doc{gap:10px;padding-bottom:24px}
+.page-head--doc .page-lede{font-size:20px}
 .section-label{font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--rust)}
+
+/* -- Glossary page: rendered from glossary-fi.js ------------------------- */
+.glossary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.glossary-card{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:10px;
+               scroll-margin-top:calc(var(--header-steps-h) + 16px)}
+.glossary-card .term-name{font-size:16px}
+.glossary-card p{margin:0;font-size:13.5px;line-height:1.4;color:var(--ink-2)}
+.glossary-card:target{border-color:var(--rust-strong);box-shadow:0 0 0 1px var(--rust-strong)}
 
 /* -- Model cards (the five *-cloud / *-colocation / own-data-center pages) */
 .band{display:flex;background:var(--navy);color:var(--navy-text);border-radius:14px;overflow:hidden}
@@ -232,6 +250,32 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 .bm-wordmark span{color:var(--family-blue);font-weight:500}
 .bm-brand-sub{font-size:13px;color:var(--navy-text);overflow:hidden;text-overflow:ellipsis}
 .bm-brand:hover .bm-brand-sub{color:var(--white)}
+/* Page links (top row, right): inline on wide screens, "Sivut" menu below 1280px */
+.bm-pages{margin-left:auto;min-width:0}
+.bm-pages-list{list-style:none;margin:0;padding:0;display:flex;gap:18px}
+.bm-pages-list a{font-size:13px;color:var(--navy-text);white-space:nowrap}
+.bm-pages-list a:hover{color:var(--white)}
+.bm-pages-list a[aria-current]{color:var(--white);font-weight:600;text-decoration:underline;
+                               text-decoration-color:var(--peach);text-decoration-thickness:2px;text-underline-offset:6px}
+.bm-pages-menu{display:none;position:relative}
+.bm-pages-menu summary{list-style:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--white);
+                       padding:3px 10px;border:1px solid var(--navy-line);border-radius:6px;white-space:nowrap}
+.bm-pages-menu summary::-webkit-details-marker{display:none}
+.bm-pages-menu summary::after{content:"";display:inline-block;margin-left:7px;vertical-align:2px;
+                              border:4px solid transparent;border-top:5px solid var(--peach);border-bottom:0}
+.bm-pages-menu[open] summary{background:rgba(255,255,255,.08)}
+.bm-pages-menu summary:focus-visible{outline:2px solid var(--peach);outline-offset:2px}
+.bm-pages-menu ul{position:absolute;right:0;top:calc(100% + 6px);z-index:60;list-style:none;margin:0;padding:6px;
+                  min-width:210px;background:var(--navy);border:1px solid var(--navy-line);border-radius:8px;
+                  box-shadow:0 8px 24px rgba(18,34,46,.35)}
+.bm-pages-menu li a{display:block;padding:9px 10px;border-radius:6px;font-size:14px;color:var(--navy-text)}
+.bm-pages-menu li a:hover,.bm-pages-menu li a[aria-current]{background:rgba(255,255,255,.08);color:var(--white)}
+.bm-pages-menu li a[aria-current]{font-weight:600}
+@media (max-width:1279px){
+  .bm-pages-list{display:none}
+  .bm-pages-menu{display:block}
+}
+
 .bm-steps-label{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;
                 text-transform:uppercase;color:var(--navy-text);white-space:nowrap}
 .bm-steps ol{list-style:none;margin:0;padding:0;display:flex;align-items:center;gap:0;min-width:0}
@@ -295,8 +339,11 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 
   /* Page frame */
   .page--hub,.page--card{padding:20px var(--gutter) 0}
+  .page--doc{padding:20px var(--gutter) 0}
   .page--hub{gap:14px}
-  .page--card{gap:16px}
+  .page--card,.page--doc{gap:16px}
+  .page-head--doc .page-lede{font-size:16px}
+  .glossary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .page-title{font-size:32px}
   .page-lede{font-size:16px}
 
@@ -328,7 +375,7 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 @media (max-width:600px){
   .bm-steps-label,.bm-brand-sub,.bm-back-long{display:none}
   .bm-back-short{display:inline}
-  .term-grid{grid-template-columns:minmax(0,1fr)}
+  .term-grid,.glossary-grid{grid-template-columns:minmax(0,1fr)}
   .cake-head,.cake{grid-template-columns:minmax(0,1fr) 84px 84px}
   .layer-name{font-size:14px}
 }

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rahoitusmallit — RayDar Data Center</title>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/explainer.css">
+<style>
+/* Financing (Rahoitusmallit.dc.html) */
+.core{display:flex;gap:28px;align-items:center;padding:22px 28px;border-radius:14px}
+.core-label{width:220px;flex-shrink:0;font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.12em;color:var(--peach)}
+.core-text{display:flex;flex-direction:column;gap:6px}
+.core-headline{font-family:var(--f-display);font-size:22px;font-weight:600;color:var(--white);line-height:1.3}
+.core-body{font-size:15px;line-height:1.5}
+.fin-body,.fin-row{display:flex;gap:22px;align-items:stretch}
+.fin-assets{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px}
+.fin-examples{flex:1.25 1 0;min-width:0;display:flex;flex-direction:column;gap:10px}
+.asset{display:flex;flex-direction:column;gap:8px;padding:16px 18px;border-radius:10px}
+.asset-top{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.asset-tag{padding:4px 10px;border-radius:6px;font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.08em}
+.asset-note{font-size:13px;color:var(--ink-3);text-align:right}
+.asset-desc{font-size:14px;color:var(--ink-2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;background:var(--cream);border:1px solid var(--line);color:var(--navy)}
+.asset-basis{font-size:13.5px}
+.example-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.example{display:flex;flex-direction:column;gap:5px;padding:14px 16px;border-radius:10px}
+.example-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.example-title{font-family:var(--f-display);font-size:16px;font-weight:700}
+.example-tag{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--rust)}
+.example-text{font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.fin-flows{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px;padding:18px 22px;border-radius:14px}
+.fin-flows-intro{font-size:14px;color:var(--ink-2)}
+.pill--lg{padding:4px 10px;border-radius:6px;font-size:13px}
+.fin-flows .flow{line-height:normal}  /* source rows set no line-height, unlike the model cards' 1.35 */
+.fin-risks{flex:1.6 1 0;min-width:0;display:flex;flex-direction:column;gap:10px;padding:18px 22px;border-radius:14px}
+.risk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 22px}
+.fin-risk{display:flex;flex-direction:column;gap:3px;padding-bottom:8px;border-bottom:1px solid var(--line-soft)}
+.fin-risk-title{font-size:14px;font-weight:700}
+.fin-risk-text{font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.term-grid--4{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 26px}
+@media (max-width:1279px){ .fin-body,.fin-row{flex-direction:column} }
+@media (max-width:1023px){
+  .core{flex-direction:column;align-items:flex-start;gap:8px;padding:18px}
+  .core-label{width:auto} .core-headline{font-size:19px}
+  .asset-top{flex-wrap:wrap} .asset-note{text-align:left}
+  .example-grid,.risk-grid,.term-grid--4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fin-flows,.fin-risks{padding:16px}
+}
+@media (max-width:600px){ .example-grid,.risk-grid,.term-grid--4{grid-template-columns:minmax(0,1fr)} }
+</style>
+</head>
+<body data-page="financing">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--doc">
+  <!-- Ported from Rahoitusmallit.dc.html (approved design, Tilanne 9/2026). -->
+  <div class="page-head page-head--doc">
+    <div class="kicker">RAHOITUS · TILANNE 9/2026</div>
+    <h1 class="page-title">Rahoitusmallit</h1>
+    <div class="page-lede">Miten datakeskukset ja GPU-kapasiteetti rahoitetaan, ja kuka kantaa velan</div>
+  </div>
+  <div class="core panel panel--dark"><div class="core-label">YDINAJATUS</div><div class="core-text"><div class="core-headline">Rahoitus perustuu asiakkaan sitoumukseen ja luottokelpoisuuteen, ei pelkkään kiinteistöön.</div><div class="core-body">Pitkä vuokra- tai take-or-pay-sopimus tekee tulevasta kassavirrasta ennustettavan, ja asiakkaan luottokelpoisuus ratkaisee, kuinka edullisesti sitä vastaan voi lainata.</div></div></div>
+  <div class="fin-body">
+    <div class="fin-assets">
+      <div class="section-label">MITÄ RAHOITETAAN JA MILLÄ</div>
+      <div class="asset panel">
+        <div class="asset-top"><div class="asset-tag fill-sand">KIINTEISTÖ JA SÄHKÖINFRA</div><div class="asset-note">Käyttöikä vuosikymmeniä, vakaa vuokrakassavirta</div></div>
+        <div class="asset-desc">Rakennus, sähköliittymä, sähkö- ja jäähdytysjärjestelmät</div>
+        <div class="chips"><div class="chip">Pankkien rakennusaikainen laina</div><div class="chip">Projektirahoitus SPV:ssä</div><div class="chip">ABS-jälleenrahoitus</div><div class="chip">Vihreät joukkovelkakirjat</div><div class="chip">Sale-leaseback</div></div>
+        <div class="asset-basis"><b>Vakuutena:</b> Vuokrasopimukset ja kiinteistö</div>
+      </div>
+      <div class="asset panel">
+        <div class="asset-top"><div class="asset-tag fill-green">GPU-PALVELIMET</div><div class="asset-note">Taloudellinen käyttöikä muutamia vuosia, arvo laskee nopeasti</div></div>
+        <div class="asset-desc">AI-laskennan laitteet</div>
+        <div class="chips"><div class="chip">GPU-vakuudellinen laina</div><div class="chip">Laiteleasing SPV:n kautta</div><div class="chip">Asiakkaiden ennakkomaksut</div><div class="chip">Valmistajan rahoitus</div></div>
+        <div class="asset-basis"><b>Vakuutena:</b> Laitteet ja asiakassopimukset</div>
+      </div>
+      <div class="asset panel">
+        <div class="asset-top"><div class="asset-tag fill-blue">YHTIÖN OMA RAHOITUS</div><div class="asset-note">Suurin osa investoinneista rahoitetaan omalla kassavirralla</div></div>
+        <div class="asset-desc">Hyperskaalaajat ja muut suuret käyttäjät</div>
+        <div class="chips"><div class="chip">Oma kassavirta</div><div class="chip">Yrityslainat (joukkovelkakirjat)</div><div class="chip">Osakeanti ja vaihtovelkakirjat</div><div class="chip">Yhteisyritys ja taseen ulkopuolinen velka</div></div>
+        <div class="asset-basis"><b>Perustuu:</b> Yhtiön luottokelpoisuuteen; erillisyhtiöissä vuokralaisen sitoumuksiin ja takuisiin</div>
+      </div>
+      <div class="asset panel">
+        <div class="asset-top"><div class="asset-tag fill-navy">OMA PÄÄOMA JA OMISTUS</div><div class="asset-note">Pitkäjänteinen pääoma hakee vakaata, sopimuksiin perustuvaa tuottoa</div></div>
+        <div class="asset-desc">Kuka omistaa datakeskusoperaattorit ja kiinteistöt</div>
+        <div class="chips"><div class="chip">Infrarahastot</div><div class="chip">Eläke- ja vakuutusyhtiöt</div><div class="chip">Pääomasijoittajat</div><div class="chip">Valtiolliset sijoitusyhtiöt</div><div class="chip">REITit</div></div>
+        <div class="asset-basis"><b>Tuotto:</b> Vuokrakassavirrasta ja kohteiden arvonnoususta</div>
+      </div>
+    </div>
+    <div class="fin-examples">
+      <div class="section-label">TODELLISIA ESIMERKKEJÄ</div>
+      <div class="example-grid">
+        <div class="example panel"><div class="example-head"><div class="example-title">Meta ja Oracle (2025)</div><div class="example-tag">YRITYSLAINAT</div></div><div class="example-text">Meta laski lokakuussa 2025 liikkeeseen 30 mrd $ <span class="gloss" data-g="bond">joukkovelkakirjoja</span>, suurimman <span class="gloss" data-g="investment_grade">investment grade</span> -annin sitten 2023. Oracle keräsi syyskuussa 18 mrd $, ja pankit järjestivät noin 38 mrd $ lainat sen käyttöön tuleville datakeskuksille.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Meta Hyperion, Louisiana (2025)</div><div class="example-tag">TASEEN ULKOPUOLINEN YHTEISYRITYS</div></div><div class="example-text">Blue Owlin rahastot omistavat 80 % ja Meta 20 % kampuksen rakentavasta yhteisyrityksestä, jonka erillisyhtiö laski liikkeeseen noin 27 mrd $ joukkovelkakirjoja. Meta on vuokralainen ja antaa 16 vuoden <span class="gloss" data-g="residual_value_guarantee">jäännösarvotakuun</span>.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Aligned ja AirTrunk (2024–2026)</div><div class="example-tag">INFRA-, ELÄKE- JA VALTIOLLINEN PÄÄOMA</div></div><div class="example-text">BlackRockin GIP, Abu Dhabin MGX ja AIP-kumppanuus (mm. Microsoft ja Nvidia) ostivat Alignedin Macquarien <span class="gloss" data-g="infrastructure_fund">infrarahastoilta</span> noin 40 mrd $ arvostuksella (2026). Blackstone ja Kanadan eläkerahasto CPP Investments ostivat AirTrunkin noin 16 mrd $:lla (2024).</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Vantage Data Centers (2024–2026)</div><div class="example-tag">DATAKESKUS-ABS</div></div><div class="example-text">Vantage toteutti ensimmäiset datakeskus-<span class="gloss" data-g="abs">ABS</span>:t Pohjois-Amerikassa ja Euroopassa. Esimerkiksi Walesin kampuksen vuokrasopimuksilla katettuja velkakirjoja laskettiin liikkeeseen 600 milj. £ (2024) ja lisää 254 milj. £ (2026).</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">CoreWeave (2023–2026)</div><div class="example-tag">GPU-VAKUUDELLISET LAINAT</div></div><div class="example-text">Ensimmäinen 2,3 mrd $ laina (2023) yhdisti GPU:t ja asiakassopimukset samaan <span class="gloss" data-g="spv">SPV</span>:hen. Maaliskuussa 2026 8,5 mrd $ laina sai ensimmäisenä GPU-rahoituksena investment grade -luokituksen, koska vakuutena oli sopimus Metan kanssa.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Nebius (2025)</div><div class="example-tag">VAIHTOVELKAKIRJAT JA OSAKEANTI</div></div><div class="example-text">Microsoft-sopimuksen jälkeen Nebius keräsi noin 3,75 mrd $ <span class="gloss" data-g="convertible_note">vaihtovelkakirjoilla</span> ja osakeannilla maan ja laskentakapasiteetin hankintaan. Yhtiö kertoi rahoittavansa rakentamista myös Microsoft-sopimusta vastaan otettavalla velalla.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Equinix (2020–2025)</div><div class="example-tag">VIHREÄT JOUKKOVELKAKIRJAT</div></div><div class="example-text">Equinix on laskenut liikkeeseen noin 9 mrd $ <span class="gloss" data-g="green_bond">vihreitä joukkovelkakirjoja</span>. Varat korvamerkitään energiatehokkaisiin kohteisiin: uuden keskuksen PUE:n on oltava Euroopassa enintään 1,35. Näin rahoitettiin esimerkiksi Pariisin PA10-keskus.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">xAI Colossus 2, Memphis (2025)</div><div class="example-tag">GPU-LEASING JA VALMISTAJAN RAHOITUS</div></div><div class="example-text">Uutisoinnin mukaan noin 20 mrd $ SPV ostaa Nvidian GPU:t ja vuokraa ne xAI:lle viideksi vuodeksi. Nvidia osallistuu oman pääoman ehtoisesti, eli <span class="gloss" data-g="vendor_financing">laitetoimittaja rahoittaa asiakastaan</span>.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="fin-row">
+    <div class="fin-flows panel">
+      <div class="section-label">RAHAVIRRAT TYYPILLISESSÄ RAKENTEESSA</div>
+      <div class="fin-flows-intro">Erillinen yhtiö (SPV tai yhteisyritys) omistaa kohteen ja ottaa velan. Vuokralainen maksaa vuokraa, josta velka maksetaan.</div>
+      <div class="flow"><div class="pill pill--lg fill-own">Vuokralainen</div><div class="flow-arrow">→</div><div class="pill pill--lg fill-blue">SPV / yhteisyritys</div><div class="flow-text">vuokra pitkän sopimuksen mukaan</div></div>
+      <div class="flow"><div class="pill pill--lg fill-blue">SPV / yhteisyritys</div><div class="flow-arrow">→</div><div class="pill pill--lg fill-stone">Lainanantajat</div><div class="flow-text">korot ja lyhennykset, vakuutena vuokrasopimus</div></div>
+      <div class="flow"><div class="pill pill--lg fill-blue">SPV / yhteisyritys</div><div class="flow-arrow">→</div><div class="pill pill--lg fill-sand">Oman pääoman sijoittajat</div><div class="flow-text">jäljelle jäävä tuotto</div></div>
+      <div class="flow"><div class="pill pill--lg fill-own">Vuokralainen</div><div class="flow-arrow">→</div><div class="pill pill--lg fill-blue">SPV / yhteisyritys</div><div class="flow-text">jäännösarvotakuu, jos sopimusta ei jatketa</div></div>
+    </div>
+    <div class="fin-risks panel">
+      <div class="section-label">RISKIT RAHOITTAJAN NÄKÖKULMASTA</div>
+      <div class="risk-grid">
+        <div class="fin-risk"><div class="fin-risk-title">Asiakasriski</div><div class="fin-risk-text">Lainan hinta seuraa usein asiakkaan luottokelpoisuutta enemmän kuin itse kiinteistöä tai laitteita. CoreWeaven lainat ovat halvempia, kun asiakas on investment grade -luokiteltu.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Kestoero</div><div class="fin-risk-text">Vuokrasopimukset ja ABS:t voivat olla 15–20 vuoden pituisia, mutta GPU-laitteet vanhenevat muutamassa vuodessa. GPU-lainat ovat siksi lyhyempiä ja lyhentyvät nopeasti.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Jäännösarvoriski</div><div class="fin-risk-text">Kuka kantaa riskin, jos kohde tai laitteet ovat sopimuksen päättyessä vähemmän arvoisia? Jäännösarvotakuu siirtää riskin takaisin vuokralaiselle.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Rakentamisriski</div><div class="fin-risk-text">Ennen valmistumista kassavirtaa ei ole. Rakennusaikainen rahoitus on kalliimpaa, ja se <span class="gloss" data-g="refinancing">jälleenrahoitetaan</span>, kun kohde on valmis ja vuokrattu.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Korko- ja jälleenrahoitusriski</div><div class="fin-risk-text">Velka pitää usein jälleenrahoittaa kesken kohteen elinkaaren. Esimerkiksi Vantagen ABS-velkakirjojen odotettu takaisinmaksu on viiden vuoden kuluttua, mutta lopullinen erääntyminen vasta 30 vuoden päästä. Korkotaso jälleenrahoitushetkellä ratkaisee rahoituksen hinnan.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Takaus vai non-recourse</div><div class="fin-risk-text">Kuka vastaa, jos kassavirta ei riitä? CoreWeaven 8,5 mrd $ laina oli <span class="gloss" data-g="non_recourse">non-recourse</span>, koska vakuutena oli investment grade -asiakkaan sopimus. Heikommin luokiteltujen asiakkaiden sopimuksilla otetun 3,1 mrd $ lainan CoreWeave takasi itse.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="terms panel">
+    <div class="section-label">SIVUN TERMIT</div>
+    <div class="term-grid term-grid--4">
+      <div class="term"><div class="term-head"><div class="term-name">SPV</div><div class="term-alt">special purpose vehicle</div></div><div class="term-def">erillisyhtiö, joka perustetaan omistamaan yksi kohde ja kantamaan sen velka</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Projektirahoitus</div><div class="term-alt">project finance</div></div><div class="term-def">laina, jonka takaisinmaksu perustuu kohteen omaan kassavirtaan, ei omistajan taseeseen</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Non-recourse</div></div><div class="term-def">lainanantaja voi periä vain kohteesta ja sen kassavirrasta, ei omistajayhtiöltä</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">ABS</div><div class="term-alt">asset-backed securities</div></div><div class="term-def">velkakirjat, joiden vakuutena ovat esim. vuokrasaatavat</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">DDTL</div><div class="term-alt">delayed draw term loan</div></div><div class="term-def">laina, jota nostetaan erissä sitä mukaa kuin laitteita hankitaan</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Investment grade</div></div><div class="term-def">hyvä luottoluokitus (BBB- tai parempi), joka laskee lainan hintaa</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Jäännösarvotakuu</div><div class="term-alt">residual value guarantee</div></div><div class="term-def">vuokralainen takaa kohteen arvon, jos se ei jatka sopimusta</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Taseen ulkopuolinen</div><div class="term-alt">off-balance sheet</div></div><div class="term-def">velka on toisen yhtiön taseessa, vaikka hyöty ja osa riskistä ovat käyttäjällä</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Vendor financing</div></div><div class="term-def">laitetoimittaja rahoittaa asiakkaansa hankintoja, esim. sijoittamalla siihen</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Jälleenrahoitus</div><div class="term-alt">refinancing</div></div><div class="term-def">kallis rakennusaikainen laina korvataan halvemmalla, kun kohde on valmis</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Joukkovelkakirja</div><div class="term-alt">bond</div></div><div class="term-def">yhtiön liikkeeseen laskema laina, jota sijoittajat ostavat ja jolla voi käydä kauppaa</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Vaihtovelkakirja</div><div class="term-alt">convertible note</div></div><div class="term-def">joukkovelkakirja, jonka voi myöhemmin vaihtaa yhtiön osakkeiksi</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Infrarahasto</div><div class="term-alt">infrastructure fund</div></div><div class="term-def">rahasto, joka sijoittaa pitkäikäisiin, vakaata kassavirtaa tuottaviin kohteisiin</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Emoyhtiön takaus</div><div class="term-alt">parent company guarantee</div></div><div class="term-def">emoyhtiö vastaa tytäryhtiön tai SPV:n velasta, jos tämä ei pysty maksamaan</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Vihreä joukkovelkakirja</div><div class="term-alt">green bond</div></div><div class="term-def">laina, jonka varat korvamerkitään ympäristöhankkeisiin, esim. energiatehokkaaseen datakeskukseen</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Kestävyyteen sidottu laina</div><div class="term-alt">sustainability-linked loan</div></div><div class="term-def">laina, jonka korko riippuu sovittujen kestävyystavoitteiden saavuttamisesta</div></div>
+    </div>
+  </div>
+  <div class="card-note fine-print">Yksinkertaistettu yleiskuva. Esimerkit perustuvat yhtiöiden tiedotteisiin, luottoluokittajien raportteihin ja alan uutisointiin. xAI:n järjestely perustuu uutisointiin, eivätkä yhtiöt ole vahvistaneet sitä. Tilanne syyskuu 2026.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="assets/glossary-fi.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

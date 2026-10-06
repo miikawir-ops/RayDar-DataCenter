@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Miksi Suomi — RayDar Data Center</title>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/explainer.css">
+<style>
+/* Why Finland (MiksiSuomi.dc.html): nine reasons in two columns, headwinds aside. */
+.why-body{display:flex;gap:24px;align-items:stretch}
+.why-grid{flex-grow:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.why-card{display:flex;flex-direction:column;gap:6px;padding:18px 22px;border-radius:12px}
+.why-label{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--blue)}
+.why-card h3{margin:0;font-family:var(--f-display);font-size:20px;font-weight:700}
+.why-card p{margin:0;font-size:15px;line-height:1.45;color:var(--ink-2)}
+.headwinds{width:460px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;padding:26px 28px;border-radius:14px;box-sizing:border-box}
+.headwinds-label{font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.12em;color:var(--peach)}
+.headwind{display:flex;flex-direction:column;gap:6px;padding-top:16px;border-top:1px solid var(--navy-line)}
+.headwind-title{font-family:var(--f-display);font-size:18px;font-weight:700;color:var(--white)}
+.headwind p{margin:0;font-size:15px;line-height:1.5;color:var(--navy-text)}
+.doc-note{font-size:13px}
+@media (max-width:1279px){ .why-body{flex-direction:column} .headwinds{width:auto} }
+@media (max-width:1023px){ .why-grid{gap:12px} .why-card{padding:16px 18px} .headwinds{padding:20px} }
+@media (max-width:600px){ .why-grid{grid-template-columns:minmax(0,1fr)} }
+</style>
+</head>
+<body data-page="why-finland">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--doc">
+  <!-- Ported from MiksiSuomi.dc.html (approved design, Tilanne 9/2026). -->
+  <div class="page-head page-head--doc">
+    <div class="kicker">SIJAINTI · TILANNE 9/2026</div>
+    <h1 class="page-title">Miksi Suomi?</h1>
+    <div class="page-lede">Miksi datakeskuksia, kuten Googlen, Nebiuksen ja Verdan, rakennetaan juuri Suomeen</div>
+  </div>
+  <div class="why-body">
+    <div class="why-grid">
+      <div class="why-card panel"><div class="why-label">SÄHKÖ</div><h3>Puhdas ja kilpailukykyinen sähkö</h3><p>Suuri osa tuotannosta on hiilivapaata ydin-, vesi- ja tuulivoimaa. Datakeskukset voivat tehdä pitkiä puhtaan <span class="gloss" data-g="ppa">sähkön ostosopimuksia</span>.</p></div>
+      <div class="why-card panel"><div class="why-label">VERKKO</div><h3>Luotettava kantaverkko</h3><p>Fingridin kantaverkon siirtovarmuus oli 99,99995 % vuonna 2025. Koko maa on yhtä sähkön hinta-aluetta.</p></div>
+      <div class="why-card panel"><div class="why-label">TIME-TO-MARKET</div><h3>Nopea verkkoliityntä</h3><p>Fingridin mukaan liitynnät voidaan etenkin Pohjois-Suomessa toteuttaa kansainvälisesti vertaillen nopeasti. Sähkö on alan niukin resurssi, joten nopeus on kilpailuetu.</p></div>
+      <div class="why-card panel"><div class="why-label">JÄÄHDYTYS</div><h3>Viileä ilmasto</h3><p>Ulkoilmalla voi jäähdyttää suuren osan vuodesta. Esimerkiksi Nebiuksen Mäntsälän keskuksen <span class="gloss" data-g="pue">PUE</span> on noin 1,1.</p></div>
+      <div class="why-card panel"><div class="why-label">HUKKALÄMPÖ</div><h3>Laajat kaukolämpöverkot</h3><p>Palvelinten lämmön voi myydä kaukolämpöverkkoon. Mäntsälässä lämpöä on myyty kaukolämpöverkkoon vuodesta 2015.</p></div>
+      <div class="why-card panel"><div class="why-label">MAAPERÄ</div><h3>Vakaa kallioperä</h3><p>Ei maanjäristyksiä ja vähän luonnonkatastrofiriskejä, mikä pienentää rakentamisen ja toiminnan riskejä.</p></div>
+      <div class="why-card panel"><div class="why-label">TILA</div><h3>Maa-alaa ja teollisuustontteja</h3><p>Tilaa suurille kampuksille, usein valmiin sähköinfran äärellä: Googlen Haminan keskus on entinen paperitehdas.</p></div>
+      <div class="why-card panel"><div class="why-label">YHTEYDET</div><h3>Tietoliikenneyhteydet</h3><p>Suora merikaapeli Keski-Eurooppaan (C-Lion1 Saksaan) ja hyvät yhteydet Pohjoismaihin.</p></div>
+      <div class="why-card panel"><div class="why-label">YHTEISKUNTA</div><h3>Vakaa toimintaympäristö</h3><p>EU-jäsenyys, oikeusvaltio ja tietosuojasääntely tukevat eurooppalaista datasuvereniteettia.</p></div>
+      <div class="why-card panel"><div class="why-label">OSAAMINEN</div><h3>Energia- ja ICT-osaaminen</h3><p>Vahva sähkö-, automaatio- ja ICT-osaaminen. Alalle on käynnistetty myös koulutusta, esimerkiksi Googlen ja EKAMIn yhteistyönä Haminassa.</p></div>
+    </div>
+    <aside class="headwinds panel panel--dark" aria-labelledby="h-headwinds">
+      <div class="headwinds-label" id="h-headwinds">VASTATUULET</div>
+      <div class="headwind"><div class="headwind-title">Sähkövero nousi</div><p>Datakeskukset siirtyivät 1.7.2026 sähköveroluokasta II luokkaan I: vero nousi 0,05 sentistä 2,24 senttiin kilowattitunnilta.</p></div>
+      <div class="headwind"><div class="headwind-title">Liityntäkapasiteetti niukkenee</div><p>Kantaverkon kulutusliityntäkyselyjä on yli 100 GW, josta yli puolet datakeskuksia. Fingrid valmistelee pelisääntöjä kapasiteetin jakamiseen.</p></div>
+      <div class="headwind"><div class="headwind-title">Tukipolitiikka elää</div><p>Veroetua korvaavan kohdennetun tuen tilanne on ollut epävarma, joten ajantasainen tilanne kannattaa tarkistaa.</p></div>
+      <div class="headwind"><div class="headwind-title">Yhteiskunnallinen keskustelu</div><p>Sähkön riittävyys, hintavaikutukset ja maankäyttö herättävät paikallisesti kysymyksiä.</p></div>
+    </aside>
+  </div>
+  <div class="doc-note fine-print">Tilanne syyskuu 2026. Lähteet: Fingrid, yhtiöiden julkaisut ja alan uutisointi.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="assets/glossary-fi.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

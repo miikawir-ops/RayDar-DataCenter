@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Erikoistuneet mallit — RayDar Data Center</title>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/explainer.css">
+<style>
+/* Specialised models (Lisamallit.dc.html): six cards, three columns. */
+.spec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.spec-card{display:flex;flex-direction:column;gap:10px;padding:24px;border-radius:12px}
+.spec-label{font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--ink-3)}
+.spec-card h3{margin:0;font-family:var(--f-display);font-size:22px;font-weight:700}
+.spec-card p{margin:0;font-size:15px;line-height:1.5;color:var(--ink-2)}
+.spec-foot{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--line-mid)}
+.spec-row{display:flex;gap:10px;align-items:baseline;font-size:14px;line-height:1.4}
+.spec-row--ex{font-weight:600}
+.spec-row-label{width:64px;flex-shrink:0;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em}
+.spec-row-label--rel{font-weight:600;color:var(--blue)}
+.spec-row-label--ex{color:var(--rust)}
+.doc-note{font-size:13px}
+@media (max-width:1023px){ .spec-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px} .spec-card{padding:18px} }
+@media (max-width:600px){ .spec-grid{grid-template-columns:minmax(0,1fr)} }
+</style>
+</head>
+<body data-page="specialised-models">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--doc">
+  <!-- Ported from Lisamallit.dc.html (approved design, Tilanne 9/2026). -->
+  <div class="page-head page-head--doc">
+    <div class="kicker">LISÄULOTTUVUUDET · TILANNE 9/2026</div>
+    <h1 class="page-title">Erikoistuneet mallit</h1>
+    <div class="page-lede">Muita alan malleja, jotka liittyvät sijaintiin, tulomalliin, kysyntään, omistukseen tai lisätuloihin</div>
+  </div>
+  <div class="spec-grid">
+    <div class="spec-card panel">
+      <div class="spec-label">SIJAINTI</div>
+      <h3>Edge-datakeskukset</h3>
+      <p>Pienet, hajautetut keskukset lähellä käyttäjiä. Arvo syntyy matalasta viiveestä: 5G, IoT ja sisällönjakelu.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">LIITTYY</div><div>Vaihe 3 (<span class="gloss" data-g="retail_colocation">retail-colocation</span>)</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">ESIM.</div><div>EdgeConneX, Vapor IO</div></div>
+      </div>
+    </div>
+    <div class="spec-card panel">
+      <div class="spec-label">TULOMALLI</div>
+      <h3>Interconnection</h3>
+      <p>Operaattorineutraali keskus verkkojen kohtaamispaikkana. Tulot syntyvät <span class="gloss" data-g="cross_connect">cross-connect</span>-kytkennöistä ja ekosysteemistä, ei vain tilasta.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">LIITTYY</div><div>Vaihe 3 (retail-colocation)</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">ESIM.</div><div>Equinix, Digital Realty; Suomessa FICIX-<span class="gloss" data-g="internet_exchange">yhdysliikennepisteet</span></div></div>
+      </div>
+    </div>
+    <div class="spec-card panel">
+      <div class="spec-label">KYSYNTÄ</div>
+      <h3>Pilvijättien vuokrakapasiteetti</h3>
+      <p>AWS, Microsoft ja Google vuokraavat osan kapasiteetistaan <span class="gloss" data-g="colocation">colocation</span>-yhtiöiltä ja <span class="gloss" data-g="gpu_cloud">GPU-pilviltä</span> oman rakentamisen rinnalla. <span class="gloss" data-g="wholesale_colocation">Wholesale</span>-kysynnän suurin lähde (leased hyperscale).</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">LIITTYY</div><div>Vaiheet 2 ja 4</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">ESIM.</div><div>Microsoftin kapasiteettisopimukset Nebiuksen ja CoreWeaven kanssa</div></div>
+      </div>
+    </div>
+    <div class="spec-card panel">
+      <div class="spec-label">OMISTUS JA RAHOITUS</div>
+      <h3>Kehitys- ja rahoitusmallit</h3>
+      <p><span class="gloss" data-g="build_to_suit">Build-to-suit</span> (rakennetaan yhdelle vuokralaiselle), <span class="gloss" data-g="sale_leaseback">sale-leaseback</span> (myynti ja takaisinvuokraus), datakeskus-<span class="gloss" data-g="reit">REITit</span> ja <span class="gloss" data-g="infrastructure_fund">infrarahastojen</span> yhteisyritykset ratkaisevat, kuka omistaa kiinteistön.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">LIITTYY</div><div>Vaiheet 4 ja 5; tarkemmin Rahoitusmallit-sivulla</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">ESIM.</div><div>Blackstone osti QTS:n (2021); Equinix ja Digital Realty ovat REITejä</div></div>
+      </div>
+    </div>
+    <div class="spec-card panel">
+      <div class="spec-label">LISÄTULO</div>
+      <h3>Hukkalämmön myynti</h3>
+      <p>Palvelinten lämpö myydään kaukolämpöverkkoon. Lisätulo parantaa kannattavuutta ja paikallista hyväksyttävyyttä.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">LIITTYY</div><div>Datakeskuksen omistaja tai operaattori</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">ESIM.</div><div>Nebius Mäntsälässä vuodesta 2015; Microsoftin ja Fortumin sopimus tulevista keskuksista</div></div>
+      </div>
+    </div>
+    <div class="spec-card panel">
+      <div class="spec-label">JULKINEN SEKTORI</div>
+      <h3>Julkinen laskentainfra</h3>
+      <p>Valtioiden ja EU:n rahoittamat supertietokoneet, joiden laskentaa myönnetään tutkimukselle ja yrityksille hakujen kautta.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">LIITTYY</div><div>Vaihtoehto vaiheille 1–2</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">ESIM.</div><div>LUMI Kajaanissa (EuroHPC); Silo AI koulutti Poro- ja Viking-mallinsa LUMIlla</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="doc-note fine-print">Tilanne syyskuu 2026. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="assets/glossary-fi.js"></script>
+<script src="assets/glossary.js"></script>
+<script src="assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

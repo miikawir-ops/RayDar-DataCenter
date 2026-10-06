@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Sanasto — RayDar Data Center</title>
+<link rel="preload" href="assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/explainer.css">
+</head>
+<body data-page="glossary">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--doc">
+  <!-- Ported from Sanasto.dc.html (approved design, Tilanne 9/2026). The term
+       cards are rendered from assets/glossary-fi.js, the same data the inline
+       tooltips on every page use, so the two can't drift apart. Each card has
+       id="g-<key>", e.g. glossary.html#g-rack. -->
+  <div class="page-head page-head--doc">
+    <div class="kicker">KÄSITTEET</div>
+    <h1 class="page-title">Sanasto</h1>
+    <div class="page-lede">Kaikki esityksessä käytetyt termit aakkosjärjestyksessä (68 termiä)</div>
+  </div>
+  <div class="glossary-grid" id="glossary-grid"></div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="assets/glossary-fi.js"></script>
+<script src="assets/chrome.js"></script>
+<script>
+(function () {
+  const grid = document.getElementById("glossary-grid");
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+  Object.entries(window.BM_GLOSSARY).forEach(([key, g]) => {
+    const card = el("div", "glossary-card panel");
+    card.id = "g-" + key;
+    const head = el("div", "term-head");
+    head.appendChild(el("div", "term-name", g.term));
+    if (g.alt) head.appendChild(el("div", "term-alt", g.alt));
+    card.appendChild(head);
+    card.appendChild(el("p", "", g.definition));
+    grid.appendChild(card);
+  });
+  // Cards are rendered after load, so a #g-<key> link needs a second jump.
+  if (location.hash.startsWith("#g-")) {
+    const target = document.getElementById(location.hash.slice(1));
+    if (target) target.scrollIntoView();
+  }
+})();
+</script>
+</body>
+</html>

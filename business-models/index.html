@@ -52,12 +52,6 @@
 .cell--head{flex-direction:column;align-items:stretch;justify-content:center;gap:2px}
 .stage{font-size:11.5px;color:var(--rust)}
 .model h2{margin:0;font-family:var(--f-display);font-size:19px;font-weight:700;line-height:1.15}
-/* Each model heading opens its model card; same look as plain text until
-   hovered or focused, so the authored matrix is unchanged at rest. */
-.model-link{color:inherit;text-decoration:none}
-.model-link:hover,.model-link:focus-visible{text-decoration:underline;text-decoration-color:var(--rust);
-  text-decoration-thickness:2px;text-underline-offset:4px}
-.model-link:focus-visible{outline:2px solid var(--rust);outline-offset:2px;border-radius:2px}
 .segments{flex:1;display:flex;align-items:center;gap:3px}
 .seg{flex:1 1 0;height:16px;border-radius:3px;box-sizing:border-box}
 .cell--buys{font-size:14px;line-height:1.3;font-weight:600}
@@ -108,6 +102,7 @@
 .chain-role{font-size:12px}
 .chain-stage{margin-top:3px;font-family:var(--f-mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;color:var(--rust)}
 .fill-navy .chain-stage{color:var(--peach)}
+.chain-node.fill-navy{border:1px solid var(--navy)}
 .chain-link{width:92px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;
             font-size:11.5px;font-weight:600;line-height:1.2;text-align:center}
 .chain-fwd{color:var(--blue)}
@@ -205,7 +200,7 @@
       </div>
 
       <article class="model panel" id="public-cloud" aria-labelledby="h-public-cloud">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 1 · PUBLIC CLOUD</div><h2 id="h-public-cloud"><a class="model-link" href="public-cloud.html">Julkinen pilvi</a></h2></div>
+        <div class="cell cell--head"><div class="stage mono-label">VAIHE 1 · PUBLIC CLOUD</div><h2 id="h-public-cloud"><a class="quiet-link" href="public-cloud.html">Julkinen pilvi</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Palveluna kapasiteettia, alustaa tai ohjelmistoa</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Ei sitoumuksia, maksaa käytön mukaan</span></div>
@@ -218,7 +213,7 @@
       </article>
 
       <article class="model panel" id="gpu-cloud" aria-labelledby="h-gpu-cloud">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 2</div><h2 id="h-gpu-cloud"><a class="model-link" href="gpu-cloud.html">GPU-pilvi</a></h2></div>
+        <div class="cell cell--head"><div class="stage mono-label">VAIHE 2</div><h2 id="h-gpu-cloud"><a class="quiet-link" href="gpu-cloud.html">GPU-pilvi</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Palveluna valmista, ylläpidettyä kapasiteettia</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Monivuotinen maksusitoumus, ei omia laitteita</span></div>
@@ -231,7 +226,7 @@
       </article>
 
       <article class="model panel" id="retail-colocation" aria-labelledby="h-retail-colocation">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 3</div><h2 id="h-retail-colocation"><a class="model-link" href="retail-colocation.html">Retail-colocation</a></h2></div>
+        <div class="cell cell--head"><div class="stage mono-label">VAIHE 3</div><h2 id="h-retail-colocation"><a class="quiet-link" href="retail-colocation.html">Retail-colocation</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Tilaa ja palveluja: vuokran ja palvelun yhdistelmä</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Omat laitteet ja vuokravastuu</span></div>
@@ -244,7 +239,7 @@
       </article>
 
       <article class="model panel" id="wholesale-colocation" aria-labelledby="h-wholesale-colocation">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 4</div><h2 id="h-wholesale-colocation"><a class="model-link" href="wholesale-colocation.html">Wholesale-colocation</a></h2></div>
+        <div class="cell cell--head"><div class="stage mono-label">VAIHE 4</div><h2 id="h-wholesale-colocation"><a class="quiet-link" href="wholesale-colocation.html">Wholesale-colocation</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Tilan käyttöoikeuden: lähellä kiinteistövuokraa</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Omat laitteet ja pitkä vuokravastuu</span></div>
@@ -257,7 +252,7 @@
       </article>
 
       <article class="model panel" id="own-data-center" aria-labelledby="h-own-data-center">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 5</div><h2 id="h-own-data-center"><a class="model-link" href="own-data-center.html">Oma datakeskus</a></h2></div>
+        <div class="cell cell--head"><div class="stage mono-label">VAIHE 5</div><h2 id="h-own-data-center"><a class="quiet-link" href="own-data-center.html">Oma datakeskus</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Ei mitään: rakentaa itse</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Maa, rakennus, sähköliittymä ja laitteet</span></div>
@@ -274,7 +269,7 @@
   <div class="bottom">
     <section class="vc panel" aria-labelledby="h-vc">
       <div class="panel-kicker kicker">ARVOKETJU</div>
-      <h3 class="panel-title" id="h-vc">Sama palvelu, yksi tai neljä yhtiötä</h3>
+      <h3 class="panel-title" id="h-vc"><a class="quiet-link" href="value-chain.html">Sama palvelu, yksi tai neljä yhtiötä</a></h3>
       <div class="vc-sub">Pitkä ketju, neljä yhtiötä: OpenAI:n Stargate-datakeskus Abilenessa, Teksasissa</div>
       <div class="scroll-x"><div class="scroll-x__inner"><div class="chain">
         <div class="chain-node fill-own"><div class="chain-name">Crusoe ja Blue Owl</div><div class="chain-role">omistavat kampuksen</div></div>
@@ -298,7 +293,7 @@
 
     <section class="spec panel" aria-labelledby="h-spec">
       <div class="panel-kicker kicker">ERIKOISTUNEET MALLIT</div>
-      <h3 class="panel-title" id="h-spec">Muita alan malleja</h3>
+      <h3 class="panel-title" id="h-spec"><a class="quiet-link" href="specialised-models.html">Muita alan malleja</a></h3>
       <div class="spec-item"><b>Pilvijättien vuokrakapasiteetti:</b> <span class="spec-text">AWS, Microsoft ja Google vuokraavat osan kapasiteetistaan colocation-yhtiöiltä ja <span class="gloss" data-g="gpu_cloud">GPU-pilviltä</span>. Wholesale-kysynnän suurin lähde.</span></div>
       <div class="spec-item"><b>Interconnection:</b> <span class="spec-text">tulot syntyvät verkkojen välisistä kytkennöistä, ei vain tilasta (esim. Equinix, FICIX).</span></div>
       <div class="spec-item"><b>Edge-datakeskukset:</b> <span class="spec-text">pienet keskukset lähellä käyttäjiä matalan viiveen vuoksi.</span></div>
@@ -316,7 +311,7 @@
     </section>
   </div>
 
-  <div class="terms-note fine-print"><b>Termit:</b> julkinen pilvi (public cloud) = kaupallinen, monen asiakkaan jakama pilvipalvelu, ei julkisen sektorin pilvi · colocation = vuokrattu konesalitila omille laitteille · retail = räkkejä tai pieniä tiloja monelle asiakkaalle · wholesale = kokonainen sali tai rakennus yhdelle vuokralaiselle · räkki = laitekaappi · cross-connect = suora kaapeliyhteys osapuolten välillä · remote hands = operaattorin tekemät laitetyöt · take-or-pay = maksu käytöstä riippumatta.<br>AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimuskestot ovat suuntaa-antavia. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
+  <div class="terms-note fine-print"><b><a class="quiet-link" href="glossary.html">Termit:</a></b> julkinen pilvi (public cloud) = kaupallinen, monen asiakkaan jakama pilvipalvelu, ei julkisen sektorin pilvi · colocation = vuokrattu konesalitila omille laitteille · retail = räkkejä tai pieniä tiloja monelle asiakkaalle · wholesale = kokonainen sali tai rakennus yhdelle vuokralaiselle · räkki = laitekaappi · cross-connect = suora kaapeliyhteys osapuolten välillä · remote hands = operaattorin tekemät laitetyöt · take-or-pay = maksu käytöstä riippumatta.<br>AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimuskestot ovat suuntaa-antavia. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
 </main>
 
 <footer id="bm-footer" class="bm-footer"></footer>

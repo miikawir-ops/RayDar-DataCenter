@@ -4,7 +4,7 @@
 // page is added in exactly one place and every page stays in sync.
 //
 // Each page provides the empty slots and says which page it is:
-//   <body data-page="hub">  (or a model slug, once model cards are ported)
+//   <body data-page="hub">  (or a model or page slug from the lists below)
 //   <header id="bm-header" class="bm-header"></header> ... <footer id="bm-footer" class="bm-footer"></footer>
 // and loads this script after them.
 (function () {
@@ -26,6 +26,15 @@
       { slug: "wholesale-colocation", name: "Wholesale-colocation" },
       { slug: "own-data-center", name: "Oma datakeskus" },
     ],
+    // The other pages, linked from the header's top row (a "Sivut" menu on
+    // narrow screens). Names are the pages' own titles from the design.
+    pages: [
+      { slug: "value-chain", name: "Arvoketju" },
+      { slug: "financing", name: "Rahoitusmallit" },
+      { slug: "specialised-models", name: "Erikoistuneet mallit" },
+      { slug: "why-finland", name: "Miksi Suomi" },
+      { slug: "glossary", name: "Sanasto" },
+    ],
   };
   window.BM_SITE = SITE;
 
@@ -38,6 +47,18 @@
 
   function esc(s) {
     return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  }
+
+  // The same links twice, from one list: inline on wide screens, in a
+  // disclosure menu on narrow ones (CSS shows one or the other).
+  function pagesNav() {
+    const links = SITE.pages.map((pg) =>
+      '<li><a href="' + esc(pg.slug) + '.html"' + (pg.slug === page ? ' aria-current="page"' : "") + ">"
+      + esc(pg.name) + "</a></li>").join("");
+    return '<nav class="bm-pages" aria-label="Sivut">'
+      + '<ul class="bm-pages-list">' + links + "</ul>"
+      + '<details class="bm-pages-menu"><summary>Sivut</summary><ul>' + links + "</ul></details>"
+      + "</nav>";
   }
 
   const header = document.getElementById("bm-header");
@@ -57,6 +78,7 @@
       + '<a class="bm-brand" href="' + SITE.hub + '"' + (isHub ? ' aria-current="page"' : "") + ">"
       + '<span class="bm-wordmark">Ray<span>Dar</span></span>'
       + '<span class="bm-brand-sub">Datakeskusten liiketoimintamallit</span></a>'
+      + pagesNav()
       + "</div>"
       + '<nav class="bm-steps" aria-label="AI Oy:n kasvupolku">'
       + '<span class="bm-steps-label" aria-hidden="true">Kasvupolku</span>'
@@ -108,6 +130,15 @@
     update();
   }
   document.querySelectorAll(".scroll-x").forEach(watchScrollX);
+
+  // The "Sivut" menu closes on a click outside it or on Esc.
+  const menu = document.querySelector(".bm-pages-menu");
+  if (menu) {
+    document.addEventListener("click", (e) => { if (menu.open && !menu.contains(e.target)) menu.open = false; });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && menu.open) { menu.open = false; menu.querySelector("summary").focus(); }
+    });
+  }
 
   window.BMChrome = { setActiveStep, watchScrollX };
   setActiveStep(page);
