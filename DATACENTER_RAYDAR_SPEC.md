@@ -86,8 +86,11 @@ footer and cross-links, not a single palette.
   bottleneck state. Colours on explainer pages identify roles (who owns or operates
   what); the A3 signal colours keep their meaning on dashboards only.
 - Family connection: a shared slim header (growth-path stepper, link back to the
-  ecosystem page, "Tilanne" date marker) and a footer with RayDar family branding and
-  cross-links, rendered from one page list so every page stays in sync.
+  ecosystem page) and a footer with RayDar family branding and cross-links, rendered
+  from one page list so every page stays in sync.
+- The "Tilanne" date marker lives in each page's own kicker (part of the approved
+  design) and in the footer, not in the header: a header copy duplicated the kicker.
+  The footer copy is the only marker on the glossary page, whose kicker has none.
 - Desk is the primary context, phone secondary: authored layouts are kept, and collapse
   per page type on narrow screens rather than being redesigned.
 

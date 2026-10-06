@@ -142,9 +142,6 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 .bm-wordmark span{color:var(--family-blue);font-weight:500}
 .bm-brand-sub{font-size:13px;color:var(--navy-text);overflow:hidden;text-overflow:ellipsis}
 .bm-brand:hover .bm-brand-sub{color:var(--white)}
-.bm-asof{margin-left:auto;font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.12em;
-         text-transform:uppercase;color:var(--peach);white-space:nowrap}
-
 .bm-steps-label{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;
                 text-transform:uppercase;color:var(--navy-text);white-space:nowrap}
 .bm-steps ol{list-style:none;margin:0;padding:0;display:flex;align-items:center;gap:0;min-width:0}

@@ -9,6 +9,9 @@
 // and loads this script after them.
 (function () {
   const SITE = {
+    // Shown in the footer only: every page except the glossary already
+    // carries it in its own kicker (approved design), so a header copy
+    // would duplicate it; the footer is the glossary page's only marker.
     asOf: "Tilanne 9/2026",
     hub: "index.html",
     ecosystem: "../ecosystem.html",
@@ -54,7 +57,6 @@
       + '<a class="bm-brand" href="' + SITE.hub + '"' + (isHub ? ' aria-current="page"' : "") + ">"
       + '<span class="bm-wordmark">Ray<span>Dar</span></span>'
       + '<span class="bm-brand-sub">Datakeskusten liiketoimintamallit</span></a>'
-      + '<span class="bm-asof">' + esc(SITE.asOf) + "</span>"
       + "</div>"
       + '<nav class="bm-steps" aria-label="AI Oy:n kasvupolku">'
       + '<span class="bm-steps-label" aria-hidden="true">Kasvupolku</span>'
