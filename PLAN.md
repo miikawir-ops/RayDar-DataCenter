@@ -669,10 +669,37 @@ findings don't get lost, not because a fix or a direction has been agreed.
    functional checks pass. Touch was tested in Chromium emulation only, not
    on a real device.
 
+   **Batch 1: the five model cards (2026-10-06), committed locally, awaiting
+   Ray's batch screenshots.** `public-cloud`, `gpu-cloud`,
+   `retail-colocation`, `wholesale-colocation`, `own-data-center` `.html`.
+   - The in-page stepper is dropped (header stepper instead), and the hub's
+     model headings now link to their cards.
+   - Shared card components are in `explainer.css`. Fill classes are now
+     named by colour (`fill-blue`, `fill-green`, …): the role a colour
+     stands for differs per card, and each card's legend says which.
+   - Text check: every word identical (436–490 words per card) after
+     removing only the declared stepper.
+   - Pixel diff at 1680px: 0 differing pixels outside the dropped stepper.
+     That's with the glossary spans unwrapped for the test only, since a
+     span shifts sub-pixel glyph positioning.
+   - **Found in the source:** the fixed 1460px canvas squeezed the dark
+     "Tilanne / Päätös / Vertailukohta" band on cards 1, 2 and 4. On cards 2
+     and 4 this cut off 2–4px of the band's last text line. The port gives
+     the band its natural height, so those pages are 10–24px taller.
+   - Below 1280px the card body stacks; at 1024px the two authored columns
+     would leave the layer column 75px wide.
+   - 228/228 functional checks pass at 1680, 1280, 1024, 820, 390 and 360px.
+   - Glossary tags follow each card's own term list. Terms that appear only
+     in labels stay untagged (Vastapuoliriski, Jäännösarvo, Demarc,
+     Developer, Ennakkomaksu).
+
    **Later rounds, each separate and not yet scheduled:**
-   - Steps 2+: the remaining ten pages. `Arvoketju.dc.html` is an
-     absolute-positioned canvas and needs a normal-flow layout; it's the
-     largest port.
+   - Batch 2: value chain, financing, specialised models, Why Finland,
+     glossary. `Arvoketju.dc.html` is an absolute-positioned canvas and
+     needs a normal-flow layout; it's the largest port. These pages have
+     no navigation route yet (the header stepper covers only the five
+     models, and "Miksi Suomi" isn't referenced on the hub). That needs
+     deciding before the hub gets its entry link.
    - Switch `ecosystem.html` to `glossary.js`, and fold in its confirmed live
      tooltip bug (see the ecosystem backlog item 3 below).
    - Cross-links from the ecosystem page's nodes into these pages; GPU cloud
