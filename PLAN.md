@@ -737,6 +737,28 @@ findings don't get lost, not because a fix or a direction has been agreed.
    **Status: the explainer is complete** (11 pages live, linked from the
    ecosystem page). Only the separate rounds below remain.
 
+   **Hub laptop-width fix (2026-10-07).** Ray hit three bugs on his laptop.
+   His display settings vary, so the fix targets the whole 1024–1680px range
+   rather than one configuration. Reproduced by width sweep first:
+   - "Kuka kantaa riskin" boxes overflowed their card below ~1366px (23px at
+     1280). They now stack when the column is too narrow, in all five columns
+     together.
+   - The legend's third key wrapped alone below ~1440px. The keys now wrap as
+     a group.
+   - Heading wraps (Wholesale-colocation below ~1400px, VAIHE 1's label below
+     ~1270px) left the other columns' labels misaligned. The stage label and
+     model name are now separate subgrid rows.
+   - 1680px parity is unchanged.
+   - **Why the earlier 1280px check missed it:** the overflow check only
+     tested vertical overflow, at a few fixed widths. `tools/check_layout_sweep.py`
+     now sweeps every width and checks horizontal escape too. Run it after any
+     explainer layout change.
+   - **Open (flagged, not fixed):** below ~1380px the hub's mini value chain
+     scrolls sideways inside its panel (63px hidden at 1263). This works as
+     designed, but needs a small scroll at common laptop widths. Possible fix:
+     stack the bottom row's three panels below ~1380px, giving the chain the
+     full width.
+
    **Priority from 2026-10-07 (Ray): desktop and laptop first, phone later.**
    Mobile layouts stay functional as built (no sideways page scroll, nothing
    clipped), but get no further refinement until the mobile-polish pass
