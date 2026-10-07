@@ -609,8 +609,9 @@ findings don't get lost, not because a fix or a direction has been agreed.
      documented item — done now since it's a user-facing interactive
      element on a now-public page.
 
-8. **Finnish business-models explainer (`business-models/`).** In progress
-   (2026-10-06). Eleven Finnish pages on data center business models,
+8. **Finnish business-models explainer (`business-models/`).** **COMPLETE
+   (2026-10-07): all 11 pages live and linked from the ecosystem page.**
+   Started 2026-10-06. Eleven Finnish pages on data center business models,
    ported from Ray's approved Claude Design export ("Tilanne 9/2026"; the
    export is kept outside git in `Output/business-models-source/`): the hub
    (one pager), five model cards, value chain, financing, specialised
@@ -721,10 +722,16 @@ findings don't get lost, not because a fix or a direction has been agreed.
      pages. Slugs: value-chain, financing, specialised-models, why-finland,
      glossary.
    - 279/279 checks on the new pages; hub and cards re-verified.
-   - **Hub entry link (2026-10-07):** a banner on the ecosystem page, below
-     its explanation section, in the dashboard banner's style. Built and
-     screenshotted; waiting for Ray's approval of the 1680/1280 screenshots
-     before commit, since it changes a live page outside the explainer.
+   - **Hub entry link: LIVE 2026-10-07** (`1547581`, approved by Ray from the
+     1680/1280 screenshots). It is a banner on the ecosystem page, directly
+     below the explanation section, in the dashboard's ecosystem-banner
+     style: "📊 Datakeskusten liiketoimintamallit — how data center capacity
+     is bought, leased and financed (explainer in Finnish) →". Verified live:
+     the banner shows, opens `business-models/` in the same tab, and the
+     dashboard root and hub still load with no JS errors.
+
+   **Status: the explainer is complete** (11 pages live, linked from the
+   ecosystem page). Only the separate rounds below remain.
 
    **Priority from 2026-10-07 (Ray): desktop and laptop first, phone later.**
    Mobile layouts stay functional as built (no sideways page scroll, nothing
@@ -732,7 +739,7 @@ findings don't get lost, not because a fix or a direction has been agreed.
    below. Batch and change reports lead with desktop/laptop screenshots;
    phone screenshots only when something is actually broken there.
 
-   **Later rounds, each separate and not yet scheduled:**
+   **Queued rounds, each separate and not yet scheduled:**
    - **Mobile-polish pass across all 11 explainer pages** (queued 2026-10-07).
      Today's phone layouts work but are unrefined. Known candidates: the hub's
      growth-path row wraps awkwardly, the model cards' layer cake is tight at
