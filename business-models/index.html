@@ -144,6 +144,16 @@
 
 .terms-note{font-size:12px;line-height:1.5}
 
+/* Below 1400px the value-chain panel's 2.1 share of the bottom row is too
+   narrow for its chains (they need ~620px), which pushed the last box behind
+   the edge fade at common laptop widths (63px hidden at 1263px). The three
+   panels stack instead, so the chain gets the full width and never scrolls
+   at desktop widths (Ray, 2026-10-07). */
+@media (max-width:1399px){
+  .bottom{flex-direction:column}
+  .bottom > section{flex:none}
+}
+
 /* Compact: tablet and phone */
 @media (max-width:1023px){
   .hub-head{flex-direction:column;align-items:flex-start;gap:8px}

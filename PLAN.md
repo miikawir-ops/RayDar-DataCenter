@@ -753,11 +753,13 @@ findings don't get lost, not because a fix or a direction has been agreed.
      tested vertical overflow, at a few fixed widths. `tools/check_layout_sweep.py`
      now sweeps every width and checks horizontal escape too. Run it after any
      explainer layout change.
-   - **Open (flagged, not fixed):** below ~1380px the hub's mini value chain
-     scrolls sideways inside its panel (63px hidden at 1263). This works as
-     designed, but needs a small scroll at common laptop widths. Possible fix:
-     stack the bottom row's three panels below ~1380px, giving the chain the
-     full width.
+   - **Fixed (Ray, 2026-10-07):** below ~1380px the hub's mini value chain
+     scrolled sideways inside its panel, with 63px hidden at 1263 and its last
+     box behind the edge fade, undercutting the diagram's "models form chains"
+     point. Below 1400px the bottom row's three panels now stack, so the chain
+     gets the full width. Verified: no sideways scroll at any width from 1024
+     to 1680px, the sweep is clean on all 11 pages, and 1680 is unchanged
+     (still side by side).
 
    **Priority from 2026-10-07 (Ray): desktop and laptop first, phone later.**
    Mobile layouts stay functional as built (no sideways page scroll, nothing
