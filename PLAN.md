@@ -707,7 +707,14 @@ findings don't get lost, not because a fix or a direction has been agreed.
    - **Found in the source:** financing's approved design overflowed its
      1870px canvas by 78px, hiding the bottom of the term panel and the fine
      print, which carries the caveat that the xAI arrangement is
-     unconfirmed. The port shows it.
+     unconfirmed. The port restores it. **This is the second clipping bug in
+     the source design**, after the model cards (cards 2 and 4 cut 2–4px off
+     the dark band's last line). Both have the same cause: a fixed-height
+     Claude Design canvas whose content is taller than the canvas. Lesson
+     for any future re-export: compare each source's content height with its
+     canvas height (`scrollHeight` vs the board height) before trusting the
+     canvas view as the approved look, because what the canvas hides was
+     never seen in review.
    - **Navigation (Ray, 2026-10-06):** the five page titles as links in the
      header's top row ("Sivut" menu below 1280px), plus hub links from the
      value-chain and specialised-models panel titles and "Termit:" to their
