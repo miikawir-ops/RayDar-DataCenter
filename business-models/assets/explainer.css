@@ -242,9 +242,6 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 .bm-header a:focus-visible{outline:2px solid var(--peach);outline-offset:2px;border-radius:3px}
 .bm-header .bm-back{font-weight:600;color:var(--white);white-space:nowrap}
 .bm-header .bm-back:hover{color:var(--peach)}
-.bm-back-short{display:none}
-.bm-lang{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.06em;
-         padding:1px 5px;margin-left:4px;border:1px solid var(--navy-line);border-radius:4px;color:var(--navy-text)}
 .bm-brand{display:flex;align-items:baseline;gap:8px;white-space:nowrap;min-width:0}
 .bm-wordmark{font-family:var(--f-display);font-size:16px;font-weight:600;color:var(--white);letter-spacing:-.01em}
 .bm-wordmark span{color:var(--family-blue);font-weight:500}
@@ -373,8 +370,7 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
   .term-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:600px){
-  .bm-steps-label,.bm-brand-sub,.bm-back-long{display:none}
-  .bm-back-short{display:inline}
+  .bm-steps-label,.bm-brand-sub{display:none}
   .term-grid,.glossary-grid{grid-template-columns:minmax(0,1fr)}
   .cake-head,.cake{grid-template-columns:minmax(0,1fr) 84px 84px}
   .layer-name{font-size:14px}

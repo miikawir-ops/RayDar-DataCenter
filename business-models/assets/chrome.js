@@ -72,9 +72,12 @@
     ).join("");
     header.innerHTML =
       '<div class="bm-bar">'
-      + '<a class="bm-back" href="' + SITE.ecosystem + '" aria-label="Takaisin ekosysteemikarttaan (englanninkielinen sivu)">'
-      + '&larr; <span class="bm-back-long">Ekosysteemikartta</span><span class="bm-back-short">Ekosysteemi</span>'
-      + '<span class="bm-lang" aria-hidden="true">EN</span></a>'
+      // English label, since the target page is English. The screen-reader
+      // name starts with the visible label (so voice control can target it)
+      // and says in Finnish where it leads and that the page is English.
+      + '<a class="bm-back" href="' + SITE.ecosystem + '" hreflang="en"'
+      + ' aria-label="Ecosystem map: takaisin ekosysteemikarttaan (englanninkielinen sivu)">'
+      + '&larr; <span lang="en">Ecosystem map</span></a>'
       + '<a class="bm-brand" href="' + SITE.hub + '"' + (isHub ? ' aria-current="page"' : "") + ">"
       + '<span class="bm-wordmark">Ray<span>Dar</span></span>'
       + '<span class="bm-brand-sub">Datakeskusten liiketoimintamallit</span></a>'
@@ -93,8 +96,8 @@
       "<div><strong>RayDar Data Center</strong> · Datakeskusten liiketoimintamallit · " + esc(SITE.asOf) + "</div>"
       + '<div class="bm-footer-note">Ei sijoitusneuvontaa · Opetuskäyttöön tarkoitettua taustatietoa</div>'
       + "<div>"
-      + '<a href="' + SITE.dashboard + '">Dashboard (EN)</a> · '
-      + '<a href="' + SITE.ecosystem + '">Ekosysteemikartta (EN)</a> · '
+      + '<a href="' + SITE.dashboard + '" hreflang="en" lang="en">Dashboard</a> · '
+      + '<a href="' + SITE.ecosystem + '" hreflang="en" lang="en">Ecosystem map</a> · '
       + '<a href="' + SITE.family + '" target="_blank" rel="noopener">Osa RayDar-perhettä &#8599;</a>'
       + "</div>";
   }
