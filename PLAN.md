@@ -723,9 +723,13 @@ findings don't get lost, not because a fix or a direction has been agreed.
      glossary.
    - 279/279 checks on the new pages; hub and cards re-verified.
    - **Hub entry link: LIVE 2026-10-07** (`1547581`, approved by Ray from the
-     1680/1280 screenshots). It is a banner on the ecosystem page, directly
-     below the explanation section, in the dashboard's ecosystem-banner
-     style: "📊 Datakeskusten liiketoimintamallit — how data center capacity
+     1680/1280 screenshots). It is a banner on the ecosystem page, in the
+     dashboard's ecosystem-banner style. **Moved 2026-10-07 (Ray)** from below
+     the explanation section, where most readers never reached it, to the top
+     of the content: full width, directly below the hero and above the
+     Poster/Relationship-explorer toggle. It is the single entry point (the
+     bottom copy was removed), with a computed style identical to the live
+     dashboard banner. Text: "📊 Datakeskusten liiketoimintamallit — how data center capacity
      is bought, leased and financed (explainer in Finnish) →". Verified live:
      the banner shows, opens `business-models/` in the same tab, and the
      dashboard root and hub still load with no JS errors.
