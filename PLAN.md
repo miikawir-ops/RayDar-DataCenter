@@ -721,15 +721,27 @@ findings don't get lost, not because a fix or a direction has been agreed.
      pages. Slugs: value-chain, financing, specialised-models, why-finland,
      glossary.
    - 279/279 checks on the new pages; hub and cards re-verified.
-   - **Open: the hub entry link.** All pages are now ported, which was the
-     condition for revisiting it.
+   - **Hub entry link (2026-10-07):** a banner on the ecosystem page, below
+     its explanation section, in the dashboard banner's style. Built and
+     screenshotted; waiting for Ray's approval of the 1680/1280 screenshots
+     before commit, since it changes a live page outside the explainer.
+
+   **Priority from 2026-10-07 (Ray): desktop and laptop first, phone later.**
+   Mobile layouts stay functional as built (no sideways page scroll, nothing
+   clipped), but get no further refinement until the mobile-polish pass
+   below. Batch and change reports lead with desktop/laptop screenshots;
+   phone screenshots only when something is actually broken there.
 
    **Later rounds, each separate and not yet scheduled:**
+   - **Mobile-polish pass across all 11 explainer pages** (queued 2026-10-07).
+     Today's phone layouts work but are unrefined. Known candidates: the hub's
+     growth-path row wraps awkwardly, the model cards' layer cake is tight at
+     360px, and the value chain is a full-size sideways scroll by choice.
    - Switch `ecosystem.html` to `glossary.js`, and fold in its confirmed live
-     tooltip bug (see the ecosystem backlog item 3 below).
-   - Cross-links from the ecosystem page's nodes into these pages; GPU cloud
-     (neocloud) as its own ecosystem stakeholder; an English version.
-   - The hub entry link (see above).
+     tooltip bug (49px off-screen at 360px; ecosystem backlog item 3 below).
+   - Cross-links from the ecosystem page's nodes into these pages.
+   - GPU cloud (neocloud) as its own ecosystem stakeholder.
+   - An English version.
 
    **Known gap:** the hub's layer bars (the "KERROKSET" colour segments) have
    no screen-reader text, the same as the source.
