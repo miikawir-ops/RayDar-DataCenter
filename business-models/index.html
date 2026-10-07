@@ -31,14 +31,15 @@
 
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12.5px;color:var(--ink-2);padding-left:162px}
 .legend-title{font-size:11px;color:var(--ink-3)}
-.legend-item{display:flex;gap:5px;align-items:center}
+.legend-items{display:flex;gap:6px 14px;align-items:center}  /* the three keys wrap as one group */
+.legend-item{display:flex;gap:5px;align-items:center;white-space:nowrap}
 
 /* Five-model matrix. Desktop: a label column plus five model columns whose
    rows line up through CSS subgrid, so a row grows for its tallest cell at
    narrower widths instead of overflowing the source's fixed row heights.
    Compact: the same five <article>s become a snap-scrolling swipe track
    (the dashboard's #chain pattern), one model per screen. */
-.matrix{display:grid;grid-template-columns:150px repeat(5,minmax(0,1fr));grid-template-rows:repeat(10,auto);
+.matrix{display:grid;grid-template-columns:150px repeat(5,minmax(0,1fr));grid-template-rows:repeat(11,auto);
         column-gap:10px;row-gap:7px;overflow:visible}
 .matrix-labels,.model{grid-row:1 / -1;display:grid;grid-template-rows:subgrid;box-sizing:border-box}
 .matrix-labels{padding:12px 0;border:1px solid transparent}
@@ -49,7 +50,10 @@
 .mlabel--strong{color:var(--navy)}
 
 .cell{display:flex;align-items:center;position:relative}
-.cell--head{flex-direction:column;align-items:stretch;justify-content:center;gap:2px}
+/* Stage label and model name are separate matrix rows, so each lines up
+   across all five columns even when one of them wraps (VAIHE 1's label
+   below ~1270px, Wholesale-colocation below ~1400px). */
+.cell--stage,.cell--title{align-items:flex-start}
 .stage{font-size:11.5px;color:var(--rust)}
 .model h2{margin:0;font-family:var(--f-display);font-size:19px;font-weight:700;line-height:1.15}
 .segments{flex:1;display:flex;align-items:center;gap:3px}
@@ -57,10 +61,15 @@
 .cell--buys{font-size:14px;line-height:1.3;font-weight:600}
 .cell--text{font-size:14px;line-height:1.3;color:var(--ink-2)}
 .cell--why{font-size:14px;line-height:1.3;font-style:italic;color:var(--ink-2)}
-.cell--risk{align-items:stretch}
-.risk{flex:1;display:flex;gap:6px}
+.cell--risk{align-items:stretch;container-type:inline-size}
+.risk{flex:1;min-width:0;display:flex;gap:6px}
 .risk-box{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px;
-          padding:4px 8px;border-radius:6px;box-sizing:border-box}
+          padding:4px 8px;border-radius:6px;box-sizing:border-box;overflow-wrap:anywhere}
+/* "Who bears the risk": the two boxes sit side by side while the column has
+   room (they need ~192px; Pilvipalvelun-tarjoaja is the widest pair) and
+   stack below that. Every model column has the same width, so all five
+   switch together and the row stays consistent. */
+@container (max-width:199px){ .risk{flex-direction:column} }
 .risk-k{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.06em;opacity:.85}
 .risk-v{font-size:13px;font-weight:600;line-height:1.2}
 .cell--actors{padding-top:4px;border-top:1px solid var(--line-mid);font-size:13px;font-weight:600;color:var(--rust)}
@@ -71,16 +80,28 @@
             white-space:nowrap;font-family:var(--f-mono);font-weight:600;letter-spacing:.06em}
 
 @media (min-width:1024px){
-  .model > :nth-child(1){min-height:44px} .matrix-labels > :nth-child(1){height:44px}
-  .model > :nth-child(2){min-height:20px} .matrix-labels > :nth-child(2){height:20px}
-  .model > :nth-child(3){min-height:40px} .matrix-labels > :nth-child(3){height:40px}
-  .model > :nth-child(4){min-height:40px} .matrix-labels > :nth-child(4){height:40px}
-  .model > :nth-child(5){min-height:40px} .matrix-labels > :nth-child(5){height:40px}
-  .model > :nth-child(6){min-height:52px} .matrix-labels > :nth-child(6){height:52px}
-  .model > :nth-child(7){min-height:40px} .matrix-labels > :nth-child(7){height:40px}
-  .model > :nth-child(8){min-height:40px} .matrix-labels > :nth-child(8){height:40px}
-  .model > :nth-child(9){min-height:58px} .matrix-labels > :nth-child(9){height:58px}
-  .model > :nth-child(10){min-height:24px} .matrix-labels > :nth-child(10){height:24px}
+  /* At 1680px these reproduce the source's single 44px heading cell exactly:
+     2.578125px offset + label (15) + 2px + name (21.84375) + 2.578125px
+     (exact 1/64px values: Chromium truncates layout lengths to 1/64px, so
+     2.578px would drift everything below by 0.03px). The title
+     row's -5px margin turns the uniform 7px row gap into the source's 2px. */
+  .cell--stage{padding-top:2.578125px}
+  .cell--title{margin-top:-5px;padding-bottom:2.578125px}
+  /* Row labels fill their row and centre in it, so they follow rows that grow
+     at narrower widths; at 1680px rows keep their source heights (no change).
+     The last row keeps its fixed top-aligned label: its cells have 4px of
+     top padding plus a 1px rule, which the label never had. */
+  .matrix-labels > *{align-self:stretch}
+  .matrix-labels > :nth-child(11){align-self:start}
+  .model > :nth-child(3){min-height:20px} .matrix-labels > :nth-child(3){min-height:20px}
+  .model > :nth-child(4){min-height:40px} .matrix-labels > :nth-child(4){min-height:40px}
+  .model > :nth-child(5){min-height:40px} .matrix-labels > :nth-child(5){min-height:40px}
+  .model > :nth-child(6){min-height:40px} .matrix-labels > :nth-child(6){min-height:40px}
+  .model > :nth-child(7){min-height:52px} .matrix-labels > :nth-child(7){min-height:52px}
+  .model > :nth-child(8){min-height:40px} .matrix-labels > :nth-child(8){min-height:40px}
+  .model > :nth-child(9){min-height:40px} .matrix-labels > :nth-child(9){min-height:40px}
+  .model > :nth-child(10){min-height:58px} .matrix-labels > :nth-child(10){min-height:58px}
+  .model > :nth-child(11){min-height:24px} .matrix-labels > :nth-child(11){height:24px}
   .matrix-wrap::after{display:none}
 }
 
@@ -135,6 +156,7 @@
   .path-line{flex:0 0 20px}
   .legend{padding-left:0}
   .legend-title{flex-basis:100%}
+  .legend-items{flex-wrap:wrap}  /* phones are narrower than the three keys together */
 
   .matrix{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;
           margin:0 calc(-1 * var(--gutter));padding:2px var(--gutter) 8px;scroll-padding-left:var(--gutter)}
@@ -142,7 +164,7 @@
   .matrix-labels{display:none}
   .model{flex:0 0 min(85%,420px);display:flex;flex-direction:column;gap:12px;scroll-snap-align:start}
   .cell{display:block}
-  .cell--head{display:flex}
+  .cell--title{margin-top:-10px}
   .cell--risk .risk{min-height:48px}
   .cell--actors{padding-top:8px}
   .cell-label{position:static;width:auto;height:auto;margin:0 0 3px;overflow:visible;clip-path:none;
@@ -179,14 +201,17 @@
 
   <div class="legend">
     <div class="legend-title mono-label">KERROKSET: KIINTEISTÖ JA SÄHKÖ · JÄÄHDYTYS · PALVELIMET · ALUSTA · SOVELLUKSET JA DATA · KUKA OPEROI, EI KUKA OMISTAA:</div>
-    <div class="legend-item"><span class="swatch fill-own"></span>AI Oy</div>
-    <div class="legend-item"><span class="swatch fill-shared"></span>Jaettu</div>
-    <div class="legend-item"><span class="swatch fill-blue"></span>Vastapuoli: pilvi- tai colocation-yhtiö</div>
+    <div class="legend-items">
+      <div class="legend-item"><span class="swatch fill-own"></span>AI Oy</div>
+      <div class="legend-item"><span class="swatch fill-shared"></span>Jaettu</div>
+      <div class="legend-item"><span class="swatch fill-blue"></span>Vastapuoli: pilvi- tai colocation-yhtiö</div>
+    </div>
   </div>
 
   <div class="scroll-x matrix-wrap">
     <div class="scroll-x__inner matrix" id="matrix">
       <div class="matrix-labels" aria-hidden="true">
+        <div class="mlabel mono-label"></div>
         <div class="mlabel mono-label"></div>
         <div class="mlabel mono-label">KERROKSET</div>
         <div class="mlabel mono-label mlabel--strong">AI OY OSTAA</div>
@@ -200,7 +225,8 @@
       </div>
 
       <article class="model panel" id="public-cloud" aria-labelledby="h-public-cloud">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 1 · PUBLIC CLOUD</div><h2 id="h-public-cloud"><a class="quiet-link" href="public-cloud.html">Julkinen pilvi</a></h2></div>
+        <div class="cell cell--stage"><div class="stage mono-label">VAIHE 1 · PUBLIC CLOUD</div></div>
+        <div class="cell cell--title"><h2 id="h-public-cloud"><a class="quiet-link" href="public-cloud.html">Julkinen pilvi</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Palveluna kapasiteettia, alustaa tai ohjelmistoa</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Ei sitoumuksia, maksaa käytön mukaan</span></div>
@@ -213,7 +239,8 @@
       </article>
 
       <article class="model panel" id="gpu-cloud" aria-labelledby="h-gpu-cloud">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 2</div><h2 id="h-gpu-cloud"><a class="quiet-link" href="gpu-cloud.html">GPU-pilvi</a></h2></div>
+        <div class="cell cell--stage"><div class="stage mono-label">VAIHE 2</div></div>
+        <div class="cell cell--title"><h2 id="h-gpu-cloud"><a class="quiet-link" href="gpu-cloud.html">GPU-pilvi</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Palveluna valmista, ylläpidettyä kapasiteettia</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Monivuotinen maksusitoumus, ei omia laitteita</span></div>
@@ -226,7 +253,8 @@
       </article>
 
       <article class="model panel" id="retail-colocation" aria-labelledby="h-retail-colocation">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 3</div><h2 id="h-retail-colocation"><a class="quiet-link" href="retail-colocation.html">Retail-colocation</a></h2></div>
+        <div class="cell cell--stage"><div class="stage mono-label">VAIHE 3</div></div>
+        <div class="cell cell--title"><h2 id="h-retail-colocation"><a class="quiet-link" href="retail-colocation.html">Retail-colocation</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Tilaa ja palveluja: vuokran ja palvelun yhdistelmä</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Omat laitteet ja vuokravastuu</span></div>
@@ -239,7 +267,8 @@
       </article>
 
       <article class="model panel" id="wholesale-colocation" aria-labelledby="h-wholesale-colocation">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 4</div><h2 id="h-wholesale-colocation"><a class="quiet-link" href="wholesale-colocation.html">Wholesale-colocation</a></h2></div>
+        <div class="cell cell--stage"><div class="stage mono-label">VAIHE 4</div></div>
+        <div class="cell cell--title"><h2 id="h-wholesale-colocation"><a class="quiet-link" href="wholesale-colocation.html">Wholesale-colocation</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Tilan käyttöoikeuden: lähellä kiinteistövuokraa</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Omat laitteet ja pitkä vuokravastuu</span></div>
@@ -252,7 +281,8 @@
       </article>
 
       <article class="model panel" id="own-data-center" aria-labelledby="h-own-data-center">
-        <div class="cell cell--head"><div class="stage mono-label">VAIHE 5</div><h2 id="h-own-data-center"><a class="quiet-link" href="own-data-center.html">Oma datakeskus</a></h2></div>
+        <div class="cell cell--stage"><div class="stage mono-label">VAIHE 5</div></div>
+        <div class="cell cell--title"><h2 id="h-own-data-center"><a class="quiet-link" href="own-data-center.html">Oma datakeskus</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Ei mitään: rakentaa itse</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Maa, rakennus, sähköliittymä ja laitteet</span></div>
