@@ -262,6 +262,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
            box-shadow:0 4px 16px rgba(0,0,0,.5);display:none;font-weight:400}
 .gloss:hover .gloss-tip,.gloss:focus .gloss-tip{display:block}
 
+/* ── Entry link to the Finnish business-models explainer: the dashboard's
+   .ecosystem-banner pattern and styling (render.py), at the explanation
+   card's width directly below it, since that card's business terms are
+   what the explainer goes deeper into. ── */
+.explainer-banner{display:flex;align-items:center;justify-content:center;gap:8px;
+                  font-size:13px;font-weight:600;color:#fff;text-decoration:none;
+                  padding:10px 16px;border-radius:8px;margin:14px auto 0;max-width:760px;
+                  background:linear-gradient(135deg,#0C1A3A,#3C3489);
+                  box-shadow:0 0 0 1px rgba(133,183,235,0.35),0 0 10px rgba(83,74,183,0.4);
+                  transition:box-shadow .15s;text-align:center;flex-wrap:wrap}
+.explainer-banner:hover{box-shadow:0 0 0 1px rgba(133,183,235,0.7),0 0 16px rgba(83,74,183,0.7)}
+.explainer-banner:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
+
 .footer{font-size:12px;color:#9FB0CC;text-align:center;margin-top:16px;
         padding:20px 16px;border-top:1px solid rgba(255,255,255,0.06);
         background:#0B0F1E;border-radius:8px;line-height:2.0}
@@ -412,6 +425,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       </div>
     </div>
   </div>
+
+  <a href="business-models/" class="explainer-banner" hreflang="fi"><span>📊 <span lang="fi">Datakeskusten liiketoimintamallit</span> — how data center capacity is bought, leased and financed (explainer in Finnish) →</span></a>
 </div>
 
 <div class="footer">
