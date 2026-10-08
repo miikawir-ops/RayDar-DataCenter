@@ -11,7 +11,9 @@
     "index.html": {
       "source": "Main.dc.html",
       "ignore_class": ["cell-label", "lang-note"],
-      "notes": "cell-label: matrix row labels repeated in each cell for phones (port addition). lang-note: one-line English note that the explainer is in Finnish, for visitors arriving from the English ecosystem page (Ray, 2026-10-08)."
+      "expect_removed": ["ONE PAGER ·"],
+      "replace": [["Datakeskusten liiketoimintamallit yhdellä sivulla", "Datakeskusten liiketoimintamallit"]],
+      "notes": "cell-label: matrix row labels repeated in each cell for phones (port addition). lang-note: one-line English note that the explainer is in Finnish, for visitors arriving from the English ecosystem page (Ray, 2026-10-08). Kicker: 'ONE PAGER ·' removed, leaving the review date. Title: 'yhdellä sivulla' removed, leaving 'Datakeskusten liiketoimintamallit' (Ray, 2026-10-08)."
     },
     "public-cloud.html": {"source": "Mallikortti1.dc.html", "expect_removed": ["AI OY:N KASVUPOLKU 1 Julkinen pilvi 2 GPU-pilvi 3 Retail-colocation 4 Wholesale-colocation 5 Oma datakeskus"],
                           "notes": "In-page 1-5 stepper dropped; the shared header stepper replaces it (Ray, 2026-10-06)."},
