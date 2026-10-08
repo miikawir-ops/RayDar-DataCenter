@@ -240,15 +240,20 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 .bm-steps{height:var(--header-steps-h);border-top:1px solid var(--navy-line)}
 .bm-header a{color:inherit;text-decoration:none}
 .bm-header a:focus-visible{outline:2px solid var(--peach);outline-offset:2px;border-radius:3px}
-/* Family links (Daily signals, Ecosystem map): pills in the same gradient,
-   ring and static glow as the family-link cards on the dashboard and the
-   ecosystem page, so the three sites' cross-links read as one family. */
+/* Family links (Daily signals, Ecosystem map): pills in the family-link
+   colours of the dashboard and ecosystem page (blue-to-violet gradient, light
+   blue ring, violet glow), so the three sites' cross-links read as one
+   family. On the navy bar the cards' darker gradient start (#0C1A3A) blended
+   in, so the pills use a lighter step of the same gradient and a firmer ring
+   (Ray, 2026-10-08). Hover and keyboard focus brighten the same parts. */
 .bm-header .bm-family{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:7px;
   font-size:12.5px;font-weight:600;color:var(--white);white-space:nowrap;
-  background:linear-gradient(135deg,#0C1A3A,#3C3489);
-  box-shadow:0 0 0 1px rgba(133,183,235,.35),0 0 10px rgba(83,74,183,.4);transition:box-shadow .15s}
-.bm-header .bm-family:hover{box-shadow:0 0 0 1px rgba(133,183,235,.7),0 0 16px rgba(83,74,183,.7)}
-.bm-header .bm-family:focus-visible{outline:2px solid var(--family-blue);outline-offset:2px}
+  background:linear-gradient(135deg,#1E3A78,#4A3FB0);
+  box-shadow:0 0 0 1px rgba(133,183,235,.6),0 0 10px rgba(83,74,183,.45);transition:box-shadow .15s}
+.bm-header .bm-family:hover,.bm-header .bm-family:focus-visible{
+  background:linear-gradient(135deg,#27498F,#5A4FD0);
+  box-shadow:0 0 0 1px rgba(133,183,235,.95),0 0 16px rgba(83,74,183,.75)}
+.bm-header .bm-family:focus-visible{outline:2px solid var(--family-blue);outline-offset:3px;border-radius:7px}
 .bm-family-icon{font-size:13px;line-height:1}
 .bm-family-short{display:none}
 .bm-bar{gap:12px}
