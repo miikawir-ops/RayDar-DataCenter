@@ -16,7 +16,9 @@
       "notes": "cell-label: matrix row labels repeated in each cell for phones (port addition). lang-note: one-line English note that the explainer is in Finnish, for visitors arriving from the English ecosystem page (Ray, 2026-10-08). Kicker: 'ONE PAGER ·' removed, leaving the review date. Title: 'yhdellä sivulla' removed, leaving 'Datakeskusten liiketoimintamallit' (Ray, 2026-10-08)."
     },
     "public-cloud.html": {"source": "Mallikortti1.dc.html", "expect_removed": ["AI OY:N KASVUPOLKU 1 Julkinen pilvi 2 GPU-pilvi 3 Retail-colocation 4 Wholesale-colocation 5 Oma datakeskus"],
-                          "notes": "In-page 1-5 stepper dropped; the shared header stepper replaces it (Ray, 2026-10-06)."},
+                          "replace": [["Microsoftin Azure on ollut OpenAI:n pääasiallinen pilvi vuodesta 2016.", "Microsoftin Azure on ollut OpenAI:n pääasiallinen pilvi vuodesta 2016. Yksinoikeus alkoi 2019; huhtikuusta 2026 OpenAI voi tarjota tuotteitaan myös muissa pilvissä, mutta Azure on yhä ensisijainen."],
+                                      ["Lähteet: yhtiöiden julkaisut ja alan uutisointi.", "Lähteet: yhtiöiden julkaisut ja alan uutisointi. Azure-järjestely perustuu OpenAI:n ja Microsoftin tiedotteisiin (2016, 2019, 2023 ja huhtikuu 2026), tarkistettu 10/2026."]],
+                          "notes": "In-page 1-5 stepper dropped; the shared header stepper replaces it (Ray, 2026-10-06). Comparison box: a sentence added on how the Azure arrangement changed (exclusive from 2019, other clouds allowed from April 2026), and its sources named in the card note with the date it was checked (Ray, 2026-10-08; PLAN.md ledger R14, R16)."},
     "gpu-cloud.html": {"source": "Mallikortti2.dc.html", "expect_removed": ["AI OY:N KASVUPOLKU 1 Julkinen pilvi 2 GPU-pilvi 3 Retail-colocation 4 Wholesale-colocation 5 Oma datakeskus"],
                        "notes": "As public-cloud.html."},
     "retail-colocation.html": {"source": "Mallikortti3.dc.html", "expect_removed": ["AI OY:N KASVUPOLKU 1 Julkinen pilvi 2 GPU-pilvi 3 Retail-colocation 4 Wholesale-colocation 5 Oma datakeskus"],
