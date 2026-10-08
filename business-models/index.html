@@ -21,8 +21,11 @@
    page (Ray, 2026-10-08); a registered deviation in tools/port_deviations.json. */
 .hub-head__aside{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .lang-note{margin:0;font-size:12px;color:var(--ink-3);text-align:right}
-.lang-note a{color:var(--blue);text-decoration:underline;text-underline-offset:2px}
-.lang-note a:hover{color:var(--navy)}
+/* The note stays small and grey (secondary to the lede); its two links carry
+   the weight, so they read as links at a glance (Ray, 2026-10-08). */
+.lang-note a{color:var(--blue);font-weight:600;text-decoration:underline;
+             text-decoration-thickness:1.5px;text-underline-offset:3px}
+.lang-note a:hover{color:var(--navy);text-decoration-thickness:2px}
 .lang-note a:focus-visible{outline:2px solid var(--rust);outline-offset:2px;border-radius:2px}
 
 /* Growth path: flexible -> cheaper but committed */
