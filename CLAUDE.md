@@ -6,6 +6,12 @@ General working rules live in the global ~/.claude/CLAUDE.md. This file adds pro
 - PLAN.md is the plan of record. When challenging the direction, measure against the goal of the current PLAN.md step.
 - After correcting a wrong assumption, update PLAN.md or this file so the same mistake can't recur on a later step.
 
+## Requested changes
+- Log every change Ray asks for in PLAN.md's requested-changes ledger before starting work: an ID, the date, his words quoted (not paraphrased), and a status. Close a row only with its commit, plus the live date for changes to rendered output. A request that reverses an earlier one marks the earlier row superseded.
+- Resolve a reference to an earlier instruction by name (e.g. "the English-naming change") against the ledger. If it isn't there, ask Ray for the original wording before acting; never guess what the name means. Two edits were dropped exactly this way (PLAN.md ledger, 2026-10-08).
+- Register an edit to approved explainer text in tools/port_deviations.json first, then make it: `python tools/check_port_text.py --all` fails until the edit is in place on every page.
+- End each batch report with the ledger rows still open or held.
+
 ## Diagnosis — reference/
 - The global rule on copied/reference versions applies directly to reference/: a fix made here doesn't confirm or rule out the same bug in the parent's live code, and a parent fix doesn't confirm or rule out whether reference/ here is already stale.
 

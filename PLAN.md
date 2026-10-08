@@ -797,6 +797,10 @@ findings don't get lost, not because a fix or a direction has been agreed.
      reporting in 2027, and only then bump that page's "Content reviewed"
      date.
 
+   **Second round (2026-10-08, Ray):** header pills lifted, clearer links in
+   the hub's English note, "tekoäly-yhtiö" spelling, and the hub title and
+   kicker shortened. Tracked as R1–R8 in the requested-changes ledger below.
+
    **Priority from 2026-10-07 (Ray): desktop and laptop first, phone later.**
    Mobile layouts stay functional as built (no sideways page scroll, nothing
    clipped), but get no further refinement until the mobile-polish pass
@@ -816,6 +820,49 @@ findings don't get lost, not because a fix or a direction has been agreed.
 
    **Known gap:** the hub's layer bars (the "KERROKSET" colour segments) have
    no screen-reader text, the same as the source.
+
+## Requested-changes ledger
+
+Every change Ray asks for gets a row here **before work starts**, quoting his
+words, and stays open until it's committed (and live, for changes to rendered
+output). The rule is in CLAUDE.md ("Requested changes"). Earlier requests are
+recorded in the build-order steps above and aren't back-filled.
+
+**Why it exists (2026-10-08).** Two instructed text changes were acknowledged
+and then not applied. Batching wasn't the cause. Both instructions reached the
+work by name only, and nothing in the repo recorded what they said:
+- "Apply the English-naming change" (2026-10-06) pointed at wording given
+  outside this repo. It was guessed at and read as English slugs and glossary
+  keys (`109f35d`). The intended change, English labels on the explainer's
+  links to English pages, landed only after Ray restated it in full on
+  2026-10-07 (`17a616c`).
+- The "tekoälyyhtiö" hyphen fix was, per Ray, instructed earlier. It isn't in
+  any request that reached this project's working sessions before 2026-10-08
+  (checked against the transcript from 2026-10-06 on), so it was never in the
+  work queue at all.
+
+The fix has three parts:
+- This ledger, so requests are kept in the repo in Ray's words.
+- The CLAUDE.md rule: a reference to an earlier request by name is resolved
+  against the ledger, or Ray is asked for the original text. Never guessed.
+- For approved explainer text, the edit is registered in
+  `tools/port_deviations.json` first (`770de66`), so
+  `python tools/check_port_text.py --all` fails until it's applied on every
+  page.
+
+Status: **open** · **held** (waiting for Ray's approval) · **done** (commit;
+live date for rendered changes) · **superseded** · **declined**.
+
+| ID | Date | Request (Ray's words; "…" marks cuts) | Status |
+|---|---|---|---|
+| R1 | 2026-10-08 | "Lift the header family pills modestly … more contrast against the navy bar, slightly stronger colour or weight, clearer hover and focus. Keep the current shape and the professional feel; no animation. Show at 1680 and ~1280 before committing." | **held:** screenshots at 1680 and 1280 sent; not committed |
+| R2 | 2026-10-08 | "Make the inline links in the English note more visible. … Give them enough contrast to read clearly as links, while keeping the note itself secondary to the Finnish lede." | **done:** `d51fdf3`; live 2026-10-08 |
+| R3 | 2026-10-08 | "'tekoälyyhtiö' → 'tekoäly-yhtiö' (hyphen required where the same vowel meets at a compound boundary). This was instructed earlier and never landed. Search all 11 pages and the glossary data; fix every occurrence." | **done:** `1a88537` (hub + five model cards; none in the glossary data); live 2026-10-08 |
+| R4 | 2026-10-08 | "Remove 'yhdellä sivulla' from the hub title, leaving 'Datakeskusten liiketoimintamallit'." | **done:** `cf53271`; live 2026-10-08 |
+| R5 | 2026-10-08 | "Remove 'ONE PAGER' from the kicker, leaving 'TIEDOT TARKISTETTU 9/2026'." Supersedes "Keep the 'ONE PAGER' kicker as it is" from the same morning's earlier request. | **done:** `cf53271`; live 2026-10-08 |
+| R6 | 2026-10-08 | "Changes 3–5 alter approved content: register each in tools/port_deviations.json." | **done:** `1a88537`, `cf53271` |
+| R7 | 2026-10-08 | "… the hub title becomes identical to the header brand text directly above it, and the kicker is just the date. Show Ray how that looks and say whether it reads as repetitive." | **open:** reported with screenshots; Ray's call |
+| R8 | 2026-10-08 | "Check whether something about how smaller text edits are tracked causes them to be dropped between batches, and fix the cause rather than just making the edit." | **done:** this ledger, the CLAUDE.md rule, `770de66` |
 
 ## Known issues (recorded, not fixed)
 
