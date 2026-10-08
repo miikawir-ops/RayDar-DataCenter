@@ -820,9 +820,10 @@ findings don't get lost, not because a fix or a direction has been agreed.
      reporting in 2027, and only then bump that page's "Content reviewed"
      date.
 
-   **Second round (2026-10-08, Ray):** header pills lifted, clearer links in
+   **Second round (2026-10-08, Ray):** header pills lifted, then filled in the
+   family blue a step above the page links (variant B of three), clearer links in
    the hub's English note, "tekoäly-yhtiö" spelling, and the hub title and
-   kicker shortened. Tracked as R1–R8 in the requested-changes ledger below.
+   kicker shortened. Tracked as R1–R13 in the requested-changes ledger below.
 
    **Priority from 2026-10-07 (Ray): desktop and laptop first, phone later.**
    Mobile layouts stay functional as built (no sideways page scroll, nothing
@@ -888,7 +889,7 @@ live date for rendered changes) · **superseded** · **declined**.
 | R8 | 2026-10-08 | "Check whether something about how smaller text edits are tracked causes them to be dropped between batches, and fix the cause rather than just making the edit." | **done:** this ledger, the CLAUDE.md rule, `770de66` |
 | R9 | 2026-10-08 | "move the interaction tests into tools/ alongside check_layout_sweep.py and check_port_text.py. Keeping them in a temp folder outside the repo is the same failure mode as the dropped instructions, state that matters living somewhere nothing tracks it." | **done:** `503009d` (`tools/check_interactions.py`) |
 | R10 | 2026-10-08 | "Note in PLAN.md that explainer changes should run all three checks." | **done:** PLAN.md step 8, "Every explainer change runs all three checks" |
-| R11 | 2026-10-08 | "The lifted pills still aren't prominent enough for Ray. Don't commit the current version yet; produce two or three variants side by side at 1680 and ~1280 for him to choose from … A: filled pills (solid background instead of outline), same size as now. B: filled pills, slightly larger than the adjacent in-explainer page links … C: B plus a small group label and separator … Use the existing family blue rather than introducing rust … Keep the icons, and consider slightly larger icon sizing in each variant. Check each variant against the layout sweep … Ray picks." | **open:** variants shown, waiting for Ray's pick. Note: the lifted version (R1) was already committed and live (`9affcaa`) when this arrived; it stays live until Ray picks. |
+| R11 | 2026-10-08 | "The lifted pills still aren't prominent enough for Ray. Don't commit the current version yet; produce two or three variants side by side at 1680 and ~1280 for him to choose from … A: filled pills (solid background instead of outline), same size as now. B: filled pills, slightly larger than the adjacent in-explainer page links … C: B plus a small group label and separator … Use the existing family blue rather than introducing rust … Keep the icons, and consider slightly larger icon sizing in each variant. Check each variant against the layout sweep … Ray picks." | **done:** Ray picked B ("variant B, thank you"); `b0703f2`, live 2026-10-08. A and C were shown and not built. The lifted version from R1 (`9affcaa`) was live in between. |
 | R12 | 2026-10-08 | "Add the one-line pointer to CLAUDE.md: every explainer change must pass all three checks (check_port_text.py, check_layout_sweep.py, check_interactions.py) before committing, with a pointer to PLAN.md step 8 for the commands." | **done:** CLAUDE.md, "Files & deployment" |
 | R13 | 2026-10-08 | "Leave the pixel-diff scripts where they are. They're only needed when re-porting from a new design export, so the PLAN.md note is sufficient; moving them would be tidiness rather than risk reduction." | **done, no move:** decision recorded in PLAN.md step 8 |
 
