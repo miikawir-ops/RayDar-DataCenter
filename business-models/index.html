@@ -17,6 +17,13 @@
 .hub-head .kicker{font-size:12px}
 .hub-title{margin:0;font-family:var(--f-display);font-size:38px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
 .hub-lede{font-size:15px;color:var(--ink-3);text-align:right;max-width:560px}
+/* One-line English note for visitors arriving from the English ecosystem
+   page (Ray, 2026-10-08); a registered deviation in tools/port_deviations.json. */
+.hub-head__aside{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.lang-note{margin:0;font-size:12px;color:var(--ink-3);text-align:right}
+.lang-note a{color:var(--blue);text-decoration:underline;text-underline-offset:2px}
+.lang-note a:hover{color:var(--navy)}
+.lang-note a:focus-visible{outline:2px solid var(--rust);outline-offset:2px;border-radius:2px}
 
 /* Growth path: flexible -> cheaper but committed */
 .path{display:flex;align-items:center;gap:12px}
@@ -159,6 +166,8 @@
   .hub-head{flex-direction:column;align-items:flex-start;gap:8px}
   .hub-title{font-size:30px}
   .hub-lede{text-align:left;max-width:none}
+  .hub-head__aside{align-items:flex-start}
+  .lang-note{text-align:left}
   .path{flex-wrap:wrap;gap:6px 10px}
   .path-label{width:auto;flex-basis:100%;text-align:left}
   .path-from,.path-to{flex:1 1 0}
@@ -198,7 +207,10 @@
       <div class="kicker">ONE PAGER · TIEDOT TARKISTETTU 9/2026</div>
       <h1 class="hub-title">Datakeskusten liiketoimintamallit yhdellä sivulla</h1>
     </div>
-    <div class="hub-lede">Esimerkkinä kuvitteellinen tekoälyyhtiö AI Oy, joka tarvitsee laskentatehoa ja kasvaa vaiheesta 1 vaiheeseen 5</div>
+    <div class="hub-head__aside">
+      <div class="hub-lede">Esimerkkinä kuvitteellinen tekoälyyhtiö AI Oy, joka tarvitsee laskentatehoa ja kasvaa vaiheesta 1 vaiheeseen 5</div>
+      <p class="lang-note" lang="en">This explainer is in Finnish. The <a href="../ecosystem.html" hreflang="en">Ecosystem map</a> and <a href="../index.html" hreflang="en">Daily signals</a> are in English.</p>
+    </div>
   </div>
 
   <div class="path">
