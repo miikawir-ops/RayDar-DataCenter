@@ -665,6 +665,25 @@ findings don't get lost, not because a fix or a direction has been agreed.
      in a test run.
    - Playwright functional checks from 1680px down to 360px.
 
+   **Every explainer change runs all three checks (Ray, 2026-10-08)**, from the
+   repo root with the site served locally
+   (`python -m http.server 8765 --bind 127.0.0.1`):
+   - `python tools/check_port_text.py --all`: text identity with the approved
+     source, after the registered deviations.
+   - `python tools/check_layout_sweep.py`: layout at every width from 1024 to
+     1680px, on all 11 pages.
+   - `python tools/check_interactions.py`: chrome, navigation, tooltips, deep
+     links and swipe, 1680px down to 360px (565 checks in three suites: hub,
+     cards, pages). Add `--shots Output/screenshots/business-models` for the
+     review screenshots.
+
+   All three must pass before a commit. The interaction checks used to live in
+   a temporary session folder outside the repo, where one went stale unnoticed
+   (it still targeted the header's old back link). That's the same failure
+   mode as the dropped instructions (see the requested-changes ledger), so they
+   moved into `tools/`. The pixel-diff scripts used while porting are still
+   outside the repo (flagged to Ray on 2026-10-08, not moved).
+
    For the hub: 641 words identical. Pixel-identical at 1680px apart from
    rows growing to fit their text and no fixed canvas height. 56/56
    functional checks pass. Touch was tested in Chromium emulation only, not
@@ -855,14 +874,16 @@ live date for rendered changes) · **superseded** · **declined**.
 
 | ID | Date | Request (Ray's words; "…" marks cuts) | Status |
 |---|---|---|---|
-| R1 | 2026-10-08 | "Lift the header family pills modestly … more contrast against the navy bar, slightly stronger colour or weight, clearer hover and focus. Keep the current shape and the professional feel; no animation. Show at 1680 and ~1280 before committing." | **held:** screenshots at 1680 and 1280 sent; not committed |
+| R1 | 2026-10-08 | "Lift the header family pills modestly … more contrast against the navy bar, slightly stronger colour or weight, clearer hover and focus. Keep the current shape and the professional feel; no animation. Show at 1680 and ~1280 before committing." | **done:** approved by Ray ("R1: commit and deploy"); `9affcaa`; live 2026-10-08 |
 | R2 | 2026-10-08 | "Make the inline links in the English note more visible. … Give them enough contrast to read clearly as links, while keeping the note itself secondary to the Finnish lede." | **done:** `d51fdf3`; live 2026-10-08 |
 | R3 | 2026-10-08 | "'tekoälyyhtiö' → 'tekoäly-yhtiö' (hyphen required where the same vowel meets at a compound boundary). This was instructed earlier and never landed. Search all 11 pages and the glossary data; fix every occurrence." | **done:** `1a88537` (hub + five model cards; none in the glossary data); live 2026-10-08 |
 | R4 | 2026-10-08 | "Remove 'yhdellä sivulla' from the hub title, leaving 'Datakeskusten liiketoimintamallit'." | **done:** `cf53271`; live 2026-10-08 |
 | R5 | 2026-10-08 | "Remove 'ONE PAGER' from the kicker, leaving 'TIEDOT TARKISTETTU 9/2026'." Supersedes "Keep the 'ONE PAGER' kicker as it is" from the same morning's earlier request. | **done:** `cf53271`; live 2026-10-08 |
 | R6 | 2026-10-08 | "Changes 3–5 alter approved content: register each in tools/port_deviations.json." | **done:** `1a88537`, `cf53271` |
-| R7 | 2026-10-08 | "… the hub title becomes identical to the header brand text directly above it, and the kicker is just the date. Show Ray how that looks and say whether it reads as repetitive." | **open:** reported with screenshots; Ray's call |
+| R7 | 2026-10-08 | "… the hub title becomes identical to the header brand text directly above it, and the kicker is just the date. Show Ray how that looks and say whether it reads as repetitive." | **done, no change:** Ray: "leave the heading as is. Site name in the header plus page title below is a normal pattern, and making the header differ on one page would be the worse trade." |
 | R8 | 2026-10-08 | "Check whether something about how smaller text edits are tracked causes them to be dropped between batches, and fix the cause rather than just making the edit." | **done:** this ledger, the CLAUDE.md rule, `770de66` |
+| R9 | 2026-10-08 | "move the interaction tests into tools/ alongside check_layout_sweep.py and check_port_text.py. Keeping them in a temp folder outside the repo is the same failure mode as the dropped instructions, state that matters living somewhere nothing tracks it." | **done:** `503009d` (`tools/check_interactions.py`) |
+| R10 | 2026-10-08 | "Note in PLAN.md that explainer changes should run all three checks." | **done:** PLAN.md step 8, "Every explainer change runs all three checks" |
 
 ## Known issues (recorded, not fixed)
 
