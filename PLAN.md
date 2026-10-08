@@ -761,6 +761,42 @@ findings don't get lost, not because a fix or a direction has been agreed.
      to 1680px, the sweep is clean on all 11 pages, and 1680 is unchanged
      (still side by side).
 
+   **Cross-links and content changes (2026-10-08, Ray):**
+   - **Family links:** the three sites now reach each other in one step, with
+     the same cards and icons (📈 Daily signals, 🗺️ Ecosystem map,
+     📊 Liiketoimintamallit):
+     - dashboard: a two-card row in place of the single ecosystem banner;
+     - ecosystem page: a two-card row at the top, in place of the explainer
+       banner and the hero's "← Back to dashboard";
+     - explainer: header pills plus the footer.
+     Cross-links call the dashboard "Daily signals" (it's the live,
+     updating site; the other two are static reference). The dashboard page
+     itself keeps its title. Commits 66d93b8, e9e056d, b686d52.
+   - **Review-date label** reworded from "TILANNE 9/2026" to "TIEDOT TARKISTETTU
+     9/2026" (kickers on 10 pages plus the footer on all 11), so it plainly
+     means the facts were verified then. **The date is bumped only when the
+     facts are actually re-verified, never as routine monthly upkeep.** The
+     source's fine-print "Tilanne syyskuu 2026" sentences (financing,
+     specialised models, Why Finland) are body text, not the label, and were
+     left as authored.
+   - **Hub English note:** one unobtrusive line under the lede, in English,
+     saying the explainer is in Finnish and that the Ecosystem map and Daily
+     signals are in English, for visitors arriving from the English
+     ecosystem page.
+   - **Deviations registry:** the two content changes above alter approved
+     text, so they're recorded in `tools/port_deviations.json` alongside the
+     earlier intentional ones (the dropped card stepper, the phone row
+     labels). `python tools/check_port_text.py --all` applies them and checks
+     all 11 pages in one run. A registered text that no longer appears in the
+     source is an error, so the registry can't go stale silently.
+   - **Known re-check during 2027:** the Microsoft/Fortum waste-heat timeline.
+     Recovery from Microsoft's Espoo/Kirkkonummi data centers "begins step by
+     step from 2027", per Fortum's May 2026 release. It's on the ecosystem
+     page's explanation and case card; see also the content-review reminder
+     under the ecosystem page's Phase D entry. Re-verify against Fortum's
+     reporting in 2027, and only then bump that page's "Content reviewed"
+     date.
+
    **Priority from 2026-10-07 (Ray): desktop and laptop first, phone later.**
    Mobile layouts stay functional as built (no sideways page scroll, nothing
    clipped), but get no further refinement until the mobile-polish pass
