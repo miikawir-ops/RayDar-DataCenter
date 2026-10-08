@@ -628,13 +628,26 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .capex-strip{{background:linear-gradient(135deg,#1A1830,#0F1A2E);border:1px solid rgba(175,169,236,0.35);
              border-radius:10px;padding:14px 16px;margin-bottom:12px;color:#E8E6DF}}
 .capex-strip.insufficient{{opacity:0.75;border-style:dashed}}
-.ecosystem-banner{{display:flex;align-items:center;justify-content:center;gap:8px;
-                   font-size:13px;font-weight:600;color:#fff;text-decoration:none;
-                   padding:10px 16px;border-radius:8px;margin-bottom:12px;
-                   background:linear-gradient(135deg,#0C1A3A,#3C3489);
-                   box-shadow:0 0 0 1px rgba(133,183,235,0.35),0 0 10px rgba(83,74,183,0.4);
-                   transition:box-shadow .15s;text-align:center;flex-wrap:wrap}}
-.ecosystem-banner:hover{{box-shadow:0 0 0 1px rgba(133,183,235,0.7),0 0 16px rgba(83,74,183,0.7)}}
+/* Family links: the dashboard, the ecosystem map and the Finnish business-
+   models explainer link to each other with the same cards (same gradient,
+   ring and static glow as the old ecosystem banner; one icon per site:
+   📈 Daily signals, 🗺️ Ecosystem map, 📊 Liiketoimintamallit). The same
+   markup and CSS live in ecosystem.html; the explainer uses header pills
+   in the same style. */
+.family-links{{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}}
+.family-link{{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;
+              color:#fff;text-decoration:none;
+              background:linear-gradient(135deg,#0C1A3A,#3C3489);
+              box-shadow:0 0 0 1px rgba(133,183,235,0.35),0 0 10px rgba(83,74,183,0.4);
+              transition:box-shadow .15s}}
+.family-link:hover{{box-shadow:0 0 0 1px rgba(133,183,235,0.7),0 0 16px rgba(83,74,183,0.7)}}
+.family-link:focus-visible{{outline:2px solid #85B7EB;outline-offset:2px}}
+.fl-icon{{font-size:18px;line-height:1;flex-shrink:0}}
+.fl-text{{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}}
+.fl-title{{font-size:13px;font-weight:600}}
+.fl-sub{{font-size:11.5px;color:#C8D4E8}}
+.fl-arrow{{font-size:15px;color:#85B7EB;flex-shrink:0}}
+@media(max-width:768px){{ .family-links{{grid-template-columns:1fr}} }}
 .capex-lbl{{font-size:10px;font-weight:500;color:#AFA9EC;letter-spacing:.06em;margin-bottom:6px}}
 .capex-dir{{font-size:18px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}}
 .capex-meta{{font-size:11px;color:#8A9AB8;margin-bottom:10px}}
@@ -770,7 +783,10 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 <div class="capex-strip" id="capex-strip"></div>
 
-<a href="ecosystem.html" class="ecosystem-banner">🗺️ Explore the Data Center Ecosystem — who the players are and how they connect →</a>
+<nav class="family-links" aria-label="RayDar Data Center pages">
+  <a href="ecosystem.html" class="family-link"><span class="fl-icon" aria-hidden="true">🗺️</span><span class="fl-text"><span class="fl-title">Ecosystem map</span><span class="fl-sub">Who the players are and how they connect</span></span><span class="fl-arrow" aria-hidden="true">→</span></a>
+  <a href="business-models/" class="family-link" hreflang="fi"><span class="fl-icon" aria-hidden="true">📊</span><span class="fl-text"><span class="fl-title" lang="fi">Datakeskusten liiketoimintamallit</span><span class="fl-sub">Business models explainer, in Finnish: how capacity is bought, leased and financed</span></span><span class="fl-arrow" aria-hidden="true">→</span></a>
+</nav>
 
 <div class="card">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
