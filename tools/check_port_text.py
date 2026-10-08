@@ -10,12 +10,17 @@ automatically (pass --no-registry to see the raw differences):
                   each cell for phones), excluded from the port
   expect_removed  word sequences the port drops on purpose (e.g. the model cards'
                   in-page stepper); each must occur exactly once in the source
-  replace         word sequences the port deliberately rewords (e.g. the review-date
-                  label); each must occur at least once in the source
+  replace         text the port deliberately rewords (e.g. the review-date label, a
+                  spelling fix); matched as a substring of the word stream, so inflected
+                  forms are caught too; each must occur at least once in the source
   unordered       compare text blocks regardless of order (canvas sources)
   glossary_data   compare the source with the JS data file a page renders from
 A deviation whose text no longer appears in the source is an error too, so the
 registry can't go stale silently. Anything not in the registry still fails.
+
+Register an approved-content edit here BEFORE making it: --all then fails until the
+edit is in place on every page, so an instructed text change can't be dropped
+silently between batches (PLAN.md, requested-changes ledger).
 
 Usage:
     python tools/check_port_text.py --all
@@ -148,9 +153,11 @@ def check(source, port, ignore_class=(), expect_removed=(), replace=(), unordere
         src = src2
         msgs.append(f"removed as registered: {len(seq)} words ({' '.join(seq[:6])} ...)")
     for old, new in replace:
-        src, n = apply_seq(src, old.split(), new.split(), exactly_once=False)
+        joined, old_n, new_n = " ".join(src), " ".join(old.split()), " ".join(new.split())
+        n = joined.count(old_n)
         if not n:
             return False, [f"ERROR: registry replacement not found in source (stale entry?): {old!r}"]
+        src = joined.replace(old_n, new_n).split()
         msgs.append(f"reworded as registered: {old!r} -> {new!r} ({n}x)")
     port_words = page_words(port, ignore_class)
     if glossary_data:
@@ -188,11 +195,13 @@ def main():
         page = reg["pages"].get(os.path.basename(port), {})
         shared = reg.get("shared", {})
         if args.no_registry:  # raw comparison: keep only what's needed to compare at all
+            # (page-level "replace" is dropped here too)
             page = {k: v for k, v in page.items() if k in ("unordered", "glossary_data")}
             shared = {}
         src_text = open(source, encoding="utf-8").read()
         # the shared rewording applies only to sources that carry the label
         replace = [pair for pair in shared.get("replace", []) if pair[0] in src_text]
+        replace += page.get("replace", [])
         ok, msgs = check(source, port,
                          ignore_class=list(page.get("ignore_class", [])) + args.ignore_class,
                          expect_removed=list(page.get("expect_removed", [])) + args.expect_removed,
