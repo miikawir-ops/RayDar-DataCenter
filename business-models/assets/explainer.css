@@ -320,9 +320,11 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
        text-underline-offset:3px;cursor:help;border-radius:2px}
 .gloss:hover,.gloss[aria-describedby]{background:var(--peach-bg)}
 .gloss:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
-.panel--dark .gloss{text-decoration-color:var(--peach)}
-.panel--dark .gloss:hover,.panel--dark .gloss[aria-describedby]{background:rgba(240,164,110,.18)}
-.panel--dark .gloss:focus-visible{outline-color:var(--peach)}
+/* Terms on navy: the dark panels, and the value chain's dark Google box. */
+.panel--dark .gloss,.vc-box--dark .gloss{text-decoration-color:var(--peach)}
+.panel--dark .gloss:hover,.panel--dark .gloss[aria-describedby],
+.vc-box--dark .gloss:hover,.vc-box--dark .gloss[aria-describedby]{background:rgba(240,164,110,.18)}
+.panel--dark .gloss:focus-visible,.vc-box--dark .gloss:focus-visible{outline-color:var(--peach)}
 .gloss-tip{position:fixed;z-index:100;max-width:320px;box-sizing:border-box;padding:10px 12px;
            background:var(--navy);color:var(--navy-text);border-radius:8px;
            box-shadow:0 6px 24px rgba(18,34,46,.28);font-family:var(--f-body);font-size:13px;
