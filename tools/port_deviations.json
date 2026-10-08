@@ -1,0 +1,33 @@
+{
+  "_about": "Known, intentional differences between each business-models page and its approved Claude Design source. tools/check_port_text.py applies the matching entry automatically, so a later run doesn't report these as port errors. Add an entry (with a reason in 'notes') whenever approved content is deliberately changed; anything not listed here is still reported.",
+  "source_dir": "Output/business-models-source",
+  "port_dir": "business-models",
+  "shared": {
+    "replace": [["TILANNE 9/2026", "TIEDOT TARKISTETTU 9/2026"]],
+    "notes": "Review-date label reworded so it plainly means the facts were verified then, not last touched (Ray, 2026-10-08). The date changes only when facts are re-verified."
+  },
+  "pages": {
+    "index.html": {
+      "source": "Main.dc.html",
+      "ignore_class": ["cell-label", "lang-note"],
+      "notes": "cell-label: matrix row labels repeated in each cell for phones (port addition). lang-note: one-line English note that the explainer is in Finnish, for visitors arriving from the English ecosystem page (Ray, 2026-10-08)."
+    },
+    "public-cloud.html": {"source": "Mallikortti1.dc.html", "expect_removed": ["AI OY:N KASVUPOLKU 1 Julkinen pilvi 2 GPU-pilvi 3 Retail-colocation 4 Wholesale-colocation 5 Oma datakeskus"],
+                          "notes": "In-page 1-5 stepper dropped; the shared header stepper replaces it (Ray, 2026-10-06)."},
+    "gpu-cloud.html": {"source": "Mallikortti2.dc.html", "expect_removed": ["AI OY:N KASVUPOLKU 1 Julkinen pilvi 2 GPU-pilvi 3 Retail-colocation 4 Wholesale-colocation 5 Oma datakeskus"],
+                       "notes": "As public-cloud.html."},
+    "retail-colocation.html": {"source": "Mallikortti3.dc.html", "expect_removed": ["AI OY:N KASVUPOLKU 1 Julkinen pilvi 2 GPU-pilvi 3 Retail-colocation 4 Wholesale-colocation 5 Oma datakeskus"],
+                               "notes": "As public-cloud.html."},
+    "wholesale-colocation.html": {"source": "Mallikortti4.dc.html", "expect_removed": ["AI OY:N KASVUPOLKU 1 Julkinen pilvi 2 GPU-pilvi 3 Retail-colocation 4 Wholesale-colocation 5 Oma datakeskus"],
+                                  "notes": "As public-cloud.html."},
+    "own-data-center.html": {"source": "Mallikortti5.dc.html", "expect_removed": ["AI OY:N KASVUPOLKU 1 Julkinen pilvi 2 GPU-pilvi 3 Retail-colocation 4 Wholesale-colocation 5 Oma datakeskus"],
+                             "notes": "As public-cloud.html."},
+    "value-chain.html": {"source": "Arvoketju.dc.html", "unordered": true,
+                         "notes": "Canvas source: DOM order is not reading order, so text blocks are compared regardless of order."},
+    "financing.html": {"source": "Rahoitusmallit.dc.html"},
+    "specialised-models.html": {"source": "Lisamallit.dc.html"},
+    "why-finland.html": {"source": "MiksiSuomi.dc.html"},
+    "glossary.html": {"source": "Sanasto.dc.html", "glossary_data": "business-models/assets/glossary-fi.js",
+                      "notes": "Cards are rendered from glossary-fi.js, so the page's static heading plus the data file (term, alt, definition per entry, in order) are compared with the source."}
+  }
+}

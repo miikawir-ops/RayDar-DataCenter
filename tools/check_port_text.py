@@ -3,25 +3,36 @@
 Compares the visible text of a Claude Design export (Output/business-models-source/
 *.dc.html) with its port in business-models/, in document order. Formatting,
 markup and whitespace are ignored; any added, dropped or changed word is reported.
-Text the port adds on purpose (e.g. matrix row labels repeated inside each cell for
-phones) is excluded with --ignore-class. Text the port drops on purpose (e.g. the model
-cards' in-page stepper, replaced by the shared header) is declared with --expect-removed:
-that exact word sequence must occur exactly once in the source, and is removed from the
-source before comparing. Anything else that differs still fails.
+
+Known, intentional differences live in tools/port_deviations.json, which is applied
+automatically (pass --no-registry to see the raw differences):
+  ignore_class    text the port adds on purpose (e.g. matrix row labels repeated in
+                  each cell for phones), excluded from the port
+  expect_removed  word sequences the port drops on purpose (e.g. the model cards'
+                  in-page stepper); each must occur exactly once in the source
+  replace         word sequences the port deliberately rewords (e.g. the review-date
+                  label); each must occur at least once in the source
+  unordered       compare text blocks regardless of order (canvas sources)
+  glossary_data   compare the source with the JS data file a page renders from
+A deviation whose text no longer appears in the source is an error too, so the
+registry can't go stale silently. Anything not in the registry still fails.
 
 Usage:
-    python tools/check_port_text.py Output/business-models-source/Main.dc.html \
-        business-models/index.html --ignore-class cell-label
-    python tools/check_port_text.py Output/business-models-source/Mallikortti2.dc.html \
-        business-models/gpu-cloud.html --expect-removed "AI OY:N KASVUPOLKU 1 Julkinen pilvi ..."
+    python tools/check_port_text.py --all
+    python tools/check_port_text.py Output/business-models-source/Main.dc.html business-models/index.html
 
-Exit code 0 when the texts match, 1 when they differ.
+Exit code 0 when every compared text matches, 1 otherwise.
 """
 import argparse
 import difflib
+import json
+import os
+import re
 import sys
+from collections import Counter
 from html.parser import HTMLParser
 
+REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "port_deviations.json")
 SKIP_TAGS = {"script", "style", "head", "title", "helmet", "noscript"}
 INLINE_TAGS = {"a", "abbr", "b", "bdi", "bdo", "cite", "code", "em", "i", "kbd", "mark",
                "q", "s", "small", "span", "strong", "sub", "sup", "u"}
@@ -82,49 +93,120 @@ def page_words(path, ignore_classes=()):
     return parse(path, ignore_classes).words()
 
 
+def glossary_words(data_path):
+    """Words of every entry in a glossary-fi.js style file: term, alt, definition, in order."""
+    src = open(data_path, encoding="utf-8").read()
+    words = []
+    for entry in re.finditer(r"^\s+\w+: \{(.*)\},\s*$", src, re.M):
+        fields = dict(re.findall(r'(\w+): ("(?:[^"\\]|\\.)*")', entry.group(1)))
+        for name in ("term", "alt", "definition"):
+            if name in fields:
+                words += json.loads(fields[name]).split()
+    return words
+
+
+def apply_seq(words, seq_from, seq_to, exactly_once):
+    """Replace every occurrence of word sequence seq_from with seq_to; returns (words, count)."""
+    out, i, n = [], 0, 0
+    while i < len(words):
+        if words[i:i + len(seq_from)] == seq_from:
+            out += seq_to
+            i += len(seq_from)
+            n += 1
+        else:
+            out.append(words[i])
+            i += 1
+    if exactly_once and n != 1:
+        return words, n
+    return out, n
+
+
+def check(source, port, ignore_class=(), expect_removed=(), replace=(), unordered=False, glossary_data=None):
+    """Returns (ok, lines of report)."""
+    msgs = []
+    if unordered:
+        sb, pb = Counter(parse(source).blocks()), Counter(parse(port, ignore_class).blocks())
+        for old, new in replace:
+            hits = sum(c for b, c in sb.items() if old in b)
+            if not hits:
+                return False, [f"ERROR: registry replacement not found in source (stale entry?): {old!r}"]
+            sb = Counter({b.replace(old, new): c for b, c in sb.items()})
+            msgs.append(f"reworded as registered: {old!r} -> {new!r} ({hits}x)")
+        if sb == pb:
+            return True, msgs + [f"OK: {sum(sb.values())} text blocks, identical (order not compared)."]
+        msgs.append("MISMATCH (blocks, order not compared):")
+        msgs += [f"  only in source: {b}" for b in sorted((sb - pb).elements())]
+        msgs += [f"  only in port:   {b}" for b in sorted((pb - sb).elements())]
+        return False, msgs
+
+    src = page_words(source)
+    for phrase in expect_removed:
+        seq = phrase.split()
+        src2, n = apply_seq(src, seq, [], exactly_once=True)
+        if n != 1:
+            return False, [f"ERROR: expected removal found {n} times in source (must be exactly 1): {phrase!r}"]
+        src = src2
+        msgs.append(f"removed as registered: {len(seq)} words ({' '.join(seq[:6])} ...)")
+    for old, new in replace:
+        src, n = apply_seq(src, old.split(), new.split(), exactly_once=False)
+        if not n:
+            return False, [f"ERROR: registry replacement not found in source (stale entry?): {old!r}"]
+        msgs.append(f"reworded as registered: {old!r} -> {new!r} ({n}x)")
+    port_words = page_words(port, ignore_class)
+    if glossary_data:
+        port_words += glossary_words(glossary_data)
+    if src == port_words:
+        return True, msgs + [f"OK: {len(src)} words, identical and in the same order."]
+    msgs.append(f"MISMATCH: source {len(src)} words, port {len(port_words)} words.")
+    msgs += list(difflib.unified_diff(src, port_words, "source", "port", lineterm="", n=4))
+    return False, msgs
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("source")
-    ap.add_argument("port")
-    ap.add_argument("--ignore-class", action="append", default=[],
-                    help="class of elements whose text the port adds on purpose (repeatable)")
-    ap.add_argument("--unordered", action="store_true",
-                    help="compare text blocks as a multiset, ignoring order (for canvas sources whose "
-                         "DOM order differs from reading order, e.g. Arvoketju)")
-    ap.add_argument("--expect-removed", action="append", default=[],
-                    help="word sequence the port drops on purpose; must occur exactly once in the source (repeatable)")
+    ap.add_argument("source", nargs="?")
+    ap.add_argument("port", nargs="?")
+    ap.add_argument("--all", action="store_true", help="check every page listed in the registry")
+    ap.add_argument("--no-registry", action="store_true", help="ignore the registered deviations (raw comparison)")
+    ap.add_argument("--ignore-class", action="append", default=[])
+    ap.add_argument("--unordered", action="store_true")
+    ap.add_argument("--expect-removed", action="append", default=[])
     args = ap.parse_args()
+    reg = json.load(open(REGISTRY, encoding="utf-8"))  # also the page list for --all
 
-    if args.unordered:
-        from collections import Counter
-        sb, pb = Counter(parse(args.source).blocks()), Counter(parse(args.port, args.ignore_class).blocks())
-        if sb == pb:
-            print(f"OK: {sum(sb.values())} text blocks, identical (order not compared).")
-            return 0
-        print("MISMATCH (blocks, order not compared):")
-        for b in sorted((sb - pb).elements()):
-            print("  only in source:", b)
-        for b in sorted((pb - sb).elements()):
-            print("  only in port:  ", b)
-        return 1
+    jobs = []
+    if args.all:
+        for name, page in reg["pages"].items():
+            jobs.append((os.path.join(reg["source_dir"], page["source"]), os.path.join(reg["port_dir"], name)))
+    elif args.source and args.port:
+        jobs.append((args.source, args.port))
+    else:
+        ap.error("give SOURCE PORT, or --all")
 
-    src = page_words(args.source)
-    for phrase in args.expect_removed:
-        seq = phrase.split()
-        hits = [i for i in range(len(src) - len(seq) + 1) if src[i:i + len(seq)] == seq]
-        if len(hits) != 1:
-            print(f"ERROR: expected removal found {len(hits)} times in source (must be exactly 1): {phrase!r}")
-            return 1
-        del src[hits[0]:hits[0] + len(seq)]
-        print(f"removed as declared: {len(seq)} words ({' '.join(seq[:6])} ...)")
-    port = page_words(args.port, args.ignore_class)
-    if src == port:
-        print(f"OK: {len(src)} words, identical and in the same order.")
-        return 0
-    print(f"MISMATCH: source {len(src)} words, port {len(port)} words.")
-    for line in difflib.unified_diff(src, port, "source", "port", lineterm="", n=4):
-        print(line)
-    return 1
+    failed = False
+    for source, port in jobs:
+        page = reg["pages"].get(os.path.basename(port), {})
+        shared = reg.get("shared", {})
+        if args.no_registry:  # raw comparison: keep only what's needed to compare at all
+            page = {k: v for k, v in page.items() if k in ("unordered", "glossary_data")}
+            shared = {}
+        src_text = open(source, encoding="utf-8").read()
+        # the shared rewording applies only to sources that carry the label
+        replace = [pair for pair in shared.get("replace", []) if pair[0] in src_text]
+        ok, msgs = check(source, port,
+                         ignore_class=list(page.get("ignore_class", [])) + args.ignore_class,
+                         expect_removed=list(page.get("expect_removed", [])) + args.expect_removed,
+                         replace=replace,
+                         unordered=page.get("unordered", False) or args.unordered,
+                         glossary_data=page.get("glossary_data"))
+        failed |= not ok
+        if args.all:
+            print(f"{'OK  ' if ok else 'FAIL'} {os.path.basename(port):26} {msgs[-1] if ok else ''}")
+            if not ok:
+                print("\n".join("     " + m for m in msgs))
+        else:
+            print("\n".join(msgs))
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
