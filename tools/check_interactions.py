@@ -127,6 +127,10 @@ def suite_hub(b, run):
     ow = page_width_overflow(pg)
     check("desktop 1680: no horizontal page overflow", ow <= 0, f"overflow {ow}px")
     check("desktop: no step current initially", current_step(pg) is None)
+    nav = pg.evaluate("""() => ({first: [...document.querySelectorAll('.bm-pages-list a')].map(a => [a.textContent, a.getAttribute('href')])[0],
+        cur: [...document.querySelectorAll('.bm-pages a[aria-current="page"]')].map(a => a.textContent)})""")
+    check("header: One pager is the first page link and marked current on the hub (both copies)",
+          nav["first"] == ["One pager", "./"] and nav["cur"] == ["One pager", "One pager"], str(nav))
     run.shot(pg, "01_desktop_1680_full.png", full_page=True)
 
     pg.locator('.gloss[data-g="gpu_hour"]').hover()
@@ -415,6 +419,8 @@ def suite_cards(b, run):
     check("hub: model heading opens its card", pg.url.endswith("/wholesale-colocation.html"), pg.url)
     pg.locator('.bm-step[data-step="public-cloud"]').click(); pg.wait_for_load_state("networkidle")
     check("card: header stepper opens another card", pg.url.endswith("/public-cloud.html"), pg.url)
+    cur = pg.evaluate("() => document.querySelectorAll('.bm-pages a[aria-current]').length")
+    check("card: no header page link marked current (One pager is current only on the hub)", cur == 0, str(cur))
     pg.locator(".bm-brand").click(); pg.wait_for_load_state("networkidle")
     check("card: brand link returns to the hub", pg.url.endswith("/business-models/index.html"), pg.url)
     for slug in CARDS:
@@ -475,13 +481,15 @@ def suite_pages(b, run):
         r = pg.goto(run.base + slug + ".html"); check(f"{slug}.html served (200)", r.status == 200, str(r.status))
     pg.goto(run.base + "index.html"); pg.wait_for_load_state("networkidle")
     links = pg.evaluate("() => ({vc: document.querySelector('#h-vc a')?.getAttribute('href'), spec: document.querySelector('#h-spec a')?.getAttribute('href'), terms: document.querySelector('.terms-note a')?.getAttribute('href'), pages: [...document.querySelectorAll('.bm-pages-list a')].map(a=>a.getAttribute('href'))})")
-    check("hub: panel titles + Termit link to their pages; header lists the 5 pages",
+    check("hub: panel titles + Termit link to their pages; header lists One pager, then the 5 pages",
           links["vc"] == "value-chain.html" and links["spec"] == "specialised-models.html" and links["terms"] == "glossary.html"
-          and links["pages"] == [s + ".html" for s in PAGES], str(links))
+          and links["pages"] == ["./"] + [s + ".html" for s in PAGES], str(links))
     pg.locator("#h-vc a").click(); pg.wait_for_load_state("networkidle")
     check("hub: value-chain title opens the page", pg.url.endswith("/value-chain.html"), pg.url)
     pg.locator('.bm-pages-list a[href="glossary.html"]').click(); pg.wait_for_load_state("networkidle")
     check("header: page link navigates", pg.url.endswith("/glossary.html"), pg.url)
+    pg.locator('.bm-pages-list a[href="./"]').click(); pg.wait_for_load_state("networkidle")
+    check("header: One pager returns to the hub", pg.url.endswith("/business-models/") and pg.evaluate("document.body.dataset.page") == "hub", pg.url)
     pg.goto(run.base + "glossary.html#g-rack"); pg.wait_for_load_state("networkidle"); pg.wait_for_timeout(300)
     gt = pg.evaluate("() => { const e=document.getElementById('g-rack'); const r=e.getBoundingClientRect(); return {top:r.top, vh:innerHeight, target: e.matches(':target')} }")
     check("glossary: #g-rack deep link scrolls to the card and highlights it", gt["target"] and 0 <= gt["top"] < gt["vh"], str(gt))

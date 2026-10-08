@@ -28,9 +28,13 @@
       { slug: "wholesale-colocation", name: "Wholesale-colocation" },
       { slug: "own-data-center", name: "Oma datakeskus" },
     ],
-    // The other pages, linked from the header's top row (a "Sivut" menu on
-    // narrow screens). Names are the pages' own titles from the design.
+    // The pages linked from the header's top row (a "Sivut" menu on narrow
+    // screens). Names are the pages' own titles from the design. The hub
+    // comes first as "One pager", the design's own name for it, so it has a
+    // visible link back from every page (Ray, 2026-10-08); its link points at
+    // the folder (business-models/), the hub's canonical URL.
     pages: [
+      { slug: "hub", name: "One pager", href: "./", lang: "en" },
       { slug: "value-chain", name: "Arvoketju" },
       { slug: "financing", name: "Rahoitusmallit" },
       { slug: "specialised-models", name: "Erikoistuneet mallit" },
@@ -55,7 +59,8 @@
   // disclosure menu on narrow ones (CSS shows one or the other).
   function pagesNav() {
     const links = SITE.pages.map((pg) =>
-      '<li><a href="' + esc(pg.slug) + '.html"' + (pg.slug === page ? ' aria-current="page"' : "") + ">"
+      '<li><a href="' + esc(pg.href || pg.slug + ".html") + '"' + (pg.lang ? ' lang="' + pg.lang + '"' : "")
+      + (pg.slug === page ? ' aria-current="page"' : "") + ">"
       + esc(pg.name) + "</a></li>").join("");
     return '<nav class="bm-pages" aria-label="Sivut">'
       + '<ul class="bm-pages-list">' + links + "</ul>"
