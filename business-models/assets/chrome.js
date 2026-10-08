@@ -61,6 +61,13 @@
       + "</nav>";
   }
 
+  function familyLink(href, icon, label, shortLabel, ariaLabel) {
+    return '<a class="bm-family" href="' + href + '" hreflang="en" aria-label="' + esc(ariaLabel) + '">'
+      + '<span class="bm-family-icon" aria-hidden="true">' + icon + "</span>"
+      + '<span class="bm-family-long" lang="en">' + esc(label) + "</span>"
+      + '<span class="bm-family-short" lang="en" aria-hidden="true">' + esc(shortLabel) + "</span></a>";
+  }
+
   const header = document.getElementById("bm-header");
   if (header) {
     const steps = SITE.models.map((m, i) =>
@@ -72,12 +79,15 @@
     ).join("");
     header.innerHTML =
       '<div class="bm-bar">'
-      // English label, since the target page is English. The screen-reader
+      // Family links to the two English sites, styled like the family-link
+      // cards on the dashboard and ecosystem page (same gradient and icons).
+      // English labels, since the targets are English; each screen-reader
       // name starts with the visible label (so voice control can target it)
-      // and says in Finnish where it leads and that the page is English.
-      + '<a class="bm-back" href="' + SITE.ecosystem + '" hreflang="en"'
-      + ' aria-label="Ecosystem map: takaisin ekosysteemikarttaan (englanninkielinen sivu)">'
-      + '&larr; <span lang="en">Ecosystem map</span></a>'
+      // and says in Finnish that the page is English.
+      + familyLink(SITE.dashboard, "📈", "Daily signals", "Signals",
+                   "Daily signals: päivittäiset signaalit ja pisteet (englanninkielinen sivu)")
+      + familyLink(SITE.ecosystem, "🗺️", "Ecosystem map", "Map",
+                   "Ecosystem map: ekosysteemikartta (englanninkielinen sivu)")
       + '<a class="bm-brand" href="' + SITE.hub + '"' + (isHub ? ' aria-current="page"' : "") + ">"
       + '<span class="bm-wordmark">Ray<span>Dar</span></span>'
       + '<span class="bm-brand-sub">Datakeskusten liiketoimintamallit</span></a>'
@@ -96,7 +106,7 @@
       "<div><strong>RayDar Data Center</strong> · Datakeskusten liiketoimintamallit · " + esc(SITE.asOf) + "</div>"
       + '<div class="bm-footer-note">Ei sijoitusneuvontaa · Opetuskäyttöön tarkoitettua taustatietoa</div>'
       + "<div>"
-      + '<a href="' + SITE.dashboard + '" hreflang="en" lang="en">Dashboard</a> · '
+      + '<a href="' + SITE.dashboard + '" hreflang="en" lang="en">Daily signals</a> · '
       + '<a href="' + SITE.ecosystem + '" hreflang="en" lang="en">Ecosystem map</a> · '
       + '<a href="' + SITE.family + '" target="_blank" rel="noopener">Osa RayDar-perhettä &#8599;</a>'
       + "</div>";
