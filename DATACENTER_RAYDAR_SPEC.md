@@ -88,9 +88,11 @@ footer and cross-links, not a single palette.
 - Family connection: a shared slim header (growth-path stepper, link back to the
   ecosystem page) and a footer with RayDar family branding and cross-links, rendered
   from one page list so every page stays in sync.
-- The "Tilanne" date marker lives in each page's own kicker (part of the approved
-  design) and in the footer, not in the header: a header copy duplicated the kicker.
-  The footer copy is the only marker on the glossary page, whose kicker has none.
+- The review-date marker ("TIEDOT TARKISTETTU 9/2026", i.e. facts verified then; it
+  was "TILANNE 9/2026" in the approved design) lives in each page's own kicker and in
+  the footer, not in the header: a header copy duplicated the kicker. The footer copy
+  is the only marker on the glossary page, whose kicker has none. The date changes
+  only when the facts are actually re-verified, never as routine upkeep.
 - Desk is the primary context, phone secondary: authored layouts are kept, and collapse
   per page type on narrow screens rather than being redesigned.
 

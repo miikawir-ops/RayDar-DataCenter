@@ -9,10 +9,12 @@
 // and loads this script after them.
 (function () {
   const SITE = {
-    // Shown in the footer only: every page except the glossary already
-    // carries it in its own kicker (approved design), so a header copy
-    // would duplicate it; the footer is the glossary page's only marker.
-    asOf: "Tilanne 9/2026",
+    // Review date: when the facts were last verified, not when a page was
+    // last touched. Bump it only after an actual fact re-check (PLAN.md
+    // step 8). Shown in the footer only: every page except the glossary
+    // already carries it in its own kicker, so a header copy would duplicate
+    // it; the footer is the glossary page's only marker.
+    asOf: "Tiedot tarkistettu 9/2026",
     hub: "index.html",
     ecosystem: "../ecosystem.html",
     dashboard: "../index.html",
