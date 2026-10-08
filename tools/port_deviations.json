@@ -3,8 +3,9 @@
   "source_dir": "Output/business-models-source",
   "port_dir": "business-models",
   "shared": {
-    "replace": [["TILANNE 9/2026", "TIEDOT TARKISTETTU 9/2026"]],
-    "notes": "Review-date label reworded so it plainly means the facts were verified then, not last touched (Ray, 2026-10-08). The date changes only when facts are re-verified."
+    "replace": [["TILANNE 9/2026", "TIEDOT TARKISTETTU 9/2026"],
+                ["tekoälyyhtiö", "tekoäly-yhtiö"]],
+    "notes": "Review-date label reworded so it plainly means the facts were verified then, not last touched (Ray, 2026-10-08). The date changes only when facts are re-verified. tekoälyyhtiö -> tekoäly-yhtiö: Finnish spelling, a hyphen where the same vowel meets at a compound boundary (Ray, 2026-10-08); matched as a substring, so inflected forms are covered too."
   },
   "pages": {
     "index.html": {
