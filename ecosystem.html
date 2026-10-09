@@ -169,7 +169,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   .panel-backdrop{background-color:rgba(16,20,36,0.30);
                   backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
 }
-#compact-card{position:static;width:100%;height:100%;overflow-y:auto;font-size:11.5px}
+/* The selected-stakeholder card (R20, 2026-10-09). It used to fill the
+   backdrop column from the poster's top, so after clicking a box lower on
+   the poster its heading was above the screen at every width tested. It now
+   sits in a column (.compact-rail) running from the poster's top to just
+   above its legend, and stays pinned near the top of the screen while the
+   poster scrolls (sticky), with a height capped so its heading stays in
+   view (syncCompactCardMaxHeight). The blurred backdrop still covers the
+   poster's baked-in fake panel. */
+.compact-rail{position:absolute}
+.compact-wrap{position:sticky;top:12px;padding:10px}
+#compact-card{position:static;width:100%;overflow-y:auto;font-size:11.5px}
 #panel-below{position:static;max-width:100%;margin-top:0;font-size:12px}
 /* Shown only for a selected stakeholder ("More details" target); the empty
    "Click any box to explore" strip it used to show is gone (R21). */
@@ -303,7 +313,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   .map-wrap{display:none}
   .side-panel{display:none}
   .hotspot{display:none}
-  #compact-card{display:none}
+  #compact-card,.compact-rail{display:none}
   #panel-below{display:none}
   .mobile-list{display:block;order:2}
   .case-card{order:3}
@@ -374,11 +384,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
             <rect x="0" y="0" width="100" height="100" fill="rgba(8,8,20,0.32)" mask="url(#poster-dim-mask)"></rect>
           </svg>
           <div id="poster-hotspots"></div>
-          <div class="panel-backdrop" id="panel-backdrop">
-            <div class="light-card" id="compact-card" role="region" aria-live="polite" aria-label="Selected stakeholder">
-              <div class="light-card-content" id="compact-card-content"></div>
+          <div class="panel-backdrop" id="panel-backdrop"></div>
+          <div class="compact-rail" id="compact-rail">
+            <div class="compact-wrap">
+              <div class="light-card" id="compact-card" role="region" aria-live="polite" aria-label="Selected stakeholder">
+                <div class="light-card-content" id="compact-card-content"></div>
+              </div>
+              <div class="sc-fade" id="sc-fade"></div>
             </div>
-            <div class="sc-fade" id="sc-fade"></div>
           </div>
         </div>
         <div class="img-hint">Click any highlighted box · <a href="assets/ecosystem-v2.webp" target="_blank" rel="noopener">open full size</a><a href="assets/ecosystem-v2.webp" download class="download-btn">Download poster</a></div>
@@ -678,11 +691,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   // enough for the icon row + name + a couple of lines, so even a worst-
   // case fallback never renders as a collapsed sliver. Root cause of the
   // collapse this guards against: see the ResizeObserver note below.
-  const COMPACT_CARD_MIN_H = 200;
+  //
+  // Since R20 (2026-10-09) the card no longer fills its whole column: it is
+  // sticky inside .compact-rail, so its height is capped (half the window,
+  // at most 520px) to keep its heading on screen wherever the clicked box is.
+  // Measured from the rail, which spans the poster's right column from the
+  // top to just above the legend (PANEL_REGION.railBottom).
+  const COMPACT_CARD_MIN_H = 200, COMPACT_CARD_MAX_H = 520, COMPACT_CARD_VH = 0.5;
   function syncCompactCardMaxHeight() {
-    const backdropH = panelBackdrop.getBoundingClientRect().height;
-    const compactCard = document.getElementById("compact-card");
-    compactCard.style.height = Math.max(COMPACT_CARD_MIN_H, backdropH - 20) + "px";
+    const railH = compactRail.getBoundingClientRect().height;
+    const h = Math.min(railH - 20, window.innerHeight * COMPACT_CARD_VH, COMPACT_CARD_MAX_H);
+    document.getElementById("compact-card").style.height = Math.max(COMPACT_CARD_MIN_H, h) + "px";
   }
   function syncFade() {
     const el = document.getElementById("compact-card");
@@ -983,6 +1002,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   panelBackdrop.style.top = PANEL_REGION.y + "%";
   panelBackdrop.style.width = PANEL_REGION.w + "%";
   panelBackdrop.style.height = PANEL_REGION.h + "%";
+  const compactRail = document.getElementById("compact-rail");
+  compactRail.style.left = PANEL_REGION.x + "%";
+  compactRail.style.top = PANEL_REGION.y + "%";
+  compactRail.style.width = PANEL_REGION.w + "%";
+  compactRail.style.height = (PANEL_REGION.railBottom - PANEL_REGION.y) + "%";
 
   // Root cause of the compact-card collapse bug (reproduced with a
   // deliberately delayed image response, not guessed): syncCompactCardMaxHeight()
@@ -1003,7 +1027,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   // "load" listener below is redundant with it but kept as a fast, obvious
   // first re-sync rather than relying solely on the observer's own timing.
   if (window.ResizeObserver) {
-    new ResizeObserver(() => syncCompactCardMaxHeight()).observe(panelBackdrop);
+    new ResizeObserver(() => syncCompactCardMaxHeight()).observe(compactRail);
   }
   const posterImgEl = document.getElementById("poster-img");
   if (posterImgEl.complete) {
