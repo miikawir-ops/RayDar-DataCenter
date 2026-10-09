@@ -41,6 +41,7 @@ Needs Ray's approval before committing:
 
 ## Committing part of the working tree
 - `git add X && git commit` also commits anything already staged (a `git mv` stages immediately). When committing a subset, name the paths in the commit itself (`git commit -m "..." -- PLAN.md`) and check `git diff --cached --name-only` first. A staged data-file rename for held work slipped into a docs-only commit this way on 2026-10-09 (a5b019e), leaving HEAD's ecosystem page loading a file that no longer existed until 54fcd92 restored it.
+- Quote a commit hash only from command output (print `git log --oneline -1` after each commit). Two reports on 2026-10-09 named hashes that didn't exist.
 
 ## Deploy status
 - LIVE since 2026-09-20 at miikawir-ops.github.io/RayDar-DataCenter/ (PLAN.md step 7). The global Definition of done and the live-site approval rules apply to every change that alters rendered output.
