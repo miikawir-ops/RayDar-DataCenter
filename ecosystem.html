@@ -800,10 +800,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return { x: cx + dx * t, y: cy + dy * t };
   }
 
+  // Two relationships between the same pair (cloud services one way, data
+  // the other) are drawn side by side rather than on top of each other:
+  // each is shifted across the line, using one shared direction per pair so
+  // opposite-direction arrows land on opposite sides.
+  const pairKey = r => [r.from, r.to].sort().join("|");
+  const pairCount = {}, pairSeen = {};
+  RELATIONSHIPS.forEach(r => { pairCount[pairKey(r)] = (pairCount[pairKey(r)] || 0) + 1; });
   RELATIONSHIPS.forEach((rel, i) => {
     const a = byId[rel.from], b = byId[rel.to];
     const pa = boxEdgePoint(a.x, a.y, nodeW(a.id) / 2, nodeH(a.id) / 2, b.x, b.y);
     const pb = boxEdgePoint(b.x, b.y, nodeW(b.id) / 2, nodeH(b.id) / 2, a.x, a.y);
+    const key = pairKey(rel), n = pairCount[key];
+    if (n > 1) {
+      const k = pairSeen[key] = (pairSeen[key] || 0) + 1;
+      const [c1, c2] = key.split("|").map(id => byId[id]);
+      const len = Math.hypot(c2.x - c1.x, c2.y - c1.y) || 1;
+      const off = (k - (n + 1) / 2) * 12;
+      const nx = -(c2.y - c1.y) / len * off, ny = (c2.x - c1.x) / len * off;
+      pa.x += nx; pa.y += ny; pb.x += nx; pb.y += ny;
+    }
     const line = document.createElementNS(NS, "line");
     line.setAttribute("id", "edge-" + i);
     line.setAttribute("class", "edge-line");

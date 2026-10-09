@@ -16,7 +16,9 @@
 // poster's own legend arrows (the earlier muted values didn't match it —
 // contract was indigo where the poster's legend is magenta); the explorer's
 // bottom row spread so Storage no longer overlaps Network and Enterprise;
-// PANEL_REGION.railBottom added for the card that follows the reader.
+// PANEL_REGION.railBottom added for the card that follows the reader; one
+// Data relationship (enterprise -> hyperscaler), so the Data flow type is
+// used and its filter chip does something (R24).
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -159,6 +161,12 @@ const RELATIONSHIPS = [
     explanation: "A hyperscaler leases capacity from the operator, or is the operator itself if it self-operates the facility." },
   { from: "hyperscaler",       to: "enterprise", type: "goods",   label: "Cloud services", added: true,
     explanation: "Hyperscalers sell compute, storage, and networking as an ongoing service to businesses and developers." },
+  // The model's only Data relationship (R24, 2026-10-09): the data the whole
+  // system exists to process. Deliberately not operator <-> tenant: in
+  // colocation the operator supplies space, power and cooling, and the
+  // tenant's own servers handle the data.
+  { from: "enterprise",        to: "hyperscaler", type: "data",   label: "Data & workloads", added: true,
+    explanation: "Businesses and developers send their data and computing workloads to the cloud platform, which stores and processes them in its data centers and returns the results." },
   { from: "energy_gen",        to: "tso",       type: "energy",   label: "Power fed into the grid", added: true,
     explanation: "Electricity producers feed power into the national transmission grid." },
   { from: "tso",                to: "dso",       type: "energy",   label: "Transmission to distribution", added: true,
