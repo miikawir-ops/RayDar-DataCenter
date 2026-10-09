@@ -103,43 +103,59 @@ def poster_desktop(b, run):
 # box), in the explorer by stakeholder. Expected sets come from the page's own
 # step data; this checks that the page renders them, not that they're right.
 WT_EXPECTED = """(mode) => { const owner = id => { for (const o in POSTER_GROUPS) if (POSTER_GROUPS[o].extraIds.includes(id)) return o; return id; };
+  const byId = Object.fromEntries(STAKEHOLDERS.map(s => [s.id, s]));
   return (mode === 'life' ? WALKTHROUGH_STEPS : MONEY_WALKTHROUGH_STEPS).map(s => ({title: s.title,
-    poster: [...new Set(s.highlightIds.map(owner))].sort(), explorer: [...new Set(s.highlightIds)].sort()})) }"""
+    poster: [...new Set(s.highlightIds.map(owner))].sort(), explorer: [...new Set(s.highlightIds)].sort(),
+    pays: (s.payments || []).map(p => p.from + '>' + p.to).sort(),
+    payText: (s.payments || []).map(p => byId[p.from].name + ' \u2192 ' + byId[p.to].name + ': ' + p.what)})) }"""
 WT_STATE = """() => ({title: document.getElementById('wt-title').textContent,
   poster: [...document.querySelectorAll('.hotspot.glow')].map(e => e.id.replace('hotspot-', '')).sort(),
   mask: getComputedStyle(document.getElementById('poster-mask-svg')).display,
   cutouts: document.getElementById('poster-dim-mask').children.length - 1,
   heading: (document.querySelector('#compact-card .sc-heading') || {}).textContent || null,
   names: document.querySelectorAll('#compact-card .sc-name').length,
-  explorer: STAKEHOLDERS.map(s => s.id).filter(id => document.getElementById('node-' + id).style.opacity === '1').sort()})"""
+  explorer: STAKEHOLDERS.map(s => s.id).filter(id => document.getElementById('node-' + id).style.opacity === '1').sort(),
+  pays: [...document.querySelectorAll('#money-svg .money-pay')].map(g => g.dataset.from + '>' + g.dataset.to).sort(),
+  payText: [...document.querySelectorAll('#compact-card .sc-pay-list li')].map(li => li.textContent.trim())})"""
 
 
 def walkthroughs(b, run):
-    """Step through both paths in both views; every step must light exactly its stakeholders (R25)."""
+    """Step through both paths in both views; every step must light exactly its stakeholders (R25).
+    Choosing a path starts it at step 1 (R26); money steps draw one arrow per payer -> payee pair
+    over the poster and list the same pairs in the card."""
     seen = {}
     for view in ("poster", "explorer"):
         ctx, pg, log, _ = open_page(b, run, 1680, 1050)
         if view == "explorer":
             pg.locator("#toggle-explorer").click(); pg.wait_for_timeout(200)
         for mode in ("life", "money"):
-            pg.locator("#wt-mode-" + mode).click(); pg.wait_for_timeout(300)
             steps, bad = pg.evaluate(WT_EXPECTED, mode), []
+            pg.locator("#wt-mode-" + mode).click(); pg.wait_for_timeout(350)
+            st = pg.evaluate(WT_STATE)
+            check(f"{view}, {mode} path: choosing it lights step 1 at once",
+                  st["title"] == steps[0]["title"] and st[view] == steps[0][view] and st[view], str(st))
             for i, exp in enumerate(steps):
-                pg.locator("#wt-next").click(); pg.wait_for_timeout(350)
+                if i:
+                    pg.locator("#wt-next").click(); pg.wait_for_timeout(350)
                 st = pg.evaluate(WT_STATE)
+                if view == "poster" and (st["pays"] != exp["pays"] or sorted(st["payText"]) != sorted(exp["payText"])):
+                    bad.append(f"step {i + 1} money: arrows {st['pays']} vs {exp['pays']}; card {st['payText']}")
                 if view == "poster":
                     ok = (st["title"] == exp["title"] and st["poster"] == exp["poster"] and st["mask"] == "block"
-                          and st["cutouts"] == len(exp["poster"]) and st["heading"] == "Currently highlighted" and st["names"] == len(exp["poster"]))
+                          and st["cutouts"] == len(exp["poster"]) and st["names"] == len(exp["poster"])
+                          and st["heading"] == ("Who pays whom" if exp["pays"] else "Currently highlighted"))
                 else:
                     ok = st["title"] == exp["title"] and st["explorer"] == exp["explorer"]
                 if not ok:
                     bad.append(f"step {i + 1}: {st}")
                 seen.setdefault((view, mode), []).append(st[view])
             check(f"{view}, {mode} path: each of its {len(steps)} steps lights exactly its stakeholders", not bad, "; ".join(bad[:2]))
-            for _ in steps:
-                pg.locator("#wt-prev").click(); pg.wait_for_timeout(120)
+            for _ in steps:  # from the last step back past step 1 to the path's intro
+                if pg.locator("#wt-prev").is_enabled():
+                    pg.locator("#wt-prev").click(); pg.wait_for_timeout(120)
             st = pg.evaluate(WT_STATE)
-            check(f"{view}, {mode} path: back at the start nothing is lit", not st["poster"] and st["mask"] == "none", str(st))
+            check(f"{view}, {mode} path: back at the intro nothing is lit and no money arrows",
+                  not st["poster"] and st["mask"] == "none" and not st["pays"], str(st))
         check(f"{view} walkthroughs: no console errors", not log, str(log))
         ctx.close()
     life, money = seen[("poster", "life")], seen[("poster", "money")]
@@ -147,6 +163,18 @@ def walkthroughs(b, run):
     only_money = [s for s in money if s not in life]
     check("Follow the money lights at least one set of boxes the life path never does", only_money, str(only_money))
     print(f"     note: {len(money) - len(only_money)} of {len(money)} money steps light exactly the same boxes as a life step")
+    ctx, pg, log, _ = open_page(b, run, 1680, 1050)
+    nopay = pg.evaluate("() => MONEY_WALKTHROUGH_STEPS.filter(s => !(s.payments || []).length).map(s => s.title)")
+    check("every money step has payer -> payee pairs to draw", not nopay, str(nopay))
+    pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(350)
+    pg.locator("#hotspot-capital").click(); pg.wait_for_timeout(350)
+    left = pg.evaluate("() => document.querySelectorAll('#money-svg .money-pay').length")
+    check("selecting a box during the money path clears the money arrows", left == 0, str(left))
+    heat = pg.evaluate("() => RELATIONSHIPS.filter(r => r.label.startsWith('Waste heat')).map(r => r.from + '>' + r.to)")
+    check("waste heat points the way the heat flows (operator -> district heating)", heat == ["operator>district_heating"], str(heat))
+    lease = pg.evaluate("() => RELATIONSHIPS.filter(r => r.label.startsWith('Lease & services')).map(r => r.from + '>' + r.to)")
+    check("leased capacity points the way it flows (operator -> hyperscaler)", lease == ["operator>hyperscaler"], str(lease))
+    ctx.close()
 
 
 def flows_desktop(b, run):
