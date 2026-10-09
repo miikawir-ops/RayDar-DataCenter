@@ -1171,20 +1171,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   }
   wtPrev.addEventListener("click", () => { if (wtStep > -1) showStep(wtStep - 1); });
   wtNext.addEventListener("click", () => { if (wtStep < activeSteps().length - 1) showStep(wtStep + 1); });
-  wtModeLife.addEventListener("click", () => {
-    if (wtMode === "life") return;
-    wtMode = "life";
-    wtModeLife.setAttribute("aria-pressed", "true");
-    wtModeMoney.setAttribute("aria-pressed", "false");
-    showStep(-1);
-  });
-  wtModeMoney.addEventListener("click", () => {
-    if (wtMode === "money") return;
-    wtMode = "money";
-    wtModeLife.setAttribute("aria-pressed", "false");
-    wtModeMoney.setAttribute("aria-pressed", "true");
-    showStep(-1);
-  });
+  // Choosing a path starts it at step 1, so the poster changes on the click
+  // itself (R26). Before, it reset to the path's intro with nothing lit, so
+  // both paths looked identical until Next. Prev from step 1 still returns
+  // to the intro.
+  function startPath(mode) {
+    wtMode = mode;
+    wtModeLife.setAttribute("aria-pressed", String(mode === "life"));
+    wtModeMoney.setAttribute("aria-pressed", String(mode === "money"));
+    showStep(0);
+  }
+  wtModeLife.addEventListener("click", () => startPath("life"));
+  wtModeMoney.addEventListener("click", () => startPath("money"));
 
   // Keyboard: Left/Right steps the active walkthrough (Enter/Space still
   // handled per-hotspot/per-node above for selection).
