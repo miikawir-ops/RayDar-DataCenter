@@ -1,4 +1,4 @@
-// ecosystem-data.v5.js — single source of truth for the interactive Data
+// ecosystem-data.v6.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -18,7 +18,10 @@
 // bottom row spread so Storage no longer overlaps Network and Enterprise;
 // PANEL_REGION.railBottom added for the card that follows the reader; one
 // Data relationship (enterprise -> hyperscaler), so the Data flow type is
-// used and its filter chip does something (R24).
+// used and its filter chip does something (R24). v6 (2026-10-09, R26/R27):
+// the waste-heat and leased-capacity relationships now point the way the
+// heat and the capacity flow, and money step 4's text says the PPA fixes
+// the price.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -143,7 +146,11 @@ const RELATIONSHIPS = [
     explanation: "Large facilities connect directly to the national transmission grid via the TSO." },
   { from: "dso",                to: "operator",  type: "energy",   label: "Regional/local grid connection", added: true,
     explanation: "Smaller or regionally-connected facilities draw power through the local distribution network instead of a direct transmission connection." },
-  { from: "district_heating",  to: "operator",  type: "energy",   label: "Waste heat (heat sales)",
+  // Points the way the heat flows: from the operator to the district heating
+  // network (R26). It used to point at the operator like every other
+  // relationship, which read as heat flowing into the data center; the money
+  // flows the other way and is shown in the "Follow the money" walkthrough.
+  { from: "operator",           to: "district_heating", type: "energy", label: "Waste heat (heat sales)",
     explanation: "The operator can sell captured waste heat from its cooling systems into a district heating network instead of releasing it into the air." },
   { from: "cooling",            to: "operator",  type: "goods",    label: "Cooling systems & services",
     explanation: "Cooling suppliers provide and maintain the chillers, liquid cooling, and heat rejection systems that keep the facility running." },
@@ -157,7 +164,11 @@ const RELATIONSHIPS = [
     explanation: "Equipment suppliers provide the compute hardware and electrical equipment installed inside the facility." },
   { from: "capital",            to: "operator",  type: "capital",  label: "Financing & investment",
     explanation: "Infrastructure funds, REITs, and lenders finance the facility's construction and ongoing operation." },
-  { from: "hyperscaler",       to: "operator",  type: "contract", label: "Lease & services (compute capacity)",
+  // Points the way the capacity flows: the operator leases it to the
+  // hyperscaler (R27). It used to point at the operator like the supply
+  // arrows, which read as the hyperscaler supplying the operator; the rent
+  // flows the other way, in "Follow the money" step 1.
+  { from: "operator",           to: "hyperscaler", type: "contract", label: "Lease & services (compute capacity)",
     explanation: "A hyperscaler leases capacity from the operator, or is the operator itself if it self-operates the facility." },
   { from: "hyperscaler",       to: "enterprise", type: "goods",   label: "Cloud services", added: true,
     explanation: "Hyperscalers sell compute, storage, and networking as an ongoing service to businesses and developers." },
@@ -216,7 +227,7 @@ const MONEY_WALKTHROUGH_STEPS = [
   { title: "3. The operator pays its suppliers", highlightIds: ["operator", "equipment", "cooling", "network", "storage", "backup_power"],
     description: "The operator pays equipment, cooling, network, storage and backup power suppliers for the hardware and systems that keep the facility running." },
   { title: "4. The operator pays for energy", highlightIds: ["operator", "energy_gen", "tso", "dso"],
-    description: "The operator pays for electricity, through a supplier or the market, often combined with a long-term PPA with a producer, plus network fees to the grid operator it's connected to (usually the DSO; the TSO for large direct connections)." },
+    description: "The operator pays for electricity, through a supplier or the market, often combined with a long-term PPA, which fixes the price with a producer, plus network fees to the grid operator it's connected to (usually the DSO; the TSO for large direct connections)." },
   { title: "5. Returns to capital providers", highlightIds: ["operator", "capital"],
     description: "Lenders receive interest and repayments, equity investors such as infrastructure funds receive returns, and where a REIT owns the building, the operator pays it rent." },
   { title: "6. Heat flows back as revenue", highlightIds: ["operator", "district_heating"],
