@@ -184,17 +184,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .legend-chip{font-size:10.5px;font-weight:500;padding:4px 10px;border-radius:12px;cursor:pointer;
             border:1px solid transparent;color:#fff;transition:opacity .15s,border-color .15s;
             display:inline-flex;align-items:center;gap:5px}
-.legend-chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.legend-chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block;box-shadow:0 0 6px currentColor}
 .legend-chip[aria-pressed="false"]{opacity:0.35}
 .legend-chip:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
 .map-layout{display:flex;gap:14px;flex-wrap:wrap}
-.map-wrap{flex:1;min-width:320px;background:#0F1830;border-radius:8px;padding:6px}
+.map-wrap{flex:1;min-width:320px;border-radius:8px;padding:6px;
+          background:radial-gradient(ellipse at 50% 48%,#132042 0%,#0B1330 50%,#070C1E 100%)}
 #map-svg{width:100%;height:auto;display:block}
 .node-box{cursor:pointer}
-.node-box:focus-visible{outline:none}
-.node-box rect{transition:opacity .2s}
-.edge-line{transition:opacity .2s}
-.edge-line:focus-visible{outline:none}
+.node-box:focus,.node-box:focus-visible{outline:none}  /* keyboard focus: white border on the box itself, below */
+/* Explorer in the poster's language (R19, 2026-10-09): dark glass boxes
+   with a glowing border in each stakeholder's poster accent (--glow), the
+   list's icons, arrows glowing in their flow colour, and a selected box
+   that is tinted, thicker and glows harder. The dimming logic is unchanged
+   (renderExplorer sets opacity). */
+.node-box{transition:opacity .2s}
+.node-bg{filter:drop-shadow(0 0 5px var(--glow));transition:filter .15s}
+.node-box:hover .node-bg{filter:drop-shadow(0 0 9px var(--glow))}
+.node-box.is-selected .node-bg{fill:var(--sel-fill);stroke-width:2.6;
+  filter:drop-shadow(0 0 3px var(--glow)) drop-shadow(0 0 14px var(--glow))}
+.node-box:focus-visible .node-bg{stroke:#FFFFFF}
+.edge-line{transition:opacity .2s;filter:drop-shadow(0 0 3px var(--glow))}
+.edge-line:focus,.edge-line:focus-visible{outline:none}
 .side-panel{width:280px;flex-shrink:0;background:#0F1830;border-radius:8px;padding:14px;
            font-size:12px;color:#C8D4E8;line-height:1.6;max-height:620px;overflow-y:auto}
 .side-panel-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:8px}
@@ -440,7 +451,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
 </div>
 
-<script src="ecosystem-data.v4.js"></script>
+<script src="ecosystem-data.v5.js"></script>
 <script>
 (function() {
   const svg = document.getElementById("map-svg");
@@ -642,6 +653,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     const b = Math.min(255, (n & 255) + amt);
     return "#" + [r, g, b].map(v => Math.round(v).toString(16).padStart(2, "0")).join("");
   }
+  // Mixes two hex colours; t is the share of the first.
+  function blend(hexA, hexB, t) {
+    const a = parseInt(hexA.replace("#", ""), 16), b = parseInt(hexB.replace("#", ""), 16);
+    return "#" + [16, 8, 0].map(sh =>
+      Math.round(((a >> sh) & 255) * t + ((b >> sh) & 255) * (1 - t)).toString(16).padStart(2, "0")).join("");
+  }
   function applyAccent(el, hex) {
     const rgb = hexToRgb(hex);
     el.style.borderColor = "rgba(" + rgb + ",0.6)";
@@ -749,7 +766,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return lines.slice(0, 3);
   }
 
-  const NODE_W = 160, NODE_H = 54;
+  // Boxes are wide enough for the icon and two lines of name; the operator,
+  // the hub every arrow runs to, is larger (as on the poster).
+  const NODE_W = 176, NODE_H = 56, HUB_W = 214, HUB_H = 66;
+  const nodeW = id => (id === "operator" ? HUB_W : NODE_W);
+  const nodeH = id => (id === "operator" ? HUB_H : NODE_H);
 
   function boxEdgePoint(cx, cy, hw, hh, px, py) {
     const dx = px - cx, dy = py - cy;
@@ -762,15 +783,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
   RELATIONSHIPS.forEach((rel, i) => {
     const a = byId[rel.from], b = byId[rel.to];
-    const pa = boxEdgePoint(a.x, a.y, NODE_W / 2, NODE_H / 2, b.x, b.y);
-    const pb = boxEdgePoint(b.x, b.y, NODE_W / 2, NODE_H / 2, a.x, a.y);
+    const pa = boxEdgePoint(a.x, a.y, nodeW(a.id) / 2, nodeH(a.id) / 2, b.x, b.y);
+    const pb = boxEdgePoint(b.x, b.y, nodeW(b.id) / 2, nodeH(b.id) / 2, a.x, a.y);
     const line = document.createElementNS(NS, "line");
     line.setAttribute("id", "edge-" + i);
     line.setAttribute("class", "edge-line");
     line.setAttribute("x1", pa.x); line.setAttribute("y1", pa.y);
     line.setAttribute("x2", pb.x); line.setAttribute("y2", pb.y);
     line.setAttribute("stroke", FLOW_TYPES[rel.type].color);
-    line.setAttribute("stroke-width", "2.5");
+    line.setAttribute("stroke-width", "2");
+    line.style.setProperty("--glow", FLOW_TYPES[rel.type].color);
     line.setAttribute("marker-end", "url(#arrow-" + rel.type + ")");
     line.setAttribute("tabindex", "0");
     line.setAttribute("role", "img");
@@ -806,28 +828,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     g.setAttribute("role", "button");
     g.setAttribute("aria-label", s.name + ": " + s.description);
 
-    const w = NODE_W, h = NODE_H;
+    // Same accent and icon as the stakeholder's poster box and list entry.
+    // The border uses a lifted accent (several sampled accents are too dark
+    // to read on navy); the glow uses the sampled accent itself.
+    const w = nodeW(s.id), h = nodeH(s.id), hub = s.id === "operator";
+    const accent = accentFor(s.id), lifted = brighten(accent, 60);
+    g.style.setProperty("--glow", accent);
+    g.style.setProperty("--sel-fill", blend(accent, "#0A1126", 0.26));
     const rect = document.createElementNS(NS, "rect");
+    rect.setAttribute("class", "node-bg");
     rect.setAttribute("x", s.x - w/2); rect.setAttribute("y", s.y - h/2);
     rect.setAttribute("width", w); rect.setAttribute("height", h);
-    rect.setAttribute("rx", 8);
-    rect.setAttribute("fill", s.id === "operator" ? "#3C3489" : "#1A2540");
-    rect.setAttribute("stroke", "rgba(175,169,236,0.5)");
-    rect.setAttribute("stroke-width", "1");
+    rect.setAttribute("rx", 10);
+    rect.setAttribute("fill", hub ? blend(accent, "#0A1126", 0.18) : "#0A1126");
+    rect.setAttribute("stroke", lifted);
+    rect.setAttribute("stroke-width", hub ? "2" : "1.5");
     g.appendChild(rect);
 
-    const lines = wrapLines(s.name, 20);
+    const iconSize = hub ? 24 : 20, ix = s.x - w/2 + 12;
+    const icon = document.createElementNS(NS, "svg");
+    icon.setAttribute("x", ix); icon.setAttribute("y", s.y - iconSize/2);
+    icon.setAttribute("width", iconSize); icon.setAttribute("height", iconSize);
+    icon.setAttribute("viewBox", "0 0 20 20");
+    icon.setAttribute("fill", "none"); icon.setAttribute("stroke", lifted);
+    icon.setAttribute("stroke-width", "1.4"); icon.setAttribute("stroke-linecap", "round");
+    icon.setAttribute("stroke-linejoin", "round"); icon.setAttribute("aria-hidden", "true");
+    icon.innerHTML = ICON_PATHS[posterOwnerId(s.id)] || ICON_PATHS.operator;
+    g.appendChild(icon);
+
+    const lines = wrapLines(s.name, hub ? 22 : 18), lineH = hub ? 16 : 14;
+    const tx = ix + iconSize + 10;
     const text = document.createElementNS(NS, "text");
-    text.setAttribute("x", s.x);
-    text.setAttribute("text-anchor", "middle");
-    text.setAttribute("fill", "#fff");
-    text.setAttribute("font-size", "11");
-    text.setAttribute("font-weight", "600");
-    const startY = s.y - ((lines.length - 1) * 7);
+    text.setAttribute("x", tx);
+    text.setAttribute("text-anchor", "start");
+    text.setAttribute("dominant-baseline", "central");
+    text.setAttribute("fill", "#F2F6FF");
+    text.setAttribute("font-size", hub ? "13" : "11.5");
+    text.setAttribute("font-weight", hub ? "700" : "600");
     lines.forEach((line, li) => {
       const tspan = document.createElementNS(NS, "tspan");
-      tspan.setAttribute("x", s.x);
-      tspan.setAttribute("y", startY + li * 14);
+      tspan.setAttribute("x", tx);
+      tspan.setAttribute("y", s.y + (li - (lines.length - 1) / 2) * lineH);
       tspan.textContent = line;
       text.appendChild(tspan);
     });
@@ -867,6 +908,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       const el = document.getElementById("node-" + s.id);
       const on = isNodeHighlighted(s.id);
       el.style.opacity = (anySelection && !on) ? 0.45 : 1;
+      el.classList.toggle("is-selected", s.id === selectedStakeholder);
     });
   }
 
@@ -886,7 +928,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     btn.type = "button";
     btn.setAttribute("aria-pressed", "true");
     btn.style.background = "rgba(255,255,255,0.06)";
-    btn.innerHTML = '<span class="dot" style="background:' + ft.color + '"></span>' + ft.label;
+    btn.innerHTML = '<span class="dot" style="background:' + ft.color + ';color:' + ft.color + '"></span>' + ft.label;
     btn.addEventListener("click", () => {
       const pressed = btn.getAttribute("aria-pressed") === "true";
       if (pressed) { activeFlowTypes.delete(key); btn.setAttribute("aria-pressed", "false"); }

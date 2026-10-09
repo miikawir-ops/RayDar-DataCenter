@@ -1,4 +1,4 @@
-// ecosystem-data.v4.js — single source of truth for the interactive Data
+// ecosystem-data.v5.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -11,7 +11,12 @@
 // MONEY_WALKTHROUGH_STEPS, CONTENT_REVIEWED. v4 clarifies the equipment
 // stakeholder's description (it listed cooling/storage/networking/backup
 // power as its own bullets while those already have dedicated stakeholder
-// nodes elsewhere on the map — contradicted the poster's own box).
+// nodes elsewhere on the map — contradicted the poster's own box). v5
+// (2026-10-09, PLAN.md ledger R19/R20): FLOW_TYPES colours sampled from the
+// poster's own legend arrows (the earlier muted values didn't match it —
+// contract was indigo where the poster's legend is magenta); the explorer's
+// bottom row spread so Storage no longer overlaps Network and Enterprise;
+// PANEL_REGION.railBottom added for the card that follows the reader.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -34,12 +39,16 @@
 // language, since that's a "this is selected" affordance, not a category
 // color, and conflating the two would make selection state harder to read.
 
+// Colours sampled from the poster's own legend arrows (median of each
+// arrow's most saturated, brightest pixels; assets/ecosystem-v2.webp, legend
+// row y 827-839), so the explorer, the legend chips and the panels use the
+// poster's palette. Measured, not chosen by eye.
 const FLOW_TYPES = {
-  energy:   { label: "Energy / Heat",        color: "#639922" },
-  goods:    { label: "Goods / Services",     color: "#378ADD" },
-  contract: { label: "Contract / Agreement", color: "#534AB7" },
-  data:     { label: "Data",                 color: "#E24B4A" },
-  capital:  { label: "Capital / Financing",  color: "#EF9F27" },
+  energy:   { label: "Energy / Heat",        color: "#8AFAC1" },
+  goods:    { label: "Goods / Services",     color: "#12E5FB" },
+  contract: { label: "Contract / Agreement", color: "#E167FB" },
+  data:     { label: "Data",                 color: "#F95E94" },
+  capital:  { label: "Capital / Financing",  color: "#FDE826" },
 };
 
 // Fixed hand-tuned layout, viewBox 0 0 1000 700.
@@ -85,13 +94,13 @@ const STAKEHOLDERS = [
     description: "Large cloud platforms — Microsoft, Google, Amazon, and similar — buying or operating compute capacity, serving their own external customers.",
     posterBox: { x: 61.2, y: 54.9, w: 16.1, h: 9.7 }, posterAccent: "#AD2661" },
 
-  { id: "network", name: "Network & Connectivity", x: 650, y: 620,
+  { id: "network", name: "Network & Connectivity", x: 710, y: 620,
     description: "Suppliers of fiber, cabling, switches, routers, optical transport, and interconnection.",
     posterBox: { x: 22.0, y: 65.1, w: 16.2, h: 9.8 }, posterAccent: "#0679AB" },
   { id: "storage", name: "Storage Providers", x: 500, y: 650,
     description: "Suppliers of storage arrays, data protection, and backup & recovery systems.",
     posterBox: { x: 39.9, y: 65.6, w: 16.0, h: 9.3 }, posterAccent: "#099FBC" },
-  { id: "enterprise", name: "Enterprise & End Users", x: 350, y: 620,
+  { id: "enterprise", name: "Enterprise & End Users", x: 290, y: 620,
     description: "Businesses, developers, and consumers — the end users of the compute, storage, and connectivity a data center provides.",
     posterBox: { x: 55.8, y: 64.8, w: 16.3, h: 10.1 }, posterAccent: "#5C2FB0" },
 ];
@@ -113,7 +122,11 @@ const POSTER_GROUPS = {
 // "Selected stakeholder" panel region (% of image). If the panel renders
 // narrower than ~320px at a given width, ecosystem.html falls back to
 // placing the panel below the image instead of overlaying it.
-const PANEL_REGION = { x: 78.8, y: 2.3, w: 20.4, h: 64.8 };
+// railBottom: how far down the right-hand column the selected-stakeholder
+// card may travel as the reader scrolls — just above the poster's legend
+// panel, whose top border is at 74.4% (y 719 of 966), measured at x 82%, 88%
+// and 94%.
+const PANEL_REGION = { x: 78.8, y: 2.3, w: 20.4, h: 64.8, railBottom: 73.5 };
 
 // "added: true" entries are not literal arrows from the source poster image —
 // flagged explicitly rather than presented as if they were always there.
