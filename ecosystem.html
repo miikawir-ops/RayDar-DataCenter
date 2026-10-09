@@ -67,8 +67,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .download-btn{font-size:11px;font-weight:600;color:#fff;background:#3C3489;border:none;
               padding:4px 10px;border-radius:6px;cursor:pointer;text-decoration:none;
               display:inline-flex;align-items:center;margin-left:8px}
-.poster-note{max-width:760px;margin:14px auto 0;padding:12px 14px;background:rgba(255,255,255,0.05);
-             border-left:2px solid #7E90B4;border-radius:0 6px 6px 0;font-size:11px;color:#9FB0CC;line-height:1.6}
+/* Illustration caveat: fine print directly under the poster, not a panel
+   (R22, 2026-10-09). */
+.poster-note{max-width:980px;margin:6px auto 0;font-size:10.5px;color:#8293B3;line-height:1.5;text-align:center}
+.poster-note strong{color:#AEB9CC;font-weight:600}
 
 /* ── B: dark glass cards, styled after the poster's own illustrated
    "Selected stakeholder" panel (Output/Datacenter environment.webp, right
@@ -89,7 +91,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
               backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 }
 .light-card-content{transition:opacity .15s ease}
-.light-card-empty{color:#AEB9CC;font-size:12px;display:flex;align-items:center;gap:8px}
 
 .sc-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:4px}
 .sc-icon-ring{width:38px;height:38px;border-radius:50%;flex-shrink:0;
@@ -170,6 +171,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 #compact-card{position:static;width:100%;height:100%;overflow-y:auto;font-size:11.5px}
 #panel-below{position:static;max-width:100%;margin-top:0;font-size:12px}
+/* Shown only for a selected stakeholder ("More details" target); the empty
+   "Click any box to explore" strip it used to show is gone (R21). */
+#panel-below.is-hidden{display:none}
 
 /* ── Relationship explorer (secondary) ── */
 .map-card{background:#16223D;border:1px solid rgba(175,169,236,0.2);border-radius:12px;
@@ -367,9 +371,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
           </div>
         </div>
         <div class="img-hint">Click any highlighted box · <a href="assets/ecosystem-v2.webp" target="_blank" rel="noopener">open full size</a><a href="assets/ecosystem-v2.webp" download class="download-btn">Download poster</a></div>
-      </div>
-      <div class="poster-note">
-        <strong>Note:</strong> the data behind this map is authoritative where it differs from the illustration — two relationship arrows in the poster use colors that don't match its own legend (waste heat, and backup power &amp; fuel), and three suppliers (cooling, storage, backup power) are shown both as their own boxes and inside "Equipment &amp; Technology Suppliers."
+        <p class="poster-note"><strong>Note:</strong> the data behind this map is authoritative where it differs from the illustration — two relationship arrows in the poster use colors that don't match its own legend (waste heat, and backup power &amp; fuel), and four supplier types (networking, storage, cooling, backup power) are shown both as their own boxes and inside "Equipment &amp; Technology Suppliers."</p>
       </div>
     </div>
 
@@ -474,8 +476,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return POSTER_GROUPS[ownerId] ? POSTER_GROUPS[ownerId].panelLabel : byId[ownerId].name;
   }
 
-  const CLICK_ICON = '<svg width="20" height="20" viewBox="0 0 16 16" fill="#9AA0AE" aria-hidden="true"><path d="M3 1l11 4.5-4.5 1.8L8 12z"/></svg>';
-
   // ── Simple stroke icons, one per stakeholder category (dso reuses tso's) ──
   const ICON_PATHS = {
     operator: '<rect x="4" y="3" width="12" height="14" rx="1.5"/><line x1="7" y1="7" x2="13" y2="7"/><line x1="7" y1="11" x2="13" y2="11"/>',
@@ -543,9 +543,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   function scHeaderHtml(id, name, subtitle) {
     return '<div class="sc-header"><div class="sc-icon-ring" style="color:' + accentFor(id) + '">' + iconSvg(id, 20) + '</div>'
          + '<div><div class="sc-name">' + name + '</div>' + (subtitle ? '<div class="sc-subtitle">' + subtitle + '</div>' : '') + '</div></div>';
-  }
-  function defaultLightHtml() {
-    return '<div class="light-card-empty">' + CLICK_ICON + '<span>Click any box to explore.</span></div>';
   }
   function howToHtml() {
     return '<div class="sc-heading">How to use this map</div>'
@@ -682,26 +679,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     const panelWrap = document.getElementById("panel-below");
     const panelContent = document.getElementById("panel-below-content");
 
-    let accent = "#85B7EB", topHtml, fullHtml;
+    let accent = "#85B7EB", topHtml;
     if (selectedStakeholder) {
       accent = accentFor(selectedStakeholder);
       topHtml = selectedCardHtml(selectedStakeholder, true);
-      fullHtml = selectedCardHtml(selectedStakeholder, false);
     } else if (highlightSet) {
       // The compact card (right beside the poster) already explains what's
       // highlighted — the full panel below no longer duplicates it (item 2),
       // now that the walkthrough sits above the poster instead of below it.
       topHtml = highlightedSummaryHtml();
-      fullHtml = defaultLightHtml();
     } else {
       topHtml = howToHtml();
-      fullHtml = defaultLightHtml();
     }
     applyAccent(compactWrap, accent);
     applyAccent(panelWrap, accent);
     syncCompactCardMaxHeight();
     fadeSwap(compactContent, topHtml + '<div class="sc-divider"></div>' + stakeholderListHtml(), syncFade);
-    fadeSwap(panelContent, fullHtml);
+    // The full panel below is only the "More details" target for a selected
+    // stakeholder; with nothing selected it is hidden rather than showing an
+    // empty "Click any box" strip (R21, 2026-10-09).
+    panelWrap.classList.toggle("is-hidden", !selectedStakeholder);
+    if (selectedStakeholder) fadeSwap(panelContent, selectedCardHtml(selectedStakeholder, false));
   }
   window.addEventListener("resize", () => { syncCompactCardMaxHeight(); syncFade(); });
   // Event delegation on the stable container (innerHTML gets replaced on
