@@ -18,10 +18,12 @@
 // bottom row spread so Storage no longer overlaps Network and Enterprise;
 // PANEL_REGION.railBottom added for the card that follows the reader; one
 // Data relationship (enterprise -> hyperscaler), so the Data flow type is
-// used and its filter chip does something (R24). v6 (2026-10-09, R26/R27):
-// the waste-heat and leased-capacity relationships now point the way the
-// heat and the capacity flow, and money step 4's text says the PPA fixes
-// the price.
+// used and its filter chip does something (R24). v6 (2026-10-09, R26):
+// payer -> payee pairs on each "Follow the money" step (drawn as money arrows
+// over the poster and listed in the card, from this one source), and the
+// waste-heat relationship now points the way the heat flows; R27: so does
+// the leased-capacity relationship (operator -> hyperscaler), and money
+// step 4's text says the PPA fixes the price.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -221,17 +223,44 @@ const CASE_STUDY = {
 // direction framing of the same relationships.
 const MONEY_WALKTHROUGH_STEPS = [
   { title: "1. Customers pay for capacity", highlightIds: ["enterprise", "hyperscaler", "operator"],
-    description: "Enterprises and hyperscalers pay data center operators for colocation space, landlords receive rent for powered shells, and enterprises pay hyperscalers for cloud services." },
+    description: "Enterprises and hyperscalers pay data center operators for colocation space, landlords receive rent for powered shells, and enterprises pay hyperscalers for cloud services.",
+    payments: [
+      { from: "enterprise",  to: "hyperscaler", what: "cloud service fees" },
+      { from: "hyperscaler", to: "operator",    what: "rent for leased capacity" },
+      { from: "enterprise",  to: "operator",    what: "colocation fees" },
+    ] },
   { title: "2. Paying for the build", highlightIds: ["operator", "construction", "capital"],
-    description: "The operator or developer pays construction firms to build the facility, largely funded up front by lenders and investors." },
+    description: "The operator or developer pays construction firms to build the facility, largely funded up front by lenders and investors.",
+    payments: [
+      { from: "operator", to: "construction", what: "construction contracts" },
+      { from: "capital",  to: "operator",     what: "loans and equity" },
+      { from: "capital",  to: "construction", what: "development financing" },
+    ] },
   { title: "3. The operator pays its suppliers", highlightIds: ["operator", "equipment", "cooling", "network", "storage", "backup_power"],
-    description: "The operator pays equipment, cooling, network, storage and backup power suppliers for the hardware and systems that keep the facility running." },
+    description: "The operator pays equipment, cooling, network, storage and backup power suppliers for the hardware and systems that keep the facility running.",
+    payments: [
+      { from: "operator", to: "equipment",    what: "compute and electrical equipment" },
+      { from: "operator", to: "cooling",      what: "cooling systems and service" },
+      { from: "operator", to: "network",      what: "connectivity" },
+      { from: "operator", to: "storage",      what: "storage systems" },
+      { from: "operator", to: "backup_power", what: "generators, fuel and UPS systems" },
+    ] },
   { title: "4. The operator pays for energy", highlightIds: ["operator", "energy_gen", "tso", "dso"],
-    description: "The operator pays for electricity, through a supplier or the market, often combined with a long-term PPA, which fixes the price with a producer, plus network fees to the grid operator it's connected to (usually the DSO; the TSO for large direct connections)." },
+    description: "The operator pays for electricity, through a supplier or the market, often combined with a long-term PPA, which fixes the price with a producer, plus network fees to the grid operator it's connected to (usually the DSO; the TSO for large direct connections).",
+    payments: [
+      { from: "operator", to: "energy_gen", what: "electricity, often under a long-term PPA" },
+      { from: "operator", to: "dso",        what: "network fees (to the TSO instead, for large direct connections)" },
+    ] },
   { title: "5. Returns to capital providers", highlightIds: ["operator", "capital"],
-    description: "Lenders receive interest and repayments, equity investors such as infrastructure funds receive returns, and where a REIT owns the building, the operator pays it rent." },
+    description: "Lenders receive interest and repayments, equity investors such as infrastructure funds receive returns, and where a REIT owns the building, the operator pays it rent.",
+    payments: [
+      { from: "operator", to: "capital", what: "interest and repayments, investor returns, and rent where a REIT owns the building" },
+    ] },
   { title: "6. Heat flows back as revenue", highlightIds: ["operator", "district_heating"],
-    description: "Where waste heat is captured and sold into a district heating network, money flows the other way: the district heating company pays the operator for the heat." },
+    description: "Where waste heat is captured and sold into a district heating network, money flows the other way: the district heating company pays the operator for the heat.",
+    payments: [
+      { from: "district_heating", to: "operator", what: "payment for the waste heat" },
+    ] },
 ];
 
 // Glossary — dotted-underlined terms in the explanation card link here.
