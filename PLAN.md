@@ -313,6 +313,18 @@ findings don't get lost, not because a fix or a direction has been agreed.
    about the question itself. Revisit once there's real multi-week
    history to actually judge against.
 
+   **No multi-day history has been collected since launch (found
+   2026-10-09, ledger R28).** The "revisit once there's real multi-week
+   history" condition above can't be met as things stand: CI never kept
+   `scores_history.json`, so the dashboard holds one day at a time. The
+   Actions run logs do record each run's per-sub-layer weighted score
+   and colour (plus the best ticker and its score) for 15 days,
+   2026-09-20 to 2026-10-09 (the 2026-10-05 run failed), which is enough
+   for a rough look at sub-layer trends. They don't record the
+   per-ticker acceleration/constraints/smart-money breakdown this
+   question turns on. Logs are kept 90 days, so the earliest expire
+   around 2026-12-19.
+
 2. **Family cross-linking — one convention settled, the broader plan is
    still open.** B7's parent↔Data Center link is now built in both
    directions (`AI_valuechain`'s `infra` layer card → here; here's hero
@@ -539,9 +551,14 @@ findings don't get lost, not because a fix or a direction has been agreed.
      or GitHub Secret is needed — this supersedes the earlier
      code-grep-based inference with a verified real-environment result.
    - `scores_history.json` confirmed writing in CI (`Scores history
-     saved (1 days)`) — multi-day color-confirmation data will
-     accumulate once scheduled runs begin, relevant to the still-open
-     read-back verification item noted earlier this section.
+     saved (1 days)`). **Corrected 2026-10-09 (ledger R28):** this
+     bullet used to say multi-day color-confirmation data "will
+     accumulate once scheduled runs begin". It doesn't. Every run starts
+     from a fresh checkout where the file doesn't exist (it's gitignored,
+     and deploy.yml has no cache, artifact download or commit-back), so
+     each run logs `Scores history saved (1 days)` and confirmation never
+     leaves "building baseline". The read-back verification item noted
+     earlier in this section was never satisfied.
 
    **LIVE (2026-09-20).** Repo made public, Pages enabled (Settings →
    Pages → Source: GitHub Actions), deploy verified working end to end.
@@ -586,9 +603,14 @@ findings don't get lost, not because a fix or a direction has been agreed.
      days, and the grid's `minmax(32px,1fr)` column sizing stretches a
      single real day to fill the full row width — which is what reads
      as "solid full-width green bars." Not fabricated data, correctly
-     showing the one real day that exists. Confirmed by code review
+     showing the one real day that exists. ~~Confirmed by code review
      (not yet observed live) that it will correctly grow into a genuine
-     multi-day trail as `scores_history.json` accumulates. **The
+     multi-day trail as `scores_history.json` accumulates.~~ **Corrected
+     2026-10-09 (ledger R28):** the code review covered only the
+     rendering. The history it reads never accumulates in CI (see the
+     correction above), so the trail has shown exactly one real day on
+     every run since launch; live check 2026-10-09: 1 of 90 days real.
+     **The
      ambiguity:** 7 real green days (7 narrow columns) could look
      visually similar to today's 1-day-stretched state at a glance,
      without hovering per-cell tooltips. Revisit once real multi-day
@@ -912,6 +934,8 @@ live date for rendered changes) · **superseded** · **declined**.
 | R25 | 2026-10-09 | Bug (Ray): "selecting 'Follow the money' shows the poster unchanged, identical to 'Life of a data center', with no highlighting visible. He sees no money flows at all." "Diagnose before fixing … Report the root cause before changing anything." Add check coverage: "stepping through each path and asserting that the expected stakeholders are highlighted at each step, and that the two paths produce different highlight sets." | **done (diagnosis):** root cause `2c99ea5`; fix tracked as R26 |
 | R26 | 2026-10-09 | "R25: implement A plus B2 … A: selecting a walkthrough path starts it at step 1 so the poster changes immediately on click. B2: in the money path, draw money arrows over the poster from payer to payee for each step, in the capital/financing colour, clearly distinguishable from the poster's own printed arrows. The card lists the same payer → payee pairs as text, generated from the same data … The six payer/payee sets you drafted are approved as listed. They're new content: show Ray the final wording of the card's text before committing." "Also fix the direction convention where it states something false … starting with waste heat; report any others you find rather than fixing them silently." "Extend check_ecosystem.py to cover the new behaviour: selecting a path immediately highlights something, the two paths produce different highlight sets, and the money arrows render for each money step." Working rule for this round: "don't hold on screenshot approval unless something is a genuinely new visual direction … Report what you did afterwards, with screenshots included for reference rather than as a gate. The existing CLAUDE.md approval rules still apply to new user-facing text and to changes in behaviour." | **done:** `384bb64` (path starts at step 1), `75b4c28` (money arrows + card), `17fdfe0` (checks); live 2026-10-09, ecosystem check 101/101 against the live site |
 | R27 | 2026-10-09 | "Confirm the step text above the card still carries the electricity nuance (bought via a supplier or the market; the PPA fixes price with a producer) … If it is [compressed], restore the nuance there." "Fix the 'Lease & services (compute capacity)' direction in this round … Check whether any other relationship has the same problem and report, rather than fixing silently." "Then commit, push, deploy and verify live." Also: "Where earlier reports in this project cited hashes, treat those as unverified unless they appear in actual command output." | **done:** `eea5c4a`, live 2026-10-09. Money step 4's text now says the PPA fixes the price (the sentence had never said it; unchanged since 2026-09-22). Leased capacity now runs operator → hyperscaler. Audit of all 18 relationships: no other one states a false direction; the poster's own printed lease and waste-heat arrows have heads at both ends. Hashes cited in earlier reports in this project count as unverified unless they appear in command output. |
+| R28 | 2026-10-09 | PART A, dashboard history persistence, "Report and propose only; change no code." "1. Confirm or refute: deploy.yml has no cache, artifact download or commit-back, scores_history.json and audit_log.json are gitignored, so every CI run starts with no history; load_scores_history() returns [], and _confirmed_color() always takes the 'unconfirmed (insufficient history — building baseline)' branch. Show the evidence, including how many real (non-'none') days the live dashboard's embedded HISTORY contains. 2. If confirmed, list every live behaviour affected … 3. Recovery: check Actions log retention and whether past scheduled-run logs contain per-sub-layer scores and per-ticker sub-scores (accel, constraints, smart). If they do, say how much history could be rebuilt for analysis. Don't seed the live file from it. 4. Propose a persistence fix. Compare a dedicated data branch with commit-back, restoring from the previous deploy, and actions/cache. Cover durability, what happens on a failed restore (it must fail loudly, never silently start fresh), permissions, and races. My preference is the data branch; argue against it if you think it's wrong. 5. Include in the same proposal a fix for _load_recent_layer_scores' .get('score', 0): a missing day must be excluded and noted, never counted as 0 (decision #6), since it could falsely confirm Blue. 6. State how activating confirmation will change live colours. This needs my approval and a before/after check under CLAUDE.md. 7. Correct PLAN.md (doc only, commit by path): step 7's claim that multi-day data 'will accumulate once scheduled runs begin', the heat-trail 'confirmed by code review' statement, and add to Open question #1 that no multi-day history has been collected since launch." | **open** |
+| R29 | 2026-10-09 | PART B, ecosystem page: "1. In money step 1 a € badge covers the poster's 'Lease & services (compute capacity)' label. Place badges so they never cover printed poster labels; add a check for overlap with label boxes if practical. 2. The explorer has no operator ↔ enterprise relationship, although the poster draws one and money step 1 charges 'Enterprise → Operator: colocation fees'. Recommend whether to add it (e.g. operator → enterprise, colocation space, power and cooling), with type and wording. Show me the wording before committing; it's new user-facing text. 3. On a fresh load, check that clicking the already-active 'Life of a data center' chip starts step 1. If it doesn't, fix it and add the case to check_ecosystem.py." "Run the four checks, verify live after deploy, quote hashes only from command output." | **open** |
 
 ## Known issues (recorded, not fixed)
 
