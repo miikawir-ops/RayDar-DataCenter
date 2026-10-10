@@ -5,6 +5,8 @@
 # Python
 __pycache__/
 *.pyc
+# Local environment with the pinned requirements (ledger R44)
+.venv/
 
 # OS
 .DS_Store
