@@ -339,6 +339,27 @@ def check_r45_inputs():
     d = fetch(stub)
     check("analyst: counts buy-side grades among the 10 most recent actions (table sorted first)",
           d["analyst_upgrades"] == 5 and "upgrades_downgrades.ToGrade" in d["_fields_seen"], str(d["analyst_upgrades"]))
+    table = stub.upgrades_downgrades
+    old = pd.DatetimeIndex(pd.bdate_range(end="2026-09-08", periods=12)[::-1])        # all before the 30 days
+    stub.upgrades_downgrades = table.set_axis(old)
+    d = fetch(stub)
+    check("analyst: actions older than 30 days before the session don't count (a real 0, not missing)",
+          d["analyst_upgrades"] == 0 and "analyst_upgrades" not in d["data_missing"], str(d["analyst_upgrades"]))
+    later = pd.DatetimeIndex(pd.bdate_range(start="2026-10-12", periods=12)[::-1])    # all after the session
+    stub.upgrades_downgrades = table.set_axis(later)
+    d = fetch(stub)
+    check("analyst: actions dated after the session don't count", d["analyst_upgrades"] == 0, str(d["analyst_upgrades"]))
+    class Failing(FullStub):
+        @property
+        def upgrades_downgrades(self):
+            raise ConnectionError("network down")
+        @upgrades_downgrades.setter
+        def upgrades_downgrades(self, value):
+            pass
+    d = fetch(Failing(price_bars(130)))
+    check("analyst: a failed fetch is missing data (None, named)",
+          d["analyst_upgrades"] is None and "analyst_upgrades" in d["data_missing"])
+    stub.upgrades_downgrades = table
     stub.upgrades_downgrades = stub.upgrades_downgrades.iloc[0:0]
     d = fetch(stub)
     check("analyst: an empty table is missing data (None, named), not 0",
