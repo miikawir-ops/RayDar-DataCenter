@@ -53,6 +53,68 @@ SESSION_CLOSE_ET  = datetime.time(16, 0)
 SESSION_REFERENCE = "^GSPC"   # trading calendar: one daily bar per US session
 MAX_SESSION_AGE_DAYS = 7
 
+# ── Data-format checks (ledger R44) ───────────────────────────────────────────
+# A field missing for one company is a data gap (None + data_missing). A field
+# missing for EVERY company, or a column missing from the daily bars, means
+# yfinance's data format changed; scoring on without it would quietly turn it
+# into a 0 or a gap everywhere (as happened to the analyst data, ledger R35),
+# so the run fails instead.
+
+class SchemaError(RuntimeError):
+    """A column or field the pipeline reads is missing from yfinance's data."""
+
+
+TICKER_BAR_COLUMNS = ("Close", "Adj Close", "High", "Low", "Volume")
+INDEX_BAR_COLUMNS  = ("Close",)
+
+# Per-company fields the pipeline reads; each must be present for at least
+# one company in a run.
+EXPECTED_FIELDS = (
+    "info.marketCap",
+    "info.currentPrice|regularMarketPrice",
+    "info.grossMargins",
+    "info.shortPercentOfFloat",
+    "quarterly_financials.Total Revenue|Revenue",
+    "quarterly_financials.Gross Profit|GrossProfit",
+    "quarterly_cashflow.Capital Expenditure|CapitalExpenditure",
+    "quarterly_cashflow.Operating Cash Flow|OperatingCashFlow",
+    "recommendations.To Grade",
+)
+
+# Known breaks that are already tracked: logged as an error on every run
+# instead of failing it, until the fix named here ships. Nothing else may be
+# added here without Ray's approval.
+KNOWN_FORMAT_BREAKS = {
+    "recommendations.To Grade":
+        "yfinance (1.4 and 1.7) returns a monthly summary table without this column, so "
+        "analyst_upgrades is scored 0 for every company (decision #6 break, ledger R35); "
+        "fixed by ledger R45 item 1, which also moves this check to the new source",
+}
+
+
+def require_columns(hist, columns, label):
+    """Raise SchemaError if non-empty daily bars lack a column the pipeline reads."""
+    if hist is not None and not hist.empty:
+        absent = [c for c in columns if c not in hist.columns]
+        if absent:
+            raise SchemaError(f"{label}: daily bars have no {absent} column — yfinance data format "
+                              "changed? Failing the run rather than scoring without it (ledger R44)")
+
+
+def check_fields(tickers: list):
+    """Raise SchemaError if an expected field is missing for every company fetched."""
+    if not tickers:
+        return          # nothing fetched at all: a fetch failure, handled as missing data
+    for field in EXPECTED_FIELDS:
+        if any(field in t.get("_fields_seen", ()) for t in tickers):
+            continue
+        if field in KNOWN_FORMAT_BREAKS:
+            log.error(f"Known data-format break: {field} is missing for all {len(tickers)} "
+                      f"companies — {KNOWN_FORMAT_BREAKS[field]}")
+            continue
+        raise SchemaError(f"{field} is missing for all {len(tickers)} companies — yfinance data "
+                          "format changed? Failing the run rather than scoring without it (ledger R44)")
+
 
 def drop_unfinished_bar(hist, now: datetime.datetime = None, label: str = ""):
     """
@@ -114,7 +176,9 @@ def fetch_trading_sessions(now: datetime.datetime = None) -> list:
     loudly instead (R40).
     """
     try:
-        hist = drop_unfinished_bar(yf.Ticker(SESSION_REFERENCE).history(period="1mo"), now, SESSION_REFERENCE)
+        bars = yf.Ticker(SESSION_REFERENCE).history(period="1mo")
+        require_columns(bars, INDEX_BAR_COLUMNS, SESSION_REFERENCE)
+        hist = drop_unfinished_bar(bars, now, SESSION_REFERENCE)
     except Exception as e:
         raise RuntimeError(f"Trading-session calendar unavailable ({SESSION_REFERENCE} daily bars): {e}") from e
     if hist is None or hist.empty:
@@ -318,7 +382,18 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
         # the signals have always used (identical to the default
         # auto-adjusted Close), while Close/High/Low are the traded prices
         # for the price, the day's move and the 52-week range.
-        hist    = drop_unfinished_bar(t.history(period="1y", auto_adjust=False), label=ticker)
+        bars    = t.history(period="1y", auto_adjust=False)
+        require_columns(bars, TICKER_BAR_COLUMNS, ticker)
+        hist    = drop_unfinished_bar(bars, label=ticker)
+        seen    = set()     # expected fields present for this company (check_fields)
+        if info.get("marketCap") is not None:
+            seen.add("info.marketCap")
+        if info.get("currentPrice") or info.get("regularMarketPrice"):
+            seen.add("info.currentPrice|regularMarketPrice")
+        if info.get("grossMargins") is not None:
+            seen.add("info.grossMargins")
+        if info.get("shortPercentOfFloat") is not None:
+            seen.add("info.shortPercentOfFloat")
         closes  = hist["Adj Close"].tolist() if not hist.empty else []
         traded  = hist["Close"].tolist() if not hist.empty else []
 
@@ -410,6 +485,7 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
                         rev_row = financials.loc[label]
                         break
                 if rev_row is not None:
+                    seen.add("quarterly_financials.Total Revenue|Revenue")
                     cols = rev_row.dropna()
                     if len(cols) >= 4:
                         q0, q1, q4, q5 = cols.iloc[0], cols.iloc[1], cols.iloc[2], cols.iloc[3]
@@ -423,6 +499,7 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
                 for label in ["Gross Profit", "GrossProfit"]:
                     if label in financials.index:
                         gm_row = financials.loc[label]
+                        seen.add("quarterly_financials.Gross Profit|GrossProfit")
                         break
                 for label in ["Total Revenue", "Revenue"]:
                     if label in financials.index:
@@ -468,6 +545,8 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
         analyst_upgrades = 0
         try:
             recs = t.recommendations
+            if recs is not None and "To Grade" in recs.columns:
+                seen.add("recommendations.To Grade")
             if recs is not None and not recs.empty:
                 recent = recs.tail(10)
                 if "To Grade" in recent.columns:
@@ -501,10 +580,12 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
                 for label in ["Capital Expenditure", "CapitalExpenditure"]:
                     if label in cf.index:
                         capex_row = cf.loc[label]
+                        seen.add("quarterly_cashflow.Capital Expenditure|CapitalExpenditure")
                         break
                 for label in ["Operating Cash Flow", "OperatingCashFlow"]:
                     if label in cf.index:
                         ocf_row = cf.loc[label]
+                        seen.add("quarterly_cashflow.Operating Cash Flow|OperatingCashFlow")
                         break
                 if capex_row is not None and ocf_row is not None:
                     capex_val = abs(capex_row.dropna().iloc[0]) if not capex_row.dropna().empty else None
@@ -562,8 +643,11 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             "data_date":         hist.index[-1].date().isoformat() if not hist.empty else None,
             "data_age_note":     "Quarterly financials may be up to 90 days old",
             "data_missing":      data_missing,
+            "_fields_seen":      sorted(seen),
         }, data_missing)
 
+    except SchemaError:
+        raise
     except Exception as e:
         log.warning(f"  {ticker}: fetch failed — {e}")
         return None
@@ -595,36 +679,50 @@ def fetch_macro() -> dict:
 
     try:
         # Last completed session's close, not the live quote (ledger R42).
-        vix_hist = drop_unfinished_bar(yf.Ticker("^VIX").history(period="5d"), label="^VIX")
+        vix_bars = yf.Ticker("^VIX").history(period="5d")
+        require_columns(vix_bars, INDEX_BAR_COLUMNS, "^VIX")
+        vix_hist = drop_unfinished_bar(vix_bars, label="^VIX")
         if not vix_hist.empty:
             result["vix"] = round(float(vix_hist["Close"].iloc[-1]), 2)
         else:
             data_missing.append("vix")
+    except SchemaError:
+        raise
     except Exception as e:
         log.warning(f"  VIX fetch error: {e}")
         data_missing.append("vix")
 
     try:
-        tnx = drop_unfinished_bar(yf.Ticker("^TNX").history(period="35d"), label="^TNX")
+        tnx = yf.Ticker("^TNX").history(period="35d")
+        require_columns(tnx, INDEX_BAR_COLUMNS, "^TNX")
+        tnx = drop_unfinished_bar(tnx, label="^TNX")
         if not tnx.empty and len(tnx) >= 21:
             result["yield_10y_change"] = round(
                 (tnx["Close"].iloc[-1] - tnx["Close"].iloc[-21]) * 100, 2
             )
         else:
             data_missing.append("yield_10y_change")
+    except SchemaError:
+        raise
     except Exception as e:
         log.warning(f"  10Y yield fetch error: {e}")
         data_missing.append("yield_10y_change")
 
     try:
-        nasdaq = drop_unfinished_bar(yf.Ticker("^IXIC").history(period="25d"), label="^IXIC")
-        spx    = drop_unfinished_bar(yf.Ticker("^GSPC").history(period="25d"), label="^GSPC")
+        nasdaq = yf.Ticker("^IXIC").history(period="25d")
+        spx    = yf.Ticker("^GSPC").history(period="25d")
+        require_columns(nasdaq, INDEX_BAR_COLUMNS, "^IXIC")
+        require_columns(spx, INDEX_BAR_COLUMNS, "^GSPC")
+        nasdaq = drop_unfinished_bar(nasdaq, label="^IXIC")
+        spx    = drop_unfinished_bar(spx, label="^GSPC")
         if len(nasdaq) >= 20 and len(spx) >= 20:
             nasdaq_ret = nasdaq["Close"].iloc[-1] / nasdaq["Close"].iloc[-20] - 1
             spx_ret    = spx["Close"].iloc[-1]    / spx["Close"].iloc[-20]    - 1
             result["nasdaq_vs_spx_20d"] = round(nasdaq_ret - spx_ret, 4)
         else:
             data_missing.append("nasdaq_vs_spx_20d")
+    except SchemaError:
+        raise
     except Exception as e:
         log.warning(f"  Nasdaq/SPX fetch error: {e}")
         data_missing.append("nasdaq_vs_spx_20d")
@@ -679,6 +777,7 @@ def fetch_capex_trend(tickers: list = None) -> list:
     """
     tickers = tickers or CAPEX_TICKERS
     results = []
+    tables_seen, rows_seen = 0, 0       # data-format check (ledger R44)
     for ticker in tickers:
         entry = {
             "ticker":         ticker,
@@ -689,6 +788,9 @@ def fetch_capex_trend(tickers: list = None) -> list:
         }
         try:
             cf = yf.Ticker(ticker).quarterly_cashflow
+            if cf is not None and not cf.empty:
+                tables_seen += 1
+                rows_seen += "Capital Expenditure" in cf.index
             if cf is None or cf.empty or "Capital Expenditure" not in cf.index:
                 entry["data_missing"].append("capex_yoy_pct")
                 results.append(entry)
@@ -728,6 +830,9 @@ def fetch_capex_trend(tickers: list = None) -> list:
 
         results.append(entry)
 
+    if tables_seen and not rows_seen:
+        raise SchemaError(f"quarterly_cashflow has no 'Capital Expenditure' row for any of the {tables_seen} "
+                          "hyperscalers with data — yfinance data format changed? (ledger R44)")
     reporting = [r for r in results if not r["data_missing"]]
     log.info(f"  Capex trend: {len(reporting)}/{len(tickers)} hyperscalers reporting")
     return results
@@ -760,6 +865,10 @@ def run_pipeline(portfolio_file: str = "portfolio.json") -> dict:
         tickers_data      = add_peer_outperformance(tickers_data)
         results[layer_id] = tickers_data
         log.info(f"    {len(tickers_data)}/{len(layer_tickers)} tickers OK")
+    fetched = [t for ts in results.values() for t in ts]
+    check_fields(fetched)
+    for t in fetched:
+        t.pop("_fields_seen", None)
     return {
         "sub_layers": results,
         "meta": {

@@ -291,7 +291,7 @@ def stage_fetch() -> tuple[dict, dict]:
     meta["sessions"] the calendar it came from.
     """
     log.info("[1/2] Fetching market data...")
-    from fetch_market import fetch_trading_sessions
+    from fetch_market import fetch_trading_sessions, SchemaError
     sessions = fetch_trading_sessions()
     session_meta = {"session": sessions[-1].isoformat(),
                     "sessions": [s.isoformat() for s in sessions]}
@@ -304,6 +304,8 @@ def stage_fetch() -> tuple[dict, dict]:
         log.info(f"  Fetched {len(market_data.get('sub_layers', {}))} sub-layers, "
                  f"macro: VIX={macro_data.get('vix')}")
         return market_data, macro_data
+    except SchemaError:
+        raise           # a data-format change fails the run (ledger R44)
     except Exception as e:
         log.error(f"  Fetch failed: {e} — no data this run")
         empty_macro = {
