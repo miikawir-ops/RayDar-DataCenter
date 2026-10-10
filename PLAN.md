@@ -952,6 +952,7 @@ live date for rendered changes) · **superseded** · **declined**.
 | R34 | 2026-10-10 | "5. PLAN.md, doc only: a. Add a lesson: the parent's commit-back step both published index.html and persisted history; the Actions-based deploy replaced the first and dropped the second. Before replacing a parent mechanism, list everything it did. b. Add to the open queue, to carry over to the parent's own session (don't change AI_valuechain from here): its _load_recent_layer_scores has the same .get('score', 0), and there the history persists, so the bug is live. Its 06:00 UTC run dates yesterday's session as today, and its 20:30 UTC run falls before the US close after 1 Nov (close is 21:00 UTC in winter), so the session-dating fix applies there too." Plus: "Run the four checks, verify live after each deploy, quote hashes only from command output." | **done:** `b5bc8b5` |
 | R36 | 2026-10-10 | R30 changes: "1. Show the page line only while at least one card is in the insufficient-history branch, not 'while any sub-layer is unconfirmed'. After persistence goes live, 'not sustained' cards must not trigger it. Wording: 'Colours are based on today's reading only; multi-day confirmation starts once a few days of history are stored.' 2. Make the notes plain, once, inside _confirmed_color() (so the page follows the data). Proposed wording; adjust only where it would be inaccurate: insufficient history: 'Today's reading only — not yet confirmed (N of 2 earlier days stored)'; instant Red, score: 'Red without waiting: score {x} is above 80'; instant Red, delta: 'Red without waiting: the leading company's revenue growth is accelerating sharply'; confirmed: '{Colour}, confirmed: {n} of the last 3 days also {above/below} {t}'; holding: 'Kept {Colour}: today's score {x} is near the line, and recent days were mostly {Colour}'; not sustained: 'Shown as {displayed colour}: today's {x} hasn't held over recent days'. Show me the final strings and screenshots, then commit, deploy and verify live. R31 follows as planned." R33: "3. Build session dating defensively now: drop any bar dated today in US/Eastern unless the session has closed, and date entries by the last completed session. Monday's trading-hours run then verifies it; it doesn't decide it. 4. Add a final workflow step that opens a GitHub issue when the run fails (on top of email, which I'll confirm separately)." | **1–2 done:** `e047238`, live 2026-10-10. **3–4 open** |
 | R35 | 2026-10-10 | "R35, new, read-only, before any weight change: 5. The R32 snapshot suggests the 65/20/15 weights cap the constraint signal at 20 points, so optical (constraints 70–100) can't get past ~52. Before proposing anything, check the inputs: a. Constraints: for COHR (100.0), LITE (90.1) and CIEN (87.7), list the headlines and keyword matches behind the score. Is 100.0 a cap being hit? Does keyword purity hold (no bare names or tickers)? Are headlines layer-filtered? b. Smart money: why it is 0.4–19.6 for all 12 tickers. Show each component per ticker (volume-price, analyst, short interest), which are None or missing, and how missing values are handled. If missing is scored as 0, that breaks decision #6: report it, don't fix it yet. c. Only once a and b are clean: show what composite and colour each sub-layer would get under 2–3 alternative weightings, against today's snapshot and the 15 recovered days. No proposal or change to the live weights; that needs my approval and a before/after check." "Quote hashes only from command output." | **a, b reported** 2026-10-10 (not clean; findings under Known issues, "Scoring inputs"). **c held** until a and b are clean |
+| R37 | 2026-10-10 | "Amend the parent carry-over note in PLAN.md (item 5b of my last instruction), doc only, commit by path: Replace the point about the 20:30 UTC run falling before the US close after 1 Nov. The parent's bot commits show its crons fire 4–7 hours late (morning ~10:30–13:25 UTC, evening ~23:00–01:20 UTC). Consequences: the evening run sometimes lands after midnight UTC, so a date's entry holds either that day's or the previous day's session; a Friday evening run can write a Saturday entry (2026-10-10 00:08 UTC), counting Friday's session twice; the 2026-10-05 morning run committed at 13:25 UTC, minutes before the US open. Verify these from `git log --author=bot` in the parent before writing them down." | **open** |
 
 ## Queue: carry over to the parent's own session (AI_valuechain)
 
@@ -966,10 +967,30 @@ copy and says nothing about the parent's live code.
   missing from a day's history counts as a 0, i.e. below 30, which can
   falsely confirm Blue (and counts against Red/Orange confirmation). Fix as
   here (ledger R33d): a missing day is excluded and named, never 0.
-- **History dated by wall clock, not by US market session.** The parent's
-  06:00 UTC run dates yesterday's session as today. Its 20:30 UTC run falls
-  before the US close once US daylight saving time ends on 1 November (the
-  close is 21:00 UTC in winter), so it would record an unfinished session.
+- **History dated by wall clock, not by US market session.** The parent
+  keeps one history entry per UTC date; the last run that date overwrites
+  it. Its crons fire late. Between 2026-09-14 and 2026-10-10, the 06:00 run
+  started 4.4–7.4 hours late (10:26–13:24 UTC) and the 20:30 run 2.2–4.8
+  hours late (22:41–01:20 UTC); each bot commit followed 1–3 minutes after
+  its run started. Verified from `git log --author=bot`, the Actions run
+  list and `scores_history.json` at `170ab49` (ledger R37):
+  - The morning run lands before the US open, so it records the previous
+    session under today's date. On 2026-10-05 it committed at 13:25 UTC,
+    five minutes before the open.
+  - Since 2026-09-28, 7 of 10 evening runs landed after midnight UTC and
+    wrote the next date's entry. A date's entry therefore holds either that
+    day's session (evening run before midnight) or the previous day's
+    (morning run).
+  - Sessions get recorded twice or not at all. Friday's session sits in
+    both Friday's and Monday's entries (2026-09-25 and 09-28; 2026-10-02 and
+    10-05), and Tuesday 2026-09-29 and 2026-10-06 each appear twice. Monday
+    2026-09-28, Thursday 2026-10-01 and Monday 2026-10-05 are missing: their
+    after-midnight entries were overwritten by the next morning's run.
+  - The Friday evening run wrote a Saturday entry (2026-10-10, 00:08 UTC)
+    holding Friday 2026-10-09's session; Friday's own entry holds
+    Thursday's.
+  - Fired on time, the 20:30 run would fall before the US close once
+    daylight saving ends on 1 November (21:00 UTC in winter).
   The session-dating fix (ledger R33b) applies there too.
 
 ## Known issues (recorded, not fixed)
