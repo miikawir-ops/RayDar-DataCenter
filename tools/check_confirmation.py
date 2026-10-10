@@ -33,7 +33,8 @@ What it covers:
     ends at the session close with each point's own session date.
   - Data format (R44): a missing bar column, or a field missing for every
     company, fails the run (stage_fetch doesn't swallow it); a field missing
-    for one company doesn't; the known analyst break is logged, not raised.
+    for one company doesn't; the known analyst break is logged, not raised,
+    until its exemption expires (model_version 2, R48).
 
     python tools/check_confirmation.py
     python tools/check_confirmation.py --shots Output/screenshots/dashboard/r40
@@ -270,6 +271,24 @@ def check_data_format():
         fetch_market.log.removeHandler(handler)
     check("format: the known analyst break is logged as an error on every run, not raised",
           ok and any("Known data-format break: recommendations.To Grade" in m for m in logged), str(logged))
+
+    # R48: the exemption expires with the R45 release (model_version 2) and
+    # when its field is no longer read; either way the run fails until it's removed.
+    real_version, real_fields = fetch_market.MODEL_VERSION, fetch_market.EXPECTED_FIELDS
+    try:
+        fetch_market.MODEL_VERSION = 2
+        check("format: at model_version 2 (the R45 release) the analyst exemption fails the run",
+              raises(lambda: fetch_market.check_fields([full()] * 2)))
+        check("format: ...even when nothing was fetched",
+              raises(lambda: fetch_market.check_fields([])))
+        fetch_market.MODEL_VERSION = real_version
+        fetch_market.EXPECTED_FIELDS = tuple(f for f in real_fields if f != "recommendations.To Grade")
+        check("format: an exemption for a field the pipeline no longer reads fails the run",
+              raises(lambda: fetch_market.check_fields([full()] * 2)))
+    finally:
+        fetch_market.MODEL_VERSION, fetch_market.EXPECTED_FIELDS = real_version, real_fields
+    check("format: at model_version 1 the exemption still holds",
+          not raises(lambda: fetch_market.check_fields([full(("recommendations.To Grade",))] * 2)))
 
     real_rp = fetch_market.run_pipeline
     fetch_market.run_pipeline = lambda *a, **k: (_ for _ in ()).throw(fetch_market.SchemaError("test"))
