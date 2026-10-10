@@ -29,6 +29,7 @@ Returns:
 
 import json
 import math
+import re
 import statistics
 import logging
 import datetime
@@ -39,7 +40,7 @@ import yfinance as yf
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from config import SUB_LAYERS, CAPEX_TICKERS, MODEL_VERSION
+from config import SUB_LAYERS, CAPEX_TICKERS, MODEL_VERSION, COMPANY_NAMES, GENERIC_BOTTLENECK_KEYWORDS
 
 log = logging.getLogger(__name__)
 
@@ -256,6 +257,7 @@ def fetch_ticker_headlines(tickers: list, max_per_ticker: int = 10) -> tuple:
                 if title:
                     headlines.append({
                         "text":   f"{title} {summary}".lower(),  # NO ticker prefix
+                        "title":  " ".join(title.lower().split()),  # story identity across feeds
                         "ticker": ticker.upper(),                  # stored separately
                         "source": "ticker",
                     })
@@ -284,6 +286,7 @@ def fetch_generic_headlines(max_per_feed: int = 20) -> tuple:
                 if title:
                     headlines.append({
                         "text":   f"{title} {summary}".lower(),
+                        "title":  " ".join(title.lower().split()),  # story identity across feeds
                         "ticker": "",      # no ticker — generic source
                         "source": "generic",
                     })
@@ -337,48 +340,62 @@ def score_news_velocity(
     match still counts, since brand name is the only way to tie an
     unattributed headline to a specific company.
 
-    Algorithm:
-      - Ticker headline (this sub-layer's ticker) + context keyword match → 2.0 pts
-      - Ticker headline + brand-name-only (no context keyword)            → 0 pts
-      - Generic headline + context OR brand keyword match                  → 1.0 pts
-      - Ticker headline from ANOTHER sub-layer's ticker                    → SKIPPED entirely
+    Algorithm (ledger R45 item 3 replaced the brand rule above):
+      - Ticker headline (this sub-layer's ticker): 2.0 pts if it has a context
+        keyword (this sub-layer's terms or the shared supply terms) AND names
+        the company whose feed it came from (config.COMPANY_NAMES, whole word).
+      - Generic headline: 1.0 pt only through a term specific to this
+        sub-layer. The shared supply keywords ("backlog", "sold out", ...) are
+        in every sub-layer's list, so on their own they'd add the same story
+        to all five; a bare brand name no longer counts at all.
+      - Each story counts once per sub-layer, however many feeds carry it
+        (same title); a ticker-feed copy is considered before a generic one.
+      - Ticker headline from ANOTHER sub-layer's ticker → SKIPPED entirely.
+    brand_keywords is no longer used for scoring.
 
     Cap: 20 weighted points → scaled to 0-10 output range.
     """
-    context_lower = [kw.lower() for kw in context_keywords]
-    brand_lower   = [kw.lower() for kw in (brand_keywords or [])]
+    context_lower  = [kw.lower() for kw in context_keywords]
+    shared         = {kw.lower() for kw in GENERIC_BOTTLENECK_KEYWORDS}
+    specific_lower = [kw for kw in context_lower if kw not in shared]
     # Normalise layer tickers to uppercase for comparison
     layer_tickers_upper = set(t.upper() for t in (layer_tickers or []))
 
+    def names_company(text: str, ticker: str) -> bool:
+        return any(re.search(r"(?<![a-z0-9])" + re.escape(n) + r"(?![a-z0-9])", text)
+                   for n in COMPANY_NAMES.get(ticker, ()))
+
+    counted = set()
     weighted_hits = 0.0
-    for h in headlines:
+    ticker_first = sorted(headlines, key=lambda h: 0 if isinstance(h, dict) and h.get("source") == "ticker" else 1)
+    for h in ticker_first:
         if isinstance(h, dict):
             text      = h.get("text", "")
             source    = h.get("source", "generic")
             h_ticker  = h.get("ticker", "").upper()
+            story     = h.get("title") or text
         else:
             # Legacy string format fallback
             text     = h.lower()
             source   = "generic"
             h_ticker = ""
+            story    = text
 
         # ── Sub-layer ownership filter ──────────────────────────────────────
         # Ticker-specific headlines only count for the sub-layer that owns the ticker
         if source == "ticker" and layer_tickers_upper:
             if h_ticker not in layer_tickers_upper:
                 continue   # skip — belongs to a different sub-layer
-
-        has_context = any(kw in text for kw in context_lower)
-        has_brand   = any(kw in text for kw in brand_lower)
+        if story in counted:
+            continue       # the same story from another feed already counted
 
         if source == "ticker":
-            # Ownership already established via h_ticker — brand-name text
-            # match alone is tautological and doesn't count. Needs topical content.
-            if has_context:
+            if any(kw in text for kw in context_lower) and names_company(text, h_ticker):
                 weighted_hits += 2.0
-        else:
-            if has_context or has_brand:
-                weighted_hits += 1.0
+                counted.add(story)
+        elif any(kw in text for kw in specific_lower):
+            weighted_hits += 1.0
+            counted.add(story)
 
     # Cap at 20 weighted points, scale to 0-10 output
     return round(min(weighted_hits, 20.0) / 2.0, 1)

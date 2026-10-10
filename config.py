@@ -38,6 +38,26 @@ GENERIC_BOTTLENECK_KEYWORDS = [
 
 CAPEX_TICKERS = ["MSFT", "GOOGL", "AMZN", "META"]  # Part B5 hyperscaler capex-trend universe
 
+# Names a ticker-feed headline must contain (whole word) to count as news about
+# that company (ledger R45 item 3): Yahoo's per-ticker feeds also carry other
+# companies' stories (R35 found 5 of 27 counted headlines that didn't name the
+# feed's company). Company name and ticker symbol. Required alongside a
+# context keyword, never instead of one (CLAUDE.md topical rule).
+COMPANY_NAMES = {
+    "VRT":  ["vertiv", "vrt"],
+    "ANET": ["arista", "anet"],
+    "CSCO": ["cisco", "csco"],
+    "CIEN": ["ciena", "cien"],
+    "LITE": ["lumentum", "lite"],
+    "COHR": ["coherent", "cohr"],
+    "GLW":  ["corning", "glw"],
+    "SMCI": ["super micro", "supermicro", "smci"],
+    "DELL": ["dell", "dell technologies"],
+    "HPE":  ["hewlett packard", "hpe"],
+    "EQIX": ["equinix", "eqix"],
+    "DLR":  ["digital realty", "dlr"],
+}
+
 # Version of the scoring model: bump it whenever scoring inputs, formulas or
 # weights change (ledger R45 item 4). 1 = the model live as of 2026-10-10.
 # Data-format exemptions in fetch_market.KNOWN_FORMAT_BREAKS expire at a
