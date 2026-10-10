@@ -1,0 +1,437 @@
+{
+ "2026-09-20": {
+  "run_id": 35534185567,
+  "event": "workflow_dispatch",
+  "scored_at_utc": "2026-09-20T20:02:06.9965444Z",
+  "run_kind": "weekend",
+  "runs_that_day": 7,
+  "layers": {
+   "cooling": {
+    "score": 41.0,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 44.0,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 44.8,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 38.1,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 30.7,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-09-21": {
+  "run_id": 35647627938,
+  "event": "workflow_dispatch",
+  "scored_at_utc": "2026-09-21T19:53:56.8209878Z",
+  "run_kind": "intraday",
+  "runs_that_day": 8,
+  "layers": {
+   "cooling": {
+    "score": 38.5,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 40.7,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.3,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 41.1,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 28.4,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-09-22": {
+  "run_id": 35775056027,
+  "event": "workflow_dispatch",
+  "scored_at_utc": "2026-09-22T19:38:57.6889875Z",
+  "run_kind": "intraday",
+  "runs_that_day": 8,
+  "layers": {
+   "cooling": {
+    "score": 40.9,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 43.4,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.1,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 39.1,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 28.4,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-09-23": {
+  "run_id": 35903608921,
+  "event": "workflow_dispatch",
+  "scored_at_utc": "2026-09-23T18:36:48.0241656Z",
+  "run_kind": "intraday",
+  "runs_that_day": 7,
+  "layers": {
+   "cooling": {
+    "score": 39.7,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 39.4,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.0,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 36.5,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 28.4,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-09-24": {
+  "run_id": 36027353120,
+  "event": "schedule",
+  "scored_at_utc": "2026-09-24T16:27:01.5868549Z",
+  "run_kind": "intraday",
+  "runs_that_day": 1,
+  "layers": {
+   "cooling": {
+    "score": 40.3,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 39.1,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 42.9,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 36.8,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 29.7,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-09-25": {
+  "run_id": 36160793562,
+  "event": "schedule",
+  "scored_at_utc": "2026-09-25T16:27:19.1809447Z",
+  "run_kind": "intraday",
+  "runs_that_day": 1,
+  "layers": {
+   "cooling": {
+    "score": 37.9,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 38.9,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.0,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 36.7,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 30.9,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-09-28": {
+  "run_id": 36470517164,
+  "event": "schedule",
+  "scored_at_utc": "2026-09-28T19:12:12.3786819Z",
+  "run_kind": "intraday",
+  "runs_that_day": 1,
+  "layers": {
+   "cooling": {
+    "score": 37.4,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 37.7,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.3,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 36.7,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 30.9,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-09-29": {
+  "run_id": 36605807576,
+  "event": "schedule",
+  "scored_at_utc": "2026-09-29T17:34:16.2219660Z",
+  "run_kind": "intraday",
+  "runs_that_day": 1,
+  "layers": {
+   "cooling": {
+    "score": 35.5,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 35.3,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.0,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 39.4,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 29.1,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-09-30": {
+  "run_id": 36752193247,
+  "event": "schedule",
+  "scored_at_utc": "2026-09-30T17:34:12.8464007Z",
+  "run_kind": "intraday",
+  "runs_that_day": 1,
+  "layers": {
+   "cooling": {
+    "score": 35.6,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 35.3,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.1,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 39.7,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 29.2,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-10-01": {
+  "run_id": 36903236329,
+  "event": "schedule",
+  "scored_at_utc": "2026-10-01T17:58:05.4046595Z",
+  "run_kind": "intraday",
+  "runs_that_day": 1,
+  "layers": {
+   "cooling": {
+    "score": 38.4,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 37.8,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.6,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 35.4,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 28.6,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-10-02": {
+  "run_id": 37040369839,
+  "event": "schedule",
+  "scored_at_utc": "2026-10-02T17:23:53.4731193Z",
+  "run_kind": "intraday",
+  "runs_that_day": 1,
+  "layers": {
+   "cooling": {
+    "score": 36.7,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 42.1,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.9,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 33.3,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 28.9,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-10-06": {
+  "run_id": 37518013274,
+  "event": "workflow_dispatch",
+  "scored_at_utc": "2026-10-06T19:19:19.5260759Z",
+  "run_kind": "intraday",
+  "runs_that_day": 6,
+  "layers": {
+   "cooling": {
+    "score": 37.3,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 39.7,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 44.0,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 35.0,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 30.2,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-10-07": {
+  "run_id": 37666392166,
+  "event": "schedule",
+  "scored_at_utc": "2026-10-07T18:23:36.5109045Z",
+  "run_kind": "intraday",
+  "runs_that_day": 5,
+  "layers": {
+   "cooling": {
+    "score": 36.1,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 37.3,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.5,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 34.8,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 31.7,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-10-08": {
+  "run_id": 37835287972,
+  "event": "workflow_dispatch",
+  "scored_at_utc": "2026-10-08T19:53:55.2897401Z",
+  "run_kind": "intraday",
+  "runs_that_day": 8,
+  "layers": {
+   "cooling": {
+    "score": 35.9,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 39.1,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.9,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 28.5,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 32.7,
+    "color": "Green"
+   }
+  }
+ },
+ "2026-10-09": {
+  "run_id": 37986211990,
+  "event": "workflow_dispatch",
+  "scored_at_utc": "2026-10-09T20:20:11.8063479Z",
+  "run_kind": "after close",
+  "runs_that_day": 3,
+  "layers": {
+   "cooling": {
+    "score": 38.6,
+    "color": "Green"
+   },
+   "networking": {
+    "score": 38.3,
+    "color": "Green"
+   },
+   "optical": {
+    "score": 43.6,
+    "color": "Green"
+   },
+   "compute": {
+    "score": 31.9,
+    "color": "Green"
+   },
+   "colocation": {
+    "score": 32.0,
+    "color": "Green"
+   }
+  }
+ }
+}
