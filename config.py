@@ -38,6 +38,13 @@ GENERIC_BOTTLENECK_KEYWORDS = [
 
 CAPEX_TICKERS = ["MSFT", "GOOGL", "AMZN", "META"]  # Part B5 hyperscaler capex-trend universe
 
+# Version of the scoring model: bump it whenever scoring inputs, formulas or
+# weights change (ledger R45 item 4). 1 = the model live as of 2026-10-10.
+# Data-format exemptions in fetch_market.KNOWN_FORMAT_BREAKS expire at a
+# given version, so the release that fixes a break can't ship with the
+# exemption still in place (ledger R48).
+MODEL_VERSION = 1
+
 # Single-quarter YoY capex-trend label thresholds (PLAN.md decision #4).
 # Picked from verified capex history, not guessed: pre-AI hyperscaler capex growth
 # topped out around 30-43% in strong years (2018: +43%; 2016-2020 avg: ~32%) and ran

@@ -38,7 +38,7 @@ import yfinance as yf
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from config import SUB_LAYERS, CAPEX_TICKERS
+from config import SUB_LAYERS, CAPEX_TICKERS, MODEL_VERSION
 
 log = logging.getLogger(__name__)
 
@@ -82,13 +82,18 @@ EXPECTED_FIELDS = (
 )
 
 # Known breaks that are already tracked: logged as an error on every run
-# instead of failing it, until the fix named here ships. Nothing else may be
-# added here without Ray's approval.
+# instead of failing it, until the fix named here ships. Each one expires:
+# once MODEL_VERSION reaches `expires_at` (the release with the fix bumps
+# it), or once the field is no longer read at all, the exemption itself fails
+# the run until it's removed (ledger R48). Nothing else may be added here
+# without Ray's approval.
 KNOWN_FORMAT_BREAKS = {
-    "recommendations.To Grade":
-        "yfinance (1.4 and 1.7) returns a monthly summary table without this column, so "
-        "analyst_upgrades is scored 0 for every company (decision #6 break, ledger R35); "
-        "fixed by ledger R45 item 1, which also moves this check to the new source",
+    "recommendations.To Grade": {
+        "reason": "yfinance (1.4 and 1.7) returns a monthly summary table without this column, so "
+                  "analyst_upgrades is scored 0 for every company (decision #6 break, ledger R35); "
+                  "fixed by ledger R45 item 1, which also moves this check to the new source",
+        "expires_at": 2,        # the R45 release is model_version 2
+    },
 }
 
 
@@ -101,8 +106,21 @@ def require_columns(hist, columns, label):
                               "changed? Failing the run rather than scoring without it (ledger R44)")
 
 
+def check_exemptions():
+    """Raise SchemaError if a format-break exemption has expired or is stale (ledger R48)."""
+    for field, ex in KNOWN_FORMAT_BREAKS.items():
+        if MODEL_VERSION >= ex["expires_at"]:
+            raise SchemaError(f"The exemption for {field} expired at model_version {ex['expires_at']} "
+                              f"(now {MODEL_VERSION}): remove it from KNOWN_FORMAT_BREAKS, so the "
+                              "check covers that field again (ledger R48)")
+        if field not in EXPECTED_FIELDS:
+            raise SchemaError(f"The exemption for {field} covers a field the pipeline no longer "
+                              "reads: remove it from KNOWN_FORMAT_BREAKS (ledger R48)")
+
+
 def check_fields(tickers: list):
     """Raise SchemaError if an expected field is missing for every company fetched."""
+    check_exemptions()
     if not tickers:
         return          # nothing fetched at all: a fetch failure, handled as missing data
     for field in EXPECTED_FIELDS:
@@ -110,7 +128,8 @@ def check_fields(tickers: list):
             continue
         if field in KNOWN_FORMAT_BREAKS:
             log.error(f"Known data-format break: {field} is missing for all {len(tickers)} "
-                      f"companies — {KNOWN_FORMAT_BREAKS[field]}")
+                      f"companies — {KNOWN_FORMAT_BREAKS[field]['reason']} (exemption expires at "
+                      f"model_version {KNOWN_FORMAT_BREAKS[field]['expires_at']})")
             continue
         raise SchemaError(f"{field} is missing for all {len(tickers)} companies — yfinance data "
                           "format changed? Failing the run rather than scoring without it (ledger R44)")
