@@ -488,8 +488,8 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             data_missing.append("vol_spike")
 
         # Momentum (ledger R45 item 2): the last 5 sessions' return against the
-        # average 5-session pace of the last 63 sessions (about 90 days); 1.0
-        # means in line with that trend. The excess over the pace is measured
+        # average (compound) 5-session pace of the last 63 sessions (about 90
+        # days); 1.0 means exactly in line with that trend. The excess over the pace is measured
         # in units of the pace when the trend is clear, and of the typical
         # 5-session move when the trend is weaker than that noise. For a clear
         # uptrend this is the old ratio. Fixed: two negative returns no longer
@@ -501,7 +501,7 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
         window = closes[-69:]
         if len(window) == 69 and all(math.isfinite(c) for c in window):
             ret_5d = closes[-1] / closes[-6] - 1
-            pace   = (closes[-1] / closes[-64] - 1) * 5 / 63
+            pace   = (closes[-1] / closes[-64]) ** (5 / 63) - 1
             moves  = [closes[i] / closes[i - 5] - 1 for i in range(len(closes) - 63, len(closes))]
             scale  = max(abs(pace), statistics.pstdev(moves))
             price_momentum = round(1 + (ret_5d - pace) / scale, 2) if scale > 0 else 1.0
