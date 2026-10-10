@@ -1,5 +1,5 @@
 """Checks for session dating, missing-day handling in colour confirmation,
-NaN values and session-dated prices (PLAN.md ledger R33b, R33d, R39-R42). Offline: yfinance is stubbed, and every
+NaN values and session-dated prices (PLAN.md ledger R33b, R33d, R39-R43). Offline: yfinance is stubbed, and every
 file the pipeline writes (scores_history.json, audit_log.json, index.html)
 goes to a temporary folder, never the repo.
 
@@ -28,6 +28,8 @@ What it covers:
     note on the rendered page names the missing day (R40), with R42's
     wording, the dated score delta, the data line and the price's date;
     and with no history, the page line and the no-history note.
+  - Header and chart (R43): the run time is labelled UTC, and the sparkline
+    ends at the session close with each point's own session date.
 
     python tools/check_confirmation.py
     python tools/check_confirmation.py --shots Output/screenshots/dashboard/r40
@@ -171,6 +173,9 @@ def check_nan_values():
     check("ticker: a NaN close 4 sessions back makes momentum None, not the +5 maximum",
           d["price_momentum"] is None and "price_momentum" in d["data_missing"] and nan_free(d),
           f'{d["price_momentum"]}, {d["data_missing"]}')
+    check("chart: a NaN point is removed together with its date (labels stay aligned)",
+          len(d["price_history"]) == len(d["price_history_dates"]) == 29 and "price_history" in d["data_missing"],
+          f'{len(d["price_history"])} points, {len(d["price_history_dates"])} dates')
     d = fetch(price_bars(130, vol_nan_at=(-3,)))
     check("ticker: a NaN volume makes the volume spike None and names it",
           d["vol_spike"] is None and "vol_spike" in d["data_missing"] and nan_free(d), str(d["data_missing"]))
@@ -212,6 +217,12 @@ def check_session_prices():
     check("price: the 30-day return uses the adjusted close, as the signals always have",
           d["price_30d_return"] == round(adj[-1] / adj[-21] - 1, 4), str(d["price_30d_return"]))
     check("price: the data date is the session the price belongs to", d["data_date"] == "2026-10-09")
+    dates = d["price_history_dates"]
+    check("chart: the sparkline ends at the session close, dated with the session",
+          d["price_history"][-1] == round(adj[-1], 2) and dates[-1] == "2026-10-09", f"{d['price_history'][-1:]}, {dates[-1:]}")
+    check("chart: 30 points, each with its own session date, oldest first, about six months back",
+          len(dates) == len(d["price_history"]) == 30 and dates == sorted(dates)
+          and dates[0] >= (D("2026-10-09") - datetime.timedelta(days=186)).isoformat(), f"{len(dates)} {dates[:1]}")
     vix = with_stub(lambda symbol: FullStub(price_bars(25) if symbol != "^VIX" else price_bars(5),
                                             {"regularMarketPrice": 99.0}),
                     fetch_market.fetch_macro)
@@ -327,12 +338,12 @@ def check_window():
     hist = [entry(d, {"optical": (35.0, "Green")}) for d in ("2026-10-01", "2026-10-02")]
     c, note, branch = confirm(38.0, "Green", hist, "2026-10-06")
     check("note: holding says 'latest score' and names the missing day",
-          note == "Kept Green: latest score 38.0 isn't confirmed yet, and recent days were mostly Green "
+          note == "Kept Green: latest score 38.0 isn't confirmed yet, and recent sessions were mostly Green "
           "(no reading for Mon Oct 5)", note)
     hist = [entry(d, {"optical": (20.0, "Blue")}) for d in ("2026-10-01", "2026-10-02")]
     c, note, branch = confirm(52.0, "Orange", hist, "2026-10-06")
     check("note: not sustained says 'latest score' and names the missing day",
-          note == "Shown as Orange: latest score 52.0 hasn't held over recent days (no reading for Mon Oct 5)", note)
+          note == "Shown as Orange: latest score 52.0 hasn't held over recent sessions (no reading for Mon Oct 5)", note)
     stored, missing = main._confirmation_window("optical", [], SESSIONS, D("2026-10-07"))
     check("start: an empty history names no missing days", not stored and not missing)
 
@@ -390,7 +401,8 @@ def fixture_ticker(symbol):
             "growth_curr": 0.30, "growth_prev": 0.25, "gm_delta": 0.01, "gross_margin": 0.40,
             "news_velocity": 4.0, "capex_div": 0.30, "vol_spike": 1.10, "price_act": 0.01,
             "analyst_upgrades": 0, "short_int_change": 0.0, "price_30d_return": 0.05,
-            "price_history": [100.0] * 30, "week52_high": 120.0, "week52_low": 80.0,
+            "price_history": [100.0 + i for i in range(30)], "week52_high": 120.0, "week52_low": 80.0,
+            "price_history_dates": [d.date().isoformat() for d in pd.bdate_range(end="2026-10-06", periods=30)],
             "market_cap": 1e11, "revenue_quarterly": None, "price_momentum": 1.5,
             "peer_outperformance": 0.0, "analyst_count": 10, "sector": "Technology",
             "data_date": "2026-10-06", "data_missing": []}
@@ -428,6 +440,12 @@ def check_rendered_note(tmp, shots):
     check("page: the data line names the session the scores belong to", m is not None)
     check("page: each price carries its session date",
           all(t.get("price_date") == "Tue Oct 6" for l in js for t in l.get("tickers", [])))
+    check("page: the header gives the run time in UTC",
+          re.search(r'<div class="hero-sub">\w+, \w+ \d\d \d{4} · \d\d:\d\d UTC</div>', html) is not None)
+    check("page: sparkline labels are each point's session date, ending at the session (Oct 6)",
+          all(t.get("spark_dates", [])[-1:] == ["Oct 6"] and len(t["spark_dates"]) == len(t["sparkline"])
+              for l in js for t in l.get("tickers", []))
+          and "new Date()" not in html, str([t.get("spark_dates", [])[-2:] for l in js for t in l.get("tickers", [])][:1]))
 
     if shots:
         from playwright.sync_api import sync_playwright
