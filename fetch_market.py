@@ -68,8 +68,11 @@ class SchemaError(RuntimeError):
 
 TICKER_BAR_COLUMNS = ("Close", "Adj Close", "High", "Low", "Volume")
 
-# Buy-side grades counted by the analyst signal (the list the old code used).
+# Buy-side grades counted by the analyst signal (the list the old code used),
+# among actions within the last ANALYST_WINDOW_DAYS up to the session
+# (ledger R49; the original code had no time window).
 BUY_GRADES = ("Buy", "Strong Buy", "Overweight", "Outperform", "Positive")
+ANALYST_WINDOW_DAYS = 30
 INDEX_BAR_COLUMNS  = ("Close",)
 
 # Per-company fields the pipeline reads; each must be present for at least
@@ -582,20 +585,23 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
         if growth_prev is None:
             data_missing.append("growth_prev")
 
-        # Analyst grades (ledger R45 item 1): per-action rows from
+        # Analyst grades (ledger R45 item 1, R49): per-action rows from
         # upgrades_downgrades. t.recommendations is a monthly summary table
         # without grades in yfinance 1.4 and 1.7, which scored every company 0
-        # (ledger R35). Same count as before: how many of the 10 most recent
-        # actions set a buy-side grade. The table comes newest first, so it's
-        # sorted before taking the last 10. No usable table is missing data
-        # (None + data_missing), never a 0.
+        # (ledger R35). Counted: how many actions within the 30 days up to the
+        # session set a buy-side grade, at most the 10 most recent of them (the
+        # original code's limit). No actions in the window is a real 0; a
+        # failed fetch or no table at all is missing data (None + data_missing).
         analyst_upgrades = None
         try:
             ud = t.upgrades_downgrades
             if ud is not None and "ToGrade" in ud.columns:
                 seen.add("upgrades_downgrades.ToGrade")
                 if not ud.empty:
-                    recent = ud.sort_index().tail(10)
+                    session = hist.index[-1].date() if not hist.empty else datetime.date.today()
+                    dates   = pd.Index([ts.date() for ts in ud.index])
+                    inside  = (dates > session - datetime.timedelta(days=ANALYST_WINDOW_DAYS)) & (dates <= session)
+                    recent  = ud[inside].sort_index().tail(10)
                     analyst_upgrades = int(recent["ToGrade"].isin(BUY_GRADES).sum())
         except Exception as e:
             log.debug(f"  {ticker} upgrades_downgrades error: {e}")
