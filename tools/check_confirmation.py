@@ -1,5 +1,6 @@
 """Checks for session dating, missing-day handling in colour confirmation,
-NaN values and session-dated prices (PLAN.md ledger R33b, R33d, R39-R43). Offline: yfinance is stubbed, and every
+NaN values, session-dated prices and the data-format check (PLAN.md ledger
+R33b, R33d, R39-R44). Offline: yfinance is stubbed, and every
 file the pipeline writes (scores_history.json, audit_log.json, index.html)
 goes to a temporary folder, never the repo.
 
@@ -30,6 +31,9 @@ What it covers:
     and with no history, the page line and the no-history note.
   - Header and chart (R43): the run time is labelled UTC, and the sparkline
     ends at the session close with each point's own session date.
+  - Data format (R44): a missing bar column, or a field missing for every
+    company, fails the run (stage_fetch doesn't swallow it); a field missing
+    for one company doesn't; the known analyst break is logged, not raised.
 
     python tools/check_confirmation.py
     python tools/check_confirmation.py --shots Output/screenshots/dashboard/r40
@@ -227,6 +231,70 @@ def check_session_prices():
                                             {"regularMarketPrice": 99.0}),
                     fetch_market.fetch_macro)
     check("vix: the last session's close, not the live quote (99)", vix["vix"] == 102.0, str(vix["vix"]))
+
+
+def check_data_format():
+    """R44: a data-format change fails the run instead of scoring as 0 or a gap."""
+    def raises(fn):
+        try:
+            fn()
+            return False
+        except fetch_market.SchemaError:
+            return True
+
+    no_adj = price_bars(130).drop(columns=["Adj Close"])
+    check("format: ticker bars without 'Adj Close' fail the run (not a silently dropped company)",
+          raises(lambda: with_stub(FullStub(no_adj), lambda: fetch_market.fetch_ticker_data("TST", [], ["cooling"]))))
+    stubs = {"^VIX": FullStub(price_bars(5)), "^TNX": FullStub(price_bars(35).drop(columns=["Close"])),
+             "^IXIC": FullStub(price_bars(25)), "^GSPC": FullStub(price_bars(25))}
+    check("format: index bars without 'Close' fail the run (not a missing macro signal)",
+          raises(lambda: with_stub(lambda symbol: stubs[symbol], fetch_market.fetch_macro)))
+
+    d = with_stub(FullStub(price_bars(130)), lambda: fetch_market.fetch_ticker_data("TST", [], ["cooling"]))
+    check("format: the fields each company provides are recorded",
+          {"info.marketCap", "info.grossMargins", "info.shortPercentOfFloat"} <= set(d["_fields_seen"]), str(d["_fields_seen"]))
+
+    every = list(fetch_market.EXPECTED_FIELDS)
+    full = lambda drop=(): {"_fields_seen": [f for f in every if f not in drop]}
+    check("format: a field missing for one company only is a data gap, not a failure",
+          not raises(lambda: fetch_market.check_fields([full(("info.marketCap",)), full()])))
+    check("format: a field missing for every company fails the run",
+          raises(lambda: fetch_market.check_fields([full(("info.marketCap",)), full(("info.marketCap",))])))
+    logged = []
+    handler = logging.Handler()
+    handler.emit = lambda record: logged.append(record.getMessage())
+    fetch_market.log.addHandler(handler)
+    try:
+        ok = not raises(lambda: fetch_market.check_fields([full(("recommendations.To Grade",))] * 2))
+    finally:
+        fetch_market.log.removeHandler(handler)
+    check("format: the known analyst break is logged as an error on every run, not raised",
+          ok and any("Known data-format break: recommendations.To Grade" in m for m in logged), str(logged))
+
+    real_rp = fetch_market.run_pipeline
+    fetch_market.run_pipeline = lambda *a, **k: (_ for _ in ()).throw(fetch_market.SchemaError("test"))
+    try:
+        with_stub(StubTicker(bars(["2026-10-08", "2026-10-09"])),
+                  lambda: main.stage_fetch())
+        check("format: stage_fetch lets a data-format failure fail the run", False, "returned normally")
+    except fetch_market.SchemaError:
+        check("format: stage_fetch lets a data-format failure fail the run", True)
+    except RuntimeError as e:
+        check("format: stage_fetch lets a data-format failure fail the run", False, f"calendar failed first: {e}")
+    finally:
+        fetch_market.run_pipeline = real_rp
+
+    class CashStub:
+        def __init__(self, cf):
+            self.quarterly_cashflow = cf
+    cols = pd.to_datetime(["2026-06-30", "2026-03-31", "2025-12-31", "2025-09-30", "2025-06-30"])
+    no_row = pd.DataFrame({c: [1.0] for c in cols}, index=["Operating Cash Flow"])
+    with_row = pd.DataFrame({c: [-1.0, 1.0] for c in cols}, index=["Capital Expenditure", "Operating Cash Flow"])
+    check("format: no hyperscaler cash-flow table with a capex row fails the run",
+          raises(lambda: with_stub(lambda symbol: CashStub(no_row), fetch_market.fetch_capex_trend)))
+    check("format: one hyperscaler with the capex row is enough",
+          not raises(lambda: with_stub(lambda symbol: CashStub(with_row if symbol == "MSFT" else no_row),
+                                       fetch_market.fetch_capex_trend)))
 
 
 def check_unfinished_bar():
@@ -485,6 +553,7 @@ def run(shots):
         check_window()
         check_nan_values()
         check_session_prices()
+        check_data_format()
         check_loader(tmp)
         check_rendered_note(tmp, shots)
     finally:
