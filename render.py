@@ -332,6 +332,11 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
                 delta_band = "stable"
             hist_raw  = raw.get("price_history", [])
             sparkline = [round(p, 2) for p in hist_raw[-30:]] if hist_raw else []
+            # Each point's own session date for the chart labels (R43).
+            spark_dates = [f"{d:%b} {d.day}" for d in
+                           (datetime.date.fromisoformat(x) for x in raw.get("price_history_dates", [])[-30:])]
+            if len(spark_dates) != len(sparkline):
+                spark_dates = []
             t_color   = t_scored.get("color", "Green")
             t_hype    = t_scored.get("is_hype", False)
             t_rating  = company_rating(t_fd, t_color, t_hype)
@@ -351,6 +356,7 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
                 "hype":         t_hype,
                 "color":        t_color,
                 "sparkline":    sparkline,
+                "spark_dates":  spark_dates,
                 "rating":       t_rating,
                 "prev_rating":  t_prev_rating,
                 "rating_up":    rating_changed and t_rating is not None and t_prev_rating in ("A","B","C","D") and ord(t_rating) < ord(t_prev_rating),
@@ -463,13 +469,13 @@ def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = 
     prev_date, yesterday = get_yesterday_scores(scored_data, session)
     prev_label   = day_label(prev_date) if prev_date else ""
     full_history = load_scores_history()
-    now          = datetime.datetime.now()
+    # Run time in UTC, labelled as such in the header, title and footer (R43).
+    now          = datetime.datetime.now(datetime.timezone.utc)
     date_str     = now.strftime("%A, %B %d %Y")
     time_str     = now.strftime("%H:%M")
-    datetime_str = f"{date_str} · {time_str}"
+    datetime_str = f"{date_str} · {time_str} UTC"
     # The session the scores belong to, next to when they were fetched (R42).
-    utc_time     = datetime.datetime.now(datetime.timezone.utc).strftime("%H:%M")
-    fetch_note   = (f"Data: close of {day_label(session)} · fetched {utc_time} UTC · "
+    fetch_note   = (f"Data: close of {day_label(session)} · fetched {time_str} UTC · "
                     "Quarterly financials may be up to 90 days old")
 
     vix          = macro_data.get("vix")
@@ -1048,13 +1054,9 @@ function toggleTickerDetail(id) {{
     const pad   = range * 0.12;
     const col   = (t.ret30 == null || t.ret30 >= 0) ? "#27500A" : "#A32D2D";
     const bgCol = col === "#27500A" ? "rgba(39,80,10,0.07)" : "rgba(163,45,45,0.07)";
-    const today = new Date();
-    const step  = Math.max(1, Math.floor(180 / data.length));
-    const labels = data.map((_, i) => {{
-      const d = new Date(today);
-      d.setDate(d.getDate() - (data.length - 1 - i) * step);
-      return d.toLocaleDateString("en", {{month:"short", day:"numeric"}});
-    }});
+    // Each point's own session date, ending at the session the scores belong
+    // to; never counted back from the viewer's date (R43).
+    const labels = (t.spark_dates && t.spark_dates.length === data.length) ? t.spark_dates : data.map(() => "");
     if (canvasWrap) canvasWrap.innerHTML = '<canvas id="spark-' + sym + '" style="width:100%;height:100%"></canvas>';
     setTimeout(() => {{
       const canvas = document.getElementById("spark-" + sym);

@@ -93,7 +93,10 @@ def _finite_or_none(result: dict, data_missing: list) -> dict:
                 data_missing.append(key)
     hist = result.get("price_history")
     if hist and any(not math.isfinite(p) for p in hist):
-        result["price_history"] = [p for p in hist if math.isfinite(p)]
+        keep = [i for i, p in enumerate(hist) if math.isfinite(p)]
+        result["price_history"] = [hist[i] for i in keep]
+        if result.get("price_history_dates"):           # keep each point's date aligned
+            result["price_history_dates"] = [result["price_history_dates"][i] for i in keep]
         if "price_history" not in data_missing:
             data_missing.append("price_history")
     return result
@@ -349,14 +352,17 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
         if gross_margin is None:
             data_missing.append("gross_margin")
 
-        # Sparkline: the last six months, as before the one-year fetch.
-        recent = hist[hist.index >= hist.index[-1] - pd.DateOffset(months=6)]["Adj Close"].tolist() \
-            if not hist.empty else []
-        if recent:
-            step = max(1, len(recent) // 30)
-            price_history = [round(recent[i], 2) for i in range(0, len(recent), step)][-30:]
+        # Sparkline: the last six months, sampled back from the last session
+        # so the line ends at the session close, with each point's own date
+        # for the chart labels (ledger R43).
+        recent = hist[hist.index >= hist.index[-1] - pd.DateOffset(months=6)] if not hist.empty else hist
+        if not recent.empty:
+            step   = max(1, len(recent) // 30)
+            picked = recent.iloc[::-step].iloc[:30].iloc[::-1]
+            price_history       = [round(float(v), 2) for v in picked["Adj Close"]]
+            price_history_dates = [ts.date().isoformat() for ts in picked.index]
         else:
-            price_history = []
+            price_history, price_history_dates = [], []
             data_missing.append("price_history")
         volumes = hist["Volume"].tolist() if not hist.empty else []
 
@@ -544,6 +550,7 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             "short_int_change":  short_int_change,
             "price_30d_return":  price_30d,
             "price_history":     price_history,
+            "price_history_dates": price_history_dates,
             "week52_high":       week52_high,
             "week52_low":        week52_low,
             "market_cap":        market_cap,

@@ -195,15 +195,15 @@ def _confirmed_color(
             log.info(f"  {layer_id}: holding {dominant} (borderline score {today_score:.1f}, "
                      f"prev dominant={dominant})")
             if dominant == "Green":
-                note = f"Kept Green: latest score {today_score:.1f} isn't confirmed yet, and recent days were mostly Green"
+                note = f"Kept Green: latest score {today_score:.1f} isn't confirmed yet, and recent sessions were mostly Green"
             else:
                 note = (f"Kept {dominant}: latest score {today_score:.1f} is near the line, "
-                        f"and recent days were mostly {dominant}")
+                        f"and recent sessions were mostly {dominant}")
             return dominant, note + suffix, "holding"
 
     shown = "Green" if 25 <= today_score < 45 else today_color
     log.info(f"  {layer_id}: {today_color} -> {shown} (unconfirmed, fallback)")
-    return shown, f"Shown as {shown}: latest score {today_score:.1f} hasn't held over recent days{suffix}", "not_sustained"
+    return shown, f"Shown as {shown}: latest score {today_score:.1f} hasn't held over recent sessions{suffix}", "not_sustained"
 
 
 def _layer_color_from_score(score: float, top_delta: float | None) -> tuple[str, str]:
