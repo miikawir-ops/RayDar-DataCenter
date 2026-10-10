@@ -29,6 +29,7 @@ Returns:
 
 import json
 import math
+import statistics
 import logging
 import datetime
 import argparse
@@ -469,18 +470,25 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             vol_spike = None
             data_missing.append("vol_spike")
 
-        if len(closes) >= 5:
-            ret_5d  = closes[-1] / closes[-5] - 1
-            ret_90d = (closes[-1] / closes[-63] - 1) if len(closes) >= 63 else ret_5d
-            avg_5d_from_90d = ret_90d / 18 if ret_90d != 0 else 0.001
-            price_momentum  = round(ret_5d / avg_5d_from_90d, 2) if avg_5d_from_90d != 0 else 1.0
-            if math.isfinite(price_momentum):
-                price_momentum = max(-5.0, min(5.0, price_momentum))
-            else:
-                # Checked before the clamp: min(5.0, nan) returns 5.0, which
-                # would turn a NaN close into the maximum momentum score.
-                price_momentum = None
-                data_missing.append("price_momentum")
+        # Momentum (ledger R45 item 2): the last 5 sessions' return against the
+        # average 5-session pace of the last 63 sessions (about 90 days); 1.0
+        # means in line with that trend. The excess over the pace is measured
+        # in units of the pace when the trend is clear, and of the typical
+        # 5-session move when the trend is weaker than that noise. For a clear
+        # uptrend this is the old ratio. Fixed: two negative returns no longer
+        # make a positive momentum, a near-flat 90 days can't blow the ratio up,
+        # and the windows are 5 and 63 sessions (the old ones spanned 4
+        # sessions, and divided a 62-session return as if it were 18 five-
+        # session periods). Fewer than 69 sessions, or a NaN in the window, is
+        # missing data.
+        window = closes[-69:]
+        if len(window) == 69 and all(math.isfinite(c) for c in window):
+            ret_5d = closes[-1] / closes[-6] - 1
+            pace   = (closes[-1] / closes[-64] - 1) * 5 / 63
+            moves  = [closes[i] / closes[i - 5] - 1 for i in range(len(closes) - 63, len(closes))]
+            scale  = max(abs(pace), statistics.pstdev(moves))
+            price_momentum = round(1 + (ret_5d - pace) / scale, 2) if scale > 0 else 1.0
+            price_momentum = max(-5.0, min(5.0, price_momentum))
         else:
             price_momentum = None
             data_missing.append("price_momentum")
