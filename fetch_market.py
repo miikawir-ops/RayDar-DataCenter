@@ -24,19 +24,104 @@ Returns:
                             "meta": {"generic_feed_failures": [...]}}
   fetch_macro()         -> dict with vix, yield_10y_change, nasdaq_vs_spx_20d
   fetch_capex_trend()   -> list of hyperscaler capex-trend dicts
+  fetch_trading_sessions() -> completed US sessions (dates), raises if unavailable
 """
 
 import json
+import math
 import logging
 import datetime
 import argparse
 import feedparser
+import pandas as pd
 import yfinance as yf
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from config import SUB_LAYERS, CAPEX_TICKERS
 
 log = logging.getLogger(__name__)
+
+# ── Session dating (ledger R33b/R36, R40) ─────────────────────────────────────
+# Every daily-bar fetch drops a bar dated today (US/Eastern) until the
+# session has closed, so a run during US trading hours scores the last
+# completed session, not a partial one. Early-close days (13:00 ET) are
+# treated as closing at 16:00: a run between 13:00 and 16:00 on those days
+# uses the previous session, which is conservative rather than wrong.
+US_EASTERN        = ZoneInfo("America/New_York")
+SESSION_CLOSE_ET  = datetime.time(16, 0)
+SESSION_REFERENCE = "^GSPC"   # trading calendar: one daily bar per US session
+MAX_SESSION_AGE_DAYS = 7
+
+
+def drop_unfinished_bar(hist, now: datetime.datetime = None, label: str = ""):
+    """
+    Return the daily bars without trailing bars that aren't a completed
+    session: today's bar while today's US session hasn't closed, and any
+    trailing row whose Close is NaN, whatever its date (ledger R41: the
+    parent's page showed "ret30": NaN for every ticker on most runs after
+    00:00 UTC, consistent with an empty last bar). `now` is for tests;
+    default is the current time. Each dropped bar is logged with `label`,
+    so a run during US trading hours shows whether yfinance returned an
+    unfinished bar (ledger R33b).
+    """
+    if hist is None or hist.empty:
+        return hist
+    now_et = (now or datetime.datetime.now(datetime.timezone.utc)).astimezone(US_EASTERN)
+    while not hist.empty:
+        unfinished = hist.index[-1].date() == now_et.date() and now_et.time() < SESSION_CLOSE_ET
+        if unfinished or pd.isna(hist["Close"].iloc[-1]):
+            log.info(f"  {label or 'bars'}: dropped {'unfinished' if unfinished else 'empty (NaN close)'} "
+                     f"bar dated {hist.index[-1].date()}")
+            hist = hist.iloc[:-1]
+        else:
+            break
+    return hist
+
+
+def _finite_or_none(result: dict, data_missing: list) -> dict:
+    """
+    Any NaN or infinite number that still reaches a computed value becomes
+    None and is named in data_missing (decision #6, ledger R41), so it can't
+    be scored or written to the page. price_history loses its NaN points
+    and is named if it had any.
+    """
+    for key, value in result.items():
+        if isinstance(value, float) and not math.isfinite(value):
+            result[key] = None
+            if key not in data_missing:
+                data_missing.append(key)
+    hist = result.get("price_history")
+    if hist and any(not math.isfinite(p) for p in hist):
+        result["price_history"] = [p for p in hist if math.isfinite(p)]
+        if "price_history" not in data_missing:
+            data_missing.append("price_history")
+    return result
+
+
+def fetch_trading_sessions(now: datetime.datetime = None) -> list:
+    """
+    Completed US trading sessions (datetime.date, oldest first) from the
+    reference series' daily bars. Colour confirmation takes its expected
+    sessions from here, so a market holiday is never reported as a missing
+    day (ledger R40).
+
+    Raises instead of returning an empty or stale calendar: without it the
+    run would silently treat no sessions as expected, so the run fails
+    loudly instead (R40).
+    """
+    try:
+        hist = drop_unfinished_bar(yf.Ticker(SESSION_REFERENCE).history(period="1mo"), now, SESSION_REFERENCE)
+    except Exception as e:
+        raise RuntimeError(f"Trading-session calendar unavailable ({SESSION_REFERENCE} daily bars): {e}") from e
+    if hist is None or hist.empty:
+        raise RuntimeError(f"Trading-session calendar unavailable: {SESSION_REFERENCE} returned no completed daily bars")
+    sessions = [ts.date() for ts in hist.index]
+    today_et = (now or datetime.datetime.now(datetime.timezone.utc)).astimezone(US_EASTERN).date()
+    if (today_et - sessions[-1]).days > MAX_SESSION_AGE_DAYS:
+        raise RuntimeError(f"Trading-session calendar is stale: latest {SESSION_REFERENCE} session is "
+                           f"{sessions[-1]}, more than {MAX_SESSION_AGE_DAYS} days before {today_et}")
+    return sessions
 
 GENERIC_FEEDS = [
     "https://feeds.reuters.com/reuters/businessNews",
@@ -224,37 +309,52 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
         t    = yf.Ticker(ticker)
         info = t.info
 
-        price = (info.get("currentPrice")
-                 or info.get("regularMarketPrice")
-                 or info.get("previousClose"))
+        # Prices come from completed-session daily bars only (ledger R42): no
+        # live intraday quote reaches scoring or the cards. One unadjusted
+        # fetch serves both uses: "Adj Close" is the dividend-adjusted series
+        # the signals have always used (identical to the default
+        # auto-adjusted Close), while Close/High/Low are the traded prices
+        # for the price, the day's move and the 52-week range.
+        hist    = drop_unfinished_bar(t.history(period="1y", auto_adjust=False), label=ticker)
+        closes  = hist["Adj Close"].tolist() if not hist.empty else []
+        traded  = hist["Close"].tolist() if not hist.empty else []
+
+        price = round(float(traded[-1]), 2) if traded else None
         if price is None:
             data_missing.append("price")
-
-        prev_close = info.get("previousClose")
-        if prev_close and price is not None:
-            price_act = round((price - prev_close) / prev_close, 4)
+        if len(traded) >= 2 and traded[-2]:
+            price_act = round((traded[-1] - traded[-2]) / traded[-2], 4)
         else:
             price_act = None
             data_missing.append("price_act")
 
-        week52_high = info.get("fiftyTwoWeekHigh")
+        year = hist[hist.index > hist.index[-1] - pd.Timedelta(weeks=52)] if not hist.empty else hist
+        week52_high = round(float(year["High"].max()), 2) if not year.empty else None
         if week52_high is None:
             data_missing.append("week52_high")
-        week52_low = info.get("fiftyTwoWeekLow")
+        week52_low = round(float(year["Low"].min()), 2) if not year.empty else None
         if week52_low is None:
             data_missing.append("week52_low")
-        market_cap = info.get("marketCap")
-        if market_cap is None:
+
+        # Yahoo's marketCap follows the live quote, so it's rescaled to the
+        # session close. (sharesOutstanding x close doesn't work: for DELL it
+        # covers one share class only, about half the company.)
+        live_quote = info.get("currentPrice") or info.get("regularMarketPrice")
+        if info.get("marketCap") and live_quote and traded:
+            market_cap = round(info["marketCap"] * traded[-1] / live_quote)
+        else:
+            market_cap = None
             data_missing.append("market_cap")
         gross_margin = info.get("grossMargins")
         if gross_margin is None:
             data_missing.append("gross_margin")
 
-        hist    = t.history(period="6mo")
-        closes  = hist["Close"].tolist() if not hist.empty else []
-        if closes:
-            step = max(1, len(closes) // 30)
-            price_history = [round(closes[i], 2) for i in range(0, len(closes), step)][-30:]
+        # Sparkline: the last six months, as before the one-year fetch.
+        recent = hist[hist.index >= hist.index[-1] - pd.DateOffset(months=6)]["Adj Close"].tolist() \
+            if not hist.empty else []
+        if recent:
+            step = max(1, len(recent) // 30)
+            price_history = [round(recent[i], 2) for i in range(0, len(recent), step)][-30:]
         else:
             price_history = []
             data_missing.append("price_history")
@@ -278,7 +378,13 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             ret_90d = (closes[-1] / closes[-63] - 1) if len(closes) >= 63 else ret_5d
             avg_5d_from_90d = ret_90d / 18 if ret_90d != 0 else 0.001
             price_momentum  = round(ret_5d / avg_5d_from_90d, 2) if avg_5d_from_90d != 0 else 1.0
-            price_momentum  = max(-5.0, min(5.0, price_momentum))
+            if math.isfinite(price_momentum):
+                price_momentum = max(-5.0, min(5.0, price_momentum))
+            else:
+                # Checked before the clamp: min(5.0, nan) returns 5.0, which
+                # would turn a NaN close into the maximum momentum score.
+                price_momentum = None
+                data_missing.append("price_momentum")
         else:
             price_momentum = None
             data_missing.append("price_momentum")
@@ -421,7 +527,7 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
                 layer_tickers=layer_tickers,   # ← ownership filter
             )
 
-        return {
+        return _finite_or_none({
             "ticker":            ticker,
             "name":              info.get("longName") or info.get("shortName", ticker),
             "price":             round(float(price), 2) if price is not None else None,
@@ -446,10 +552,10 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             "peer_outperformance": None,
             "analyst_count":     info.get("numberOfAnalystOpinions", 0),
             "sector":            info.get("sector", "N/A"),
-            "data_date":         datetime.datetime.now().strftime("%Y-%m-%d"),
+            "data_date":         hist.index[-1].date().isoformat() if not hist.empty else None,
             "data_age_note":     "Quarterly financials may be up to 90 days old",
             "data_missing":      data_missing,
-        }
+        }, data_missing)
 
     except Exception as e:
         log.warning(f"  {ticker}: fetch failed — {e}")
@@ -481,10 +587,10 @@ def fetch_macro() -> dict:
     data_missing = []
 
     try:
-        vix_info = yf.Ticker("^VIX").info
-        vix_val  = vix_info.get("regularMarketPrice") or vix_info.get("previousClose")
-        if vix_val is not None:
-            result["vix"] = round(vix_val, 2)
+        # Last completed session's close, not the live quote (ledger R42).
+        vix_hist = drop_unfinished_bar(yf.Ticker("^VIX").history(period="5d"), label="^VIX")
+        if not vix_hist.empty:
+            result["vix"] = round(float(vix_hist["Close"].iloc[-1]), 2)
         else:
             data_missing.append("vix")
     except Exception as e:
@@ -492,7 +598,7 @@ def fetch_macro() -> dict:
         data_missing.append("vix")
 
     try:
-        tnx = yf.Ticker("^TNX").history(period="35d")
+        tnx = drop_unfinished_bar(yf.Ticker("^TNX").history(period="35d"), label="^TNX")
         if not tnx.empty and len(tnx) >= 21:
             result["yield_10y_change"] = round(
                 (tnx["Close"].iloc[-1] - tnx["Close"].iloc[-21]) * 100, 2
@@ -504,8 +610,8 @@ def fetch_macro() -> dict:
         data_missing.append("yield_10y_change")
 
     try:
-        nasdaq = yf.Ticker("^IXIC").history(period="25d")
-        spx    = yf.Ticker("^GSPC").history(period="25d")
+        nasdaq = drop_unfinished_bar(yf.Ticker("^IXIC").history(period="25d"), label="^IXIC")
+        spx    = drop_unfinished_bar(yf.Ticker("^GSPC").history(period="25d"), label="^GSPC")
         if len(nasdaq) >= 20 and len(spx) >= 20:
             nasdaq_ret = nasdaq["Close"].iloc[-1] / nasdaq["Close"].iloc[-20] - 1
             spx_ret    = spx["Close"].iloc[-1]    / spx["Close"].iloc[-20]    - 1
@@ -516,6 +622,7 @@ def fetch_macro() -> dict:
         log.warning(f"  Nasdaq/SPX fetch error: {e}")
         data_missing.append("nasdaq_vs_spx_20d")
 
+    result = _finite_or_none(result, data_missing)
     result["data_missing"] = data_missing
     if data_missing:
         log.warning(f"  Macro data missing: {data_missing}")

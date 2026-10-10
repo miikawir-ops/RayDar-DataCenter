@@ -47,7 +47,8 @@ import json
 import logging
 import argparse
 import datetime
-from pathlib import Path
+
+from render import day_label
 
 logging.basicConfig(
     level=logging.INFO,
@@ -56,12 +57,10 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-SCORES_HISTORY_FILE = "scores_history.json"
-
 # _confirmed_color() returns a plain-English note and the branch that set
 # the colour. The dashboard shows the note on each sub-layer card and, while
 # at least one card is in the "no_history" branch, a page-level line saying
-# colours are today's reading only (ledger R30/R36), so the disclosure
+# colours are the latest session's reading only (ledger R30/R36/R42), so the disclosure
 # follows the data and disappears by itself once history is stored.
 NO_HISTORY = "no_history"
 
@@ -72,29 +71,39 @@ RATING_QUALITY = {"A": 4, "B": 3, "C": 2, "D": 1}
 
 
 # ── Score history helpers (read-only here — see module docstring) ─────────────
+# History entries are dated by US market session (ledger R33b). Confirmation
+# looks at the CONFIRM_WINDOW sessions before the current one, taken from the
+# trading calendar (fetch_trading_sessions), not from whatever entries happen
+# to be stored. A session in that window with no stored score is missing: it
+# is left out and named in the note, never counted as 0 (decision #6, ledger
+# R33d/R40). Sessions before the first stored entry aren't "missing" (history
+# hadn't started), and sessions more than MAX_ENTRY_AGE_DAYS calendar days
+# before the current one don't count at all.
 
-def _load_recent_layer_scores(layer_id: str, days: int = 3) -> list[float]:
+CONFIRM_WINDOW     = 3
+MAX_ENTRY_AGE_DAYS = 7
+
+
+def _confirmation_window(layer_id: str, history: list, sessions: list,
+                         current: datetime.date) -> tuple[list, list]:
     """
-    Load the last N days of weighted scores for a specific sub-layer from
-    scores_history.json. Used for color confirmation. Returns list of
-    scores, most recent last. Empty list if no history.
+    Returns (stored, missing) for the CONFIRM_WINDOW sessions before
+    `current`: stored is [(session, score, color)], oldest first; missing is
+    [session] for window sessions with no score stored for this sub-layer.
     """
-    p = Path(SCORES_HISTORY_FILE)
-    if not p.exists():
-        return []
-    try:
-        history = json.loads(p.read_text())
-        if not isinstance(history, list):
-            return []
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        prev_days = [e for e in history if e.get("date") != today]
-        recent = prev_days[-days:]
-        return [
-            e.get("scores", {}).get(layer_id, {}).get("score", 0)
-            for e in recent
-        ]
-    except Exception:
-        return []
+    cutoff  = current - datetime.timedelta(days=MAX_ENTRY_AGE_DAYS)
+    window  = [s for s in sessions if cutoff <= s < current][-CONFIRM_WINDOW:]
+    dates   = sorted(e.get("date") for e in history if e.get("date"))
+    first   = datetime.date.fromisoformat(dates[0]) if dates else None
+    by_date = {e.get("date"): e for e in history}
+    stored, missing = [], []
+    for s in window:
+        layer = ((by_date.get(s.isoformat()) or {}).get("scores") or {}).get(layer_id) or {}
+        if layer.get("score") is not None:
+            stored.append((s, layer["score"], layer.get("color")))
+        elif first is not None and s >= first:
+            missing.append(s)
+    return stored, missing
 
 
 def _confirmed_color(
@@ -102,6 +111,9 @@ def _confirmed_color(
     today_color: str,
     layer_id: str,
     top_fund_delta: float | None,
+    history: list,
+    sessions: list,
+    current: datetime.date,
 ) -> tuple[str, str, str]:
     """
     3-day color confirmation system — rules unchanged from reference. A color
@@ -117,18 +129,33 @@ def _confirmed_color(
     DEFAULT — Green if 25 <= score < 45, else today's colour
 
     Returns (colour, note, branch). The note is the plain-English text the
-    dashboard shows on the card (R36 wording, adjusted only for accuracy:
-    "of the last k days" because only 2 may be stored; Orange is "at or
-    above 40"; the delta rule is about "one of its companies", the one with
-    the highest fund_delta; Green holding doesn't test nearness). branch is
-    one of: no_history, instant, confirmed, holding, not_sustained.
+    dashboard shows on the card (R36 wording, with R42's change: scores
+    belong to the last completed session, so "latest", not "today's").
+    Confirmed notes say "N of the last 3 sessions" when all three are
+    stored, and "N of M available recent sessions" otherwise (R42 asks
+    for it whenever a session is missing; it's also used in the first days
+    of a history, when fewer than 3 are stored, so the note never implies a
+    session was checked that wasn't). branch is one of: no_history,
+    instant, confirmed, holding, not_sustained.
+
+    A missing session in the window is named at the end of every note that
+    depends on history (all but instant Red), e.g. "(no reading for Mon
+    Oct 5)" (ledger R40).
     """
-    recent = _load_recent_layer_scores(layer_id, days=3)
+    stored, missing = _confirmation_window(layer_id, history, sessions, current)
+    recent = [score for _, score, _ in stored]
     k = len(recent)
+    gap = f"no reading for {', '.join(day_label(s) for s in missing)}" if missing else ""
+    if missing:
+        log.info(f"  {layer_id}: {gap} — left out of confirmation, not counted as 0")
 
     if k < 2:
         log.debug(f"  {layer_id}: {today_color} unconfirmed — only {k} history days")
-        return today_color, f"Today's reading only — not yet confirmed ({k} of 2 earlier days stored)", NO_HISTORY
+        stored_txt = f"{k} of 2 earlier sessions stored" + (f"; {gap}" if gap else "")
+        return today_color, f"Latest session only — not yet confirmed ({stored_txt})", NO_HISTORY
+
+    suffix = f" ({gap})" if gap else ""
+    span   = "of the last 3 sessions" if k == CONFIRM_WINDOW else f"of {k} available recent sessions"
 
     if today_score > 80:
         log.info(f"  {layer_id}: instant Red — extreme score {today_score:.1f} > 80")
@@ -143,28 +170,16 @@ def _confirmed_color(
     days_below_30  = sum(1 for s in recent if s < 30)
 
     if today_score > 65 and days_above_55 >= 2:
-        return "Red", f"Red, confirmed: {days_above_55} of the last {k} days also above 55", "confirmed"
+        return "Red", f"Red, confirmed: {days_above_55} {span} also above 55{suffix}", "confirmed"
 
     if today_score >= 45 and days_above_40 >= 2:
-        return "Orange", f"Orange, confirmed: {days_above_40} of the last {k} days also at or above 40", "confirmed"
+        return "Orange", f"Orange, confirmed: {days_above_40} {span} also at or above 40{suffix}", "confirmed"
 
     if today_score < 25 and days_below_30 >= 2:
-        return "Blue", f"Blue, confirmed: {days_below_30} of the last {k} days also below 30", "confirmed"
+        return "Blue", f"Blue, confirmed: {days_below_30} {span} also below 30{suffix}", "confirmed"
 
-    prev_colors = []
-    try:
-        p = Path(SCORES_HISTORY_FILE)
-        if p.exists():
-            history = json.loads(p.read_text())
-            today_str = datetime.datetime.now().strftime("%Y-%m-%d")
-            prev = [e for e in history if e.get("date") != today_str]
-            prev_colors = [
-                e.get("scores", {}).get(layer_id, {}).get("color", "")
-                for e in prev[-3:]
-                if e.get("scores", {}).get(layer_id, {}).get("color")
-            ]
-    except Exception:
-        prev_colors = []
+    # Same window as the scores above: a missing session adds no colour.
+    prev_colors = [color for _, _, color in stored if color]
 
     if prev_colors:
         from collections import Counter
@@ -180,15 +195,15 @@ def _confirmed_color(
             log.info(f"  {layer_id}: holding {dominant} (borderline score {today_score:.1f}, "
                      f"prev dominant={dominant})")
             if dominant == "Green":
-                note = f"Kept Green: today's score {today_score:.1f} isn't confirmed yet, and recent days were mostly Green"
+                note = f"Kept Green: latest score {today_score:.1f} isn't confirmed yet, and recent days were mostly Green"
             else:
-                note = (f"Kept {dominant}: today's score {today_score:.1f} is near the line, "
+                note = (f"Kept {dominant}: latest score {today_score:.1f} is near the line, "
                         f"and recent days were mostly {dominant}")
-            return dominant, note, "holding"
+            return dominant, note + suffix, "holding"
 
     shown = "Green" if 25 <= today_score < 45 else today_color
     log.info(f"  {layer_id}: {today_color} -> {shown} (unconfirmed, fallback)")
-    return shown, f"Shown as {shown}: today's {today_score:.1f} hasn't held over recent days", "not_sustained"
+    return shown, f"Shown as {shown}: latest score {today_score:.1f} hasn't held over recent days{suffix}", "not_sustained"
 
 
 def _layer_color_from_score(score: float, top_delta: float | None) -> tuple[str, str]:
@@ -268,12 +283,24 @@ def stage_fetch() -> tuple[dict, dict]:
     On a total fetch failure, returns an empty/all-missing shape — never
     fabricated defaults (decision #6; replaces reference/main.py's
     hardcoded MACRO_DEFAULTS = {"vix": 20.0, ...} fallback).
+
+    The trading-session calendar is fetched first and outside that
+    catch-all: if it fails, the run fails (ledger R40), because the history
+    is dated by session and confirmation needs to know which sessions to
+    expect. meta["session"] is the last completed session (ISO date), and
+    meta["sessions"] the calendar it came from.
     """
     log.info("[1/2] Fetching market data...")
+    from fetch_market import fetch_trading_sessions
+    sessions = fetch_trading_sessions()
+    session_meta = {"session": sessions[-1].isoformat(),
+                    "sessions": [s.isoformat() for s in sessions]}
+    log.info(f"  Session: {session_meta['session']} (last completed US session)")
     try:
         from fetch_market import run_pipeline, fetch_macro
         market_data = run_pipeline()
         macro_data  = fetch_macro()
+        market_data.setdefault("meta", {}).update(session_meta)
         log.info(f"  Fetched {len(market_data.get('sub_layers', {}))} sub-layers, "
                  f"macro: VIX={macro_data.get('vix')}")
         return market_data, macro_data
@@ -283,7 +310,7 @@ def stage_fetch() -> tuple[dict, dict]:
             "vix": None, "yield_10y_change": None, "nasdaq_vs_spx_20d": None,
             "data_missing": ["vix", "yield_10y_change", "nasdaq_vs_spx_20d"],
         }
-        return {"sub_layers": {}, "meta": {"generic_feed_failures": []}}, empty_macro
+        return {"sub_layers": {}, "meta": {"generic_feed_failures": [], **session_meta}}, empty_macro
 
 
 def stage_score(market_data: dict, macro_data: dict) -> dict:
@@ -295,8 +322,14 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
     """
     log.info("[2/2] Calculating scores...")
     from score_engine import ScoreEngine
+    from render import load_scores_history
     engine  = ScoreEngine(macro_data)
     results = {}
+
+    meta     = market_data.get("meta", {})
+    sessions = [datetime.date.fromisoformat(s) for s in meta["sessions"]]
+    current  = datetime.date.fromisoformat(meta["session"])
+    history  = load_scores_history()
 
     sub_layers = market_data.get("sub_layers", {})
     for layer_id, tickers_data in sub_layers.items():
@@ -390,7 +423,8 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
 
         # ── 3-day color confirmation ─────────────────────────────────────────
         layer_color, confirm_note, confirm_branch = _confirmed_color(
-            weighted_score, layer_color, layer_id, top_fund_delta
+            weighted_score, layer_color, layer_id, top_fund_delta,
+            history, sessions, current,
         )
         if confirm_note:
             layer_status = confirm_note

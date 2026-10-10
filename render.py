@@ -47,6 +47,7 @@ never blended into them): capex direction strip + beneficiary-map display,
 positioned above the sub-layer cards.
 """
 
+import os
 import json
 import logging
 import datetime
@@ -153,45 +154,68 @@ def rating_forecast(current_rating: str | None, delta: float | None, delta_band:
 
 # ── History helpers ───────────────────────────────────────────────────────────
 
+def day_label(d) -> str:
+    """Session date as shown on the page and in the notes, e.g. "Fri Oct 9".
+    Accepts a date or an ISO date string."""
+    if isinstance(d, str):
+        d = datetime.date.fromisoformat(d)
+    return f"{d:%a} {d:%b} {d.day}"
+
+
 def load_scores_history() -> list:
     """
-    Load scores history from disk. Handles: missing file -> []; current
-    list format -> as-is; legacy dict format -> converted; corrupt file ->
-    logged, []. Prevents scores_history.json from being silently wiped on
-    format mismatch.
+    Load scores history from disk — the one reader for both colour
+    confirmation (main.py) and the page. Handles: missing file -> []; current
+    list format -> as-is; legacy dict format -> converted.
+
+    A file that exists but can't be read is an error in CI (ledger R33d):
+    starting fresh there would silently discard the stored history and
+    re-enter the single-day disclosure. Locally it's logged and treated as
+    empty, as before.
     """
     p = Path(SCORES_HISTORY_FILE)
     if not p.exists():
         return []
+    in_ci = os.environ.get("GITHUB_ACTIONS") == "true"
     try:
         data = json.loads(p.read_text())
-        if isinstance(data, list):
-            return data
-        if isinstance(data, dict):
-            log.warning("scores_history.json is in legacy dict format — converting to list.")
-            converted = [{"date": k, "scores": v} for k, v in data.items()]
-            return sorted(converted, key=lambda x: x.get("date", ""))
-        log.warning(f"scores_history.json unexpected type {type(data)} — starting fresh")
-        return []
     except Exception as e:
+        if in_ci:
+            raise RuntimeError(f"{SCORES_HISTORY_FILE} is unreadable ({e}) — failing the run "
+                               "rather than starting a fresh history") from e
         log.warning(f"scores_history.json unreadable ({e}) — starting fresh")
         return []
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        log.warning("scores_history.json is in legacy dict format — converting to list.")
+        converted = [{"date": k, "scores": v} for k, v in data.items()]
+        return sorted(converted, key=lambda x: x.get("date", ""))
+    if in_ci:
+        raise RuntimeError(f"{SCORES_HISTORY_FILE} has unexpected type {type(data).__name__} — "
+                           "failing the run rather than starting a fresh history")
+    log.warning(f"scores_history.json unexpected type {type(data)} — starting fresh")
+    return []
 
 
-def save_scores_history(scored_data: dict):
+def save_scores_history(scored_data: dict, session: str):
     """
     Writes scores_history.json — the write side main.py's 3-day color
     confirmation has been waiting on since 5a. No action_ticker/
     action_price params (dropped with the "One Action" feature).
     result.get("best") truthy-checked, not "best" in result — 5a's design
     means best can be explicitly None (every ticker insufficient).
+
+    Entries are dated by the last completed US session (ledger R33b), not
+    the wall clock; the last run for a session replaces earlier ones.
+    run_at records when the run actually happened (UTC).
     """
     history = load_scores_history()
-    today   = datetime.datetime.now().strftime("%Y-%m-%d")
-    history = [e for e in history if e.get("date") != today]
+    history = [e for e in history if e.get("date") != session]
     history.append({
-        "date": today,
+        "date": session,
         "time": datetime.datetime.now().strftime("%H:%M"),
+        "run_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "scores": {
             layer_id: {
                 "score": result["best"].get("score"),
@@ -211,18 +235,21 @@ def save_scores_history(scored_data: dict):
         },
     })
     history = history[-MAX_HISTORY_DAYS:]
-    Path(SCORES_HISTORY_FILE).write_text(json.dumps(history, indent=2))
+    Path(SCORES_HISTORY_FILE).write_text(json.dumps(history, indent=2, allow_nan=False))
     log.info(f"  Scores history saved ({len(history)} days)")
 
 
-def get_yesterday_scores(scored_data: dict) -> dict:
-    """Returns {layer_id: {score, color, ratings}} for the most recent previous run."""
+def get_yesterday_scores(scored_data: dict, session: str) -> tuple[str | None, dict]:
+    """
+    Returns (date, {layer_id: {score, color, ratings}}) for the most recent
+    session stored before this one, or (None, {}). The card labels the
+    score delta with that date, never "yesterday" (ledger R42).
+    """
     history = load_scores_history()
-    today   = datetime.datetime.now().strftime("%Y-%m-%d")
-    prev    = [e for e in history if e.get("date") != today]
+    prev    = [e for e in history if e.get("date") and e["date"] < session]
     if not prev:
-        return {}
-    return prev[-1].get("scores", {})
+        return None, {}
+    return prev[-1]["date"], prev[-1].get("scores", {})
 
 
 # ── Ticker lookup ─────────────────────────────────────────────────────────────
@@ -318,6 +345,7 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
                 "sym":          sym or "?",
                 "name":         t_scored.get("name") or raw.get("name") or sym or "?",
                 "price":        price,
+                "price_date":   day_label(raw["data_date"]) if raw.get("data_date") else "",
                 "ret30":        round(ret30 * 100, 1) if ret30 is not None else None,
                 "delta_band":   delta_band,
                 "hype":         t_hype,
@@ -369,7 +397,9 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
             "divergence": divergence, "divergence_msg": divergence_msg,
         })
 
-    return json.dumps(layers)
+    # allow_nan=False: a NaN that got past fetch_market's checks fails the
+    # run instead of reaching the page (ledger R41). Same for HISTORY/CAPEX.
+    return json.dumps(layers, allow_nan=False)
 
 
 def _history_js_data(history: list, scored_data: dict) -> str:
@@ -385,14 +415,14 @@ def _history_js_data(history: list, scored_data: dict) -> str:
         for lid in layer_ids:
             day_data["layers"][lid] = scores[lid].get("color", "none") if lid in scores else "none"
         days_out.append(day_data)
-    return json.dumps({"layer_ids": layer_ids, "days": days_out})
+    return json.dumps({"layer_ids": layer_ids, "days": days_out}, allow_nan=False)
 
 
 def _capex_js_data(capex_data: dict) -> str:
     """Passthrough of main.py's stage_capex() output — already shaped correctly."""
     default = {"direction": None, "magnitude_pct": None, "reporting": "0/0",
                "insufficient": [], "beneficiary_map": {}}
-    return json.dumps(capex_data or default)
+    return json.dumps(capex_data or default, allow_nan=False)
 
 
 # ── Company context (static profile text, not dynamic data — see D3) ──────────
@@ -427,15 +457,20 @@ def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = 
         capex_data = {"direction": None, "magnitude_pct": None, "reporting": "0/0",
                        "insufficient": [], "beneficiary_map": {}}
 
-    save_scores_history(scored_data)
+    session = market_data["meta"]["session"]
+    save_scores_history(scored_data, session)
 
-    yesterday    = get_yesterday_scores(scored_data)
+    prev_date, yesterday = get_yesterday_scores(scored_data, session)
+    prev_label   = day_label(prev_date) if prev_date else ""
     full_history = load_scores_history()
     now          = datetime.datetime.now()
     date_str     = now.strftime("%A, %B %d %Y")
     time_str     = now.strftime("%H:%M")
     datetime_str = f"{date_str} · {time_str}"
-    fetch_note   = f"Fetched {time_str} · Quarterly financials may be up to 90 days old"
+    # The session the scores belong to, next to when they were fetched (R42).
+    utc_time     = datetime.datetime.now(datetime.timezone.utc).strftime("%H:%M")
+    fetch_note   = (f"Data: close of {day_label(session)} · fetched {utc_time} UTC · "
+                    "Quarterly financials may be up to 90 days old")
 
     vix          = macro_data.get("vix")
     yield_ch     = macro_data.get("yield_10y_change")
@@ -471,11 +506,12 @@ def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = 
     has_yesterday = "true" if yesterday else "false"
     # Only while at least one card is in the insufficient-history branch (not
     # for "not sustained" or other unconfirmed notes): say once at page level
-    # that colours are today's reading only (R36). Disappears by itself.
+    # that colours are the latest session's reading only (R36/R42).
+    # Disappears by itself.
     single_day = any(r.get("history_insufficient") for r in scored_data.values() if r.get("best"))
     single_day_html = ('<div class="single-day-note">'
-                       "Colours are based on today's reading only; multi-day confirmation "
-                       "starts once a few days of history are stored.</div>") if single_day else ""
+                       "Colours are based on the latest session's reading only; multi-day "
+                       "confirmation starts once a few sessions of history are stored.</div>") if single_day else ""
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -950,6 +986,7 @@ const LAYERS       = {layers_js};
 const HISTORY      = {history_js};
 const CAPEX        = {capex_js};
 const HAS_YESTERDAY= {has_yesterday};
+const PREV_LABEL   = {json.dumps(prev_label)};
 
 const CC = {{
   Red:    {{bg:"#FCEBEB",border:"#E24B4A",pill:"#E24B4A",pft:"#FCEBEB",lbl:"Hot"}},
@@ -1149,7 +1186,7 @@ function buildChain() {{
       <div class="lyr-score" style="color:${{c.border}}">${{l.score.toFixed(0)}}</div>
       <div class="lyr-delta">
         ${{HAS_YESTERDAY && l.delta_score !== null
-          ? deltaArrow(l.delta_score) + "<span style='font-size:10px;color:#888780;margin-left:2px'>vs yesterday</span>"
+          ? deltaArrow(l.delta_score) + "<span style='font-size:10px;color:#888780;margin-left:2px'>vs " + PREV_LABEL + "</span>"
           : "<span style='font-size:10px;color:#B4B2A9'>first run</span>"}}
       </div>
       <div class="lyr-bar"><div class="lyr-fill" style="width:${{pct}}%;background:${{c.border}}"></div></div>
@@ -1233,7 +1270,7 @@ function buildExpand() {{
       ${{t.run_rate ? `<div style="font-size:10px;font-weight:600;color:#27500A;margin:3px 0;
           padding:2px 6px;background:#EAF3DE;border-radius:4px;display:inline-block">
         Run rate $${{t.run_rate}}B/yr</div>` : ""}}
-      <div class="ex-row"><span class="ex-lbl">Price</span><span>${{priceTxt}}</span></div>
+      <div class="ex-row"><span class="ex-lbl">${{t.price_date ? "Close " + t.price_date : "Price"}}</span><span>${{priceTxt}}</span></div>
       <div class="ex-row"><span class="ex-lbl">30d return</span><span style="color:${{rc}}">${{retTxt}}</span></div>
       <div class="ex-row"><span class="ex-lbl">Trend</span><span style="color:${{tCol}}">${{tIcon}} ${{t.delta_band}}</span></div>
       <div style="margin-top:6px;padding:5px 8px;border-radius:5px;
