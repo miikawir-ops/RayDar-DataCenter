@@ -479,7 +479,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
 </div>
 
-<script src="ecosystem-data.v6.js"></script>
+<script src="ecosystem-data.v7.js"></script>
 <script>
 (function() {
   const svg = document.getElementById("map-svg");
@@ -1101,14 +1101,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return { x: (b.x + b.w / 2) * IMG_W / 100, y: (b.y + b.h / 2) * IMG_H / 100,
              hw: b.w / 2 * IMG_W / 100 + 6, hh: b.h / 2 * IMG_H / 100 + 6 };
   }
+  // Euro badges must not cover the poster's printed labels or any
+  // stakeholder box (R29). Each badge goes at the clear spot nearest its
+  // arrow's usual curved midpoint (found by searching outwards in rings),
+  // and the arrow is bent to pass through it. Badges also stay out of the
+  // card column on the right and clear of each other.
+  const BADGE_R = 14, AVOID_PAD = 4, BADGE_MAX_X = 77 * IMG_W / 100, BADGE_MAX_Y = 0.86 * IMG_H;
+  const pctRect = b => ({ x0: b.x * IMG_W / 100 - AVOID_PAD, y0: b.y * IMG_H / 100 - AVOID_PAD,
+                          x1: (b.x + b.w) * IMG_W / 100 + AVOID_PAD, y1: (b.y + b.h) * IMG_H / 100 + AVOID_PAD });
+  const avoidRects = POSTER_LABELS.map(pctRect).concat(posterStakeholders.map(s => pctRect(s.posterBox)));
+  const circleHitsRect = (x, y, r, R) => {
+    const nx = Math.max(R.x0, Math.min(x, R.x1)), ny = Math.max(R.y0, Math.min(y, R.y1));
+    return (x - nx) ** 2 + (y - ny) ** 2 < r * r;
+  };
+  function badgeSpot(mx, my, placed) {
+    const taken = placed.map(b => ({ x0: b.x - BADGE_R, y0: b.y - BADGE_R, x1: b.x + BADGE_R, y1: b.y + BADGE_R }));
+    const clear = (x, y) => x > BADGE_R && y > BADGE_R && x < BADGE_MAX_X && y < BADGE_MAX_Y
+      && !avoidRects.some(R => circleHitsRect(x, y, BADGE_R, R)) && !taken.some(R => circleHitsRect(x, y, BADGE_R, R));
+    for (let r = 0; r <= 260; r += 4) {
+      const n = Math.max(1, Math.round(2 * Math.PI * r / 4));
+      for (let k = 0; k < n; k++) {
+        const x = mx + r * Math.cos(2 * Math.PI * k / n), y = my + r * Math.sin(2 * Math.PI * k / n);
+        if (clear(x, y)) return { x, y };
+      }
+    }
+    return { x: mx, y: my };  // nowhere clear within reach: keep the midpoint (the check reports it)
+  }
   function drawMoneyArrows(payments) {
     moneySvg.querySelectorAll(".money-pay").forEach(el => el.remove());
-    const color = FLOW_TYPES.capital.color;
+    const color = FLOW_TYPES.capital.color, placed = [];
     payments.forEach(p => {
       const a = posterBoxPx(p.from), b = posterBoxPx(p.to);
-      const pa = boxEdgePoint(a.x, a.y, a.hw, a.hh, b.x, b.y), pb = boxEdgePoint(b.x, b.y, b.hw, b.hh, a.x, a.y);
+      // The usual gentle curve's midpoint, then the nearest clear spot to it.
+      let pa = boxEdgePoint(a.x, a.y, a.hw, a.hh, b.x, b.y), pb = boxEdgePoint(b.x, b.y, b.hw, b.hh, a.x, a.y);
       const dx = pb.x - pa.x, dy = pb.y - pa.y, len = Math.hypot(dx, dy) || 1, bend = Math.min(70, len * 0.2);
-      const c = { x: (pa.x + pb.x) / 2 - dy / len * bend, y: (pa.y + pb.y) / 2 + dx / len * bend };
+      const spot = badgeSpot((pa.x + pb.x) / 2 - dy / len * bend / 2, (pa.y + pb.y) / 2 + dx / len * bend / 2, placed);
+      placed.push(spot);
+      // Leave and enter each box towards the badge, and bend the curve so its middle is the badge.
+      pa = boxEdgePoint(a.x, a.y, a.hw, a.hh, spot.x, spot.y); pb = boxEdgePoint(b.x, b.y, b.hw, b.hh, spot.x, spot.y);
+      const c = { x: 2 * spot.x - (pa.x + pb.x) / 2, y: 2 * spot.y - (pa.y + pb.y) / 2 };
       const g = document.createElementNS(NS, "g");
       g.setAttribute("class", "money-pay"); g.dataset.from = p.from; g.dataset.to = p.to;
       g.style.setProperty("--glow", color);
@@ -1117,7 +1148,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       path.setAttribute("d", "M" + pa.x + "," + pa.y + " Q" + c.x + "," + c.y + " " + pb.x + "," + pb.y);
       path.setAttribute("stroke", color); path.setAttribute("marker-end", "url(#money-head)");
       g.appendChild(path);
-      const mx = 0.25 * pa.x + 0.5 * c.x + 0.25 * pb.x, my = 0.25 * pa.y + 0.5 * c.y + 0.25 * pb.y;
+      const mx = spot.x, my = spot.y;
       const badge = document.createElementNS(NS, "g");
       badge.setAttribute("class", "money-badge");
       const circle = document.createElementNS(NS, "circle");

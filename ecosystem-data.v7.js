@@ -1,4 +1,4 @@
-// ecosystem-data.v6.js — single source of truth for the interactive Data
+// ecosystem-data.v7.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -23,7 +23,8 @@
 // over the poster and listed in the card, from this one source), and the
 // waste-heat relationship now points the way the heat flows; R27: so does
 // the leased-capacity relationship (operator -> hyperscaler), and money
-// step 4's text says the PPA fixes the price.
+// step 4's text says the PPA fixes the price. v7 (2026-10-09, R29): the
+// poster's printed label boxes (POSTER_LABELS), so money badges avoid them.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -134,6 +135,27 @@ const POSTER_GROUPS = {
 // panel, whose top border is at 74.4% (y 719 of 966), measured at x 82%, 88%
 // and 94%.
 const PANEL_REGION = { x: 78.8, y: 2.3, w: 20.4, h: 64.8, railBottom: 73.5 };
+
+// The poster's printed relationship labels (the pills on its arrows), as %
+// of assets/ecosystem-v2.webp (1536x966). Measured from the image: each
+// pill's border found by pixel scanning and checked on an overlay; "Backup
+// power & fuel" measured by eye on that overlay. The money arrows' euro
+// badges are placed so they never cover one of these or a stakeholder box
+// (R29, 2026-10-09).
+const POSTER_LABELS = [
+  { label: "Permits & land use", x: 38.8, y: 21.3, w: 4.4, h: 4.3 },
+  { label: "Construction services", x: 47.9, y: 23.6, w: 5.1, h: 4.5 },
+  { label: "PPA / green energy (electricity)", x: 21.6, y: 28.9, w: 6.9, h: 4.3 },
+  { label: "Grid access & connection", x: 32.7, y: 27.2, w: 4.9, h: 4.2 },
+  { label: "Waste heat (heat sales)", x: 22.8, y: 35.7, w: 4.6, h: 4.0 },
+  { label: "Equipment & components", x: 51.4, y: 32.8, w: 5.7, h: 5.0 },
+  { label: "Cooling systems & services", x: 22.5, y: 45.3, w: 5.7, h: 4.3 },
+  { label: "Financing & investment", x: 53.6, y: 43.7, w: 5.2, h: 4.1 },
+  { label: "Lease & services (compute capacity)", x: 52.2, y: 53.4, w: 6.6, h: 4.1 },
+  { label: "Backup power & fuel", x: 23.8, y: 55.1, w: 6.2, h: 4.5 },
+  { label: "Connectivity & bandwidth", x: 31.3, y: 57.2, w: 5.3, h: 4.1 },
+  { label: "Storage & data services", x: 41.7, y: 58.9, w: 5.8, h: 4.2 },
+];
 
 // "added: true" entries are not literal arrows from the source poster image —
 // flagged explicitly rather than presented as if they were always there.
