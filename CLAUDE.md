@@ -51,3 +51,4 @@ Needs Ray's approval before committing:
 ## Post-launch
 - Any change to scoring logic, weights, or thresholds requires checking live output before and after the change, not just a local run.
 - Known limitations recorded in PLAN.md stay tracked after launch — a working dashboard is not evidence an open question got resolved.
+- requirements.txt isn't pinned, so CI installs the latest packages each run (yfinance 1.7.0 on 2026-10-10, against 1.4.0 locally; prices differ in the third decimal). Before treating a local run as evidence of live behaviour, check the versions in the run's "Install dependencies" log; if they differ, repeat the check in a venv with CI's versions (PLAN.md ledger R43).
