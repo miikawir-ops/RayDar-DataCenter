@@ -165,6 +165,30 @@ def walkthroughs(b, run):
     print(f"     note: {len(money) - len(only_money)} of {len(money)} money steps light exactly the same boxes as a life step")
     ctx, pg, log, _ = open_page(b, run, 1680, 1050)
     nopay = pg.evaluate("() => MONEY_WALKTHROUGH_STEPS.filter(s => !(s.payments || []).length).map(s => s.title)")
+    # No euro badge may cover a printed poster label or a stakeholder box (R29), in any money step.
+    covered = []
+    pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(300)
+    for i in range(pg.evaluate("MONEY_WALKTHROUGH_STEPS.length")):
+        if i:
+            pg.locator("#wt-next").click(); pg.wait_for_timeout(300)
+        covered += pg.evaluate("""(step) => { const W = 1536, H = 966, out = [];
+            const rects = (typeof POSTER_LABELS === 'undefined' ? [] : POSTER_LABELS).map(l => [l.label, l])
+              .concat(STAKEHOLDERS.filter(s => s.posterBox).map(s => [s.name, s.posterBox]));
+            document.querySelectorAll('#money-svg .money-badge circle').forEach(c => {
+              const x = +c.getAttribute('cx'), y = +c.getAttribute('cy'), r = +c.getAttribute('r') + 2;
+              rects.forEach(([name, b]) => { const x0 = b.x * W / 100, y0 = b.y * H / 100, x1 = x0 + b.w * W / 100, y1 = y0 + b.h * H / 100;
+                const nx = Math.max(x0, Math.min(x, x1)), ny = Math.max(y0, Math.min(y, y1));
+                if ((x - nx) ** 2 + (y - ny) ** 2 < r * r) out.push('step ' + step + ': badge covers ' + name); }); });
+            return out }""", i + 1)
+    has_labels = pg.evaluate("() => typeof POSTER_LABELS !== 'undefined' && POSTER_LABELS.length")
+    check("money badges cover no printed poster label and no stakeholder box", has_labels and not covered, f"labels {has_labels}; {covered[:4]}")
+    pg.close(); ctx.close()
+    ctx, pg, log, _ = open_page(b, run, 1680, 1050)
+    pressed = pg.locator("#wt-mode-life").get_attribute("aria-pressed")
+    pg.locator("#wt-mode-life").click(); pg.wait_for_timeout(350)
+    st = pg.evaluate(WT_STATE)
+    check("fresh load: clicking the already-active Life chip starts step 1",
+          pressed == "true" and st["title"].startswith("1.") and st["poster"], f"pressed {pressed}, {st['title']}, lit {st['poster']}")
     check("every money step has payer -> payee pairs to draw", not nopay, str(nopay))
     pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(350)
     pg.locator("#hotspot-capital").click(); pg.wait_for_timeout(350)
