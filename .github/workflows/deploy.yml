@@ -12,7 +12,12 @@ on:
     # 12:00 UTC, weekdays — ~7-8am US Eastern. Decision #7: daily-only to
     # start. Adjust anytime; not a load-bearing choice.
     - cron: "0 12 * * 1-5"
-  workflow_dispatch: {}   # manual "Run workflow" button — no Pages requirement to exist as an option
+  workflow_dispatch:      # manual "Run workflow" button — no Pages requirement to exist as an option
+    inputs:
+      test_failure:
+        description: "Fail on purpose before anything is built or deployed (tests the failure issue)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read   # checkout only — nothing is committed back to the repo
@@ -30,6 +35,15 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Deliberate test failure (manual runs only)
+        if: ${{ inputs.test_failure }}
+        run: |
+          echo "Failing on purpose: test_failure was set on a manual run."
+          exit 1
+        # Scheduled runs have no inputs, so this never runs on schedule.
+        # Fails before checkout, so nothing is built or deployed and the
+        # live site keeps its last deployment (ledger R38).
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -75,3 +89,36 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  report-failure:
+    # Opens an issue when the run fails (ledger R33f, R36, R38). GitHub's
+    # own failure email didn't arrive for the failed 2026-10-05 scheduled
+    # run, so this is the notification of record. A separate job, so
+    # build-and-deploy keeps its read-only contents token; this job gets
+    # issues: write and nothing else.
+    needs: build-and-deploy
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Open an issue for the failed run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          when="$(date -u +'%Y-%m-%d %H:%M') UTC"
+          body="The dashboard workflow failed.
+
+          - Run: $RUN_URL
+          - Trigger: $EVENT
+          - Branch: $REF
+          - Commit: $SHA
+
+          A failed run doesn't deploy, so the live site still shows the last successful run. Close this issue once the cause is fixed."
+          gh issue create --title "Dashboard run failed: $EVENT, $when" --assignee "$OWNER" --body "$body"
