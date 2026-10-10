@@ -65,6 +65,9 @@ class SchemaError(RuntimeError):
 
 
 TICKER_BAR_COLUMNS = ("Close", "Adj Close", "High", "Low", "Volume")
+
+# Buy-side grades counted by the analyst signal (the list the old code used).
+BUY_GRADES = ("Buy", "Strong Buy", "Overweight", "Outperform", "Positive")
 INDEX_BAR_COLUMNS  = ("Close",)
 
 # Per-company fields the pipeline reads; each must be present for at least
@@ -78,7 +81,7 @@ EXPECTED_FIELDS = (
     "quarterly_financials.Gross Profit|GrossProfit",
     "quarterly_cashflow.Capital Expenditure|CapitalExpenditure",
     "quarterly_cashflow.Operating Cash Flow|OperatingCashFlow",
-    "recommendations.To Grade",
+    "upgrades_downgrades.ToGrade",
 )
 
 # Known breaks that are already tracked: logged as an error on every run
@@ -87,14 +90,7 @@ EXPECTED_FIELDS = (
 # it), or once the field is no longer read at all, the exemption itself fails
 # the run until it's removed (ledger R48). Nothing else may be added here
 # without Ray's approval.
-KNOWN_FORMAT_BREAKS = {
-    "recommendations.To Grade": {
-        "reason": "yfinance (1.4 and 1.7) returns a monthly summary table without this column, so "
-                  "analyst_upgrades is scored 0 for every company (decision #6 break, ledger R35); "
-                  "fixed by ledger R45 item 1, which also moves this check to the new source",
-        "expires_at": 2,        # the R45 release is model_version 2
-    },
-}
+KNOWN_FORMAT_BREAKS = {}   # the analyst break (ledger R35) was fixed by R45 item 1
 
 
 def require_columns(hist, columns, label):
@@ -561,23 +557,24 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
         if growth_prev is None:
             data_missing.append("growth_prev")
 
-        analyst_upgrades = 0
+        # Analyst grades (ledger R45 item 1): per-action rows from
+        # upgrades_downgrades. t.recommendations is a monthly summary table
+        # without grades in yfinance 1.4 and 1.7, which scored every company 0
+        # (ledger R35). Same count as before: how many of the 10 most recent
+        # actions set a buy-side grade. The table comes newest first, so it's
+        # sorted before taking the last 10. No usable table is missing data
+        # (None + data_missing), never a 0.
+        analyst_upgrades = None
         try:
-            recs = t.recommendations
-            if recs is not None and "To Grade" in recs.columns:
-                seen.add("recommendations.To Grade")
-            if recs is not None and not recs.empty:
-                recent = recs.tail(10)
-                if "To Grade" in recent.columns:
-                    up = recent[recent["To Grade"].isin([
-                        "Buy", "Strong Buy", "Overweight", "Outperform", "Positive"
-                    ])]
-                    analyst_upgrades = len(up)
-            # else: call succeeded, genuinely no recent recommendation data —
-            # real 0, not a fetch failure.
+            ud = t.upgrades_downgrades
+            if ud is not None and "ToGrade" in ud.columns:
+                seen.add("upgrades_downgrades.ToGrade")
+                if not ud.empty:
+                    recent = ud.sort_index().tail(10)
+                    analyst_upgrades = int(recent["ToGrade"].isin(BUY_GRADES).sum())
         except Exception as e:
-            log.debug(f"  {ticker} recommendations error: {e}")
-            analyst_upgrades = None
+            log.debug(f"  {ticker} upgrades_downgrades error: {e}")
+        if analyst_upgrades is None:
             data_missing.append("analyst_upgrades")
 
         short_int_change = None
