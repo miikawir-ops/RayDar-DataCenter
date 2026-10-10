@@ -75,6 +75,8 @@ import logging
 import datetime
 from pathlib import Path
 
+from config import MODEL_VERSION
+
 log = logging.getLogger(__name__)
 
 AUDIT_LOG_FILE = "audit_log.json"
@@ -508,6 +510,7 @@ class ScoreEngine:
             "missing_fields": missing_fields,
             "data_status":    result["data_status"],
             "timestamp":      result["timestamp"],
+            "model_version":  MODEL_VERSION,     # ledger R45 item 4
         }
         self._append_audit(sector_name, result, missing_fields)
 
@@ -534,6 +537,7 @@ class ScoreEngine:
             "stages_used":    result.get("stages_used", []),
             "missing_fields": missing_fields,
             "data_status":    result["data_status"],
+            "model_version":  MODEL_VERSION,     # ledger R45 item 4
         })
 
         log_entries = log_entries[-500:]

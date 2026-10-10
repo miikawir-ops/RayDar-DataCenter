@@ -53,7 +53,7 @@ import logging
 import datetime
 from pathlib import Path
 
-from config import SUB_LAYERS
+from config import SUB_LAYERS, MODEL_VERSION
 
 log = logging.getLogger(__name__)
 
@@ -216,6 +216,7 @@ def save_scores_history(scored_data: dict, session: str):
         "date": session,
         "time": datetime.datetime.now().strftime("%H:%M"),
         "run_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+        "model_version": MODEL_VERSION,     # ledger R45 item 4
         "scores": {
             layer_id: {
                 "score": result["best"].get("score"),

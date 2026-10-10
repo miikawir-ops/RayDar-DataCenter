@@ -59,11 +59,13 @@ COMPANY_NAMES = {
 }
 
 # Version of the scoring model: bump it whenever scoring inputs, formulas or
-# weights change (ledger R45 item 4). 1 = the model live as of 2026-10-10.
+# weights change (ledger R45 item 4); every history and audit entry carries it.
+# 1 = the model live as of 2026-10-10. 2 = ledger R45: analyst grades from
+# upgrades_downgrades, the momentum fix, and the news counting rules.
 # Data-format exemptions in fetch_market.KNOWN_FORMAT_BREAKS expire at a
 # given version, so the release that fixes a break can't ship with the
 # exemption still in place (ledger R48).
-MODEL_VERSION = 1
+MODEL_VERSION = 2
 
 # Single-quarter YoY capex-trend label thresholds (PLAN.md decision #4).
 # Picked from verified capex history, not guessed: pre-AI hyperscaler capex growth
