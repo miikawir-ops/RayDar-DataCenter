@@ -54,7 +54,7 @@ jobs:
           mkdir -p _site/assets
           cp index.html _site/index.html
           cp ecosystem.html _site/ecosystem.html
-          cp ecosystem-data.v7.js _site/ecosystem-data.v7.js
+          cp ecosystem-data.v8.js _site/ecosystem-data.v8.js
           cp assets/ecosystem-v2.webp _site/assets/ecosystem-v2.webp
           cp -r business-models _site/business-models
           test -f _site/business-models/index.html

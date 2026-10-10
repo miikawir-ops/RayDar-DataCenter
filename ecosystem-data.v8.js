@@ -1,4 +1,4 @@
-// ecosystem-data.v7.js — single source of truth for the interactive Data
+// ecosystem-data.v8.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -25,6 +25,7 @@
 // the leased-capacity relationship (operator -> hyperscaler), and money
 // step 4's text says the PPA fixes the price. v7 (2026-10-09, R29): the
 // poster's printed label boxes (POSTER_LABELS), so money badges avoid them.
+// v8 (2026-10-10, R31): the operator -> enterprise colocation relationship.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -196,6 +197,12 @@ const RELATIONSHIPS = [
     explanation: "A hyperscaler leases capacity from the operator, or is the operator itself if it self-operates the facility." },
   { from: "hyperscaler",       to: "enterprise", type: "goods",   label: "Cloud services", added: true,
     explanation: "Hyperscalers sell compute, storage, and networking as an ongoing service to businesses and developers." },
+  // Retail colocation (R31, 2026-10-10): the poster draws this arrow (an
+  // unlabelled two-headed Contract arrow), money step 1 charges it, and the
+  // life path's step 6 describes it. It points the way the space flows; the
+  // colocation fees flow back in "Follow the money" step 1.
+  { from: "operator",           to: "enterprise", type: "contract", label: "Colocation (space, power & cooling)", added: true,
+    explanation: "Businesses rent space in the operator's facility for their own servers, usually racks or a cage in a shared hall (retail colocation), with power and cooling supplied by the operator and often direct connections to carriers and cloud providers in the same building." },
   // The model's only Data relationship (R24, 2026-10-09): the data the whole
   // system exists to process. Deliberately not operator <-> tenant: in
   // colocation the operator supplies space, power and cooling, and the

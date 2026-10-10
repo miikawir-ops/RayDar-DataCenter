@@ -3,7 +3,7 @@
 // outside git in Output/business-models-source/). From here on this file is the
 // single source of truth for glossary content: inline tooltips read it now, and
 // the glossary page (sanasto.html) will render from it when ported.
-// Same shape as GLOSSARY in ../../ecosystem-data.v7.js ({term, definition}), plus
+// Same shape as GLOSSARY in ../../ecosystem-data.v8.js ({term, definition}), plus
 // an optional `alt`: the term's other-language name as shown on the glossary page.
 // Keys are English: the term itself when it is English, otherwise its English name
 // (the glossary page's own alt where it gives one). Where a concept exists on the
