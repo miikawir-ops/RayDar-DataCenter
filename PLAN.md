@@ -956,6 +956,7 @@ live date for rendered changes) · **superseded** · **declined**.
 | R38 | 2026-10-10 | "R33.f: I received no email for the 2026-10-05 run. Treat the report-failure issue job as required. When you run its deliberate test failure, tell me the time so I can check whether an email arrived too." | **done:** `ceb1e22` (job `report-failure`, plus a manual-only `test_failure` input). Tested 2026-10-10: run 38044696377 failed on purpose at 10:23:05 UTC, and issue #1 opened at 10:23:09 UTC, assigned to miikawir-ops (closed afterwards as a test). Normal run 38044762500 skipped the job and deployed, live 10:24 UTC. Tested on main, not a throwaway branch: the github-pages environment only allows main. GitHub's "Run failed" email for that run arrived (Ray, R39) |
 | R39 | 2026-10-10 | "R33f: I received GitHub's 'Run failed' email for the 10:23 UTC test (Deploy RayDar Data Center dashboard, main, ceb1e22). Failure emails reach me. Close R33f with that recorded. Record as a known gap: the 2026-10-05 run was marked failed but its job never started, and I got no email for it. Check whether report-failure (if: failure()) would fire in that case; if not, say so in PLAN.md. The detection for that case is R33d's missing-day note, so include it in R33d's tests as already asked." | **done:** `e50568a`. `report-failure` wouldn't fire: the job's result was `cancelled`, not `failure`, and the job never got a runner, which the report job also needs |
 | R40 | 2026-10-10 | "R33d: expected sessions from trading dates approved. Take them from a reference series every run fetches (e.g. ^GSPC daily bars); if that fetch fails, the run fails loudly, never 'no sessions expected'. R33d addition: include a test where a scheduled session is missing entirely (e.g. a run that never started, like 2026-10-05) and show that the card note names the missing day." | **built, held** 2026-10-10 for Ray's approval of the note wording ("(no reading for Mon Oct 5)"). `tools/check_confirmation.py` 28/28, including the 2026-10-05 case end to end through stage_score() and the rendered card. Open with it: the card's "vs yesterday" delta compares against the latest stored session, so with Mon Oct 5 missing it compares Tue Oct 6 with Fri Oct 2 under the same label |
+| R41 | 2026-10-10 | "R33.3 addition: the bar helper must also drop any trailing row whose Close is NaN, regardless of its date, and any NaN that still reaches a computed value must become None and be named in data_missing (decision #6), never written to the page. Evidence: the parent's published page has "ret30": NaN for all 28 tickers on almost every run after 00:00 UTC (e.g. 10-10 00:08, 10-09 00:32, 10-08 00:17) and on none before midnight; likely an empty last bar. Add a test with a trailing NaN row. Also add this to the parent carry-over queue." | **built, held** with R40 (same uncommitted change set). `tools/check_confirmation.py` 41/41, including a trailing NaN row dated a past session (fails on the previous helper). Found on the way: before the clamp check, a NaN close made momentum +5, the maximum. Carry-over entry added; one correction to the evidence: one morning run (2026-09-23 10:40 UTC) also has NaN |
 
 ## Queue: carry over to the parent's own session (AI_valuechain)
 
@@ -995,6 +996,21 @@ copy and says nothing about the parent's live code.
   - Fired on time, the 20:30 run would fall before the US close once
     daylight saving ends on 1 November (21:00 UTC in winter).
   The session-dating fix (ledger R33b) applies there too.
+- **NaN 30-day returns on the published page (ledger R41).** Verified from
+  the parent's `index.html` in its bot commits: `"ret30": NaN` for all 28
+  tickers on 6 of the 7 runs that landed after 00:00 UTC (2026-09-29 to
+  2026-10-10; all but 2026-10-02 00:02), and on one morning run
+  (2026-09-23 10:40 UTC). None of the evening runs that landed before
+  midnight has it. `ret_1mo` and `ret_3mo` are NaN on the same pages; all
+  three use the last close, which fits an empty (NaN) last daily bar. That
+  cause is inferred, not observed. Code read at the parent's HEAD:
+  `fetch_market.py` takes `t.history(period="6mo")` without dropping such a
+  row, and clamps momentum with `max(-5.0, min(5.0, m))`, which turns a NaN
+  into +5.0; `score_engine.py` scores +5.0 as 80. Its effect on the
+  parent's scores on those runs wasn't measured from here. Fix as here
+  (ledger R41): the bar helper drops trailing NaN rows, momentum is checked
+  for NaN before the clamp, any NaN left becomes None and is named in
+  `data_missing`, and the page refuses NaN.
 
 ## Known issues (recorded, not fixed)
 
