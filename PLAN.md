@@ -559,6 +559,15 @@ findings don't get lost, not because a fix or a direction has been agreed.
      each run logs `Scores history saved (1 days)` and confirmation never
      leaves "building baseline". The read-back verification item noted
      earlier in this section was never satisfied.
+   - **Lesson (2026-10-10, ledger R34): before replacing a parent
+     mechanism, list everything it did.** The parent's commit-back step did
+     two jobs: it published `index.html` and it persisted the score history
+     (by committing both). The Actions-based Pages deploy replaced the first
+     and silently dropped the second, and nothing noticed for three weeks
+     because every run still "worked". When swapping out a mechanism
+     inherited from the parent, enumerate its side effects first (files it
+     writes, state it carries between runs, what reads that state) and
+     check each one has a new home.
 
    **LIVE (2026-09-20).** Repo made public, Pages enabled (Settings →
    Pages → Source: GitHub Actions), deploy verified working end to end.
@@ -941,6 +950,25 @@ live date for rendered changes) · **superseded** · **declined**.
 | R32 | 2026-10-10 | "3. Read-only snapshot before building persistence: a. Run the pipeline locally once (weekend, so Friday's full bars) and give me per ticker: accel, constraints, smart, composite, fund_delta, and whether accel×0.65 + smart×0.15 ≥ 45. b. For the 15 recovered days: which run per day you used, and for days with several runs, the spread of each sub-layer's score within the day." | **open** |
 | R33 | 2026-10-10 | "4. R28 persistence: data branch approved, with these changes: a. Split the workflow: build/deploy keeps contents: read; a separate small job with contents: write receives only the two files (as an artifact) and pushes them to the data branch. b. Instead of 'weekday scheduled runs only': date each history and audit entry by the last completed US market session, not the wall clock; the last run for a session overwrites earlier ones. First verify, on a run during US trading hours, whether t.history(period='6mo') includes today's unfinished bar. If it does, drop it: vol_spike = volumes[-1]/vol_avg otherwise depends on when GitHub fires the cron. Report how many of the 15 recovered days came from intraday runs. c. Audit log on the data branch: one entry per ticker per session, no 500-entry cap, including accel/constraints/smart and fund_delta. This is the data the Red-threshold question needs. d. Missing-day fix as you proposed: excluded and named, never 0; days older than 7 calendar days excluded; an unreadable file in CI is an error. e. Commit the 15 rebuilt days and the raw run logs to the data branch under archive/, never read by the pipeline, before the logs expire. f. Confirm that a failed scheduled run actually notifies me. g. Activating confirmation: approved, with the before/after check on live per CLAUDE.md. Report the notes from the first live runs." | **open** |
 | R34 | 2026-10-10 | "5. PLAN.md, doc only: a. Add a lesson: the parent's commit-back step both published index.html and persisted history; the Actions-based deploy replaced the first and dropped the second. Before replacing a parent mechanism, list everything it did. b. Add to the open queue, to carry over to the parent's own session (don't change AI_valuechain from here): its _load_recent_layer_scores has the same .get('score', 0), and there the history persists, so the bug is live. Its 06:00 UTC run dates yesterday's session as today, and its 20:30 UTC run falls before the US close after 1 Nov (close is 21:00 UTC in winter), so the session-dating fix applies there too." Plus: "Run the four checks, verify live after each deploy, quote hashes only from command output." | **open** |
+
+## Queue: carry over to the parent's own session (AI_valuechain)
+
+Found here, to be checked and fixed in the parent's own session; nothing in
+AI_valuechain is changed from this project (ledger R34, 2026-10-10). As
+reported by Ray. Not verified from here: per CLAUDE.md, `reference/` is a
+copy and says nothing about the parent's live code.
+
+- **Missing day counted as score 0 in colour confirmation.** The parent's
+  `_load_recent_layer_scores()` has the same `.get("score", 0)` as this
+  project's. There the history does persist, so the bug is live: a sub-layer
+  missing from a day's history counts as a 0, i.e. below 30, which can
+  falsely confirm Blue (and counts against Red/Orange confirmation). Fix as
+  here (ledger R33d): a missing day is excluded and named, never 0.
+- **History dated by wall clock, not by US market session.** The parent's
+  06:00 UTC run dates yesterday's session as today. Its 20:30 UTC run falls
+  before the US close once US daylight saving time ends on 1 November (the
+  close is 21:00 UTC in winter), so it would record an unfinished session.
+  The session-dating fix (ledger R33b) applies there too.
 
 ## Known issues (recorded, not fixed)
 
