@@ -58,6 +58,13 @@ log = logging.getLogger(__name__)
 
 SCORES_HISTORY_FILE = "scores_history.json"
 
+# _confirmed_color() returns a plain-English note and the branch that set
+# the colour. The dashboard shows the note on each sub-layer card and, while
+# at least one card is in the "no_history" branch, a page-level line saying
+# colours are today's reading only (ledger R30/R36), so the disclosure
+# follows the data and disappears by itself once history is stored.
+NO_HISTORY = "no_history"
+
 # Rating quality map — used for Red reality check once render.py (step 6)
 # starts assigning ratings. Kept here so the check is future-proofed rather
 # than needing this reintroduced later.
@@ -95,9 +102,9 @@ def _confirmed_color(
     today_color: str,
     layer_id: str,
     top_fund_delta: float | None,
-) -> tuple[str, str]:
+) -> tuple[str, str, str]:
     """
-    3-day color confirmation system — unchanged from reference. A color
+    3-day color confirmation system — rules unchanged from reference. A color
     change requires confirmation across multiple daily runs to prevent
     single-day data noise from flipping the dashboard signal.
 
@@ -105,35 +112,44 @@ def _confirmed_color(
     CONFIRMED RED — today > 65 AND 2+ of last 3 days also > 55
     CONFIRMED ORANGE — today >= 45 AND 2+ of last 3 days also >= 40
     CONFIRMED BLUE — today < 25 AND 2+ of last 3 days also < 30
-    DEFAULT GREEN — if today's signal can't be confirmed by history
+    HOLDING — keep the recent dominant colour if today's score is within
+              its band (for Green the band check always passes: gap 0)
+    DEFAULT — Green if 25 <= score < 45, else today's colour
+
+    Returns (colour, note, branch). The note is the plain-English text the
+    dashboard shows on the card (R36 wording, adjusted only for accuracy:
+    "of the last k days" because only 2 may be stored; Orange is "at or
+    above 40"; the delta rule is about "one of its companies", the one with
+    the highest fund_delta; Green holding doesn't test nearness). branch is
+    one of: no_history, instant, confirmed, holding, not_sustained.
     """
     recent = _load_recent_layer_scores(layer_id, days=3)
+    k = len(recent)
 
-    if len(recent) < 2:
-        note = "unconfirmed (insufficient history — building baseline)"
-        log.debug(f"  {layer_id}: {today_color} unconfirmed — only {len(recent)} history days")
-        return today_color, note
+    if k < 2:
+        log.debug(f"  {layer_id}: {today_color} unconfirmed — only {k} history days")
+        return today_color, f"Today's reading only — not yet confirmed ({k} of 2 earlier days stored)", NO_HISTORY
 
     if today_score > 80:
         log.info(f"  {layer_id}: instant Red — extreme score {today_score:.1f} > 80")
-        return "Red", f"Instant Red — extreme score {today_score:.1f}"
+        return "Red", f"Red without waiting: score {today_score:.1f} is above 80", "instant"
 
     if top_fund_delta and top_fund_delta > 0.60:
         log.info(f"  {layer_id}: instant Red — fund_delta {top_fund_delta:.2f} > 0.60")
-        return "Red", f"Instant Red — strong fundamental acceleration delta={top_fund_delta:.2f}"
+        return "Red", "Red without waiting: revenue growth at one of its companies is accelerating sharply", "instant"
 
     days_above_55  = sum(1 for s in recent if s > 55)
     days_above_40  = sum(1 for s in recent if s >= 40)
     days_below_30  = sum(1 for s in recent if s < 30)
 
     if today_score > 65 and days_above_55 >= 2:
-        return "Red", f"Confirmed Red — {days_above_55}/3 recent days above 55"
+        return "Red", f"Red, confirmed: {days_above_55} of the last {k} days also above 55", "confirmed"
 
     if today_score >= 45 and days_above_40 >= 2:
-        return "Orange", f"Confirmed Orange — {days_above_40}/3 recent days above 40"
+        return "Orange", f"Orange, confirmed: {days_above_40} of the last {k} days also at or above 40", "confirmed"
 
     if today_score < 25 and days_below_30 >= 2:
-        return "Blue", f"Confirmed Blue — {days_below_30}/3 recent days below 30"
+        return "Blue", f"Blue, confirmed: {days_below_30} of the last {k} days also below 30", "confirmed"
 
     prev_colors = []
     try:
@@ -163,13 +179,16 @@ def _confirmed_color(
         if -10 <= threshold_gap <= 5:
             log.info(f"  {layer_id}: holding {dominant} (borderline score {today_score:.1f}, "
                      f"prev dominant={dominant})")
-            return dominant, f"Holding {dominant} — borderline score, prev 3d dominant"
+            if dominant == "Green":
+                note = f"Kept Green: today's score {today_score:.1f} isn't confirmed yet, and recent days were mostly Green"
+            else:
+                note = (f"Kept {dominant}: today's score {today_score:.1f} is near the line, "
+                        f"and recent days were mostly {dominant}")
+            return dominant, note, "holding"
 
-    note = f"Unconfirmed — score {today_score:.1f} not sustained in history"
-    log.info(f"  {layer_id}: {today_color} -> Green (unconfirmed, fallback)")
-    if 25 <= today_score < 45:
-        return "Green", note
-    return today_color, note
+    shown = "Green" if 25 <= today_score < 45 else today_color
+    log.info(f"  {layer_id}: {today_color} -> {shown} (unconfirmed, fallback)")
+    return shown, f"Shown as {shown}: today's {today_score:.1f} hasn't held over recent days", "not_sustained"
 
 
 def _layer_color_from_score(score: float, top_delta: float | None) -> tuple[str, str]:
@@ -370,7 +389,7 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
             layer_status = reality_status
 
         # ── 3-day color confirmation ─────────────────────────────────────────
-        layer_color, confirm_note = _confirmed_color(
+        layer_color, confirm_note, confirm_branch = _confirmed_color(
             weighted_score, layer_color, layer_id, top_fund_delta
         )
         if confirm_note:
@@ -388,6 +407,8 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
             "weighted_score": weighted_score,
             "layer_color":    layer_color,
             "layer_status":   layer_status,
+            "confirm_note":   confirm_note,
+            "history_insufficient": confirm_branch == NO_HISTORY,
             "tickers_scored": len(layer_scores),
             "tickers_total":  len(tickers_data),
             "insufficient":   insufficient,

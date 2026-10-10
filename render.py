@@ -364,6 +364,7 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
             "tickers_total":  layer_result.get("tickers_total"),
             "news_vel": news_vel, "momentum_label": momentum_label,
             "delta_score": delta_score, "prev_color": prev_color, "color_changed": color_changed,
+            "note": layer_result.get("confirm_note") or "",
             "tickers": tickers_out,
             "divergence": divergence, "divergence_msg": divergence_msg,
         })
@@ -468,6 +469,13 @@ def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = 
     history_js = _history_js_data(full_history, scored_data)
     capex_js   = _capex_js_data(capex_data)
     has_yesterday = "true" if yesterday else "false"
+    # Only while at least one card is in the insufficient-history branch (not
+    # for "not sustained" or other unconfirmed notes): say once at page level
+    # that colours are today's reading only (R36). Disappears by itself.
+    single_day = any(r.get("history_insufficient") for r in scored_data.values() if r.get("best"))
+    single_day_html = ('<div class="single-day-note">'
+                       "Colours are based on today's reading only; multi-day confirmation "
+                       "starts once a few days of history are stored.</div>") if single_day else ""
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -537,6 +545,12 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .lyr-bar{{height:3px;border-radius:2px;background:rgba(0,0,0,.08);margin-bottom:8px}}
 .lyr-fill{{height:3px;border-radius:2px}}
 .lyr-meta{{font-size:10px;color:#888780;margin-bottom:8px}}
+/* Colour-confirmation note per sub-layer, and the page line shown while any
+   sub-layer is unconfirmed for lack of history (ledger R30). Neutral grey,
+   not a signal colour. */
+.lyr-note{{font-size:9.5px;color:#6E6D68;line-height:1.35;margin:-4px 0 8px}}
+.single-day-note{{font-size:11px;color:#5F5E5A;background:#F1EFE8;border-left:2px solid #B4B2A9;
+                  border-radius:0 6px 6px 0;padding:6px 10px;margin-bottom:8px}}
 .lyr-tickers{{border-top:1px solid rgba(0,0,0,.06);padding-top:7px;
               display:flex;flex-direction:column;gap:4px}}
 .lyr-tk{{display:flex;justify-content:space-between;font-size:10px;font-weight:500}}
@@ -799,6 +813,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     </div>
   </div>
   <div class="fetch-note" style="margin-bottom:8px;color:#6A7A9A">{fetch_note}</div>
+  {single_day_html}
   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
     <div id="bottleneck-strip" style="display:flex;align-items:center;gap:8px;padding:8px 12px;
          border-radius:6px;background:#F8F8F7;border:0.5px solid #E0DFDC;
@@ -1139,6 +1154,7 @@ function buildChain() {{
       </div>
       <div class="lyr-bar"><div class="lyr-fill" style="width:${{pct}}%;background:${{c.border}}"></div></div>
       <div class="lyr-meta">News ${{l.news_vel != null ? l.news_vel : "—"}} hits · Momentum ${{l.momentum_label}}</div>
+      ${{l.note ? `<div class="lyr-note">${{l.note}}</div>` : ""}}
       <div style="display:flex;gap:3px;margin-bottom:4px;flex-wrap:wrap">
         ${{top3.map(t => {{
           const rc = t.rating || "na";
