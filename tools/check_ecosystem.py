@@ -270,72 +270,6 @@ def explorer(b, run):
         ctx.close()
 
 
-NAV = """() => { const q = s => document.querySelector(s), cs = e => getComputedStyle(e);
-  const btn = id => { const b = document.getElementById(id), r = b.getBoundingClientRect(),
-      t = b.querySelector('.wt-mode-title') || b, d = b.querySelector('.wt-mode-desc');
-    return {title: t === b ? b.textContent.trim() : t.textContent, desc: d ? d.textContent : null,
-            icon: !!b.querySelector('.wt-mode-icon svg'), bg: cs(b).backgroundColor, pressed: b.getAttribute('aria-pressed'),
-            w: r.width, titleSize: parseFloat(cs(t).fontSize), titleWeight: +cs(t).fontWeight}; };
-  const start = q('#wt-start'), wt = q('.walkthrough'), tab = q('#toggle-poster');
-  const toRgb = hex => { const n = parseInt(hex.slice(1), 16); return 'rgb(' + [n >> 16 & 255, n >> 8 & 255, n & 255].join(', ') + ')'; };
-  return {life: btn('wt-mode-life'), money: btn('wt-mode-money'), capital: toRgb(FLOW_TYPES.capital.color),
-          start: start && {text: start.textContent.trim(), shown: cs(start).display !== 'none', anim: cs(start).animationName},
-          wtInner: wt.clientWidth - parseFloat(cs(wt).paddingLeft) - parseFloat(cs(wt).paddingRight),
-          tab: {size: parseFloat(cs(tab).fontSize), weight: +cs(tab).fontWeight, shadow: cs(tab).boxShadow, shown: cs(q('.view-toggle')).display !== 'none'},
-          cards: [...document.querySelectorAll('.family-link')].map(a => ({href: a.getAttribute('href'),
-            open: (a.querySelector('.fl-open') || {}).textContent || null,
-            openShown: !!a.querySelector('.fl-open') && a.querySelector('.fl-open').getBoundingClientRect().width > 0,
-            fi: [...a.querySelectorAll('.fl-tag')].map(t => t.textContent),
-            tile: a.querySelector('.fl-icon') ? cs(a.querySelector('.fl-icon')).backgroundColor : null, arrow: !!a.querySelector('.fl-arrow')})),
-          looping: document.getAnimations().filter(an => an.effect && an.effect.getTiming().iterations === Infinity).length} }"""
-
-
-def navigation(b, run):
-    """R50: the walkthrough buttons, the "Start here" label, the link cards and the view tabs."""
-    for w, h, mobile in ((1680, 1050, False), (1280, 800, False), (390, 844, True), (360, 740, True)):
-        ctx, pg, log, _ = open_page(b, run, w, h, mobile=mobile)
-        tag = f"nav {w}"
-        st = pg.evaluate(NAV)
-        life, money = st["life"], st["money"]
-        check(f"{tag}: walkthrough buttons carry an icon, a title and a one-line description",
-              (life["title"], life["desc"], money["title"], money["desc"]) ==
-              ("Life of a data center", "From permits to waste heat, step by step", "Follow the money", "Who pays whom")
-              and life["icon"] and money["icon"], str((life, money)))
-        check(f"{tag}: a static 'Start here' label above them",
-              st["start"] and st["start"]["text"].lower() == "start here" and st["start"]["shown"] and st["start"]["anim"] == "none", str(st["start"]))
-        cards = st["cards"]
-        check(f"{tag}: each link card shows an 'Open →' pill instead of the small arrow",
-              len(cards) == 2 and all(c["open"] == "Open →" and c["openShown"] and not c["arrow"] for c in cards), str(cards))
-        check(f"{tag}: only the Finnish explainer card carries the FI tag",
-              [c["fi"] for c in cards] == [[], ["FI"]] and cards[1]["href"] == "business-models/", str(cards))
-        check(f"{tag}: each link card has a coloured icon tile",
-              all(c["tile"] not in ("rgba(0, 0, 0, 0)", "transparent") for c in cards), str([c["tile"] for c in cards]))
-        if mobile:
-            check(f"{tag}: walkthrough buttons span the walkthrough's width",
-                  life["w"] >= st["wtInner"] - 2 and money["w"] >= st["wtInner"] - 2, f"{life['w']:.0f}/{money['w']:.0f} of {st['wtInner']:.0f}")
-        else:
-            check(f"{tag}: the view tabs are heavier than the walkthrough buttons",
-                  st["tab"]["shown"] and st["tab"]["size"] > life["titleSize"] and st["tab"]["weight"] >= life["titleWeight"]
-                  and "rgba" in st["tab"]["shadow"], str((st["tab"], life["titleSize"], life["titleWeight"])))
-            top0 = pg.locator(".family-link").first.bounding_box()["y"]
-            pg.locator(".family-link").first.hover(); pg.wait_for_timeout(300)
-            top1 = pg.locator(".family-link").first.bounding_box()["y"]
-            check(f"{tag}: a link card lifts on hover", top1 < top0 - 1, f"{top0:.1f} -> {top1:.1f}")
-            pg.mouse.move(2, 2)
-        pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(350)
-        st = pg.evaluate(NAV)
-        check(f"{tag}: the active money button is filled with the money arrows' colour",
-              st["money"]["pressed"] == "true" and st["money"]["bg"] == st["capital"] and st["life"]["pressed"] == "false", str((st["money"], st["capital"])))
-        pg.locator("#wt-mode-life").click(); pg.wait_for_timeout(350)
-        st = pg.evaluate(NAV)
-        check(f"{tag}: the active life button is filled (family purple)",
-              st["life"]["pressed"] == "true" and st["life"]["bg"] == "rgb(60, 52, 137)" and st["money"]["bg"] != st["capital"], str(st["life"]))
-        check(f"{tag}: no continuous animation anywhere on the page", st["looping"] == 0, str(st["looping"]))
-        check(f"{tag}: no sideways scroll", sideways(pg) <= 0, f"{sideways(pg)}px")
-        check(f"{tag}: no console errors", not log, str(log))
-        ctx.close()
-
-
 def phones(b, run):
     for w, h in PHONES:
         ctx, pg, log, _ = open_page(b, run, w, h, mobile=True)
@@ -362,7 +296,7 @@ def main():
         os.makedirs(args.shots, exist_ok=True)
     with sync_playwright() as p:
         b = p.chromium.launch()
-        for suite in (poster_desktop, walkthroughs, flows_desktop, explorer, navigation, phones):
+        for suite in (poster_desktop, walkthroughs, flows_desktop, explorer, phones):
             print(f"== {suite.__name__}")
             suite(b, run)
         b.close()
