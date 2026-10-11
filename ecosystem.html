@@ -138,6 +138,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .sc-subgroup{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1)}
 .sc-subgroup:first-of-type{margin-top:6px;padding-top:0;border-top:none}
 .sc-subgroup-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:2px}
+/* Examples per stakeholder and their sources (R53). */
+.sc-examples{font-size:11px;color:#E8EDF5;line-height:1.55}
+.sc-examples strong{color:#fff}
+.sc-examples a{color:#85B7EB}
+.sc-sources{font-size:10px;color:#AEB9CC;line-height:1.5;margin-top:6px}
+.sc-sources a{color:#85B7EB}
 
 /* Default-state fill (item 3): how-to-use block + always-visible clickable
    stakeholder list, so the compact card's column is never mostly empty. */
@@ -288,6 +294,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .wt-text{flex:1;min-width:200px;transition:opacity .15s ease}
 .wt-title{font-size:12px;font-weight:600;color:#fff}
 .wt-desc{font-size:11.5px;color:#E8EDF5;margin-top:2px;line-height:1.5}
+/* Optional per-step extras (R53): a link (step 3 -> Daily signals) and a
+   dated Finland-specific note (step 7). */
+.wt-link{display:inline-block;margin-top:4px;font-size:11.5px;font-weight:600;color:#85B7EB}
+.wt-note{margin-top:4px;font-size:11px;color:#C8D4E8;line-height:1.5;font-style:italic}
+.wt-link[hidden],.wt-note[hidden]{display:none}
 
 .case-card{margin-top:14px;padding:14px;background:linear-gradient(135deg,#221F3D,#16243A);
           border:1px solid rgba(175,169,236,0.3);border-radius:8px}
@@ -454,6 +465,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       <div class="wt-text" id="wt-text">
         <div class="wt-title" id="wt-title">Follow the life of a data center</div>
         <div class="wt-desc" id="wt-desc">Use Next to walk through land &amp; permits, financing, construction, grid connection, equipment, customers, and waste heat.</div>
+        <a class="wt-link" id="wt-link" hidden></a>
+        <div class="wt-note" id="wt-note" hidden></div>
       </div>
       <button class="wt-btn" id="wt-next">Next &rarr;</button>
     </div>
@@ -555,7 +568,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
 </div>
 
-<script src="ecosystem-data.v8.js"></script>
+<script src="ecosystem-data.v9.js"></script>
 <script>
 (function() {
   const svg = document.getElementById("map-svg");
@@ -630,7 +643,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   }
   function stakeholderDetailHtml(id) {
     const s = byId[id];
-    return '<div class="side-panel-title">' + s.name + '</div><div>' + s.description + '</div>' + relHtml(id);
+    return '<div class="side-panel-title">' + s.name + '</div><div>' + s.description + '</div>' + examplesHtml(id, true) + relHtml(id);
   }
 
   // ── Dark-glass card content, styled after the poster's illustrated panel.
@@ -654,6 +667,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       html += '<div class="sc-flow">' + flowArrowSvg(FLOW_TYPES[r.type].color) + '<span>' + r.label + '</span></div>';
     });
     return '<div class="sc-flow-list">' + html + '</div>';
+  }
+  // Examples line (R53): global companies (or the Daily signals link for the
+  // boxes whose listed companies come from the dashboard), companies in
+  // Finland, the review date, and, in the full panel, the sources.
+  function examplesHtml(id, withSources) {
+    const ex = EXAMPLES[id];
+    if (!ex) return "";
+    const parts = [];
+    if (ex.global && ex.global.length) parts.push('<strong>Global:</strong> ' + ex.global.join(", "));
+    if (ex.dashboard && ex.dashboard.length)
+      parts.push('<a href="index.html" class="sc-dash-link" data-sublayers="' + ex.dashboard.join(" ") + '">Listed companies: see Daily signals &rarr;</a>');
+    if (ex.finland && ex.finland.length) parts.push('<strong>In Finland:</strong> ' + ex.finland.join(", "));
+    if (!parts.length) return "";
+    let html = '<div class="sc-heading-sm">Examples</div><div class="sc-examples">' + parts.join("<br>")
+             + '<br><span style="color:#AEB9CC">Reviewed ' + EXAMPLES_REVIEWED + '</span></div>';
+    if (withSources && ex.sources && ex.sources.length)
+      html += '<div class="sc-sources">Sources: ' + ex.sources.map(src =>
+        '<a href="' + src.url + '" target="_blank" rel="noopener">' + src.label + '</a>').join(" · ") + '</div>';
+    return html;
+  }
+  function stepSourcesHtml(step) {
+    if (!step || !step.sources || !step.sources.length) return "";
+    return '<div class="sc-sources">Sources: ' + step.sources.map(src =>
+      '<a href="' + src.url + '" target="_blank" rel="noopener">' + src.label + '</a>').join(" · ") + '</div><div class="sc-divider"></div>';
   }
   function scHeaderHtml(id, name, subtitle) {
     return '<div class="sc-header"><div class="sc-icon-ring" style="color:' + accentFor(id) + '">' + iconSvg(id, 20) + '</div>'
@@ -681,7 +718,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   function highlightedSummaryHtml() {
     const ids = Array.from(posterActiveIds(highlightSet));
     const payments = currentPayments();
-    let html = (payments.length ? paymentsHtml(payments) : '') + '<div class="sc-heading">Currently highlighted</div>';
+    const step = (wtMode === "money" && wtStep >= 0) ? MONEY_WALKTHROUGH_STEPS[wtStep] : null;
+    let html = (payments.length ? paymentsHtml(payments) : '') + stepSourcesHtml(step) + '<div class="sc-heading">Currently highlighted</div>';
     ids.forEach(id => {
       const group = POSTER_GROUPS[id];
       html += scHeaderHtml(id, displayLabel(id), group ? "" : byId[id].description);
@@ -700,6 +738,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
               + '<div class="sc-subtitle">' + sub.description + '</div>'
               + '<div class="sc-heading-sm">Typical relationships</div>' + relListHtml(subId)
               + '<div class="sc-heading-sm">Typical value flows</div>' + flowListHtml(subId)
+              + examplesHtml(subId, !withMoreLink)
               + '</div>';
       });
       if (withMoreLink) html += '<a href="#panel-below" class="sc-more-btn">More details <span>&rarr;</span></a>';
@@ -709,6 +748,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return scHeaderHtml(owner, s.name, s.description)
          + '<div class="sc-heading-sm">Typical relationships</div>' + relListHtml(owner)
          + '<div class="sc-heading-sm">Typical value flows</div>' + flowListHtml(owner)
+         + examplesHtml(owner, !withMoreLink)
          + (withMoreLink ? '<a href="#panel-below" class="sc-more-btn">More details <span>&rarr;</span></a>' : '');
   }
 
@@ -720,7 +760,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     let items = '<ol class="sc-stakeholder-list">';
     posterStakeholders.forEach((s, i) => {
       const active = activeOwnerIds.has(s.id);
-      const label = s.id === "tso" ? "Grid (TSO &amp; DSO)" : s.name;
+      const label = s.id === "tso" ? "Grid (TSO &amp; DSO)" : s.id === "hyperscaler" ? "Cloud (hyperscalers &amp; GPU clouds)" : s.name;
       items += '<li><button type="button" class="sc-stakeholder-item' + (active ? " active" : "") + '" data-select="' + s.id + '">'
             + '<span class="sc-num">' + (i + 1) + '</span>'
             + '<span class="sc-mini-icon" style="color:' + brighten(s.posterAccent, 75) + '">' + iconSvg(s.id, 13) + '</span>'
@@ -1085,7 +1125,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     det.appendChild(sum);
     const body = document.createElement("div");
     body.className = "mobile-item-body";
-    body.innerHTML = "<p>" + s.description + "</p>" + relHtml(s.id);
+    body.innerHTML = "<p>" + s.description + "</p>" + examplesHtml(s.id, true) + relHtml(s.id);
     det.appendChild(body);
     mobileList.appendChild(det);
   });
@@ -1203,11 +1243,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     }
     return { x: mx, y: my };  // nowhere clear within reach: keep the midpoint (the check reports it)
   }
+  // One arrow per pair of poster boxes (several payments between the same
+  // two boxes share it; the card lists each), and none between stakeholders
+  // that share a box, e.g. a hyperscaler paying a GPU cloud (R53).
   function drawMoneyArrows(payments) {
     moneySvg.querySelectorAll(".money-pay").forEach(el => el.remove());
-    const color = FLOW_TYPES.capital.color, placed = [];
+    const color = FLOW_TYPES.capital.color, placed = [], drawn = new Set();
     payments.forEach(p => {
-      const a = posterBoxPx(p.from), b = posterBoxPx(p.to);
+      const from = posterOwnerId(p.from), to = posterOwnerId(p.to), key = from + ">" + to;
+      if (from === to || drawn.has(key)) return;
+      drawn.add(key);
+      const a = posterBoxPx(from), b = posterBoxPx(to);
       // The usual gentle curve's midpoint, then the nearest clear spot to it.
       let pa = boxEdgePoint(a.x, a.y, a.hw, a.hh, b.x, b.y), pb = boxEdgePoint(b.x, b.y, b.hw, b.hh, a.x, a.y);
       const dx = pb.x - pa.x, dy = pb.y - pa.y, len = Math.hypot(dx, dy) || 1, bend = Math.min(70, len * 0.2);
@@ -1217,7 +1263,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       pa = boxEdgePoint(a.x, a.y, a.hw, a.hh, spot.x, spot.y); pb = boxEdgePoint(b.x, b.y, b.hw, b.hh, spot.x, spot.y);
       const c = { x: 2 * spot.x - (pa.x + pb.x) / 2, y: 2 * spot.y - (pa.y + pb.y) / 2 };
       const g = document.createElementNS(NS, "g");
-      g.setAttribute("class", "money-pay"); g.dataset.from = p.from; g.dataset.to = p.to;
+      g.setAttribute("class", "money-pay"); g.dataset.from = from; g.dataset.to = to;
       g.style.setProperty("--glow", color);
       const path = document.createElementNS(NS, "path");
       path.setAttribute("class", "money-arrow");
@@ -1324,6 +1370,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   const wtText = document.getElementById("wt-text");
   const wtPrev = document.getElementById("wt-prev");
   const wtNext = document.getElementById("wt-next");
+  const wtLink = document.getElementById("wt-link");
+  const wtNote = document.getElementById("wt-note");
   const wtModeLife = document.getElementById("wt-mode-life");
   const wtModeMoney = document.getElementById("wt-mode-money");
   // The money button's fill is the money arrows' colour (R50).
@@ -1339,18 +1387,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   function showStep(i) {
     wtStep = i;
     const steps = activeSteps();
-    let title, desc;
+    let title, desc, link = null, note = null;
     if (i < 0) {
       const d = defaultWtCopy();
       title = d.title; desc = d.desc;
       highlightSet = null; selectedStakeholder = null;
     } else {
       const step = steps[i];
-      title = step.title; desc = step.description;
+      title = step.title; desc = step.description; link = step.link || null; note = step.note || null;
       highlightSet = new Set(step.highlightIds);
       selectedStakeholder = null;
     }
-    safeFade(wtText, () => { wtTitle.textContent = title; wtDesc.textContent = desc; });
+    safeFade(wtText, () => {
+      wtTitle.textContent = title; wtDesc.textContent = desc;
+      wtLink.hidden = !link; if (link) { wtLink.href = link.href; wtLink.textContent = link.text; }
+      wtNote.hidden = !note; if (note) wtNote.textContent = note;
+    });
     wtPrev.disabled = (i <= -1);
     wtNext.disabled = (i >= steps.length - 1);
     render();

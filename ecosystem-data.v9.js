@@ -1,4 +1,4 @@
-// ecosystem-data.v8.js — single source of truth for the interactive Data
+// ecosystem-data.v9.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -26,6 +26,10 @@
 // step 4's text says the PPA fixes the price. v7 (2026-10-09, R29): the
 // poster's printed label boxes (POSTER_LABELS), so money badges avoid them.
 // v8 (2026-10-10, R31): the operator -> enterprise colocation relationship.
+// v9 (2026-10-11, R52/R53): money step 7 (the public sector's share), the
+// hyperscaler note in step 1 and the Daily signals link in step 3; the GPU
+// cloud (neocloud) stakeholder and its relationships; EXAMPLES, sourced
+// companies per stakeholder.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -109,6 +113,10 @@ const STAKEHOLDERS = [
   { id: "storage", name: "Storage Providers", x: 500, y: 650,
     description: "Suppliers of storage arrays, data protection, and backup & recovery systems.",
     posterBox: { x: 39.9, y: 65.6, w: 16.0, h: 9.3 }, posterAccent: "#099FBC" },
+  // GPU cloud (R52/R53): no box of its own on the poster, so it shares the
+  // Hyperscaler / Cloud box there (POSTER_GROUPS), like the DSO and the grid.
+  { id: "neocloud", name: "GPU Cloud (Neocloud)", x: 900, y: 430,
+    description: "Specialist cloud companies that rent out GPU computing for AI, usually as dedicated capacity, rather than the broad range of services a hyperscaler sells. They lease space from colocation operators or build their own sites, and sell capacity to AI developers, businesses and the hyperscalers themselves." },
   { id: "enterprise", name: "Enterprise & End Users", x: 290, y: 620,
     description: "Businesses, developers, and consumers — the end users of the compute, storage, and connectivity a data center provides.",
     posterBox: { x: 55.8, y: 64.8, w: 16.3, h: 10.1 }, posterAccent: "#5C2FB0" },
@@ -124,6 +132,11 @@ const POSTER_GROUPS = {
     extraIds: ["dso"],
     panelLabel: "Grid: transmission & distribution",
     subLabels: { tso: "TSO (Fingrid)", dso: "DSO (e.g. Caruna)" },
+  },
+  hyperscaler: {
+    extraIds: ["neocloud"],
+    panelLabel: "Cloud: hyperscalers & GPU clouds",
+    subLabels: { hyperscaler: "Hyperscaler / Cloud", neocloud: "GPU Cloud (Neocloud)" },
   },
 };
 
@@ -215,6 +228,17 @@ const RELATIONSHIPS = [
     explanation: "Power moves from the national transmission grid down into regional and local distribution networks." },
   { from: "capital",            to: "construction", type: "capital", label: "Project & development financing", added: true,
     explanation: "Financiers often fund the construction and development phase directly, before or alongside financing the operator." },
+  // GPU cloud (neocloud) relationships (R52/R53).
+  { from: "operator",           to: "neocloud", type: "contract", label: "Colocation (space, power & cooling)", added: true,
+    explanation: "A GPU cloud often rents space, power and cooling in an operator's facility for its GPU servers; some build and run their own sites instead." },
+  { from: "equipment",          to: "neocloud", type: "goods",    label: "GPUs & servers", added: true,
+    explanation: "GPU clouds buy GPU servers and networking equipment from equipment suppliers; the GPUs are their main asset." },
+  { from: "capital",            to: "neocloud", type: "capital",  label: "Debt & equity financing", added: true,
+    explanation: "Building GPU clusters takes large up-front investment, financed with equity and debt." },
+  { from: "neocloud",           to: "enterprise", type: "goods",  label: "GPU capacity as a service", added: true,
+    explanation: "AI developers and businesses rent GPU capacity, on demand or under longer contracts." },
+  { from: "neocloud",           to: "hyperscaler", type: "contract", label: "GPU capacity contracts", added: true,
+    explanation: "Hyperscalers also buy GPU capacity from GPU clouds to meet demand without building it all themselves — for example, Microsoft's five-year agreement with Nebius, announced in September 2025." },
 ];
 
 const WALKTHROUGH_STEPS = [
@@ -246,17 +270,23 @@ const CASE_STUDY = {
   ],
 };
 
-// Second guided walkthrough: who pays whom. Business relationships only,
-// deliberately no tax framing (Ray's instruction). Drafted from and
-// consistent with RELATIONSHIPS above — no new facts, just a payment-
-// direction framing of the same relationships.
+// Second guided walkthrough: who pays whom. Drafted from and consistent with
+// RELATIONSHIPS above. Step 7, the public sector's share (R52/R53), adds the
+// public-sector payments in general terms, each checked against official
+// sources (its `sources`); `note` is a dated Finland-specific line.
 const MONEY_WALKTHROUGH_STEPS = [
-  { title: "1. Customers pay for capacity", highlightIds: ["enterprise", "hyperscaler", "operator"],
-    description: "Enterprises and hyperscalers pay data center operators for colocation space, landlords receive rent for powered shells, and enterprises pay hyperscalers for cloud services.",
+  { title: "1. Customers pay for capacity", highlightIds: ["enterprise", "hyperscaler", "neocloud", "operator"],
+    description: "Enterprises and hyperscalers pay data center operators for colocation space, landlords receive rent for powered shells, and enterprises pay hyperscalers for cloud services. In a hyperscaler's own facility there is no rent: the hyperscaler builds and operates the site itself — Google's data center in Hamina is one example.",
     payments: [
       { from: "enterprise",  to: "hyperscaler", what: "cloud service fees" },
       { from: "hyperscaler", to: "operator",    what: "rent for leased capacity" },
       { from: "enterprise",  to: "operator",    what: "colocation fees" },
+      { from: "enterprise",  to: "neocloud",    what: "GPU capacity fees" },
+      { from: "hyperscaler", to: "neocloud",    what: "GPU capacity contracts" },
+    ],
+    sources: [
+      { label: "DCD — Google to invest in a second facility in Hamina, at its own site in the former Summa paper mill",
+        url: "https://www.datacenterdynamics.com/en/news/google-invest-670m-to-build-second-facility-hamina-finland-/" },
     ] },
   { title: "2. Paying for the build", highlightIds: ["operator", "construction", "capital"],
     description: "The operator or developer pays construction firms to build the facility, largely funded up front by lenders and investors.",
@@ -267,6 +297,7 @@ const MONEY_WALKTHROUGH_STEPS = [
     ] },
   { title: "3. The operator pays its suppliers", highlightIds: ["operator", "equipment", "cooling", "network", "storage", "backup_power"],
     description: "The operator pays equipment, cooling, network, storage and backup power suppliers for the hardware and systems that keep the facility running.",
+    link: { href: "index.html", text: "This spending is the investment flow the Daily signals page tracks →" },
     payments: [
       { from: "operator", to: "equipment",    what: "compute and electrical equipment" },
       { from: "operator", to: "cooling",      what: "cooling systems and service" },
@@ -290,7 +321,122 @@ const MONEY_WALKTHROUGH_STEPS = [
     payments: [
       { from: "district_heating", to: "operator", what: "payment for the waste heat" },
     ] },
+  { title: "7. The public sector's share", highlightIds: ["public_sector", "operator"],
+    description: "The public sector is paid along the way. Where a municipality owns the land, it receives the sale price or rent, and its building control charges fees for permits. Once the facility stands, its owner pays property tax to that municipality every year. The state collects electricity tax through the electricity bill. Income taxes are shared: the operator's corporate income tax goes to the state and municipalities, and its employees' income tax to the state and their home municipalities.",
+    note: "In Finland, data centres paid the lower electricity tax class until 30 June 2026 and have paid the general class since 1 July 2026: an energy tax of 2.24 c/kWh instead of 0.05 c/kWh. A ten-year tax-relief scheme the Government decided on in December 2025 was dropped in September 2026. (Reviewed 10/2026.)",
+    payments: [
+      { from: "operator", to: "public_sector", what: "land price or rent (where the municipality owns the land) and building-permit fees" },
+      { from: "operator", to: "public_sector", what: "property tax, every year" },
+      { from: "operator", to: "public_sector", what: "electricity tax, to the state through the electricity bill" },
+      { from: "operator", to: "public_sector", what: "corporate income tax, shared by the state and municipalities" },
+    ],
+    sources: [
+      { label: "Kuntaliitto — selling and leasing plots as tools of municipal land policy", url: "https://www.kuntaliitto.fi/sites/default/files/media/file/Toimiva%2Byhdyskunta%2Bon%2Bkuntalaisen%2Barjen%2Bkulmakivi_Kuntaliitto_luottamushenkil%C3%B6t-compressed_1.pdf" },
+      { label: "City of Hämeenlinna — building-control fees from 1.1.2025, under the Building Act (751/2023)", url: "https://www.hameenlinna.fi/rakennusvalvonnan_viranomaistehtavista_seka_muista_tehtavista_suoritettavat_maksut_1_1_2025__839992-1" },
+      { label: "Vero.fi — Real estate tax: paid to the municipality where the property is", url: "https://www.vero.fi/en/individuals/property/real-estate-tax/" },
+      { label: "Ministry of Finance — Business taxation: corporate tax shares of the state and municipalities (tax year 2024)", url: "https://vm.fi/en/business-taxation" },
+      { label: "Ministry of Finance — Taxation of earned income: municipal tax", url: "https://vm.fi/en/taxation-of-earned-income" },
+      { label: "Caruna — electricity tax is forwarded in full to the state (2026)", url: "https://caruna.fi/en/news/strategic-stockpile-fee-included-electricity-tax-will-increase-1-april-2026" },
+      { label: "Vero.fi — Tax rates on electricity and certain fuels, 1.4.–31.12.2026", url: "https://www.vero.fi/en/businesses-and-corporations/taxes-and-charges/excise-taxation/sahkovero/Tax-rates-on-electricity-and-certain-fuels/" },
+      { label: "Vero.fi — Sähkövero: data centres in class II until 30.6.2026, class I from 1.7.2026", url: "https://www.vero.fi/yritykset-ja-yhteisot/verot-ja-maksut/valmisteverotus/sahkovero/" },
+      { label: "Finnish Government — state aid for data centres as ten-year tax relief, 5.12.2025", url: "https://valtioneuvosto.fi/en/-/ministerial-committee-on-economic-policy-decides-on-state-aid-for-data-centres-and-registration-obligation" },
+      { label: "The Star (Xinhua) — Finland drops planned financial support for data centers, 2.9.2026", url: "https://www.thestar.com.my/news/world/2026/09/02/finland-drops-planned-financial-support-for-data-centers" },
+    ] },
 ];
+
+// Examples per stakeholder (R52/R53): well-known global companies and ones
+// in Finland, each publicly verifiable (sources below). `dashboard` names the
+// Daily signals sub-layers whose listed companies stand in for the global
+// examples of that box (taken from the dashboard's config, not typed here;
+// their short display names arrive with the display-name field after the R45
+// merge). Finland is left empty where no credible Finnish example was found
+// (cooling, equipment, storage). Customer examples prefer the customer's own
+// source; a vendor's own announcement is labelled as such.
+const EXAMPLES_REVIEWED = "10/2026";
+const EXAMPLES = {
+  operator: { dashboard: ["colocation"], finland: ["Telia (Helsinki)", "Verne (Helsinki, Pori, Tampere)", "Equinix (Helsinki)"],
+    sources: [
+      { label: "Helen — Telia's Helsinki data centre heats homes (2021)", url: "https://www.helen.fi/en/news/2021/konesalien-hukkalammosta-hiilineutraalia-kaukolampoa" },
+      { label: "Verne — renewable diesel for the backup generators of its Finnish data centers (2024)", url: "https://www.verne.co/news/news-verne-switches-to-nestes-renewable-diesel-to-fuel-back-up-power-generators-at-its-finnish-data-centers" },
+      { label: "Equinix — new data center in Helsinki (2018)", url: "https://investor.equinix.com/news-events/press-releases/detail/190/equinix-announces-build-of-new-data-center-in-helsinki" },
+    ] },
+  public_sector: { global: ["Loudoun County, Virginia (US)", "City of Stockholm"], finland: ["Hamina (Google)", "Espoo and Kirkkonummi (Microsoft)", "Mäntsälä (Nebius)"],
+    sources: [
+      { label: "Loudoun County — Data centers: tax revenues & county budget", url: "https://www.loudoun.gov/6409/Tax-Revenues-County-Budget" },
+      { label: "Stockholm Data Parks — the city's partnership with Stockholm Exergi and others", url: "https://stockholmdataparks.com/" },
+      { label: "DCD — Google's Hamina site", url: "https://www.datacenterdynamics.com/en/news/google-invest-670m-to-build-second-facility-hamina-finland-/" },
+      { label: "Microsoft — data center region in Finland (Espoo and Kirkkonummi), 2022", url: "https://news.microsoft.com/europe/2022/03/17/microsoft-announces-intent-to-build-a-new-datacenter-region-in-finland-accelerating-sustainable-digital-transformation-and-enabling-large-scale-carbon-free-district-heating/" },
+      { label: "Data Centre Review — Nebius to triple capacity at its Mäntsälä site", url: "https://datacentrereview.com/?p=82941" },
+    ] },
+  construction: { global: ["Turner Construction", "DPR Construction", "HITT Contracting"], finland: ["Caverion"],
+    sources: [
+      { label: "BD+C — Top data center construction firms for 2025", url: "https://www.bdcnetwork.com/giants-400/news/55321777/top-data-center-construction-firms-for-2025" },
+      { label: "Caverion — contract for the expansion of a data centre in Finland (Nebius, Mäntsälä), 2025", url: "https://www.caverion.com/newsroom/releases/2025/caverion-strengthens-its-position-as-key-partner-in-major-infrastructure-investments-in-europe--secures-a-large-contract-related-to-the-expansion-of-a-state-of-the-art-data-centre-in-finland/" },
+    ] },
+  energy_gen: { global: ["Neoen", "wpd"], finland: ["Suomen Hyötytuuli"],
+    sources: [
+      { label: "Energy Digital — Google's wind power agreements in Finland (Neoen, wpd, CPC), 2018", url: "https://www.energydigital.com/renewable-energy/google-signs-agreements-190mw-wind-projects-finland" },
+      { label: "Suomen Hyötytuuli — long-term PPA with Google", url: "https://hyotytuuli.fi/en//ajankohtaista" },
+    ] },
+  tso: { global: ["TenneT", "National Grid"], finland: ["Fingrid"],
+    sources: [
+      { label: "TenneT", url: "https://www.tennet.eu/" }, { label: "National Grid", url: "https://www.nationalgrid.com/" },
+      { label: "Fingrid", url: "https://www.fingrid.fi/en/" },
+    ] },
+  dso: { global: ["E.ON", "Enel"], finland: ["Caruna", "Elenia"],
+    sources: [
+      { label: "E.ON", url: "https://www.eon.com/" }, { label: "Enel", url: "https://www.enel.com/" },
+      { label: "Caruna", url: "https://caruna.fi/en" }, { label: "Elenia", url: "https://www.elenia.fi/en" },
+    ] },
+  district_heating: { global: ["Stockholm Exergi", "Fjernvarme Fyn"], finland: ["Fortum (Espoo)", "Helen (Helsinki)"],
+    sources: [
+      { label: "Stockholm Data Parks — data center heat for Stockholm Exergi's network", url: "https://stockholmdataparks.com/" },
+      { label: "Ramboll — Meta's surplus heat to Fjernvarme Fyn's district heating, Odense", url: "https://www.ramboll.com/projects/energy/meta-surplus-heat-to-district-heating" },
+      { label: "Fortum — heat production at two data centre sites in Finland (2026)", url: "https://www.fortum.com/en/media/2026/05/fortum-has-started-heat-production-two-large-data-centre-sites-finland" },
+      { label: "Helen — district heat from Telia's data centre (2021)", url: "https://www.helen.fi/en/news/2021/konesalien-hukkalammosta-hiilineutraalia-kaukolampoa" },
+    ] },
+  cooling: { dashboard: ["cooling"], finland: [], sources: [] },
+  backup_power: { global: ["Caterpillar", "Cummins"], finland: ["Neste"],
+    sources: [
+      { label: "Caterpillar", url: "https://www.cat.com/" }, { label: "Cummins", url: "https://www.cummins.com/" },
+      { label: "Neste — renewable diesel for Verne's backup generators in Finland (2024)", url: "https://neste.com/news/neste-my-renewable-diesel-to-power-verne-data-centers-back-up-generators-in-finland" },
+    ] },
+  equipment: { dashboard: ["compute"], finland: [], sources: [] },
+  capital: { global: ["Blackstone", "Brookfield", "KKR"], finland: ["Varma", "Tesi"],
+    sources: [
+      { label: "Data Center Frontier — Blackstone acquires QTS (2021)", url: "https://www.datacenterfrontier.com/qts-acquired-by-blackstone-in-blockbuster-data-center-ma-deal" },
+      { label: "AXA IM Alts — sale of Data4 to Brookfield Infrastructure (2023)", url: "https://alts.axa-im.com/media-centre/axa-im-alts-agrees-sale-data4-european-leading-data-centre-platform-brookfield-infrastructure" },
+      { label: "KKR and GIP complete the acquisition of CyrusOne (2022)", url: "https://www.streetinsider.com/Business+Wire/KKR+and+GIP+Complete+Acquisition+of+CyrusOne/19826569.html" },
+      { label: "The Next Web — Verda's 2026 funding round (Varma and Tesi among the investors)", url: "https://thenextweb.com/news/verda-117m-funding-lifeline-ventures-ai-cloud" },
+    ] },
+  hyperscaler: { global: ["Microsoft", "Google", "Amazon (AWS)"], finland: ["Google (Hamina)", "Microsoft (Espoo and Kirkkonummi)"],
+    sources: [
+      { label: "DCD — Google's Hamina site", url: "https://www.datacenterdynamics.com/en/news/google-invest-670m-to-build-second-facility-hamina-finland-/" },
+      { label: "Microsoft — data center region in Finland, 2022", url: "https://news.microsoft.com/europe/2022/03/17/microsoft-announces-intent-to-build-a-new-datacenter-region-in-finland-accelerating-sustainable-digital-transformation-and-enabling-large-scale-carbon-free-district-heating/" },
+    ] },
+  network: { dashboard: ["networking", "optical"], finland: ["Cinia", "Nokia"],
+    sources: [
+      { label: "Cinia — the C-Lion1 submarine cable, Helsinki–Rostock", url: "https://www.cinia.fi/en/news/c-lion1-submarine-cable-fully-restored" },
+      { label: "Nokia — data center networking", url: "https://www.nokia.com/newsroom/nokia-announces-generational-step-in-data-center-networking-new-os-and-tools-give-cloud-builders-unprecedented-ability-to-adapt-automate-and-scale/" },
+    ] },
+  storage: { global: ["NetApp", "Pure Storage", "Dell Technologies"], finland: [],
+    sources: [
+      { label: "NetApp", url: "https://www.netapp.com/" }, { label: "Pure Storage", url: "https://www.purestorage.com/" },
+      { label: "Dell Technologies", url: "https://www.dell.com/" },
+    ] },
+  enterprise: { global: ["Netflix (on AWS)", "Spotify (on Google Cloud)"], finland: ["Säästöpankkiryhmä (on Microsoft Azure)"],
+    sources: [
+      { label: "Netflix — completing the Netflix cloud migration (2016)", url: "https://about.netflix.com/en/news/completing-the-netflix-cloud-migration" },
+      { label: "Spotify Engineering — a history of Spotify's journey to the cloud (2019)", url: "https://engineering.atspotify.com/2019/12/views-from-the-cloud-a-history-of-spotifys-journey-to-the-cloud-part-1-2" },
+      { label: "Microsoft (vendor reference) — Säästöpankkiryhmä and Microsoft, 15.8.2023", url: "https://news.microsoft.com/fi-fi/2023/08/15/saastopankkiryhma-rakentaa-kestavaa-tulevaisuutta-yhdessa-microsoftin-kanssa/" },
+    ] },
+  neocloud: { global: ["CoreWeave", "Nebius", "Lambda"], finland: ["Nebius (Mäntsälä)", "Verda (Helsinki)"],
+    sources: [
+      { label: "Analysys Mason — Neocloud GPU-as-a-service providers", url: "https://www.analysysmason.com/research/content/reports/neocloud-gpuaas-studies-rma16/" },
+      { label: "Data Centre Review — Nebius to triple capacity at its Mäntsälä site", url: "https://datacentrereview.com/?p=82941" },
+      { label: "Verda — DataCrunch is changing its name to Verda", url: "https://verda.com/blog/datacrunch-is-changing-its-name-to-verda" },
+    ] },
+};
 
 // Glossary — dotted-underlined terms in the explanation card link here.
 // Definitions kept to one line each; consistent with (not adding facts
