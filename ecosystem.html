@@ -11,7 +11,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 /* ── Hero (combined, C6): family gradient + laser, teal accent here only ── */
 .hero{background:linear-gradient(135deg,#08081A 0%,#0C1A3A 30%,#1A0830 60%,#0A0818 100%);
-      padding:14px 28px 14px;position:relative}
+      padding:16px 28px 14px;position:relative;overflow:hidden}
+/* Same top glow as the Daily signals hero (R51). */
+.hero-glow{position:absolute;top:0;left:10%;right:10%;height:40px;pointer-events:none;
+           background:radial-gradient(ellipse at 50% 0%,rgba(133,183,235,0.45) 0%,rgba(83,74,183,0.2) 40%,transparent 75%)}
 .hero-laser{position:absolute;top:0;left:0;right:0;height:3px;
             background:linear-gradient(90deg,transparent 0%,transparent 10%,#534AB7 28%,#2DD4BF 45%,#ffffff 50%,#2DD4BF 55%,#534AB7 72%,transparent 90%,transparent 100%);
             opacity:0.9}
@@ -21,9 +24,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .hero-title-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .hero-badge{display:inline-block;font-size:10px;font-weight:700;color:#062A28;
             background:#2DD4BF;padding:3px 10px;border-radius:10px;letter-spacing:.06em;flex-shrink:0}
-.hero-title-lg{font-size:22px;font-weight:600;color:#fff;letter-spacing:-0.4px;line-height:1.2;margin:0}
-.hero-tagline{font-size:13px;font-weight:600;margin:0;
-              background:linear-gradient(90deg,#2DD4BF,#85B7EB);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Title and tagline match the Daily signals hero (R51): 30px title, the
+   strongest element at the top of the page; gradient tagline. */
+.hero-title-lg{font-size:30px;font-weight:500;color:#fff;letter-spacing:-1px;line-height:1.15;margin:0}
+.hero-tagline{font-size:14px;font-weight:400;letter-spacing:.08em;margin:0;opacity:.95;
+              background:linear-gradient(90deg,#85B7EB,#AFA9EC,#85B7EB);-webkit-background-clip:text;background-clip:text;color:transparent}
 .static-badge{display:inline-block;font-size:10px;font-weight:600;color:#2DD4BF;
               background:rgba(45,212,191,0.10);border:1px solid rgba(45,212,191,0.6);
               padding:2px 9px;border-radius:10px;letter-spacing:.03em}
@@ -34,14 +39,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       background:linear-gradient(180deg,#141F38 0%,#17233F 40%,#1A2035 75%,#161C2E 100%);
       min-height:100vh;max-width:1600px;margin-left:auto;margin-right:auto}
 
-/* ── View toggle ── */
-.view-toggle{display:flex;gap:8px;margin:16px 0 14px}
-.view-toggle-btn{font-size:12px;font-weight:600;color:#C8D4E8;background:#16223D;
-                 border:1px solid rgba(175,169,236,0.25);padding:7px 16px;border-radius:8px;
-                 cursor:pointer;transition:background .15s,box-shadow .15s,color .15s}
+/* ── View toggle: the page's tabs, normal size (R51: 16.5px semi-bold);
+   the active one is filled and underlined. ── */
+.view-toggle{display:flex;gap:8px;margin:14px 0 12px}
+.view-toggle-btn{font-size:16.5px;font-weight:600;color:#C8D4E8;background:#101A31;
+                 border:1px solid rgba(175,169,236,0.35);padding:8px 20px;border-radius:8px;
+                 cursor:pointer;transition:background .15s,box-shadow .15s,color .15s,border-color .15s}
+.view-toggle-btn:hover{color:#fff;border-color:rgba(175,169,236,0.75)}
 .view-toggle-btn:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
-.view-toggle-btn[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#0C1A3A,#3C3489);
-                 box-shadow:0 0 0 1px rgba(133,183,235,0.35),0 0 10px rgba(83,74,183,0.4)}
+.view-toggle-btn[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#3C3489,#4A3FC2);
+                 border-color:#AFA9EC;box-shadow:0 0 10px rgba(91,79,208,0.5),inset 0 -3px 0 #85B7EB}
 .view-section.hidden{display:none}
 
 .stack{display:flex;flex-direction:column}
@@ -242,13 +249,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 /* ── Walkthrough (compact bar, item 2: above the poster/explorer so its
    highlights are visible in the same view at wide widths) / case card ── */
-.walkthrough{margin-bottom:14px;padding:9px 14px;background:rgba(175,169,236,0.09);
-            border-radius:8px}
-.wt-mode-toggle{display:flex;gap:6px;margin-bottom:7px}
-.wt-mode-btn{font-size:10.5px;font-weight:600;color:#C8D4E8;background:rgba(255,255,255,0.05);
-            border:1px solid rgba(175,169,236,0.25);padding:4px 10px;border-radius:10px;cursor:pointer}
-.wt-mode-btn[aria-pressed="true"]{color:#fff;background:#3C3489;border-color:rgba(175,169,236,0.6)}
+.walkthrough{margin-bottom:14px;padding:12px 14px;background:rgba(175,169,236,0.09);
+            border-radius:10px}
+/* Walkthrough choice (R50, R51): two large buttons, each with an icon and a
+   one-line description, under a small static "Start here" label. The active
+   one is filled with a tint and outlined: family purple for the life path,
+   the poster's capital yellow for the money path (--money, set from
+   FLOW_TYPES.capital, so it always matches the money arrows). A tint, not a
+   full yellow block, so it doesn't outshine the tabs (R51). Icons are the
+   paths' own (a timeline and a euro sign), not stakeholder icons. No
+   animation. */
+.wt-start{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+          color:#062A28;background:#2DD4BF;padding:2px 9px;border-radius:10px;margin-bottom:8px}
+.wt-mode-toggle{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.wt-mode-btn{flex:1 1 280px;max-width:430px;display:flex;align-items:center;gap:12px;text-align:left;
+            padding:9px 14px;border-radius:10px;cursor:pointer;color:#E8EDF5;
+            background:rgba(255,255,255,0.05);border:1.5px solid rgba(175,169,236,0.35);
+            transition:background .15s,border-color .15s,box-shadow .15s}
+.wt-mode-btn:hover{background:rgba(255,255,255,0.09);border-color:rgba(175,169,236,0.75)}
 .wt-mode-btn:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
+.wt-mode-icon{width:34px;height:34px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;
+             justify-content:center;background:rgba(133,183,235,0.14);color:#85B7EB;
+             font-size:19px;font-weight:800;line-height:1}
+.wt-mode-text{display:flex;flex-direction:column;gap:1px;min-width:0}
+.wt-mode-title{font-size:13.5px;font-weight:700;color:#fff}
+.wt-mode-desc{font-size:11.5px;color:#C8D4E8;line-height:1.35}
+#wt-mode-money .wt-mode-icon{background:color-mix(in srgb,var(--money) 14%,transparent);color:var(--money)}
+.wt-mode-btn[aria-pressed="true"]{background:rgba(91,79,208,0.32);border-color:#AFA9EC}
+.wt-mode-btn[aria-pressed="true"] .wt-mode-icon{background:#5B4FD0;color:#fff}
+.wt-mode-btn[aria-pressed="true"] .wt-mode-desc{color:#E8EDF5}
+#wt-mode-money[aria-pressed="true"]{background:color-mix(in srgb,var(--money) 16%,#16223D);border-color:var(--money)}
+#wt-mode-money[aria-pressed="true"] .wt-mode-icon{background:var(--money);color:#141004}
 .wt-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .wt-btn{font-size:11px;font-weight:600;color:#fff;background:linear-gradient(135deg,#4a3fb0,#3C3489);border:none;
        padding:6px 12px;border-radius:6px;cursor:pointer}
@@ -301,26 +332,63 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
    Same markup and CSS as render.py's .family-links; the explainer uses
    header pills in the same style. Full width at the top of the content,
    directly below the hero (Ray, 2026-10-07/08). ── */
-.family-links{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.family-link{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;
+/* R50/R51: on this page the cards are stronger than the dashboard's
+   (render.py is unchanged for now) and look like where they lead: Daily
+   signals in a dark blue "live data" style with a static LIVE marker, the
+   Finnish explainer in its own cream-and-navy editorial colours (no rust).
+   Both have a coloured icon tile, an "Open →" pill and a lift on hover (no
+   continuous animation); the explainer carries an "FI" tag. Compact. */
+.family-links{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.family-link{display:flex;align-items:center;gap:11px;padding:7px 12px;border-radius:10px;
              color:#fff;text-decoration:none;
              background:linear-gradient(135deg,#0C1A3A,#3C3489);
-             box-shadow:0 0 0 1px rgba(133,183,235,0.35),0 0 10px rgba(83,74,183,0.4);
-             transition:box-shadow .15s}
-.family-link:hover{box-shadow:0 0 0 1px rgba(133,183,235,0.7),0 0 16px rgba(83,74,183,0.7)}
+             box-shadow:0 0 0 1px rgba(133,183,235,0.65),0 0 16px rgba(83,74,183,0.6);
+             transition:box-shadow .15s,transform .15s}
+.family-link:hover{transform:translateY(-2px);
+             box-shadow:0 0 0 1px rgba(133,183,235,0.95),0 0 24px rgba(83,74,183,0.9),0 6px 14px rgba(0,0,0,0.35)}
 .family-link:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
-.fl-icon{font-size:18px;line-height:1;flex-shrink:0}
-.fl-text{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
-.fl-title{font-size:13px;font-weight:600}
+.fl-icon{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;
+         justify-content:center;font-size:17px;line-height:1;background:var(--tile);
+         box-shadow:0 0 12px color-mix(in srgb,var(--tile) 65%,transparent)}
+.fl-text{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.fl-title{font-size:13.5px;font-weight:700}
 .fl-sub{font-size:11.5px;color:#C8D4E8}
-.fl-arrow{font-size:15px;color:#85B7EB;flex-shrink:0}
+.fl-tag{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;letter-spacing:.06em;
+        color:#0C1A3A;background:#85B7EB;padding:1px 6px;border-radius:5px;vertical-align:1px}
+.fl-open{flex-shrink:0;font-size:12px;font-weight:700;color:#fff;white-space:nowrap;padding:6px 13px;
+         border-radius:999px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.4);
+         transition:background .15s}
+.family-link:hover .fl-open{background:rgba(255,255,255,0.24)}
+/* Daily signals: dark blue live-data card with a static LIVE marker. */
+.family-link.fl-live{background:linear-gradient(135deg,#061430,#0D2A5C);
+             box-shadow:0 0 0 1px rgba(55,138,221,0.75),0 0 14px rgba(55,138,221,0.45)}
+.family-link.fl-live:hover{box-shadow:0 0 0 1px rgba(133,183,235,0.95),0 0 22px rgba(55,138,221,0.75),0 6px 14px rgba(0,0,0,0.35)}
+.fl-live-marker{display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:9.5px;font-weight:800;
+             letter-spacing:.08em;color:#BFF7EE;background:rgba(45,212,191,0.14);border:1px solid rgba(45,212,191,0.6);
+             padding:0 6px;border-radius:5px;vertical-align:1px}
+.fl-live-marker::before{content:"";width:6px;height:6px;border-radius:50%;background:#2DD4BF;box-shadow:0 0 5px #2DD4BF}
+/* Finnish explainer: its editorial colours, cream #F3F1EB and navy #12222E. */
+.family-link.fl-editorial{background:#F3F1EB;color:#12222E;
+             box-shadow:0 0 0 1px rgba(243,241,235,0.9),0 0 14px rgba(243,241,235,0.22)}
+.family-link.fl-editorial:hover{box-shadow:0 0 0 1px #FFFFFF,0 0 20px rgba(243,241,235,0.4),0 6px 14px rgba(0,0,0,0.35)}
+.fl-editorial .fl-sub{color:#3B4A55}
+.fl-editorial .fl-tag{background:#12222E;color:#F3F1EB}
+.fl-editorial .fl-open{color:#12222E;background:transparent;border-color:#12222E}
+.fl-editorial:hover .fl-open{background:rgba(18,34,46,0.08)}
+@media (prefers-reduced-motion: reduce){
+  .family-link{transition:box-shadow .15s}
+  .family-link:hover{transform:none}
+}
 
 .footer{font-size:12px;color:#9FB0CC;text-align:center;margin-top:16px;
         padding:20px 16px;border-top:1px solid rgba(255,255,255,0.06);
         background:#0B0F1E;border-radius:8px;line-height:2.0}
 @media(max-width:768px){
   .hero{padding:14px 12px 16px}
+  .hero-title-lg{font-size:22px}
+  .hero-tagline{font-size:12px;letter-spacing:.05em}
   .family-links{grid-template-columns:1fr;margin-bottom:14px} /* toggle is hidden here, so nothing else spaces it from the walkthrough */
+  .wt-mode-btn{max-width:none}
   .card{padding:10px 8px;border-radius:8px}
   .view-toggle{display:none}
   #view-explorer{display:none}
@@ -338,6 +406,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 <div class="hero">
   <div class="hero-laser"></div>
+  <div class="hero-glow"></div>
   <div class="hero-row hero-row-top">
     <div class="hero-title-group">
       <span class="hero-badge">ECOSYSTEM MAP</span>
@@ -355,8 +424,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 <div class="body">
   <nav class="family-links" aria-label="RayDar Data Center pages">
-    <a href="index.html" class="family-link"><span class="fl-icon" aria-hidden="true">📈</span><span class="fl-text"><span class="fl-title">Daily signals</span><span class="fl-sub">Live scores for the data center value chain</span></span><span class="fl-arrow" aria-hidden="true">→</span></a>
-    <a href="business-models/" class="family-link" hreflang="fi"><span class="fl-icon" aria-hidden="true">📊</span><span class="fl-text"><span class="fl-title" lang="fi">Datakeskusten liiketoimintamallit</span><span class="fl-sub">Business models explainer, in Finnish: how capacity is bought, leased and financed</span></span><span class="fl-arrow" aria-hidden="true">→</span></a>
+    <a href="index.html" class="family-link fl-live" style="--tile:#378ADD"><span class="fl-icon" aria-hidden="true">📈</span><span class="fl-text"><span class="fl-title">Daily signals<span class="fl-live-marker">LIVE</span></span><span class="fl-sub">Live scores for the data center value chain · Updated every weekday</span></span><span class="fl-open" aria-hidden="true">Open →</span></a>
+    <a href="business-models/" class="family-link fl-editorial" hreflang="fi" style="--tile:#12222E"><span class="fl-icon" aria-hidden="true">📊</span><span class="fl-text"><span class="fl-title"><span lang="fi">Datakeskusten liiketoimintamallit</span><span class="fl-tag" title="In Finnish">FI</span></span><span class="fl-sub">Business models explainer, in Finnish: how capacity is bought, leased and financed</span></span><span class="fl-open" aria-hidden="true">Open →</span></a>
   </nav>
 
   <div class="view-toggle" role="group" aria-label="Choose view">
@@ -369,9 +438,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
        off-screen below a full-height poster. Drives whichever view is
        active. ── -->
   <div class="walkthrough">
-    <div class="wt-mode-toggle" role="group" aria-label="Choose walkthrough">
-      <button class="wt-mode-btn" id="wt-mode-life" type="button" aria-pressed="true">Life of a data center</button>
-      <button class="wt-mode-btn" id="wt-mode-money" type="button" aria-pressed="false">Follow the money</button>
+    <div class="wt-start" id="wt-start">Start here</div>
+    <div class="wt-mode-toggle" id="wt-mode-toggle" role="group" aria-label="Choose walkthrough">
+      <button class="wt-mode-btn" id="wt-mode-life" type="button" aria-pressed="true">
+        <span class="wt-mode-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="13" x2="20" y2="13"/><circle cx="4.5" cy="13" r="2" fill="currentColor"/><circle cx="11" cy="13" r="2" fill="currentColor"/><circle cx="17.5" cy="13" r="2" fill="currentColor"/><line x1="11" y1="5" x2="11" y2="9"/><path d="M11 5h5l-1.2 1.5L16 8h-5"/></svg></span>
+        <span class="wt-mode-text"><span class="wt-mode-title">Life of a data center</span><span class="wt-mode-desc">From permits to waste heat, step by step</span></span>
+      </button>
+      <button class="wt-mode-btn" id="wt-mode-money" type="button" aria-pressed="false">
+        <span class="wt-mode-icon" aria-hidden="true">€</span>
+        <span class="wt-mode-text"><span class="wt-mode-title">Follow the money</span><span class="wt-mode-desc">Who pays whom</span></span>
+      </button>
     </div>
     <div class="wt-controls">
       <button class="wt-btn" id="wt-prev" aria-label="Previous step">&larr; Prev</button>
@@ -1250,6 +1326,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   const wtNext = document.getElementById("wt-next");
   const wtModeLife = document.getElementById("wt-mode-life");
   const wtModeMoney = document.getElementById("wt-mode-money");
+  // The money button's fill is the money arrows' colour (R50).
+  document.getElementById("wt-mode-toggle").style.setProperty("--money", FLOW_TYPES.capital.color);
 
   function activeSteps() { return wtMode === "life" ? WALKTHROUGH_STEPS : MONEY_WALKTHROUGH_STEPS; }
   function defaultWtCopy() {
