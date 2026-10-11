@@ -1,6 +1,6 @@
 """Checks for session dating, missing-day handling in colour confirmation,
-NaN values, session-dated prices and the data-format check (PLAN.md ledger
-R33b, R33d, R39-R44). Offline: yfinance is stubbed, and every
+NaN values, session-dated prices, the data-format check and the R45 input
+fixes (PLAN.md ledger R33b, R33d, R39-R45, R48). Offline: yfinance is stubbed, and every
 file the pipeline writes (scores_history.json, audit_log.json, index.html)
 goes to a temporary folder, never the repo.
 
@@ -35,6 +35,11 @@ What it covers:
     company, fails the run (stage_fetch doesn't swallow it); a field missing
     for one company doesn't; the known analyst break is logged, not raised,
     until its exemption expires (model_version 2, R48).
+  - Input fixes (R45): analyst grades from upgrades_downgrades (missing data is
+    None, never 0); momentum with the right sign, a bounded near-flat case and
+    5/63-session windows; news counted once per story, ticker-feed stories
+    naming the company, generic headlines only through sub-layer terms; and
+    model_version on every history and audit entry.
 
     python tools/check_confirmation.py
     python tools/check_confirmation.py --shots Output/screenshots/dashboard/r40
@@ -78,13 +83,13 @@ def bars(dates):
     return pd.DataFrame({"Close": range(len(dates)), "Volume": range(len(dates))}, index=idx)
 
 
-def price_bars(n, end="2026-10-09", nan_at=(), vol_nan_at=(), trailing_nan=(), adj_factor=1.0):
+def price_bars(n, end="2026-10-09", nan_at=(), vol_nan_at=(), trailing_nan=(), adj_factor=1.0, closes=None):
     """n weekday bars ending at `end` with rising closes, shaped like
     history(auto_adjust=False): traded Close/High/Low plus "Adj Close", which
     is Close x adj_factor on every bar but the last (as after a dividend).
     NaN at the given positions, plus trailing rows (by date) that are all NaN."""
     days = [d.date() for d in pd.bdate_range(end=end, periods=n)]
-    close = [100.0 + 0.5 * i for i in range(n)]
+    close = list(closes) if closes is not None else [100.0 + 0.5 * i for i in range(n)]
     vol = [1.0e6] * n
     for i in nan_at:
         close[i] = float("nan")
@@ -147,6 +152,7 @@ class FullStub(StubTicker):
         self.quarterly_financials = pd.DataFrame()
         self.quarterly_cashflow = pd.DataFrame()
         self.recommendations = None
+        self.upgrades_downgrades = None
 
 
 def nan_free(d):
@@ -261,34 +267,37 @@ def check_data_format():
           not raises(lambda: fetch_market.check_fields([full(("info.marketCap",)), full()])))
     check("format: a field missing for every company fails the run",
           raises(lambda: fetch_market.check_fields([full(("info.marketCap",)), full(("info.marketCap",))])))
+    # R45 release state: the analyst exemption is gone and its source replaced.
+    check("format: the analyst exemption is gone and the check covers upgrades_downgrades",
+          fetch_market.KNOWN_FORMAT_BREAKS == {} and "upgrades_downgrades.ToGrade" in fetch_market.EXPECTED_FIELDS
+          and "recommendations.To Grade" not in fetch_market.EXPECTED_FIELDS)
+    check("format: analyst grades missing for every company now fail the run",
+          raises(lambda: fetch_market.check_fields([full(("upgrades_downgrades.ToGrade",))] * 2)))
+
+    # R48 mechanism, with a synthetic exemption: logged while valid; fails the
+    # run once MODEL_VERSION reaches its expiry or its field is no longer read.
+    real_breaks, real_fields = fetch_market.KNOWN_FORMAT_BREAKS, fetch_market.EXPECTED_FIELDS
+    version = fetch_market.MODEL_VERSION
     logged = []
     handler = logging.Handler()
     handler.emit = lambda record: logged.append(record.getMessage())
     fetch_market.log.addHandler(handler)
     try:
-        ok = not raises(lambda: fetch_market.check_fields([full(("recommendations.To Grade",))] * 2))
-    finally:
-        fetch_market.log.removeHandler(handler)
-    check("format: the known analyst break is logged as an error on every run, not raised",
-          ok and any("Known data-format break: recommendations.To Grade" in m for m in logged), str(logged))
-
-    # R48: the exemption expires with the R45 release (model_version 2) and
-    # when its field is no longer read; either way the run fails until it's removed.
-    real_version, real_fields = fetch_market.MODEL_VERSION, fetch_market.EXPECTED_FIELDS
-    try:
-        fetch_market.MODEL_VERSION = 2
-        check("format: at model_version 2 (the R45 release) the analyst exemption fails the run",
+        fetch_market.KNOWN_FORMAT_BREAKS = {"info.grossMargins": {"reason": "test", "expires_at": version + 1}}
+        ok = not raises(lambda: fetch_market.check_fields([full(("info.grossMargins",))] * 2))
+        check("format: a valid exemption is logged as an error on every run, not raised",
+              ok and any("Known data-format break: info.grossMargins" in m for m in logged), str(logged))
+        fetch_market.KNOWN_FORMAT_BREAKS = {"info.grossMargins": {"reason": "test", "expires_at": version}}
+        check("format: an exemption that has reached its model_version fails the run",
               raises(lambda: fetch_market.check_fields([full()] * 2)))
         check("format: ...even when nothing was fetched",
               raises(lambda: fetch_market.check_fields([])))
-        fetch_market.MODEL_VERSION = real_version
-        fetch_market.EXPECTED_FIELDS = tuple(f for f in real_fields if f != "recommendations.To Grade")
+        fetch_market.KNOWN_FORMAT_BREAKS = {"recommendations.To Grade": {"reason": "test", "expires_at": version + 1}}
         check("format: an exemption for a field the pipeline no longer reads fails the run",
               raises(lambda: fetch_market.check_fields([full()] * 2)))
     finally:
-        fetch_market.MODEL_VERSION, fetch_market.EXPECTED_FIELDS = real_version, real_fields
-    check("format: at model_version 1 the exemption still holds",
-          not raises(lambda: fetch_market.check_fields([full(("recommendations.To Grade",))] * 2)))
+        fetch_market.log.removeHandler(handler)
+        fetch_market.KNOWN_FORMAT_BREAKS, fetch_market.EXPECTED_FIELDS = real_breaks, real_fields
 
     real_rp = fetch_market.run_pipeline
     fetch_market.run_pipeline = lambda *a, **k: (_ for _ in ()).throw(fetch_market.SchemaError("test"))
@@ -314,6 +323,112 @@ def check_data_format():
     check("format: one hyperscaler with the capex row is enough",
           not raises(lambda: with_stub(lambda symbol: CashStub(with_row if symbol == "MSFT" else no_row),
                                        fetch_market.fetch_capex_trend)))
+
+
+def check_r45_inputs():
+    """R45: analyst source, momentum, news counting, model_version."""
+    fetch = lambda stub: with_stub(stub, lambda: fetch_market.fetch_ticker_data("TST", [], ["cooling"]))
+
+    # 1. Analyst grades: newest-first table; the 10 most recent actions count.
+    dates = pd.DatetimeIndex(pd.bdate_range(end="2026-10-09", periods=12)[::-1])     # newest first
+    grades = ["Buy", "Hold", "Outperform", "Neutral", "Overweight", "Sell", "Strong Buy", "Hold", "Buy", "Hold",
+              "Buy", "Buy"]                                                         # the last two are the oldest
+    stub = FullStub(price_bars(130))
+    stub.upgrades_downgrades = pd.DataFrame({"Firm": ["X"] * 12, "ToGrade": grades, "FromGrade": [""] * 12,
+                                             "Action": ["main"] * 12}, index=dates)
+    d = fetch(stub)
+    check("analyst: counts buy-side grades among the 10 most recent actions (table sorted first)",
+          d["analyst_upgrades"] == 5 and "upgrades_downgrades.ToGrade" in d["_fields_seen"], str(d["analyst_upgrades"]))
+    table = stub.upgrades_downgrades
+    old = pd.DatetimeIndex(pd.bdate_range(end="2026-09-08", periods=12)[::-1])        # all before the 30 days
+    stub.upgrades_downgrades = table.set_axis(old)
+    d = fetch(stub)
+    check("analyst: actions older than 30 days before the session don't count (a real 0, not missing)",
+          d["analyst_upgrades"] == 0 and "analyst_upgrades" not in d["data_missing"], str(d["analyst_upgrades"]))
+    later = pd.DatetimeIndex(pd.bdate_range(start="2026-10-12", periods=12)[::-1])    # all after the session
+    stub.upgrades_downgrades = table.set_axis(later)
+    d = fetch(stub)
+    check("analyst: actions dated after the session don't count", d["analyst_upgrades"] == 0, str(d["analyst_upgrades"]))
+    class Failing(FullStub):
+        @property
+        def upgrades_downgrades(self):
+            raise ConnectionError("network down")
+        @upgrades_downgrades.setter
+        def upgrades_downgrades(self, value):
+            pass
+    d = fetch(Failing(price_bars(130)))
+    check("analyst: a failed fetch is missing data (None, named)",
+          d["analyst_upgrades"] is None and "analyst_upgrades" in d["data_missing"])
+    stub.upgrades_downgrades = table
+    stub.upgrades_downgrades = stub.upgrades_downgrades.iloc[0:0]
+    d = fetch(stub)
+    check("analyst: an empty table is missing data (None, named), not 0",
+          d["analyst_upgrades"] is None and "analyst_upgrades" in d["data_missing"])
+    stub.upgrades_downgrades = None
+    d = fetch(stub)
+    check("analyst: no table at all is missing data (None, named), not 0",
+          d["analyst_upgrades"] is None and "analyst_upgrades" in d["data_missing"])
+
+    # 2. Momentum.
+    def momentum(closes):
+        return fetch(FullStub(price_bars(len(closes), closes=closes)))["price_momentum"]
+    falling = [200.0 * (0.997 ** i) for i in range(124)] + [200.0 * (0.997 ** 123) * (0.99 ** k) for k in range(1, 7)]
+    m = momentum(falling)
+    check("momentum: a stock falling faster than its 90-day downtrend is below 1 (old formula: above 1)",
+          m is not None and m < 1, str(m))
+    flat = [100.0 + (0.3 if i % 2 else -0.3) for i in range(124)] + [100.0, 100.4, 100.8, 101.2, 101.6, 102.0]
+    m = momentum(flat)
+    check("momentum: a near-flat 90 days doesn't saturate at the +5 limit", m is not None and m < 5, str(m))
+    m = momentum([100.0 * (1.004 ** i) for i in range(130)])
+    check("momentum: a steady uptrend is exactly 1.0 (in line with its trend)", m == 1.0, str(m))
+    faster = [100.0 * (1.004 ** i) for i in range(125)] + [100.0 * (1.004 ** 124) * (1.012 ** k) for k in range(1, 6)]
+    m = momentum(faster)
+    check("momentum: an uptrend that speeds up in the last 5 sessions is above 1", m is not None and m > 1, str(m))
+    m = fetch(FullStub(price_bars(60)))
+    check("momentum: fewer than 69 sessions is missing data (None, named)",
+          m["price_momentum"] is None and "price_momentum" in m["data_missing"])
+
+    # 3. News counting.
+    ctx, brand, tickers = SUB_LAYERS["optical"]["context_keywords"], SUB_LAYERS["optical"]["brand_keywords"], ["CIEN", "GLW"]
+    h = lambda src, tk, title, body="": {"source": src, "ticker": tk, "title": title, "text": f"{title} {body}".lower()}
+    nv = lambda heads: fetch_market.score_news_velocity(heads, ctx, brand, tickers)
+    story = "ciena sold out of 1.6t transceivers"
+    check("news: the same story in two feeds of a sub-layer counts once",
+          nv([h("ticker", "CIEN", story), h("ticker", "GLW", story)]) == 1.0)
+    check("news: a ticker-feed story that doesn't name that company doesn't count",
+          nv([h("ticker", "GLW", "lumentum shares jump on optical networking demand")]) == 0.0)
+    check("news: a ticker-feed story naming the company with a context term counts 2 points",
+          nv([h("ticker", "GLW", "corning expands fiber capacity")]) == 1.0)
+    check("news: a generic headline with only a brand name doesn't count",
+          nv([h("generic", "", "corning names a new chief financial officer")]) == 0.0)
+    check("news: a generic headline with only a shared supply term doesn't count",
+          nv([h("generic", "", "boeing's backlog hits a record")]) == 0.0)
+    check("news: a generic headline with a sub-layer term counts 1 point",
+          nv([h("generic", "", "800g transceiver shipments rise")]) == 0.5)
+    check("news: a ticker copy is counted before a generic copy of the same story",
+          nv([h("generic", "", story), h("ticker", "CIEN", story)]) == 1.0)
+
+    # 4. model_version on history and audit entries.
+    tmp = tempfile.mkdtemp(prefix="r45_mv_")
+    cwd, real_file = os.getcwd(), render.SCORES_HISTORY_FILE
+    os.chdir(tmp)
+    render.SCORES_HISTORY_FILE = "scores_history.json"
+    try:
+        layers = list(SUB_LAYERS)
+        md = {"sub_layers": {lid: [fixture_ticker(lid[:4].upper())] for lid in layers},
+              "meta": {"generic_feed_failures": [], "session": "2026-10-06",
+                       "sessions": [x.isoformat() for x in SESSIONS if x <= D("2026-10-06")]}}
+        macro = {"vix": 18.0, "yield_10y_change": -5.0, "nasdaq_vs_spx_20d": 0.01, "data_missing": []}
+        scored = main.stage_score(md, macro)
+        render.save_scores_history(scored, "2026-10-06")
+        hist = json.load(open("scores_history.json"))
+        audit = json.load(open("audit_log.json"))
+        from config import MODEL_VERSION
+        check("model_version: on every history entry", all(e.get("model_version") == MODEL_VERSION == 2 for e in hist))
+        check("model_version: on every audit entry", audit and all(e.get("model_version") == MODEL_VERSION for e in audit))
+    finally:
+        os.chdir(cwd)
+        render.SCORES_HISTORY_FILE = real_file
 
 
 def check_unfinished_bar():
@@ -573,6 +688,7 @@ def run(shots):
         check_nan_values()
         check_session_prices()
         check_data_format()
+        check_r45_inputs()
         check_loader(tmp)
         check_rendered_note(tmp, shots)
     finally:

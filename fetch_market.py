@@ -29,6 +29,8 @@ Returns:
 
 import json
 import math
+import re
+import statistics
 import logging
 import datetime
 import argparse
@@ -38,7 +40,7 @@ import yfinance as yf
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from config import SUB_LAYERS, CAPEX_TICKERS, MODEL_VERSION
+from config import SUB_LAYERS, CAPEX_TICKERS, MODEL_VERSION, COMPANY_NAMES, GENERIC_BOTTLENECK_KEYWORDS
 
 log = logging.getLogger(__name__)
 
@@ -65,6 +67,12 @@ class SchemaError(RuntimeError):
 
 
 TICKER_BAR_COLUMNS = ("Close", "Adj Close", "High", "Low", "Volume")
+
+# Buy-side grades counted by the analyst signal (the list the old code used),
+# among actions within the last ANALYST_WINDOW_DAYS up to the session
+# (ledger R49; the original code had no time window).
+BUY_GRADES = ("Buy", "Strong Buy", "Overweight", "Outperform", "Positive")
+ANALYST_WINDOW_DAYS = 30
 INDEX_BAR_COLUMNS  = ("Close",)
 
 # Per-company fields the pipeline reads; each must be present for at least
@@ -78,7 +86,7 @@ EXPECTED_FIELDS = (
     "quarterly_financials.Gross Profit|GrossProfit",
     "quarterly_cashflow.Capital Expenditure|CapitalExpenditure",
     "quarterly_cashflow.Operating Cash Flow|OperatingCashFlow",
-    "recommendations.To Grade",
+    "upgrades_downgrades.ToGrade",
 )
 
 # Known breaks that are already tracked: logged as an error on every run
@@ -87,14 +95,7 @@ EXPECTED_FIELDS = (
 # it), or once the field is no longer read at all, the exemption itself fails
 # the run until it's removed (ledger R48). Nothing else may be added here
 # without Ray's approval.
-KNOWN_FORMAT_BREAKS = {
-    "recommendations.To Grade": {
-        "reason": "yfinance (1.4 and 1.7) returns a monthly summary table without this column, so "
-                  "analyst_upgrades is scored 0 for every company (decision #6 break, ledger R35); "
-                  "fixed by ledger R45 item 1, which also moves this check to the new source",
-        "expires_at": 2,        # the R45 release is model_version 2
-    },
-}
+KNOWN_FORMAT_BREAKS = {}   # the analyst break (ledger R35) was fixed by R45 item 1
 
 
 def require_columns(hist, columns, label):
@@ -259,6 +260,7 @@ def fetch_ticker_headlines(tickers: list, max_per_ticker: int = 10) -> tuple:
                 if title:
                     headlines.append({
                         "text":   f"{title} {summary}".lower(),  # NO ticker prefix
+                        "title":  " ".join(title.lower().split()),  # story identity across feeds
                         "ticker": ticker.upper(),                  # stored separately
                         "source": "ticker",
                     })
@@ -287,6 +289,7 @@ def fetch_generic_headlines(max_per_feed: int = 20) -> tuple:
                 if title:
                     headlines.append({
                         "text":   f"{title} {summary}".lower(),
+                        "title":  " ".join(title.lower().split()),  # story identity across feeds
                         "ticker": "",      # no ticker — generic source
                         "source": "generic",
                     })
@@ -340,48 +343,62 @@ def score_news_velocity(
     match still counts, since brand name is the only way to tie an
     unattributed headline to a specific company.
 
-    Algorithm:
-      - Ticker headline (this sub-layer's ticker) + context keyword match → 2.0 pts
-      - Ticker headline + brand-name-only (no context keyword)            → 0 pts
-      - Generic headline + context OR brand keyword match                  → 1.0 pts
-      - Ticker headline from ANOTHER sub-layer's ticker                    → SKIPPED entirely
+    Algorithm (ledger R45 item 3 replaced the brand rule above):
+      - Ticker headline (this sub-layer's ticker): 2.0 pts if it has a context
+        keyword (this sub-layer's terms or the shared supply terms) AND names
+        the company whose feed it came from (config.COMPANY_NAMES, whole word).
+      - Generic headline: 1.0 pt only through a term specific to this
+        sub-layer. The shared supply keywords ("backlog", "sold out", ...) are
+        in every sub-layer's list, so on their own they'd add the same story
+        to all five; a bare brand name no longer counts at all.
+      - Each story counts once per sub-layer, however many feeds carry it
+        (same title); a ticker-feed copy is considered before a generic one.
+      - Ticker headline from ANOTHER sub-layer's ticker → SKIPPED entirely.
+    brand_keywords is no longer used for scoring.
 
     Cap: 20 weighted points → scaled to 0-10 output range.
     """
-    context_lower = [kw.lower() for kw in context_keywords]
-    brand_lower   = [kw.lower() for kw in (brand_keywords or [])]
+    context_lower  = [kw.lower() for kw in context_keywords]
+    shared         = {kw.lower() for kw in GENERIC_BOTTLENECK_KEYWORDS}
+    specific_lower = [kw for kw in context_lower if kw not in shared]
     # Normalise layer tickers to uppercase for comparison
     layer_tickers_upper = set(t.upper() for t in (layer_tickers or []))
 
+    def names_company(text: str, ticker: str) -> bool:
+        return any(re.search(r"(?<![a-z0-9])" + re.escape(n) + r"(?![a-z0-9])", text)
+                   for n in COMPANY_NAMES.get(ticker, ()))
+
+    counted = set()
     weighted_hits = 0.0
-    for h in headlines:
+    ticker_first = sorted(headlines, key=lambda h: 0 if isinstance(h, dict) and h.get("source") == "ticker" else 1)
+    for h in ticker_first:
         if isinstance(h, dict):
             text      = h.get("text", "")
             source    = h.get("source", "generic")
             h_ticker  = h.get("ticker", "").upper()
+            story     = h.get("title") or text
         else:
             # Legacy string format fallback
             text     = h.lower()
             source   = "generic"
             h_ticker = ""
+            story    = text
 
         # ── Sub-layer ownership filter ──────────────────────────────────────
         # Ticker-specific headlines only count for the sub-layer that owns the ticker
         if source == "ticker" and layer_tickers_upper:
             if h_ticker not in layer_tickers_upper:
                 continue   # skip — belongs to a different sub-layer
-
-        has_context = any(kw in text for kw in context_lower)
-        has_brand   = any(kw in text for kw in brand_lower)
+        if story in counted:
+            continue       # the same story from another feed already counted
 
         if source == "ticker":
-            # Ownership already established via h_ticker — brand-name text
-            # match alone is tautological and doesn't count. Needs topical content.
-            if has_context:
+            if any(kw in text for kw in context_lower) and names_company(text, h_ticker):
                 weighted_hits += 2.0
-        else:
-            if has_context or has_brand:
-                weighted_hits += 1.0
+                counted.add(story)
+        elif any(kw in text for kw in specific_lower):
+            weighted_hits += 1.0
+            counted.add(story)
 
     # Cap at 20 weighted points, scale to 0-10 output
     return round(min(weighted_hits, 20.0) / 2.0, 1)
@@ -473,18 +490,25 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             vol_spike = None
             data_missing.append("vol_spike")
 
-        if len(closes) >= 5:
-            ret_5d  = closes[-1] / closes[-5] - 1
-            ret_90d = (closes[-1] / closes[-63] - 1) if len(closes) >= 63 else ret_5d
-            avg_5d_from_90d = ret_90d / 18 if ret_90d != 0 else 0.001
-            price_momentum  = round(ret_5d / avg_5d_from_90d, 2) if avg_5d_from_90d != 0 else 1.0
-            if math.isfinite(price_momentum):
-                price_momentum = max(-5.0, min(5.0, price_momentum))
-            else:
-                # Checked before the clamp: min(5.0, nan) returns 5.0, which
-                # would turn a NaN close into the maximum momentum score.
-                price_momentum = None
-                data_missing.append("price_momentum")
+        # Momentum (ledger R45 item 2): the last 5 sessions' return against the
+        # average (compound) 5-session pace of the last 63 sessions (about 90
+        # days); 1.0 means exactly in line with that trend. The excess over the pace is measured
+        # in units of the pace when the trend is clear, and of the typical
+        # 5-session move when the trend is weaker than that noise. For a clear
+        # uptrend this is the old ratio. Fixed: two negative returns no longer
+        # make a positive momentum, a near-flat 90 days can't blow the ratio up,
+        # and the windows are 5 and 63 sessions (the old ones spanned 4
+        # sessions, and divided a 62-session return as if it were 18 five-
+        # session periods). Fewer than 69 sessions, or a NaN in the window, is
+        # missing data.
+        window = closes[-69:]
+        if len(window) == 69 and all(math.isfinite(c) for c in window):
+            ret_5d = closes[-1] / closes[-6] - 1
+            pace   = (closes[-1] / closes[-64]) ** (5 / 63) - 1
+            moves  = [closes[i] / closes[i - 5] - 1 for i in range(len(closes) - 63, len(closes))]
+            scale  = max(abs(pace), statistics.pstdev(moves))
+            price_momentum = round(1 + (ret_5d - pace) / scale, 2) if scale > 0 else 1.0
+            price_momentum = max(-5.0, min(5.0, price_momentum))
         else:
             price_momentum = None
             data_missing.append("price_momentum")
@@ -561,23 +585,27 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
         if growth_prev is None:
             data_missing.append("growth_prev")
 
-        analyst_upgrades = 0
+        # Analyst grades (ledger R45 item 1, R49): per-action rows from
+        # upgrades_downgrades. t.recommendations is a monthly summary table
+        # without grades in yfinance 1.4 and 1.7, which scored every company 0
+        # (ledger R35). Counted: how many actions within the 30 days up to the
+        # session set a buy-side grade, at most the 10 most recent of them (the
+        # original code's limit). No actions in the window is a real 0; a
+        # failed fetch or no table at all is missing data (None + data_missing).
+        analyst_upgrades = None
         try:
-            recs = t.recommendations
-            if recs is not None and "To Grade" in recs.columns:
-                seen.add("recommendations.To Grade")
-            if recs is not None and not recs.empty:
-                recent = recs.tail(10)
-                if "To Grade" in recent.columns:
-                    up = recent[recent["To Grade"].isin([
-                        "Buy", "Strong Buy", "Overweight", "Outperform", "Positive"
-                    ])]
-                    analyst_upgrades = len(up)
-            # else: call succeeded, genuinely no recent recommendation data —
-            # real 0, not a fetch failure.
+            ud = t.upgrades_downgrades
+            if ud is not None and "ToGrade" in ud.columns:
+                seen.add("upgrades_downgrades.ToGrade")
+                if not ud.empty:
+                    session = hist.index[-1].date() if not hist.empty else datetime.date.today()
+                    dates   = pd.Index([ts.date() for ts in ud.index])
+                    inside  = (dates > session - datetime.timedelta(days=ANALYST_WINDOW_DAYS)) & (dates <= session)
+                    recent  = ud[inside].sort_index().tail(10)
+                    analyst_upgrades = int(recent["ToGrade"].isin(BUY_GRADES).sum())
         except Exception as e:
-            log.debug(f"  {ticker} recommendations error: {e}")
-            analyst_upgrades = None
+            log.debug(f"  {ticker} upgrades_downgrades error: {e}")
+        if analyst_upgrades is None:
             data_missing.append("analyst_upgrades")
 
         short_int_change = None
