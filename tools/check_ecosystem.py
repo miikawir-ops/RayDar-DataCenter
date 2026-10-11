@@ -106,7 +106,7 @@ WT_EXPECTED = """(mode) => { const owner = id => { for (const o in POSTER_GROUPS
   const byId = Object.fromEntries(STAKEHOLDERS.map(s => [s.id, s]));
   return (mode === 'life' ? WALKTHROUGH_STEPS : MONEY_WALKTHROUGH_STEPS).map(s => ({title: s.title,
     poster: [...new Set(s.highlightIds.map(owner))].sort(), explorer: [...new Set(s.highlightIds)].sort(),
-    pays: (s.payments || []).map(p => p.from + '>' + p.to).sort(),
+    pays: [...new Set((s.payments || []).filter(p => owner(p.from) !== owner(p.to)).map(p => owner(p.from) + '>' + owner(p.to)))].sort(),
     payText: (s.payments || []).map(p => byId[p.from].name + ' \u2192 ' + byId[p.to].name + ': ' + p.what)})) }"""
 WT_STATE = """() => ({title: document.getElementById('wt-title').textContent,
   poster: [...document.querySelectorAll('.hotspot.glow')].map(e => e.id.replace('hotspot-', '')).sort(),
@@ -240,7 +240,8 @@ def explorer(b, run):
                     iconOut: boxes.filter(x => !inside(x.i, x.r)).map(x => x.id), noGlow: boxes.filter(x => !x.glow).map(x => x.id),
                     edges: document.querySelectorAll('.edge-line').length, rels: RELATIONSHIPS.length,
                     edgeNoGlow: [...document.querySelectorAll('.edge-line')].filter(e => !e.style.getPropertyValue('--glow')).length} }""")
-        check(f"{tag}: 15 boxes, none overlapping", geo["n"] == 15 and not geo["over"], str(geo["over"]))
+        n_sh = pg.evaluate("STAKEHOLDERS.length")
+        check(f"{tag}: one box per stakeholder ({n_sh}), none overlapping", geo["n"] == n_sh and not geo["over"], str(geo["over"]))
         check(f"{tag}: every box's name and icon fit inside it", not geo["textOut"] and not geo["iconOut"], f"text {geo['textOut']} icon {geo['iconOut']}")
         check(f"{tag}: every box and arrow carries its glow colour", not geo["noGlow"] and geo["edges"] == geo["rels"] and geo["edgeNoGlow"] == 0, str(geo))
         pg.locator("#node-capital").click(); pg.wait_for_timeout(300)
@@ -395,6 +396,80 @@ def right_edge(p, run):
     b.close()
 
 
+def content_r53(b, run):
+    """R52/R53: money step 7, the step 1 and 3 additions, examples on every card, the GPU cloud."""
+    ctx, pg, log, _ = open_page(b, run, 1680, 1050)
+    pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(350)
+    st1 = pg.evaluate("""() => ({desc: document.getElementById('wt-desc').textContent,
+        pays: [...document.querySelectorAll('#compact-card .sc-pay-list li')].map(li => li.textContent)})""")
+    check("money step 1: says a hyperscaler's own facility has no rent (Hamina)",
+          "no rent" in st1["desc"] and "Hamina" in st1["desc"], st1["desc"])
+    check("money step 1: lists the GPU cloud payments", sum("GPU Cloud" in t for t in st1["pays"]) == 2, str(st1["pays"]))
+    pg.locator("#wt-next").click(); pg.wait_for_timeout(250); pg.locator("#wt-next").click(); pg.wait_for_timeout(350)
+    link = pg.evaluate("() => { const a = document.getElementById('wt-link'); return {hidden: a.hidden, href: a.getAttribute('href'), text: a.textContent} }")
+    check("money step 3: links to the Daily signals page as the investment flow it tracks",
+          not link["hidden"] and link["href"] == "index.html" and "Daily signals" in link["text"], str(link))
+    for _ in range(4):
+        pg.locator("#wt-next").click(); pg.wait_for_timeout(250)
+    pg.wait_for_timeout(200)
+    st7 = pg.evaluate("""() => ({title: document.getElementById('wt-title').textContent,
+        note: document.getElementById('wt-note').hidden ? null : document.getElementById('wt-note').textContent,
+        lit: [...document.querySelectorAll('.hotspot.glow')].map(e => e.id.replace('hotspot-', '')).sort(),
+        arrows: [...document.querySelectorAll('#money-svg .money-pay')].map(g => g.dataset.from + '>' + g.dataset.to),
+        pays: [...document.querySelectorAll('#compact-card .sc-pay-list li')].length,
+        sources: document.querySelectorAll('#compact-card .sc-sources a').length,
+        linkHidden: document.getElementById('wt-link').hidden})""")
+    check("money step 7: the public sector's share lights the municipality and the operator, one arrow, four payments",
+          st7["title"] == "7. The public sector's share" and st7["lit"] == ["operator", "public_sector"]
+          and st7["arrows"] == ["operator>public_sector"] and st7["pays"] == 4, str(st7))
+    check("money step 7: the dated Finland line (energy tax 2.24 c/kWh from 1 July 2026, scheme dropped)",
+          st7["note"] and "2.24 c/kWh" in st7["note"] and "1 July 2026" in st7["note"] and "dropped" in st7["note"]
+          and "Reviewed 10/2026" in st7["note"], str(st7["note"]))
+    check("money step 7: the card lists its sources", st7["sources"] >= 8, str(st7["sources"]))
+    check("money step 7: no stray link from step 3", st7["linkHidden"])
+    pg.locator("#wt-prev").click(); pg.wait_for_timeout(300)
+    check("the step note disappears on a step without one", pg.evaluate("document.getElementById('wt-note').hidden"))
+
+    data = pg.evaluate("""() => ({missing: STAKEHOLDERS.filter(s => !EXAMPLES[s.id]).map(s => s.id),
+        empty: Object.entries(EXAMPLES).filter(([, e]) => !((e.global || []).length || (e.dashboard || []).length || (e.finland || []).length)).map(([k]) => k),
+        unsourced: Object.entries(EXAMPLES).filter(([, e]) => ((e.global || []).length || (e.finland || []).length) && !(e.sources || []).length).map(([k]) => k),
+        dashboard: Object.fromEntries(Object.entries(EXAMPLES).filter(([, e]) => e.dashboard).map(([k, e]) => [k, e.dashboard]))})""")
+    check("examples: every stakeholder has them, each typed example has sources",
+          not data["missing"] and not data["empty"] and not data["unsourced"], str(data))
+    check("examples: operator, cooling, network and equipment take their companies from the dashboard's sub-layers",
+          data["dashboard"] == {"operator": ["colocation"], "cooling": ["cooling"], "network": ["networking", "optical"], "equipment": ["compute"]},
+          str(data["dashboard"]))
+    bad = []
+    for sid in pg.evaluate("() => STAKEHOLDERS.filter(s => s.posterBox).map(s => s.id)"):
+        pg.evaluate("(id) => document.getElementById('hotspot-' + id).scrollIntoView({block: 'center'})", sid)
+        pg.locator("#hotspot-" + sid).click(); pg.wait_for_timeout(420)
+        c = pg.evaluate("""() => ({card: (document.getElementById('compact-card').textContent.match(/Reviewed 10\/2026/g) || []).length,
+            panelSources: document.querySelectorAll('#panel-below .sc-sources a').length,
+            dash: [...document.querySelectorAll('#compact-card a.sc-dash-link')].map(a => a.getAttribute('href'))})""")
+        exp_groups = pg.evaluate("(id) => 1 + ((POSTER_GROUPS[id] || {}).extraIds || []).length", sid)
+        needs_dash = sid in data["dashboard"]
+        if c["card"] != exp_groups or (needs_dash and c["dash"] != ["index.html"]) or (not needs_dash and c["dash"]):
+            bad.append(f"{sid}: {c}")
+        pg.locator("#hotspot-" + sid).click(); pg.wait_for_timeout(250)
+    check("examples: every poster box's card shows its examples (each stakeholder in a shared box), dashboard links where due", not bad, "; ".join(bad[:3]))
+    pg.locator("#hotspot-capital").click(); pg.wait_for_timeout(400)
+    check("examples: the full panel lists the sources", pg.evaluate("document.querySelectorAll('#panel-below .sc-sources a').length") >= 4)
+    pg.locator("#hotspot-hyperscaler").click(); pg.wait_for_timeout(400)
+    grp = pg.evaluate("() => [...document.querySelectorAll('#compact-card .sc-subgroup-title')].map(e => e.textContent)")
+    check("GPU cloud: shares the hyperscaler box on the poster, as its own section", grp == ["Hyperscaler / Cloud", "GPU Cloud (Neocloud)"], str(grp))
+    rels = pg.evaluate("() => RELATIONSHIPS.filter(r => r.from === 'neocloud' || r.to === 'neocloud').map(r => r.from + '>' + r.to).sort()")
+    check("GPU cloud: its five relationships", rels == sorted(["operator>neocloud", "equipment>neocloud", "capital>neocloud",
+                                                             "neocloud>enterprise", "neocloud>hyperscaler"]), str(rels))
+    check("content: no console errors", not log, str(log))
+    ctx.close()
+    ctx, pg, log, _ = open_page(b, run, 1680, 1050)
+    pg.locator("#toggle-explorer").click(); pg.wait_for_timeout(300)
+    pg.locator("#node-neocloud").click(); pg.wait_for_timeout(300)
+    side = pg.evaluate("() => ({title: document.querySelector('#side-panel .side-panel-title').textContent, ex: document.querySelector('#side-panel .sc-examples') !== null})")
+    check("GPU cloud: its own box in the explorer, with examples in the side panel", side == {"title": "GPU Cloud (Neocloud)", "ex": True}, str(side))
+    ctx.close()
+
+
 def phones(b, run):
     for w, h in PHONES:
         ctx, pg, log, _ = open_page(b, run, w, h, mobile=True)
@@ -403,7 +478,7 @@ def phones(b, run):
             return {toggle: vis('.view-toggle'), rail: vis('.compact-rail'), hotspot: vis('.hotspot'),
                     list: document.querySelectorAll('#mobile-list .mobile-item').length, listShown: vis('#mobile-list')} }""")
         check(f"{tag}: poster without hotspots or card, stakeholder list shown",
-              not st["toggle"] and not st["rail"] and not st["hotspot"] and st["listShown"] and st["list"] == 15, str(st))
+              not st["toggle"] and not st["rail"] and not st["hotspot"] and st["listShown"] and st["list"] == pg.evaluate("STAKEHOLDERS.length"), str(st))
         check(f"{tag}: no sideways scroll", sideways(pg) <= 0, f"{sideways(pg)}px")
         check(f"{tag}: no console errors", not log, str(log))
         ctx.close()
@@ -421,7 +496,7 @@ def main():
         os.makedirs(args.shots, exist_ok=True)
     with sync_playwright() as p:
         b = p.chromium.launch()
-        for suite in (poster_desktop, walkthroughs, flows_desktop, explorer, navigation, phones):
+        for suite in (poster_desktop, walkthroughs, flows_desktop, explorer, navigation, content_r53, phones):
             print(f"== {suite.__name__}")
             suite(b, run)
         print("== right_edge")
