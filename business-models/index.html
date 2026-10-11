@@ -49,7 +49,7 @@
    narrower widths instead of overflowing the source's fixed row heights.
    Compact: the same five <article>s become a snap-scrolling swipe track
    (the dashboard's #chain pattern), one model per screen. */
-.matrix{display:grid;grid-template-columns:150px repeat(5,minmax(0,1fr));grid-template-rows:repeat(11,auto);
+.matrix{display:grid;grid-template-columns:150px repeat(5,minmax(0,1fr));grid-template-rows:repeat(13,auto);
         column-gap:10px;row-gap:7px;overflow:visible}
 .matrix-labels,.model{grid-row:1 / -1;display:grid;grid-template-rows:subgrid;box-sizing:border-box}
 .matrix-labels{padding:12px 0;border:1px solid transparent}
@@ -102,16 +102,18 @@
      The last row keeps its fixed top-aligned label: its cells have 4px of
      top padding plus a 1px rule, which the label never had. */
   .matrix-labels > *{align-self:stretch}
-  .matrix-labels > :nth-child(11){align-self:start}
+  .matrix-labels > :nth-child(13){align-self:start}
   .model > :nth-child(3){min-height:20px} .matrix-labels > :nth-child(3){min-height:20px}
   .model > :nth-child(4){min-height:40px} .matrix-labels > :nth-child(4){min-height:40px}
   .model > :nth-child(5){min-height:40px} .matrix-labels > :nth-child(5){min-height:40px}
   .model > :nth-child(6){min-height:40px} .matrix-labels > :nth-child(6){min-height:40px}
-  .model > :nth-child(7){min-height:52px} .matrix-labels > :nth-child(7){min-height:52px}
+  .model > :nth-child(7){min-height:40px} .matrix-labels > :nth-child(7){min-height:40px}
   .model > :nth-child(8){min-height:40px} .matrix-labels > :nth-child(8){min-height:40px}
-  .model > :nth-child(9){min-height:40px} .matrix-labels > :nth-child(9){min-height:40px}
-  .model > :nth-child(10){min-height:58px} .matrix-labels > :nth-child(10){min-height:58px}
-  .model > :nth-child(11){min-height:24px} .matrix-labels > :nth-child(11){height:24px}
+  .model > :nth-child(9){min-height:52px} .matrix-labels > :nth-child(9){min-height:52px}
+  .model > :nth-child(10){min-height:40px} .matrix-labels > :nth-child(10){min-height:40px}
+  .model > :nth-child(11){min-height:40px} .matrix-labels > :nth-child(11){min-height:40px}
+  .model > :nth-child(12){min-height:58px} .matrix-labels > :nth-child(12){min-height:58px}
+  .model > :nth-child(13){min-height:24px} .matrix-labels > :nth-child(13){height:24px}
   .matrix-wrap::after{display:none}
 }
 
@@ -239,9 +241,11 @@
         <div class="mlabel mono-label"></div>
         <div class="mlabel mono-label"></div>
         <div class="mlabel mono-label">KERROKSET</div>
+        <div class="mlabel mono-label">RAKENNUKSEN OMISTAA</div>
         <div class="mlabel mono-label mlabel--strong">AI OY OSTAA</div>
         <div class="mlabel mono-label">AI OY:N SITOUMUKSET</div>
         <div class="mlabel mono-label">SOPIMUS · HINNOITTELU</div>
+        <div class="mlabel mono-label">SÄHKÖN MAKSAA</div>
         <div class="mlabel mono-label mlabel--strong">KUKA KANTAA RISKIN</div>
         <div class="mlabel mono-label">VASTAPUOLEN TULOT</div>
         <div class="mlabel mono-label">MITTAKAAVA</div>
@@ -253,9 +257,11 @@
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 1 · PUBLIC CLOUD</div></div>
         <div class="cell cell--title"><h2 id="h-public-cloud"><a class="quiet-link" href="public-cloud.html">Julkinen pilvi</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span></div></div>
+        <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>Pilvipalvelun&shy;tarjoaja tai kiinteistö&shy;sijoittaja</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Palveluna kapasiteettia, alustaa tai ohjelmistoa</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Ei sitoumuksia, maksaa käytön mukaan</span></div>
         <div class="cell cell--text"><div class="cell-label">SOPIMUS · HINNOITTELU</div><span>Ei sitoumusta · käytön mukaan</span></div>
+        <div class="cell cell--text"><div class="cell-label">SÄHKÖN MAKSAA</div><span>Pilvipalvelun&shy;tarjoaja: sisältyy hintaan</span></div>
         <div class="cell cell--risk"><div class="cell-label">KUKA KANTAA RISKIN</div><div class="risk"><div class="risk-box fill-blue"><div class="risk-k">KÄYTTÖASTE</div><div class="risk-v">Pilvipalvelun&shy;tarjoaja</div></div><div class="risk-box fill-blue"><div class="risk-k">LAITTEET</div><div class="risk-v">Pilvipalvelun&shy;tarjoaja</div></div></div></div>
         <div class="cell cell--text"><div class="cell-label">VASTAPUOLEN TULOT</div><span>Käyttöperusteiset maksut</span></div>
         <div class="cell cell--text"><div class="cell-label">MITTAKAAVA</div><span>Yksittäisistä <span class="gloss" data-g="gpu">GPU:ista</span> satoihin</span></div>
@@ -267,9 +273,11 @@
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 2</div></div>
         <div class="cell cell--title"><h2 id="h-gpu-cloud"><a class="quiet-link" href="gpu-cloud.html">GPU-pilvi</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span></div></div>
+        <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>GPU-pilvi, operaattori tai kiinteistö&shy;sijoittaja</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Palveluna valmista, ylläpidettyä kapasiteettia</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Monivuotinen maksusitoumus, ei omia laitteita</span></div>
         <div class="cell cell--text"><div class="cell-label">SOPIMUS · HINNOITTELU</div><span>1–5 v · per <span class="gloss" data-g="gpu_hour">GPU-tunti</span> tai palvelin</span></div>
+        <div class="cell cell--text"><div class="cell-label">SÄHKÖN MAKSAA</div><span>Yleensä GPU-pilvi: sisältyy hintaan</span></div>
         <div class="cell cell--risk"><div class="cell-label">KUKA KANTAA RISKIN</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">KÄYTTÖASTE</div><div class="risk-v">AI Oy (sitoumus)</div></div><div class="risk-box fill-blue"><div class="risk-k">LAITTEET</div><div class="risk-v">GPU-pilvi</div></div></div></div>
         <div class="cell cell--text"><div class="cell-label">VASTAPUOLEN TULOT</div><span>Palvelumaksut, usein <span class="gloss" data-g="take_or_pay">take-or-pay</span></span></div>
         <div class="cell cell--text"><div class="cell-label">MITTAKAAVA</div><span>Satoja–tuhansia GPU:ita</span></div>
@@ -281,9 +289,11 @@
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 3</div></div>
         <div class="cell cell--title"><h2 id="h-retail-colocation"><a class="quiet-link" href="retail-colocation.html">Retail-colocation</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
+        <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>Operaattori tai kiinteistö&shy;sijoittaja</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Tilaa ja palveluja: vuokran ja palvelun yhdistelmä</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Omat laitteet ja vuokravastuu</span></div>
         <div class="cell cell--text"><div class="cell-label">SOPIMUS · HINNOITTELU</div><span>1–5 v · per <span class="gloss" data-g="rack">räkki</span> ja kW</span></div>
+        <div class="cell cell--text"><div class="cell-label">SÄHKÖN MAKSAA</div><span>AI Oy: operaattorin laskulla (kW tai kWh)</span></div>
         <div class="cell cell--risk"><div class="cell-label">KUKA KANTAA RISKIN</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">KÄYTTÖASTE</div><div class="risk-v">AI Oy</div></div><div class="risk-box fill-own"><div class="risk-k">LAITTEET</div><div class="risk-v">AI Oy</div></div></div></div>
         <div class="cell cell--text"><div class="cell-label">VASTAPUOLEN TULOT</div><span>Tilavuokra, sähkö, <span class="gloss" data-g="cross_connect">cross-connectit</span>, <span class="gloss" data-g="remote_hands">remote hands</span></span></div>
         <div class="cell cell--text"><div class="cell-label">MITTAKAAVA</div><span>Räkki = kymmeniä kW</span></div>
@@ -295,9 +305,11 @@
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 4</div></div>
         <div class="cell cell--title"><h2 id="h-wholesale-colocation"><a class="quiet-link" href="wholesale-colocation.html">Wholesale-colocation</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
+        <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>Operaattori tai kiinteistö&shy;sijoittaja</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Tilan käyttöoikeuden: lähellä kiinteistövuokraa</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Omat laitteet ja pitkä vuokravastuu</span></div>
         <div class="cell cell--text"><div class="cell-label">SOPIMUS · HINNOITTELU</div><span>5–15 v · varattu teho (€/kW)</span></div>
+        <div class="cell cell--text"><div class="cell-label">SÄHKÖN MAKSAA</div><span>AI Oy: <span class="gloss" data-g="pass_through">läpilaskutettuna</span> tai omalla sopimuksella</span></div>
         <div class="cell cell--risk"><div class="cell-label">KUKA KANTAA RISKIN</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">KÄYTTÖASTE</div><div class="risk-v">AI Oy, pitkään</div></div><div class="risk-box fill-own"><div class="risk-k">LAITTEET</div><div class="risk-v">AI Oy</div></div></div></div>
         <div class="cell cell--text"><div class="cell-label">VASTAPUOLEN TULOT</div><span>Pitkäaikainen kapasiteettivuokra</span></div>
         <div class="cell cell--text"><div class="cell-label">MITTAKAAVA</div><span>Kymmeniä–satoja MW</span></div>
@@ -309,9 +321,11 @@
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 5</div></div>
         <div class="cell cell--title"><h2 id="h-own-data-center"><a class="quiet-link" href="own-data-center.html">Oma datakeskus</a></h2></div>
         <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
+        <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>AI Oy</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Ei mitään: rakentaa itse</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Maa, rakennus, sähköliittymä ja laitteet</span></div>
         <div class="cell cell--text"><div class="cell-label">SOPIMUS · HINNOITTELU</div><span>Ei vuokraa · investointi + ylläpito</span></div>
+        <div class="cell cell--text"><div class="cell-label">SÄHKÖN MAKSAA</div><span>AI Oy: suoraan sähkönmyyjältä; suuret toimijat usein myös <span class="gloss" data-g="ppa">PPA</span>:lla</span></div>
         <div class="cell cell--risk"><div class="cell-label">KUKA KANTAA RISKIN</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">KÄYTTÖASTE</div><div class="risk-v">AI Oy</div></div><div class="risk-box fill-own"><div class="risk-k">LAITTEET</div><div class="risk-v">AI Oy</div></div></div></div>
         <div class="cell cell--text"><div class="cell-label">VASTAPUOLEN TULOT</div><span>Ei vastapuolta: oma tuotantoväline</span></div>
         <div class="cell cell--text"><div class="cell-label">MITTAKAAVA</div><span>Satoja MW – gigawatteja</span></div>
@@ -366,7 +380,7 @@
     </section>
   </div>
 
-  <div class="terms-note fine-print"><b><a class="quiet-link" href="glossary.html">Termit:</a></b> julkinen pilvi (public cloud) = kaupallinen, monen asiakkaan jakama pilvipalvelu, ei julkisen sektorin pilvi · colocation = vuokrattu konesalitila omille laitteille · retail = räkkejä tai pieniä tiloja monelle asiakkaalle · wholesale = kokonainen sali tai rakennus yhdelle vuokralaiselle · räkki = laitekaappi · cross-connect = suora kaapeliyhteys osapuolten välillä · remote hands = operaattorin tekemät laitetyöt · take-or-pay = maksu käytöstä riippumatta.<br>AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimuskestot ovat suuntaa-antavia. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
+  <div class="terms-note fine-print"><b><a class="quiet-link" href="glossary.html">Termit:</a></b> julkinen pilvi (public cloud) = kaupallinen, monen asiakkaan jakama pilvipalvelu, ei julkisen sektorin pilvi · colocation = vuokrattu konesalitila omille laitteille · retail = räkkejä tai pieniä tiloja monelle asiakkaalle · wholesale = kokonainen sali tai rakennus yhdelle vuokralaiselle · räkki = laitekaappi · cross-connect = suora kaapeliyhteys osapuolten välillä · remote hands = operaattorin tekemät laitetyöt · take-or-pay = maksu käytöstä riippumatta · käyttöaste = kuka maksaa, jos varattu kapasiteetti jää käyttämättä; vuokraamattoman tai myymättömän kapasiteetin riski on palveluntarjoajalla (operaattorilla tai pilvipalveluntarjoajalla).<br>AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimuskestot ovat suuntaa-antavia. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
 </main>
 
 <footer id="bm-footer" class="bm-footer"></footer>

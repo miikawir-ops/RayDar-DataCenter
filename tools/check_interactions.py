@@ -122,8 +122,8 @@ def suite_hub(b, run):
     g = pg.evaluate("""() => ({n:document.querySelectorAll('[data-g]').length,
         resolved:[...document.querySelectorAll('[data-g]')].every(e=>e.tabIndex===0 && BM_GLOSSARY[e.dataset.g]),
         total:Object.keys(BM_GLOSSARY).length})""")
-    check("glossary: 13 tagged terms all resolve; 68 entries loaded",
-          g["n"] == 13 and g["resolved"] and g["total"] == 68, f"{g['n']} tagged, {g['total']} entries")
+    check("glossary: 15 tagged terms all resolve; 68 entries loaded",
+          g["n"] == 15 and g["resolved"] and g["total"] == 68, f"{g['n']} tagged, {g['total']} entries")
     ow = page_width_overflow(pg)
     check("desktop 1680: no horizontal page overflow", ow <= 0, f"overflow {ow}px")
     check("desktop: no step current initially", current_step(pg) is None)
