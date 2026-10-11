@@ -46,6 +46,7 @@ Needs Ray's approval before committing:
 ## Deploy status
 - LIVE since 2026-09-20 at miikawir-ops.github.io/RayDar-DataCenter/ (PLAN.md step 7). The global Definition of done and the live-site approval rules apply to every change that alters rendered output.
 - The workflow has no push trigger: a push goes live at the next weekday 12:00 UTC cron run or a manual workflow_dispatch.
+- Ship finished changes right away: once a change is approved (or needs no approval), commit, push and deploy it at once with a manual workflow_dispatch, then verify live. Don't hold finished changes for the next scheduled run. The approval gates in this file still apply before committing (PLAN.md ledger R55).
 - The Pages source must stay "GitHub Actions" (API: `build_type: workflow`). In branch mode, every push serves the raw repo, which has no dashboard (index.html is gitignored), so the root 404s (PLAN.md step 7, corrected 2026-10-06). After any deploy, check the root as well as the page you changed.
 
 ## Post-launch
