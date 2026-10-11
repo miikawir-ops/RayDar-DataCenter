@@ -270,6 +270,131 @@ def explorer(b, run):
         ctx.close()
 
 
+NAV = """() => { const q = s => document.querySelector(s), cs = e => getComputedStyle(e);
+  const btn = id => { const b = document.getElementById(id), r = b.getBoundingClientRect(),
+      t = b.querySelector('.wt-mode-title') || b, d = b.querySelector('.wt-mode-desc');
+    return {title: t === b ? b.textContent.trim() : t.textContent, desc: d ? d.textContent : null,
+            icon: !!b.querySelector('.wt-mode-icon svg'), bg: cs(b).backgroundColor, pressed: b.getAttribute('aria-pressed'),
+            w: r.width, titleSize: parseFloat(cs(t).fontSize), titleWeight: +cs(t).fontWeight}; };
+  const start = q('#wt-start'), wt = q('.walkthrough'), tab = q('#toggle-poster');
+  const toRgb = hex => { const n = parseInt(hex.slice(1), 16); return 'rgb(' + [n >> 16 & 255, n >> 8 & 255, n & 255].join(', ') + ')'; };
+  const lum = c => { const m = (c.match(/[\d.]+/g) || [0, 0, 0]).map(Number);
+    const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * f(m[0]) + 0.7152 * f(m[1]) + 0.0722 * f(m[2]); };
+  const icon = id => { const i = document.querySelector('#' + id + ' .wt-mode-icon');
+    return i && {text: i.textContent.trim(), circles: i.querySelectorAll('circle').length, bg: cs(i).backgroundColor}; };
+  const colours = el => [el, ...el.querySelectorAll('*')].flatMap(e => [cs(e).color, cs(e).backgroundColor, cs(e).borderTopColor]);
+  const live = q('.family-link.fl-live'), ed = q('.family-link.fl-editorial'), marker = q('.fl-live-marker');
+  return {life: btn('wt-mode-life'), money: btn('wt-mode-money'), capital: toRgb(FLOW_TYPES.capital.color),
+          lifeIcon: icon('wt-mode-life'), moneyIcon: icon('wt-mode-money'),
+          moneyLum: lum(cs(q('#wt-mode-money')).backgroundColor), moneyBorder: cs(q('#wt-mode-money')).borderTopColor,
+          heroTitle: parseFloat(cs(q('.hero-title-lg')).fontSize),
+          live: live && {text: live.textContent, marker: marker && marker.textContent.trim(), markerAnim: marker && cs(marker).animationName,
+                         markerDotAnim: marker && cs(marker, '::before').animationName},
+          editorial: ed && {bg: cs(ed).backgroundColor, color: cs(ed).color},
+          rust: [...document.querySelectorAll('.family-link')].some(a => colours(a).includes('rgb(154, 71, 18)')),
+          cardH: [...document.querySelectorAll('.family-link')].map(a => a.getBoundingClientRect().height),
+          posterTop: q('#poster-img').getBoundingClientRect().top, vh: innerHeight,
+          start: start && {text: start.textContent.trim(), shown: cs(start).display !== 'none', anim: cs(start).animationName},
+          wtInner: wt.clientWidth - parseFloat(cs(wt).paddingLeft) - parseFloat(cs(wt).paddingRight),
+          tab: {size: parseFloat(cs(tab).fontSize), weight: +cs(tab).fontWeight, bg: cs(tab).backgroundImage, shadow: cs(tab).boxShadow,
+                shown: cs(q('.view-toggle')).display !== 'none'},
+          cards: [...document.querySelectorAll('.family-link')].map(a => ({href: a.getAttribute('href'),
+            open: (a.querySelector('.fl-open') || {}).textContent || null,
+            openShown: !!a.querySelector('.fl-open') && a.querySelector('.fl-open').getBoundingClientRect().width > 0,
+            fi: [...a.querySelectorAll('.fl-tag')].map(t => t.textContent),
+            tile: a.querySelector('.fl-icon') ? cs(a.querySelector('.fl-icon')).backgroundColor : null, arrow: !!a.querySelector('.fl-arrow')})),
+          looping: document.getAnimations().filter(an => an.effect && an.effect.getTiming().iterations === Infinity).length} }"""
+
+
+def navigation(b, run):
+    """R50: the walkthrough buttons, the "Start here" label, the link cards and the view tabs."""
+    for w, h, mobile in ((1680, 1050, False), (1280, 800, False), (390, 844, True), (360, 740, True)):
+        ctx, pg, log, _ = open_page(b, run, w, h, mobile=mobile)
+        tag = f"nav {w}"
+        st = pg.evaluate(NAV)
+        life, money = st["life"], st["money"]
+        check(f"{tag}: walkthrough buttons carry an icon, a title and a one-line description",
+              (life["title"], life["desc"], money["title"], money["desc"]) ==
+              ("Life of a data center", "From permits to waste heat, step by step", "Follow the money", "Who pays whom"), str((life, money)))
+        check(f"{tag}: walkthrough icons are the paths' own: a timeline for life, a euro sign for money (R51)",
+              st["lifeIcon"] and st["lifeIcon"]["circles"] == 3 and st["moneyIcon"] and st["moneyIcon"]["text"] == "€",
+              str((st["lifeIcon"], st["moneyIcon"])))
+        check(f"{tag}: a static 'Start here' label above them",
+              st["start"] and st["start"]["text"].lower() == "start here" and st["start"]["shown"] and st["start"]["anim"] == "none", str(st["start"]))
+        cards = st["cards"]
+        check(f"{tag}: each link card shows an 'Open →' pill instead of the small arrow",
+              len(cards) == 2 and all(c["open"] == "Open →" and c["openShown"] and not c["arrow"] for c in cards), str(cards))
+        check(f"{tag}: only the Finnish explainer card carries the FI tag",
+              [c["fi"] for c in cards] == [[], ["FI"]] and cards[1]["href"] == "business-models/", str(cards))
+        check(f"{tag}: each link card has a coloured icon tile",
+              all(c["tile"] not in ("rgba(0, 0, 0, 0)", "transparent") for c in cards), str([c["tile"] for c in cards]))
+        lv = st["live"]
+        check(f"{tag}: Daily signals card: live-data style, a static LIVE marker, 'Updated every weekday'",
+              lv and lv["marker"] == "LIVE" and lv["markerAnim"] == "none" and lv["markerDotAnim"] == "none"
+              and "Updated every weekday" in lv["text"], str(lv))
+        check(f"{tag}: explainer card in its editorial cream and navy, and no rust on either card",
+              st["editorial"] == {"bg": "rgb(243, 241, 235)", "color": "rgb(18, 34, 46)"} and not st["rust"], str((st["editorial"], st["rust"])))
+        if mobile:
+            check(f"{tag}: walkthrough buttons span the walkthrough's width",
+                  life["w"] >= st["wtInner"] - 2 and money["w"] >= st["wtInner"] - 2, f"{life['w']:.0f}/{money['w']:.0f} of {st['wtInner']:.0f}")
+        else:
+            check(f"{tag}: link cards are compact (at most 56px tall)", all(hh <= 56 for hh in st["cardH"]), str(st["cardH"]))
+            check(f"{tag}: the page title is the largest text at the top, then the tabs, then the walkthrough titles",
+                  st["heroTitle"] > st["tab"]["size"] > life["titleSize"], f"{st['heroTitle']} / {st['tab']['size']} / {life['titleSize']}")
+            check(f"{tag}: tabs at normal size (16-17px, semi-bold) with a filled active tab",
+                  st["tab"]["shown"] and 16 <= st["tab"]["size"] <= 17 and 600 <= st["tab"]["weight"] < 700
+                  and "gradient" in st["tab"]["bg"], str(st["tab"]))
+            top0 = pg.locator(".family-link").first.bounding_box()["y"]
+            pg.locator(".family-link").first.hover(); pg.wait_for_timeout(300)
+            top1 = pg.locator(".family-link").first.bounding_box()["y"]
+            check(f"{tag}: a link card lifts on hover", top1 < top0 - 1, f"{top0:.1f} -> {top1:.1f}")
+            pg.mouse.move(2, 2)
+        pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(350)
+        st = pg.evaluate(NAV)
+        check(f"{tag}: the active money button is a capital-yellow tint with a yellow outline and euro tile (the arrows' colour)",
+              st["money"]["pressed"] == "true" and st["moneyBorder"] == st["capital"] and (st["moneyIcon"] or {}).get("bg") == st["capital"]
+              and st["money"]["bg"] != st["capital"] and st["life"]["pressed"] == "false", str((st["money"], st["moneyBorder"], st["moneyIcon"], st["capital"])))
+        check(f"{tag}: ...and toned down so it can't outshine the tabs (a tint, not a full yellow block)",
+              st["moneyLum"] <= 0.25, f"luminance {st['moneyLum']:.3f}")
+        pg.locator("#wt-mode-life").click(); pg.wait_for_timeout(350)
+        st = pg.evaluate(NAV)
+        check(f"{tag}: the active life button is filled with a family-purple tint",
+              st["life"]["pressed"] == "true" and st["life"]["bg"] not in ("rgba(0, 0, 0, 0)", "transparent")
+              and st["life"]["bg"].startswith("rgba(91, 79, 208"), str(st["life"]))
+        check(f"{tag}: no continuous animation anywhere on the page", st["looping"] == 0, str(st["looping"]))
+        check(f"{tag}: no sideways scroll", sideways(pg) <= 0, f"{sideways(pg)}px")
+        check(f"{tag}: no console errors", not log, str(log))
+        ctx.close()
+
+
+EDGE = """() => { const vw = document.documentElement.clientWidth, out = {vw, scroll: document.documentElement.scrollWidth - vw, items: {}};
+  const els = {reviewed: document.querySelector('.reviewed-note'), next: document.getElementById('wt-next'),
+               ...Object.fromEntries([...document.querySelectorAll('.fl-open')].map((e, i) => ['open ' + (i + 1), e]))};
+  for (const [k, e] of Object.entries(els)) { const r = e.getBoundingClientRect();
+    out.items[k] = {gap: Math.round(vw - r.right), clipped: e.scrollWidth > e.clientWidth + 1}; }
+  out.posterTop = Math.round(document.getElementById('poster-img').getBoundingClientRect().top);
+  return out }"""
+
+
+def right_edge(p, run):
+    """R51: nothing clipped or scrolling sideways at the right edge, with real scrollbars; the poster's top
+    is in the first screen at 1680x1050 and 1280x800."""
+    b = p.chromium.launch(ignore_default_args=["--hide-scrollbars"])
+    for w, h in ((1280, 800), (1440, 900), (1680, 1050), (1920, 1080)):
+        ctx = b.new_context(viewport={"width": w, "height": h})
+        pg = ctx.new_page(); pg.goto(run["base"] + "ecosystem.html"); pg.wait_for_load_state("networkidle"); pg.wait_for_timeout(150)
+        st = pg.evaluate(EDGE)
+        bad = {k: v for k, v in st["items"].items() if v["gap"] < 0 or v["clipped"]}
+        check(f"edge {w}: no sideways scroll, and 'Content reviewed', the Open pills and Next sit inside the right edge",
+              st["scroll"] <= 0 and not bad, str(st))
+        if (w, h) in ((1680, 1050), (1280, 800)):
+            check(f"edge {w}x{h}: the top of the poster is in the first screen (starts at {st['posterTop']}px)",
+                  st["posterTop"] <= h - 200, f"{st['posterTop']}px of {h}")
+        ctx.close()
+    b.close()
+
+
 def phones(b, run):
     for w, h in PHONES:
         ctx, pg, log, _ = open_page(b, run, w, h, mobile=True)
@@ -296,9 +421,11 @@ def main():
         os.makedirs(args.shots, exist_ok=True)
     with sync_playwright() as p:
         b = p.chromium.launch()
-        for suite in (poster_desktop, walkthroughs, flows_desktop, explorer, phones):
+        for suite in (poster_desktop, walkthroughs, flows_desktop, explorer, navigation, phones):
             print(f"== {suite.__name__}")
             suite(b, run)
+        print("== right_edge")
+        right_edge(p, run)
         b.close()
     fails = [r for r in results if not r[1]]
     print(f"\n{len(results) - len(fails)}/{len(results)} checks passed")
