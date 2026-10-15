@@ -21,6 +21,11 @@ What it covers:
     (not missing), the 7-day limit, and a re-run within the same session.
   - load_scores_history(): an unreadable file is an error in CI only.
   - save_scores_history(): entries are dated by session; a re-run replaces.
+  - Audit log (R33c): one entry per ticker per session with its inputs and
+    model_version, a re-run replaces, no cap, an unreadable file fails in CI.
+  - Workflow (R33a): the build restores both files from the data branch and
+    has only read access; a separate save job, the only one with
+    contents: write, pushes them back; a failed save opens the failure issue.
   - Prices from bars (R42): price, the day's move and the 52-week range come
     from completed-session bars, the signals from the adjusted close, and
     the market cap is rescaled to the session close; VIX is the last
@@ -598,6 +603,93 @@ def check_loader(tmp):
             os.environ["GITHUB_ACTIONS"] = ci
 
 
+def check_audit_log(tmp):
+    """R33c: one audit entry per ticker per session, no cap, inputs and model_version on each."""
+    import score_engine
+    from config import MODEL_VERSION
+    folder = os.path.join(tmp, "audit")
+    os.makedirs(folder, exist_ok=True)
+    cwd, ci = os.getcwd(), os.environ.get("GITHUB_ACTIONS")
+    os.chdir(folder)
+    macro = {"vix": 18.0, "yield_10y_change": -5.0, "nasdaq_vs_spx_20d": 0.01, "data_missing": []}
+    layers = list(SUB_LAYERS)
+
+    def score(session, extra=()):
+        md = {"sub_layers": {lid: [fixture_ticker(lid[:4].upper())] + [t for t in extra if lid == "optical"]
+                             for lid in layers},
+              "meta": {"generic_feed_failures": [], "session": session,
+                       "sessions": [x.isoformat() for x in SESSIONS if x <= D(session)]}}
+        main.stage_score(md, macro)
+        return json.load(open("audit_log.json", encoding="utf-8"))
+
+    try:
+        blind = dict(fixture_ticker("BLND"), growth_curr=None, growth_prev=None, gm_delta=None)
+        a = score("2026-10-06", extra=(blind,))
+        keys = {"session", "run_at", "sub_layer", "ticker", "score", "accel", "constraints", "smart",
+                "fund_delta", "missing_fields", "model_version"}
+        check("audit: one entry per ticker for the session, each with its inputs and model_version",
+              len(a) == len(layers) + 1 and all(keys <= set(e) and e["session"] == "2026-10-06"
+                                                and e["model_version"] == MODEL_VERSION for e in a), str(a[:1]))
+        check("audit: each entry names its ticker and sub-layer",
+              sorted(e["ticker"] for e in a) == sorted([lid[:4].upper() for lid in layers] + ["BLND"])
+              and all(e["sub_layer"] in layers for e in a))
+        b = [e for e in a if e["ticker"] == "BLND"]
+        check("audit: a ticker with insufficient data still gets its entry (score None, missing fields named)",
+              len(b) == 1 and b[0]["score"] is None and b[0]["missing_fields"], str(b))
+        a = score("2026-10-06")
+        check("audit: a re-run within the session replaces its tickers' entries, not appends",
+              sum(e["ticker"] != "BLND" for e in a) == len(layers) and len(a) == len(layers) + 1, f"{len(a)} entries")
+        a = score("2026-10-07")
+        check("audit: the next session adds its own entries; the earlier session's stay",
+              sorted({e["session"] for e in a}) == ["2026-10-06", "2026-10-07"] and len(a) == 2 * len(layers) + 1,
+              f"{len(a)} entries")
+        old = [{"session": "2025-01-02", "ticker": f"T{k}", "sub_layer": "optical"} for k in range(600)]
+        json.dump(old, open("audit_log.json", "w", encoding="utf-8"))
+        a = score("2026-10-08")
+        check("audit: no cap (600 earlier entries are all kept)", len(a) == 600 + len(layers), f"{len(a)} entries")
+        open("audit_log.json", "w").write("{not json")
+        os.environ["GITHUB_ACTIONS"] = "true"
+        try:
+            score("2026-10-08")
+            check("audit: an unreadable audit log fails the run in CI", False, "no exception")
+        except RuntimeError:
+            check("audit: an unreadable audit log fails the run in CI", True)
+        os.environ.pop("GITHUB_ACTIONS")
+        a = score("2026-10-08")
+        check("audit: locally, an unreadable audit log is replaced", len(a) == len(layers))
+    finally:
+        os.chdir(cwd)
+        if ci is None:
+            os.environ.pop("GITHUB_ACTIONS", None)
+        else:
+            os.environ["GITHUB_ACTIONS"] = ci
+
+
+def check_workflow():
+    """R33a: the deploy workflow restores the history and audit log from the data branch, and only a
+    separate save job may write (contents: write) to push them back. Plain-text parsing (no YAML library)."""
+    text = open(os.path.join(REPO, ".github", "workflows", "deploy.yml"), encoding="utf-8").read()
+    jobs_at = text.index("\njobs:\n")
+    top, jobs = text[:jobs_at], text[jobs_at:]
+    blocks = dict(re.findall(r"^  ([\w-]+):\n((?:    .*\n|[ \t]*\n)+)", jobs, re.M))
+    build, save, report = blocks.get("build-and-deploy", ""), blocks.get("save-history", ""), blocks.get("report-failure", "")
+    check("workflow: the workflow-wide token can only read contents",
+          re.search(r"\npermissions:\n(  .*\n)*  contents: read", top) is not None)
+    check("workflow: the build-and-deploy job never gets contents: write", "contents: write" not in build)
+    restore = build.find("git show origin/data:scores_history.json")
+    run = build.find("python main.py --now")
+    check("workflow: the build restores both files from the data branch before the pipeline runs",
+          0 < restore < run and "git show origin/data:audit_log.json" in build, f"restore at {restore}, pipeline at {run}")
+    check("workflow: the build hands both files on as an artifact",
+          re.search(r"upload-artifact@v\d[\s\S]*?scores_history\.json[\s\S]*?audit_log\.json", build) is not None)
+    check("workflow: only the save job has contents: write, and it runs after the build",
+          "contents: write" in save and re.search(r"needs: \[?build-and-deploy", save) is not None
+          and text.count("contents: write") == 1)
+    check("workflow: the save job pushes to the data branch", "git push origin HEAD:data" in save)
+    check("workflow: a failed save opens the failure issue too",
+          re.search(r"needs: \[[^\]]*save-history[^\]]*\]", report) is not None and "if: failure()" in report)
+
+
 def fixture_ticker(symbol):
     return {"ticker": symbol, "name": f"{symbol} test company", "price": 100.0, "currency": "USD",
             "growth_curr": 0.30, "growth_prev": 0.25, "gm_delta": 0.01, "gross_margin": 0.40,
@@ -690,6 +782,8 @@ def run(shots):
         check_data_format()
         check_r45_inputs()
         check_loader(tmp)
+        check_audit_log(tmp)
+        check_workflow()
         check_rendered_note(tmp, shots)
     finally:
         os.chdir(cwd)
