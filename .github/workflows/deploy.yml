@@ -2,6 +2,9 @@ name: Deploy RayDar Data Center dashboard
 
 # Actions-based Pages deploy (PLAN.md step 7): generates index.html fresh
 # each run and uploads it as a Pages artifact — never committed to git.
+# The score history and audit log persist between runs on the data branch
+# (ledger R33a): the build restores them before the pipeline and hands the
+# updated files to save-history, the only job allowed to write to the repo.
 #
 # LIVE since 2026-09-20 (miikawir-ops.github.io/RayDar-DataCenter/). There
 # is no push trigger: a pushed change goes live at the next scheduled run
@@ -20,10 +23,12 @@ on:
         default: false
 
 permissions:
-  contents: read   # checkout only — nothing is committed back to the repo
+  contents: read   # checkout and reading the data branch; only save-history writes
   pages: write     # required by actions/deploy-pages
   id-token: write  # required by actions/deploy-pages (OIDC)
 
+# One run at a time, so a run's restore -> pipeline -> save can't interleave
+# with another run's.
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -52,6 +57,17 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Restore history and audit log from the data branch
+        run: |
+          git fetch --depth=1 origin data:refs/remotes/origin/data
+          git show origin/data:scores_history.json > scores_history.json
+          git show origin/data:audit_log.json > audit_log.json
+          python -c "import json; h = json.load(open('scores_history.json')); a = json.load(open('audit_log.json')); print(f'Restored {len(h)} sessions of history and {len(a)} audit entries')"
+        # Fails the run if the branch, either file, or valid JSON is missing:
+        # a run never silently starts a fresh history (ledger R33a/R33d).
+        # The first run started from the empty files committed to the data
+        # branch on 2026-10-15.
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
@@ -62,6 +78,16 @@ jobs:
         # own fetch code and reference/fetch_market.py for API-key/env-var
         # usage, found none). GITHUB_TOKEN above is the only credential
         # involved, and Actions provides it automatically.
+
+      - name: Hand the history and audit log to the save job
+        uses: actions/upload-artifact@v4
+        with:
+          name: history
+          path: |
+            scores_history.json
+            audit_log.json
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Prepare Pages artifact
         run: |
@@ -90,13 +116,47 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+  save-history:
+    # Saves this run's history and audit log to the data branch (ledger
+    # R33a). The only job with write access to the repo, and it runs no
+    # pipeline code: it commits the two files the build handed over. It
+    # runs only after a successful build and deploy.
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the data branch
+        uses: actions/checkout@v4
+        with:
+          ref: data
+
+      - name: Download the build's files
+        uses: actions/download-artifact@v4
+        with:
+          name: history
+          path: _incoming
+
+      - name: Commit and push to the data branch
+        run: |
+          python3 -c "import json; [json.load(open('_incoming/' + f)) for f in ('scores_history.json', 'audit_log.json')]"
+          cp _incoming/scores_history.json _incoming/audit_log.json .
+          rm -rf _incoming
+          session=$(python3 -c "import json; print(max(e['date'] for e in json.load(open('scores_history.json'))))")
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add scores_history.json audit_log.json
+          if git diff --cached --quiet; then echo "Nothing changed; nothing to save"; exit 0; fi
+          git commit -m "data: session $session (run $GITHUB_RUN_ID, $GITHUB_EVENT_NAME)"
+          git push origin HEAD:data
+
   report-failure:
     # Opens an issue when the run fails (ledger R33f, R36, R38). GitHub's
     # own failure email didn't arrive for the failed 2026-10-05 scheduled
     # run, so this is the notification of record. A separate job, so
     # build-and-deploy keeps its read-only contents token; this job gets
-    # issues: write and nothing else.
-    needs: build-and-deploy
+    # issues: write and nothing else. Covers a failed save too (R33a).
+    needs: [build-and-deploy, save-history]
     if: failure()
     runs-on: ubuntu-latest
     permissions:
@@ -120,5 +180,5 @@ jobs:
           - Branch: $REF
           - Commit: $SHA
 
-          A failed run doesn't deploy, so the live site still shows the last successful run. Close this issue once the cause is fixed."
+          If the build failed, nothing was deployed and the live site still shows the last successful run. If only save-history failed, the page is live but this session's scores weren't stored on the data branch, so later runs will name this session as missing. Close this issue once the cause is fixed."
           gh issue create --title "Dashboard run failed: $EVENT, $when" --assignee "$OWNER" --body "$body"
