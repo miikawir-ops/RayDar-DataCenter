@@ -58,7 +58,9 @@ from config import SUB_LAYERS, MODEL_VERSION
 log = logging.getLogger(__name__)
 
 SCORES_HISTORY_FILE = "scores_history.json"
-MAX_HISTORY_DAYS    = 30
+# Sessions kept in the history: enough for the heat trail's 90 calendar
+# days (about 64 sessions), now that the history persists between runs.
+MAX_HISTORY_DAYS    = 70
 
 CC = {
     "Red":    {"bg": "#FCEBEB", "border": "#E24B4A", "pill": "#E24B4A", "pft": "#FCEBEB", "lbl": "Hot",     "tc": "#791F1F"},

@@ -70,6 +70,7 @@ found empirically" rule):
   `score: None` here too.
 """
 
+import os
 import json
 import logging
 import datetime
@@ -79,7 +80,63 @@ from config import MODEL_VERSION
 
 log = logging.getLogger(__name__)
 
+# One entry per ticker per session, no cap (ledger R33c): the inputs behind
+# every score, kept on the data branch between runs for the Red-threshold
+# question. Written once per run by save_audit_log(), from stage_score().
 AUDIT_LOG_FILE = "audit_log.json"
+
+
+def audit_row(session: str, sub_layer: str, ticker: str, result: dict) -> dict:
+    """One audit entry: a ticker's score and the inputs behind it for a session."""
+    ss = result.get("sub_scores") or {}
+    return {
+        "session":        session,
+        "run_at":         datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+        "sub_layer":      sub_layer,
+        "ticker":         ticker,
+        "score":          result.get("score"),
+        "color":          result.get("color"),
+        "accel":          ss.get("acceleration"),
+        "constraints":    ss.get("constraints"),
+        "smart":          ss.get("smart_money"),
+        "raw_composite":  ss.get("raw_composite"),
+        "fund_delta":     result.get("fund_delta"),
+        "regime":         result.get("regime"),
+        "multiplier":     result.get("multiplier"),
+        "is_hype":        result.get("is_hype", False),
+        "stages_used":    result.get("stages_used", []),
+        "missing_fields": result.get("data_missing", []),
+        "data_status":    result.get("data_status"),
+        "model_version":  MODEL_VERSION,     # ledger R45 item 4
+    }
+
+
+def save_audit_log(rows: list, session: str):
+    """
+    Adds this run's entries to audit_log.json. A re-run within the same
+    session replaces that session's entries for the same tickers; other
+    sessions are kept, with no cap (ledger R33c). Like the history, a file
+    that exists but can't be read fails the run in CI rather than starting a
+    fresh log; locally it's logged and replaced.
+    """
+    path = Path(AUDIT_LOG_FILE)
+    entries = []
+    if path.exists():
+        try:
+            entries = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(entries, list):
+                raise ValueError(f"unexpected type {type(entries).__name__}")
+        except Exception as e:
+            if os.environ.get("GITHUB_ACTIONS") == "true":
+                raise RuntimeError(f"{AUDIT_LOG_FILE} is unreadable ({e}) — failing the run "
+                                   "rather than starting a fresh audit log") from e
+            log.warning(f"{AUDIT_LOG_FILE} unreadable ({e}) — starting fresh")
+            entries = []
+    replaced = {(r["session"], r["ticker"]) for r in rows}
+    entries = [e for e in entries if (e.get("session"), e.get("ticker")) not in replaced] + list(rows)
+    entries.sort(key=lambda e: (e.get("session") or "", e.get("sub_layer") or "", e.get("ticker") or ""))
+    path.write_text(json.dumps(entries, indent=1, ensure_ascii=False, allow_nan=False), encoding="utf-8")
+    log.info(f"  Audit log saved ({len(rows)} entries for {session}, {len(entries)} in total)")
 
 
 class ScoreEngine:
@@ -399,8 +456,9 @@ class ScoreEngine:
 
     def process_sector(self, sector_name: str, data: dict) -> dict:
         """
-        Full scoring pipeline for one ticker. Never crashes. Always writes
-        to audit_log. `score` is None when acceleration has zero usable
+        Full scoring pipeline for one ticker. Never crashes. Always records
+        the result in self.audit_log (stage_score() writes the audit file
+        once per run). `score` is None when acceleration has zero usable
         input (ticker-level insufficient data) or on an unhandled error —
         never a fabricated number standing in for either case.
         """
@@ -512,36 +570,6 @@ class ScoreEngine:
             "timestamp":      result["timestamp"],
             "model_version":  MODEL_VERSION,     # ledger R45 item 4
         }
-        self._append_audit(sector_name, result, missing_fields)
-
-    def _append_audit(self, sector_name: str, result: dict, missing_fields: list):
-        path = Path(AUDIT_LOG_FILE)
-        log_entries = []
-        if path.exists():
-            try:
-                log_entries = json.loads(path.read_text())
-            except Exception:
-                log_entries = []
-
-        log_entries.append({
-            "date":           datetime.datetime.now().strftime("%Y-%m-%d"),
-            "time":           datetime.datetime.now().strftime("%H:%M:%S"),
-            "sector":         sector_name,
-            "score":          result["score"],
-            "color":          result["color"],
-            "regime":         result["regime"],
-            "multiplier":     result.get("multiplier"),
-            "sub_scores":     result.get("sub_scores", {}),
-            "fund_delta":     result.get("fund_delta"),
-            "is_hype":        result.get("is_hype", False),
-            "stages_used":    result.get("stages_used", []),
-            "missing_fields": missing_fields,
-            "data_status":    result["data_status"],
-            "model_version":  MODEL_VERSION,     # ledger R45 item 4
-        })
-
-        log_entries = log_entries[-500:]
-        path.write_text(json.dumps(log_entries, indent=2, ensure_ascii=False))
 
 
 # ── Self-test ─────────────────────────────────────────────────────────────────

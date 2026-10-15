@@ -37,10 +37,11 @@ design — with two adaptations:
    existing len(top2) < 2 guard — no separate special-case needed there
    either.
 
-   3-day color confirmation reads scores_history.json but doesn't write
-   it — that's render.py's job (step 6). Until render.py exists, every
-   run falls into "unconfirmed — building baseline". Expected, not a bug
-   in this commit.
+   3-day color confirmation reads scores_history.json; render.py writes
+   it. Between runs the file (and audit_log.json, written here) lives on
+   the repo's data branch: deploy.yml restores both before the pipeline
+   and a separate job saves them back afterwards (ledger R33a), so
+   confirmation sees the sessions stored by earlier runs.
 """
 
 import json
@@ -323,10 +324,11 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
     never silently dropped (decision #6).
     """
     log.info("[2/2] Calculating scores...")
-    from score_engine import ScoreEngine
+    from score_engine import ScoreEngine, audit_row, save_audit_log
     from render import load_scores_history
     engine  = ScoreEngine(macro_data)
     results = {}
+    audit   = []    # one entry per ticker for this session (ledger R33c)
 
     meta     = market_data.get("meta", {})
     sessions = [datetime.date.fromisoformat(s) for s in meta["sessions"]]
@@ -348,7 +350,10 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
             except Exception as e:
                 log.warning(f"  {layer_id}/{ticker}: unexpected scoring error — {e}")
                 insufficient.append({"ticker": ticker, "reason": f"scoring error: {e}"})
+                audit.append(audit_row(meta["session"], layer_id, ticker,
+                                       {"score": None, "data_status": f"scoring error: {e}"}))
                 continue
+            audit.append(audit_row(meta["session"], layer_id, ticker, result))
 
             if result.get("score") is None:
                 insufficient.append({"ticker": ticker, "reason": result.get("status", "insufficient data")})
@@ -456,6 +461,7 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
             f"best={best_ticker['ticker']} score={best_ticker['score']:.1f})"
         )
 
+    save_audit_log(audit, meta["session"])
     return results
 
 
