@@ -576,6 +576,11 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
        padding:16px;margin-bottom:12px}}
 .card-label{{font-size:10px;font-weight:500;color:#888780;
              letter-spacing:.05em;margin-bottom:12px}}
+/* Section heading on a white card (ledger R59 item 2): dark navy, the page's
+   own background colour. It was pale blue (#C8D4E8), styled for the dark
+   hero, which left it nearly invisible on white. */
+.section-heading{{margin:0;font-size:20px;font-weight:700;line-height:1.25;
+                  letter-spacing:-0.01em;color:#0E1628}}
 .fetch-note{{font-size:10px;color:#B4B2A9;margin-top:4px}}
 .layer{{flex:1;min-width:120px;width:148px;border:1.5px solid;border-radius:10px;
         padding:11px 10px;cursor:pointer;transition:transform .1s,box-shadow .1s}}
@@ -849,7 +854,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 <div class="card">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-    <div style="font-size:12px;font-weight:500;color:#C8D4E8;letter-spacing:0.02em;margin-bottom:0">Data center infrastructure — signal scores</div>
+    <h2 class="section-heading">Data center infrastructure — signal scores</h2>
     <div style="display:flex;gap:12px;font-size:10px;color:#8A9AB8;align-items:center;flex-wrap:wrap">
       <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#E24B4A;margin-right:4px"></span>Hot / bottleneck</span>
       <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#EF9F27;margin-right:4px"></span>Emerging</span>
