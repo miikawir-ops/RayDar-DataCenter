@@ -51,19 +51,19 @@
   },
   {
     "date": "2026-10-15",
-    "time": "20:10",
-    "run_at": "2026-10-15T20:10:56+00:00",
+    "time": "16:01",
+    "run_at": "2026-10-16T16:01:34+00:00",
     "model_version": 2,
     "scores": {
       "cooling": {
-        "score": 36.03,
+        "score": 36.13,
         "color": "Green",
         "ratings": {
           "VRT": "B"
         }
       },
       "networking": {
-        "score": 33.41,
+        "score": 36.0,
         "color": "Green",
         "ratings": {
           "ANET": "B",
@@ -71,7 +71,7 @@
         }
       },
       "optical": {
-        "score": 44.52,
+        "score": 43.68,
         "color": "Green",
         "ratings": {
           "CIEN": "B",
@@ -81,7 +81,7 @@
         }
       },
       "compute": {
-        "score": 28.59,
+        "score": 28.55,
         "color": "Green",
         "ratings": {
           "SMCI": "C",
@@ -90,7 +90,7 @@
         }
       },
       "colocation": {
-        "score": 27.72,
+        "score": 28.05,
         "color": "Green",
         "ratings": {
           "EQIX": "B",
