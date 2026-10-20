@@ -693,24 +693,45 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
              border-radius:10px;padding:14px 16px;margin-bottom:12px;color:#E8E6DF}}
 .capex-strip.insufficient{{opacity:0.75;border-style:dashed}}
 /* Family links: the dashboard, the ecosystem map and the Finnish business-
-   models explainer link to each other with the same cards (same gradient,
-   ring and static glow as the old ecosystem banner; one icon per site:
-   📈 Daily signals, 🗺️ Ecosystem map, 📊 Liiketoimintamallit). The same
-   markup and CSS live in ecosystem.html; the explainer uses header pills
-   in the same style. */
-.family-links{{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}}
-.family-link{{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:8px;
+   models explainer link to each other with cards (one icon per site:
+   📈 Daily signals, 🗺️ Ecosystem map, 📊 Liiketoimintamallit). Same style
+   as ecosystem.html's since R50/R51 (ledger R59 item 5): a coloured icon
+   tile, an "Open →" pill and a lift on hover (no continuous animation), each
+   card looking like where it leads. The ecosystem map keeps the poster's
+   blue-violet gradient; the Finnish explainer is in its own cream-and-navy
+   editorial colours with an "FI" tag. The explainer uses header pills. */
+.family-links{{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}}
+.family-link{{display:flex;align-items:center;gap:11px;padding:7px 12px;border-radius:10px;
               color:#fff;text-decoration:none;
               background:linear-gradient(135deg,#0C1A3A,#3C3489);
-              box-shadow:0 0 0 1px rgba(133,183,235,0.35),0 0 10px rgba(83,74,183,0.4);
-              transition:box-shadow .15s}}
-.family-link:hover{{box-shadow:0 0 0 1px rgba(133,183,235,0.7),0 0 16px rgba(83,74,183,0.7)}}
+              box-shadow:0 0 0 1px rgba(133,183,235,0.65),0 0 16px rgba(83,74,183,0.6);
+              transition:box-shadow .15s,transform .15s}}
+.family-link:hover{{transform:translateY(-2px);
+              box-shadow:0 0 0 1px rgba(133,183,235,0.95),0 0 24px rgba(83,74,183,0.9),0 6px 14px rgba(0,0,0,0.35)}}
 .family-link:focus-visible{{outline:2px solid #85B7EB;outline-offset:2px}}
-.fl-icon{{font-size:18px;line-height:1;flex-shrink:0}}
-.fl-text{{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}}
-.fl-title{{font-size:13px;font-weight:600}}
+.fl-icon{{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;
+          justify-content:center;font-size:17px;line-height:1;background:var(--tile);
+          box-shadow:0 0 12px color-mix(in srgb,var(--tile) 65%,transparent)}}
+.fl-text{{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}}
+.fl-title{{font-size:13.5px;font-weight:700}}
 .fl-sub{{font-size:11.5px;color:#C8D4E8}}
-.fl-arrow{{font-size:15px;color:#85B7EB;flex-shrink:0}}
+.fl-tag{{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;letter-spacing:.06em;
+         color:#0C1A3A;background:#85B7EB;padding:1px 6px;border-radius:5px;vertical-align:1px}}
+.fl-open{{flex-shrink:0;font-size:12px;font-weight:700;color:#fff;white-space:nowrap;padding:6px 13px;
+          border-radius:999px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.4);
+          transition:background .15s}}
+.family-link:hover .fl-open{{background:rgba(255,255,255,0.24)}}
+.family-link.fl-editorial{{background:#F3F1EB;color:#12222E;
+              box-shadow:0 0 0 1px rgba(243,241,235,0.9),0 0 14px rgba(243,241,235,0.22)}}
+.family-link.fl-editorial:hover{{box-shadow:0 0 0 1px #FFFFFF,0 0 20px rgba(243,241,235,0.4),0 6px 14px rgba(0,0,0,0.35)}}
+.fl-editorial .fl-sub{{color:#3B4A55}}
+.fl-editorial .fl-tag{{background:#12222E;color:#F3F1EB}}
+.fl-editorial .fl-open{{color:#12222E;background:transparent;border-color:#12222E}}
+.fl-editorial:hover .fl-open{{background:rgba(18,34,46,0.08)}}
+@media (prefers-reduced-motion: reduce){{
+  .family-link{{transition:box-shadow .15s}}
+  .family-link:hover{{transform:none}}
+}}
 @media(max-width:768px){{ .family-links{{grid-template-columns:1fr}} }}
 .capex-lbl{{font-size:10px;font-weight:500;color:#AFA9EC;letter-spacing:.06em;margin-bottom:6px}}
 .capex-dir{{font-size:18px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}}
@@ -848,8 +869,8 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="capex-strip" id="capex-strip"></div>
 
 <nav class="family-links" aria-label="RayDar Data Center pages">
-  <a href="ecosystem.html" class="family-link"><span class="fl-icon" aria-hidden="true">🗺️</span><span class="fl-text"><span class="fl-title">Ecosystem map</span><span class="fl-sub">Who the players are and how they connect</span></span><span class="fl-arrow" aria-hidden="true">→</span></a>
-  <a href="business-models/" class="family-link" hreflang="fi"><span class="fl-icon" aria-hidden="true">📊</span><span class="fl-text"><span class="fl-title" lang="fi">Datakeskusten liiketoimintamallit</span><span class="fl-sub">Business models explainer, in Finnish: how capacity is bought, leased and financed</span></span><span class="fl-arrow" aria-hidden="true">→</span></a>
+  <a href="ecosystem.html" class="family-link" style="--tile:#534AB7"><span class="fl-icon" aria-hidden="true">🗺️</span><span class="fl-text"><span class="fl-title">Ecosystem map</span><span class="fl-sub">Who the players are and how they connect</span></span><span class="fl-open" aria-hidden="true">Open →</span></a>
+  <a href="business-models/" class="family-link fl-editorial" hreflang="fi" style="--tile:#12222E"><span class="fl-icon" aria-hidden="true">📊</span><span class="fl-text"><span class="fl-title"><span lang="fi">Datakeskusten liiketoimintamallit</span><span class="fl-tag" title="In Finnish">FI</span></span><span class="fl-sub">Business models explainer, in Finnish: how capacity is bought, leased and financed</span></span><span class="fl-open" aria-hidden="true">Open →</span></a>
 </nav>
 
 <div class="card">
@@ -1151,6 +1172,7 @@ function buildChain() {{
   LAYERS.forEach((l, idx) => {{
     const div = document.createElement("div");
     div.className = "layer" + (l.insufficient ? " insufficient" : "");
+    div.id = "layer-" + l.id;      // card anchor, see openFromHash()
 
     if (l.insufficient) {{
       div.style.cssText = `background:#F1EFE8;border-color:#B4B2A9;`;
@@ -1517,8 +1539,21 @@ function buildHeroStatus() {{
   }}).join("");
 }}
 
+// Card anchors (ledger R53/R59): index.html#layer-<id> opens that sub-layer's
+// card and scrolls it into view. The ecosystem page links here this way.
+function openFromHash() {{
+  const m = location.hash.match(/^#layer-([\\w-]+)$/);
+  const l = m && LAYERS.find(x => x.id === m[1]);
+  if (!l) return;
+  active = l.id; buildChain(); buildExpand();
+  const card = document.getElementById("layer-" + l.id);
+  if (card) card.scrollIntoView({{block: "center", inline: "center"}});
+}}
+
 buildChain(); buildExpand(); buildHeat(); buildHeroStatus();
 buildTopTicker(LAYERS); buildSignalBars(); buildCapexStrip();
+openFromHash();
+window.addEventListener("hashchange", openFromHash);
 document.getElementById("chain").addEventListener("scroll", updateChainFade, {{passive:true}});
 window.addEventListener("resize", updateChainFade);
 </script>
