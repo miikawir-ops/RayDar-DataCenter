@@ -569,6 +569,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 </div>
 
 <script src="ecosystem-data.v9.js"></script>
+<script src="dashboard-companies.js"></script>
 <script>
 (function() {
   const svg = document.getElementById("map-svg");
@@ -668,16 +669,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     });
     return '<div class="sc-flow-list">' + html + '</div>';
   }
-  // Examples line (R53): global companies (or the Daily signals link for the
-  // boxes whose listed companies come from the dashboard), companies in
-  // Finland, the review date, and, in the full panel, the sources.
+  // Examples line (R53): global companies (or, for the boxes whose listed
+  // companies are on the dashboard, those companies, each sub-layer linking
+  // to its card there: names from config.py via dashboard-companies.js,
+  // R59), companies in Finland, the review date, and, in the full panel,
+  // the sources.
+  function dashboardHtml(ids) {
+    if (typeof DASHBOARD_SUBLAYERS === "undefined")      // file failed to load: the plain link
+      return '<a href="index.html" class="sc-dash-link">Listed companies: see Daily signals &rarr;</a>';
+    return '<strong>Listed companies (Daily signals):</strong> ' + ids.filter(sid => DASHBOARD_SUBLAYERS[sid]).map(sid =>
+      '<a href="index.html#' + DASHBOARD_SUBLAYERS[sid].anchor + '" class="sc-dash-link" data-sublayer="' + sid + '">'
+      + DASHBOARD_SUBLAYERS[sid].companies.join(", ") + ' &rarr;</a>').join(" · ");
+  }
   function examplesHtml(id, withSources) {
     const ex = EXAMPLES[id];
     if (!ex) return "";
     const parts = [];
     if (ex.global && ex.global.length) parts.push('<strong>Global:</strong> ' + ex.global.join(", "));
-    if (ex.dashboard && ex.dashboard.length)
-      parts.push('<a href="index.html" class="sc-dash-link" data-sublayers="' + ex.dashboard.join(" ") + '">Listed companies: see Daily signals &rarr;</a>');
+    if (ex.dashboard && ex.dashboard.length) parts.push(dashboardHtml(ex.dashboard));
     if (ex.finland && ex.finland.length) parts.push('<strong>In Finland:</strong> ' + ex.finland.join(", "));
     if (!parts.length) return "";
     let html = '<div class="sc-heading-sm">Examples</div><div class="sc-examples">' + parts.join("<br>")

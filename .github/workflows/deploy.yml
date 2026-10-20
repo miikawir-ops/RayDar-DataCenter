@@ -95,6 +95,7 @@ jobs:
           cp index.html _site/index.html
           cp ecosystem.html _site/ecosystem.html
           cp ecosystem-data.v9.js _site/ecosystem-data.v9.js
+          cp dashboard-companies.js _site/dashboard-companies.js
           cp assets/ecosystem-v2.webp _site/assets/ecosystem-v2.webp
           cp -r business-models _site/business-models
           test -f _site/business-models/index.html
