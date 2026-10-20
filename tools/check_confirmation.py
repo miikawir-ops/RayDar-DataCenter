@@ -307,7 +307,12 @@ def check_data_format():
     real_rp = fetch_market.run_pipeline
     fetch_market.run_pipeline = lambda *a, **k: (_ for _ in ()).throw(fetch_market.SchemaError("test"))
     try:
-        with_stub(StubTicker(bars(["2026-10-08", "2026-10-09"])),
+        # stage_fetch() checks the calendar against today's date, so the stub's
+        # sessions are the two weekdays before today, not fixed dates (a fixed
+        # date goes stale after 7 days and the calendar check fails first).
+        recent = [d.date().isoformat() for d in
+                  pd.bdate_range(end=datetime.date.today() - datetime.timedelta(days=1), periods=2)]
+        with_stub(StubTicker(bars(recent)),
                   lambda: main.stage_fetch())
         check("format: stage_fetch lets a data-format failure fail the run", False, "returned normally")
     except fetch_market.SchemaError:
@@ -769,6 +774,43 @@ def check_rendered_note(tmp, shots):
           json.dumps([l.get("note") for l in js]))
 
 
+def check_dashboard_page(tmp):
+    """R59 items 2 and 5, in a browser on the page check_rendered_note() rendered: the section heading,
+    the card anchors (index.html#layer-<id> opens that card) and the family link cards' style."""
+    from playwright.sync_api import sync_playwright
+    url = "file:///" + os.path.join(tmp, "index.html").replace("\\", "/")
+    with sync_playwright() as p:
+        b = p.chromium.launch()
+        pg = b.new_page(viewport={"width": 1680, "height": 1050})
+        pg.goto(url + "#layer-optical"); pg.wait_for_timeout(400)
+        st = pg.evaluate("""() => { const h = document.querySelector('.section-heading'), c = h && getComputedStyle(h);
+            const card = document.getElementById('layer-optical'), r = card && card.getBoundingClientRect();
+            return {heading: h && [h.tagName, h.textContent, c.fontSize, c.fontWeight, c.color, h.getAttribute('style')],
+                    ids: [...document.querySelectorAll('#chain .layer')].map(e => e.id), active,
+                    inView: !!r && r.top >= 0 && r.bottom <= innerHeight,
+                    expanded: (document.getElementById('expand-area').textContent || '')
+                              .includes(LAYERS.find(l => l.id === 'optical').tickers[0].sym),
+                    links: [...document.querySelectorAll('.family-link')].map(a => ({href: a.getAttribute('href'), cls: a.className,
+                            open: (a.querySelector('.fl-open') || {}).textContent, tag: (a.querySelector('.fl-tag') || {}).textContent || null,
+                            tile: getComputedStyle(a.querySelector('.fl-icon')).backgroundColor}))} }""")
+        check("heading: 'Data center infrastructure — signal scores' is an h2 in dark navy, 20px, bold, styled in CSS",
+              st["heading"] == ["H2", "Data center infrastructure — signal scores", "20px", "700", "rgb(14, 22, 40)", None],
+              str(st["heading"]))
+        check("anchors: every sub-layer card has the id layer-<id>",
+              st["ids"] == [f"layer-{lid}" for lid in SUB_LAYERS], str(st["ids"]))
+        check("anchors: index.html#layer-optical opens the optical card, in view, with its companies",
+              st["active"] == "optical" and st["inView"] and st["expanded"], str({k: st[k] for k in ("active", "inView", "expanded")}))
+        pg.evaluate("location.hash = '#layer-colocation'"); pg.wait_for_timeout(300)
+        check("anchors: changing the hash opens that card", pg.evaluate("active") == "colocation")
+        links = st["links"]
+        check("link cards: ecosystem map and the Finnish explainer, each with an 'Open →' pill and a coloured icon tile",
+              [l["href"] for l in links] == ["ecosystem.html", "business-models/"]
+              and all(l["open"] == "Open →" and l["tile"] not in ("rgba(0, 0, 0, 0)", "transparent") for l in links), str(links))
+        check("link cards: the explainer card in its cream-and-navy editorial style with an FI tag",
+              "fl-editorial" in links[1]["cls"] and links[1]["tag"] == "FI" and "fl-editorial" not in links[0]["cls"], str(links))
+        b.close()
+
+
 def run(shots):
     cwd = os.getcwd()
     tmp = tempfile.mkdtemp(prefix="check_confirmation_")
@@ -785,6 +827,7 @@ def run(shots):
         check_audit_log(tmp)
         check_workflow()
         check_rendered_note(tmp, shots)
+        check_dashboard_page(tmp)
     finally:
         os.chdir(cwd)
         render.SCORES_HISTORY_FILE = real_file

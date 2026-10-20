@@ -21,10 +21,13 @@ Exit code 0 when every check passes, 1 otherwise.
 """
 import argparse
 import os
+import subprocess
 import sys
 from urllib.parse import urlsplit
 
 from playwright.sync_api import sync_playwright
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Desktop and laptop windows, including short ones (high display scaling).
 DESKTOP = ((1680, 1050), (1440, 900), (1280, 800), (1280, 720), (1152, 720), (1024, 640))
@@ -439,17 +442,27 @@ def content_r53(b, run):
     check("examples: operator, cooling, network and equipment take their companies from the dashboard's sub-layers",
           data["dashboard"] == {"operator": ["colocation"], "cooling": ["cooling"], "network": ["networking", "optical"], "equipment": ["compute"]},
           str(data["dashboard"]))
+    # R59 item 5: the companies come from config.py through dashboard-companies.js, each sub-layer linking
+    # to its card on the dashboard. The file must match config (the generator's --check).
+    gen = subprocess.run([sys.executable, os.path.join(REPO, "tools", "gen_dashboard_companies.py"), "--check"],
+                         capture_output=True, text=True)
+    check("examples: dashboard-companies.js matches config.py (generated, not typed by hand)",
+          gen.returncode == 0, (gen.stdout + gen.stderr).strip())
+    subs = pg.evaluate("() => typeof DASHBOARD_SUBLAYERS === 'undefined' ? null : DASHBOARD_SUBLAYERS")
+    check("examples: the page loads the dashboard's sub-layers and company names", bool(subs), str(subs))
+    subs = subs or {}
     bad = []
     for sid in pg.evaluate("() => STAKEHOLDERS.filter(s => s.posterBox).map(s => s.id)"):
         pg.evaluate("(id) => document.getElementById('hotspot-' + id).scrollIntoView({block: 'center'})", sid)
         pg.locator("#hotspot-" + sid).click(); pg.wait_for_timeout(420)
         c = pg.evaluate("""() => ({card: (document.getElementById('compact-card').textContent.match(/Reviewed 10\/2026/g) || []).length,
             panelSources: document.querySelectorAll('#panel-below .sc-sources a').length,
-            dash: [...document.querySelectorAll('#compact-card a.sc-dash-link')].map(a => a.getAttribute('href'))})""")
+            dash: [...document.querySelectorAll('#compact-card a.sc-dash-link')].map(a => [a.getAttribute('href'), a.textContent])})""")
         exp_groups = pg.evaluate("(id) => 1 + ((POSTER_GROUPS[id] || {}).extraIds || []).length", sid)
-        needs_dash = sid in data["dashboard"]
-        if c["card"] != exp_groups or (needs_dash and c["dash"] != ["index.html"]) or (not needs_dash and c["dash"]):
-            bad.append(f"{sid}: {c}")
+        exp_dash = [[f"index.html#{subs[l]['anchor']}", ", ".join(subs[l]["companies"]) + " →"]
+                    for l in data["dashboard"].get(sid, []) if l in subs]
+        if c["card"] != exp_groups or c["dash"] != exp_dash:
+            bad.append(f"{sid}: {c} (expected {exp_dash})")
         pg.locator("#hotspot-" + sid).click(); pg.wait_for_timeout(250)
     check("examples: every poster box's card shows its examples (each stakeholder in a shared box), dashboard links where due", not bad, "; ".join(bad[:3]))
     pg.locator("#hotspot-capital").click(); pg.wait_for_timeout(400)
