@@ -807,9 +807,11 @@ def suite_layers(b, run):
     pg.keyboard.press("Enter")
     settle(pg, 200)
     sc = pg.evaluate("""() => [getComputedStyle(document.querySelector('.lr-zone.is-selected .lr-zone-shape')).stroke,
-        getComputedStyle(document.querySelector('.zone-btn[aria-pressed=true]')).boxShadow]""")
-    check("layers: the selected zone's outline and the selected list item share one accent colour, blue, not navy (R69)",
-          sc[0] == "rgb(31, 78, 110)" and sc[1].startswith("rgb(31, 78, 110)"), str(sc))
+        getComputedStyle(document.querySelector('.zone-btn[aria-pressed=true]')).boxShadow,
+        getComputedStyle(document.querySelector('.lr-zone.is-selected .lr-zone-halo')).stroke]""")
+    check("layers: the selected zone's outline and the selected list item share one accent colour, blue, each with a white gap or halo (R69, R70)",
+          sc[0] == "rgb(31, 78, 110)" and sc[1] == "rgb(255, 255, 255) 0px 0px 0px 2px, rgb(31, 78, 110) 0px 0px 0px 5px"
+          and sc[2] == "rgba(255, 255, 255, 0.9)", str(sc))
     check("layers: the panel shows the zone's footnotes (connection point; retail electricity billing)",
           d["notes"] == ["Verkkoyhtiö vastaa verkosta liittymispisteeseen asti.",
                          "Sähkö laskutetaan yleensä operaattorin laskulla (kW tai kWh)."], str(d["notes"]))

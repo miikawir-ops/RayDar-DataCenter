@@ -103,6 +103,8 @@
   Object.keys(D.zones).forEach((z) => {
     const d = D.zones[z];
     const g = el("g", { class: "lr-zone", "data-zone": z, tabindex: "0", role: "button", "aria-pressed": "false" }, gZones);
+    // A white halo under the selection stroke, so it shows against navy neighbours (R70).
+    el("polygon", { class: "lr-zone-halo", points: pts(d.poly) }, g);
     const shape = el("polygon", { class: "lr-zone-shape", points: pts(d.poly) }, g);
     // The leader leaves from the zone's rightmost corner, or from d.leader where set.
     const right = d.leader || d.poly.reduce((a, p) => (p[0] > a[0] ? p : a));

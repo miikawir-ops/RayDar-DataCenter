@@ -212,6 +212,8 @@
 .lr-zone:hover .lr-zone-shape,.lr-zone.is-hot .lr-zone-shape{stroke:var(--blue-soft);stroke-width:4}
 .lr-zone:focus-visible .lr-zone-shape{stroke:var(--blue);stroke-width:5;stroke-dasharray:none}
 .lr-zone.is-selected .lr-zone-shape{stroke:var(--blue);stroke-width:5;stroke-dasharray:none}
+.lr-zone-halo{fill:none;stroke:none}
+.lr-zone.is-selected .lr-zone-halo,.lr-zone:focus-visible .lr-zone-halo{stroke:rgba(255,255,255,.9);stroke-width:9}
 .lr-label-box{fill:rgba(255,255,255,.94);stroke:var(--line);stroke-width:1.5}
 .lr-zone.is-selected .lr-label-box,.lr-zone:focus-visible .lr-label-box{stroke:var(--blue);stroke-width:3.5}
 .lr-label-name{font:700 24px var(--f-display);fill:var(--navy)}
@@ -283,7 +285,8 @@
 .zone-btn .zone-name{font-weight:600}
 .zone-btn .zone-who{font-size:12.5px;font-weight:600;text-align:right}
 .zone-btn:hover,.zone-btn.is-hot{box-shadow:0 0 0 2px var(--blue-soft)}
-.zone-btn[aria-pressed="true"]{box-shadow:0 0 0 3px var(--blue),0 0 0 5px var(--white)}
+/* A white gap between button and ring, so the ring shows on navy (Itse) items too (R70). */
+.zone-btn[aria-pressed="true"]{box-shadow:0 0 0 2px var(--white),0 0 0 5px var(--blue)}
 .zone-btn:focus-visible,.marker-btn:focus-visible,.stairs-toggle:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
 .lr-markers{display:flex;gap:8px;flex-wrap:wrap}
 .marker-btn{display:inline-flex;align-items:center;gap:7px;font:600 13px var(--f-body);color:var(--navy);background:var(--white);
