@@ -149,7 +149,11 @@ window.BMGlossary = (function () {
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && current) { hide(); return; }
       const el = termOf(e.target);
-      if (el && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); el.click(); }
+      // SVG terms (the layered view's band labels) have no click(): dispatch one.
+      if (el && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        if (el.click) el.click(); else el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      }
     });
     document.addEventListener("pointerdown", (e) => {
       if (current && !termOf(e.target)) hide();

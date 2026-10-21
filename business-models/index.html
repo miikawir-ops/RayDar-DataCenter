@@ -224,6 +224,8 @@
 .lr-range{fill:rgba(251,234,220,.55);stroke:none}
 .lr-pos-halo{fill:none;stroke:rgba(255,255,255,.75);stroke-width:5;stroke-linejoin:round}
 .lr-pos-line{fill:none;stroke:var(--rust-strong);stroke-width:2;stroke-linejoin:round}
+/* The position names are glossary terms (R66): they take the pointer although the line layer doesn't. */
+.lr-pos-label{pointer-events:auto;cursor:help}
 .lr-range-label{font:600 19px var(--f-body);fill:var(--rust);paint-order:stroke;stroke:rgba(255,255,255,.92);stroke-width:6px}
 /* The lines and the range band are drawn over the zones but never take a click. */
 .lr-lines{transition:opacity .3s;pointer-events:none}
@@ -415,7 +417,7 @@
 
       <div class="layers-side">
         <div class="zone-detail" id="lr-detail" aria-live="polite" tabindex="-1"></div>
-        <p class="lr-cloud-note" id="lr-cloud-note">Raja riippuu ostetusta palvelusta: IaaS:ssä yritys hallitsee käyttöjärjestelmän, PaaS- ja SaaS-palveluissa vastapuoli hoitaa enemmän (shared responsibility model).</p>
+        <p class="lr-cloud-note" id="lr-cloud-note">Raja riippuu ostetusta palvelusta: <span class="gloss" data-g="iaas">IaaS:ssä</span> yritys hallitsee käyttöjärjestelmän, <span class="gloss" data-g="paas">PaaS-</span> ja <span class="gloss" data-g="saas">SaaS-palveluissa</span> vastapuoli hoitaa enemmän (shared responsibility model).</p>
         <ol class="zone-list" aria-label="Kerrokset">
           <li><button class="zone-btn" type="button" data-zone="z1"><span class="zone-name">Sovellukset, data ja ohjelmistot</span><span class="zone-who"></span></button></li>
           <li><button class="zone-btn" type="button" data-zone="z2"><span class="zone-name">Ohjelmistoalusta</span><span class="zone-who"></span></button></li>

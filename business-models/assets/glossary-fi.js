@@ -1,4 +1,4 @@
-// Finnish glossary for the business-models pages: 72 terms, Tilanne 9/2026 (four added 10/2026, ledger R64).
+// Finnish glossary for the business-models pages: 75 terms, Tilanne 9/2026 (four added 10/2026, ledger R64; IaaS, PaaS, SaaS and GPUaaS replace the combined IaaS/PaaS/SaaS entry, R66).
 // Imported once from the approved Claude Design export (Sanasto.dc.html, kept
 // outside git in Output/business-models-source/). From here on this file is the
 // single source of truth for glossary content: inline tooltips read it now, and
@@ -27,11 +27,12 @@ window.BM_GLOSSARY = {
   epc: { term: "EPC", alt: "engineering, procurement and construction", definition: "Kokonaisurakka suunnittelusta rakentamiseen." },
   escalator: { term: "Escalator", definition: "Sopimukseen kirjattu vuosittainen vuokrankorotus." },
   gpu: { term: "GPU", alt: "graphics processing unit", definition: "Tekoälylaskennassa käytetty suoritin." },
+  gpuaas: { term: "GPUaaS", alt: "GPU as a Service", definition: "GPU-laskentakapasiteetin vuokraus palveluna. Tällä sivustolla mallia kutsutaan nimellä GPU-pilvi." },
   gpu_cloud: { term: "GPU-pilvi", alt: "neocloud", definition: "Tekoälyn GPU-laskentaan erikoistunut pilviyhtiö, esim. Nebius, Verda tai CoreWeave." },
   gpu_hour: { term: "GPU-tunti", alt: "GPU hour", definition: "Yhden GPU:n käyttö tunnin ajan; yleinen hinnoitteluyksikkö." },
   grey_space: { term: "Grey space", definition: "Sähkö- ja jäähdytysjärjestelmien tekniset tilat." },
   hyperscaler: { term: "Hyperskaalaaja", alt: "hyperscaler", definition: "Suurimmat pilvitoimijat: AWS, Microsoft ja Google." },
-  iaas_paas_saas: { term: "IaaS, PaaS ja SaaS", definition: "Infrastruktuuri, alusta tai ohjelmisto palveluna. Mitä ylempi taso, sitä enemmän CSP hoitaa." },
+  iaas: { term: "IaaS", alt: "Infrastructure as a Service", definition: "Pilvipalvelu, jossa yritys vuokraa virtuaalikoneita, tallennusta ja verkkoa. CSP hoitaa konesalin, laitteet ja virtualisoinnin; yritys hoitaa käyttöjärjestelmän, ohjelmistot ja datan." },
   infrastructure_fund: { term: "Infrarahasto", alt: "infrastructure fund", definition: "Rahasto, joka sijoittaa pitkäikäisiin, vakaata kassavirtaa tuottaviin kohteisiin." },
   interconnection: { term: "Interconnection", definition: "Datakeskus verkkojen kohtaamispaikkana; tulot syntyvät kytkennöistä ja ekosysteemistä." },
   investment_grade: { term: "Investment grade", definition: "Hyvä luottoluokitus (BBB- tai parempi), joka laskee lainan hintaa." },
@@ -55,6 +56,7 @@ window.BM_GLOSSARY = {
   non_recourse: { term: "Non-recourse", definition: "Lainanantaja voi periä saatavansa vain kohteesta ja sen kassavirrasta, ei omistajayhtiöltä." },
   on_premise_self_build: { term: "On-premise ja self-build", definition: "Datakeskus omissa tiloissa; yhtiö rakennuttaa sen itse." },
   operate: { term: "Operoida", definition: "Hoitaa ja ylläpitää kerrosta käytännössä. Operoija ei välttämättä omista kerrosta." },
+  paas: { term: "PaaS", alt: "Platform as a Service", definition: "Pilvipalvelu, jossa CSP hoitaa myös käyttöjärjestelmän ja ajoympäristön; yritys vastaa omasta koodistaan ja datastaan." },
   pass_through: { term: "Pass-through", definition: "Kustannus, joka laskutetaan asiakkaalta sellaisenaan, esim. sähkö." },
   pay_as_you_go: { term: "Pay-as-you-go", definition: "Maksu käytön mukaan ilman sitoumusta." },
   powered_shell_turnkey: { term: "Powered shell ja turnkey", definition: "Powered shell: rakennus valmiine sähköliittymineen. Turnkey: käyttövalmis sali." },
@@ -66,6 +68,7 @@ window.BM_GLOSSARY = {
   reserved_capacity: { term: "Reserved capacity", alt: "varattu kapasiteetti", definition: "Sopimuksella omaan käyttöön varattu kapasiteetti, esim. GPU-pilvessä." },
   retail_colocation: { term: "Retail-colocation", definition: "Räkkejä tai pieniä tiloja monelle asiakkaalle, tyypillisesti 1–5 vuoden sopimuksin." },
   rack: { term: "Räkki", alt: "rack", definition: "Standardikokoinen laitekaappi; colocationin pienin vuokrayksikkö." },
+  saas: { term: "SaaS", alt: "Software as a Service", definition: "Valmis sovellus pilvipalveluna. CSP hoitaa sovelluksen ja kaiken sen alla; yritys vastaa omasta datastaan ja käyttäjien pääsyoikeuksista." },
   sale_leaseback: { term: "Sale-leaseback", definition: "Omistaja myy kiinteistön sijoittajalle ja vuokraa sen takaisin." },
   shared_responsibility_model: { term: "Shared responsibility model", definition: "Jaetun vastuun malli: mistä CSP ja asiakas kumpikin vastaavat." },
   sla_service_credit: { term: "SLA ja service credit", definition: "Palvelutasolupaus ja hyvitys, jos lupaus ei täyty." },

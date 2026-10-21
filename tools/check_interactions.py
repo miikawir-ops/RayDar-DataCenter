@@ -126,8 +126,8 @@ def suite_hub(b, run):
     g = pg.evaluate("""() => ({n:document.querySelectorAll('[data-g]').length,
         resolved:[...document.querySelectorAll('[data-g]')].every(e=>e.tabIndex===0 && BM_GLOSSARY[e.dataset.g]),
         total:Object.keys(BM_GLOSSARY).length})""")
-    check("glossary: 17 tagged terms all resolve; 72 entries loaded",
-          g["n"] == 17 and g["resolved"] and g["total"] == 72, f"{g['n']} tagged, {g['total']} entries")
+    check("glossary: 23 tagged terms all resolve; 75 entries loaded",
+          g["n"] == 23 and g["resolved"] and g["total"] == 75, f"{g['n']} tagged, {g['total']} entries")
     ow = page_width_overflow(pg)
     check("desktop 1680: no horizontal page overflow", ow <= 0, f"overflow {ow}px")
     check("desktop: no step current initially", current_step(pg) is None)
@@ -689,6 +689,25 @@ def suite_layers(b, run):
     settle(pg, 900)
     check("layers: switching tabs fills the zones top-down when the Itse share grows, bottom-up when it shrinks",
           down == sorted(down) and down[0] < down[-1] and up == sorted(up, reverse=True) and up[0] > up[-1], f"{down} {up}")
+
+    # R66: the band's IaaS/PaaS/SaaS labels and the cloud note's terms open their glossary entries.
+    pg.locator("#lr-tab-public-cloud").click()
+    settle(pg, 900)
+    keys = pg.evaluate("""() => [[...document.querySelectorAll('.lr-pos-label')].map(t => t.dataset.g),
+        [...document.querySelectorAll('#lr-cloud-note .gloss')].map(s => s.dataset.g)]""")
+    pg.locator(".lr-pos-label[data-g=paas]").click()
+    settle(pg, 150)
+    tip_click = pg.evaluate("() => { const t = document.getElementById('gloss-tip'); return t && !t.hidden ? t.querySelector('.gloss-tip-term').textContent : null }")
+    pg.keyboard.press("Escape")
+    pg.locator(".lr-pos-label[data-g=saas]").focus()
+    settle(pg, 100)
+    tip_focus = pg.evaluate("() => { const t = document.getElementById('gloss-tip'); return t && !t.hidden ? t.querySelector('.gloss-tip-term').textContent : null }")
+    pg.keyboard.press("Enter")
+    settle(pg, 100)
+    pg.keyboard.press("Escape")
+    check("layers: IaaS, PaaS and SaaS on the band and in the cloud note link to their glossary entries (click, focus, Enter) (R66)",
+          keys == [["iaas", "paas", "saas"], ["iaas", "paas", "saas"]] and tip_click == "PaaS" and tip_focus == "SaaS",
+          f"{keys} {tip_click} {tip_focus}")
 
     # The line slides between gaps; with reduced motion it jumps.
     pg.locator("#lr-tab-public-cloud").click()

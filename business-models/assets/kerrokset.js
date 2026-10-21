@@ -109,7 +109,7 @@
   const posEls = [0, 1, 2].map(() => ({
     halo: el("polyline", { class: "lr-pos-halo" }, gLines),
     line: el("polyline", { class: "lr-pos-line" }, gLines),
-    label: el("text", { class: "lr-range-label lr-pos-label", "text-anchor": "end" }, gLines),
+    label: el("text", { class: "lr-range-label lr-pos-label gloss", "text-anchor": "end" }, gLines),
   }));
   const lines = [0, 1].map(() => ({
     halo: el("polyline", { class: "lr-line-halo" }, gLines),
@@ -264,6 +264,7 @@
       pe.label.setAttribute("y", g[0][1] + 7);
       pe.label.textContent = T[spec[1]];
       pe.label.dataset.gap = spec[0];
+      pe.label.dataset.g = spec[1];     // the glossary entry of the same key (R66)
     });
     cloudNote.hidden = !m.range;
     heads.forEach((th, i) => {
