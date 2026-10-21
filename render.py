@@ -574,6 +574,11 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
        min-height:100vh}}
 .card{{background:white;border:0.5px solid #E0DFDC;border-radius:12px;
        padding:16px;margin-bottom:12px}}
+/* Key for the ticker rows (ledger R63): the arrow is the revenue-growth trend,
+   not the price, and the percentage is the 30-day share price change. */
+.key-col{{display:flex;flex-direction:column;align-items:flex-end;gap:4px}}
+.trend-key{{font-size:10px;color:#6A7A9A}}
+@media(max-width:768px){{ .key-col{{align-items:flex-start}} }}
 .card-label{{font-size:10px;font-weight:500;color:#888780;
              letter-spacing:.05em;margin-bottom:12px}}
 /* Section heading on a white card (ledger R59 item 2): dark navy, the page's
@@ -876,11 +881,14 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="card">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
     <h2 class="section-heading">Data center infrastructure — signal scores</h2>
+    <div class="key-col">
     <div style="display:flex;gap:12px;font-size:10px;color:#8A9AB8;align-items:center;flex-wrap:wrap">
       <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#E24B4A;margin-right:4px"></span>Hot / bottleneck</span>
       <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#EF9F27;margin-right:4px"></span>Emerging</span>
       <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#639922;margin-right:4px"></span>Neutral / healthy</span>
       <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#378ADD;margin-right:4px"></span>Cooling</span>
+    </div>
+    <div class="trend-key">▲ ▼ — revenue growth speeding up / slowing / steady · 30d = share price change over 30 days</div>
     </div>
   </div>
   <div class="fetch-note" style="margin-bottom:8px;color:#6A7A9A">{fetch_note}</div>
@@ -1031,6 +1039,15 @@ const CC = {{
 }};
 
 let active = null;
+
+// What the ticker rows' arrow means (ledger R63): fund_delta x 100 against
+// the +/-5 percentage-point bands set in _chain_js_data().
+const TREND_TIP = {{
+  accelerating: "Revenue growth speeding up: year-on-year growth in the latest quarter is more than 5 percentage points above the previous quarter's.",
+  decelerating: "Revenue growth slowing: year-on-year growth in the latest quarter is more than 5 percentage points below the previous quarter's.",
+  stable:       "Revenue growth steady: within 5 percentage points of the previous quarter's.",
+  unknown:      "Revenue growth trend unknown: not enough quarterly revenue data.",
+}};
 
 function fmt(v, decimals=1) {{
   return (v >= 0 ? "+" : "") + v.toFixed(decimals);
@@ -1200,9 +1217,10 @@ function buildChain() {{
       const col   = t.ret30 != null ? (t.ret30 >= 0 ? "#27500A" : "#A32D2D") : "#888780";
       const db    = t.delta_band === "accelerating" ? "▲" : t.delta_band === "decelerating" ? "▼" : t.delta_band === "unknown" ? "?" : "—";
       const dc    = t.delta_band === "accelerating" ? "#27500A" : t.delta_band === "decelerating" ? "#A32D2D" : "#888780";
-      const retTxt = t.ret30 != null ? fmt(t.ret30) + "%" : "—";
+      const retTxt = "30d " + (t.ret30 != null ? fmt(t.ret30) + "%" : "—");
+      const tip   = TREND_TIP[t.delta_band] || TREND_TIP.unknown;
       return `<div class="lyr-tk">
-        <span>${{t.sym}} <span style="color:${{dc}};font-size:9px">${{db}}</span></span>
+        <span>${{t.sym}} <span class="tk-arrow" style="color:${{dc}};font-size:9px" title="${{tip}}" aria-label="${{tip}}">${{db}}</span></span>
         <span style="color:${{col}}">${{retTxt}}</span>
       </div>`;
     }}).join("");
@@ -1304,7 +1322,7 @@ function buildExpand() {{
         Run rate $${{t.run_rate}}B/yr</div>` : ""}}
       <div class="ex-row"><span class="ex-lbl">${{t.price_date ? "Close " + t.price_date : "Price"}}</span><span>${{priceTxt}}</span></div>
       <div class="ex-row"><span class="ex-lbl">30d return</span><span style="color:${{rc}}">${{retTxt}}</span></div>
-      <div class="ex-row"><span class="ex-lbl">Trend</span><span style="color:${{tCol}}">${{tIcon}} ${{t.delta_band}}</span></div>
+      <div class="ex-row"><span class="ex-lbl">Revenue growth</span><span style="color:${{tCol}}" title="${{TREND_TIP[t.delta_band] || TREND_TIP.unknown}}">${{tIcon}} ${{t.delta_band}}</span></div>
       <div style="margin-top:6px;padding:5px 8px;border-radius:5px;
                   background:#F8F8F7;border-left:2px solid ${{t.forecast.color}}">
         <span style="font-size:10px;font-weight:500;color:${{t.forecast.color}}">
