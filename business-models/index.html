@@ -303,7 +303,11 @@
 .stairs-wrap[hidden]{display:none}
 .stairs-wrap{display:flex;flex-direction:column;gap:8px}
 .stairs-wrap .scroll-x{--fade-to:var(--white)}
-.stairs-table{border-collapse:separate;border-spacing:3px;width:100%;min-width:760px;font-size:13px;line-height:1.3}
+/* Five equal model columns (R73): the steps' shape is the message, so no column widens to its longest text. */
+.stairs-table{border-collapse:separate;border-spacing:3px;width:100%;min-width:760px;font-size:13px;line-height:1.3;table-layout:fixed}
+.stairs-table col.sc-label{width:22%}
+.stairs-table .sc-line{display:block}
+.stairs-table .sc-sep{display:none}
 .stairs-table th,.stairs-table td{padding:6px 9px;border-radius:5px;text-align:left;vertical-align:middle}
 .stairs-table thead th{font-family:var(--f-display);font-size:14px;font-weight:700;color:var(--navy)}
 .stairs-table tbody th[scope="row"]{font-weight:600;color:var(--navy);background:var(--cream);width:22%}
@@ -312,7 +316,12 @@
 .stairs-table td.mixed{background:repeating-linear-gradient(135deg,#D7E3EC 0 6px,#EEF3F7 6px 12px);color:var(--navy);font-weight:600}
 .stairs-table td.cp{background:#E8EFF5;color:var(--blue)}
 .stairs-table tr.is-hot th[scope="row"],.stairs-table tr:hover th[scope="row"]{box-shadow:inset 0 0 0 2px var(--blue)}
-.stairs-table td.is-col{box-shadow:inset 0 0 0 2px var(--rust-strong)}
+/* The vastuuraja in the grid (R73): the picture's rust dashed line on the first row below it. */
+.stairs-table td.demarc-top{border-top:3px dashed var(--rust-strong);border-top-left-radius:0;border-top-right-radius:0}
+/* Selected model, marked once in blue (rust is the vastuuraja's alone): a navy header like the selected tab, thin blue side edges. */
+.stairs-table thead th.is-col{background:var(--navy);color:var(--white)}
+.stairs-table thead th.is-col .fn{color:var(--peach)}
+.stairs-table td.is-col{box-shadow:-2px 0 0 var(--blue),2px 0 0 var(--blue)}
 .fn{font-size:.75em;margin-left:2px;color:var(--rust)}
 .stairs-notes{margin:0;padding-left:20px;font-size:12.5px;line-height:1.45;color:var(--ink-3)}
 .stairs-note{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2);max-width:980px}
@@ -335,6 +344,7 @@
   .layers-title{font-size:22px}
   .layers-tabs{flex-wrap:nowrap;overflow-x:auto;margin:0 -14px;padding:2px 14px 6px;scrollbar-width:thin}
   .layers-side{display:flex;align-items:stretch}  /* undo the 1399px grid's align-items:start */
+  .stairs-table{min-width:960px}   /* swipes anyway; wide enough that wholesale's two lines don't wrap further (R73) */
   .lr-label,.lr-leader,.lr-line-label,.lr-range-label,.lr-pos-halo,.lr-pos-line,.lr-marker-label,.lr-marker-sub,.lr-marker-box{display:none}
   .hub-head{flex-direction:column;align-items:flex-start;gap:8px}
   .hub-title{font-size:30px}
@@ -446,6 +456,7 @@
         <div class="scroll-x"><div class="scroll-x__inner">
           <table class="stairs-table">
             <caption class="visually-hidden">Kuka hoitaa kunkin osan eri malleissa</caption>
+            <colgroup><col class="sc-label"><col span="5"></colgroup>
             <thead>
               <tr><td></td><th scope="col" data-model="public-cloud">Julkinen pilvi</th><th scope="col" data-model="gpu-cloud">GPU-pilvi<sup class="fn">2</sup></th><th scope="col" data-model="retail-colocation">Retail-colocation</th><th scope="col" data-model="wholesale-colocation">Wholesale-colocation</th><th scope="col" data-model="own-data-center">Oma datakeskus</th></tr>
             </thead>
@@ -461,9 +472,9 @@
               <tr data-row="6" data-zone="z3"><th scope="row">Verkkolaitteet</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td></tr>
               <tr class="stairs-group"><th scope="colgroup" colspan="6">KONESALI</th></tr>
               <tr data-row="7" data-zone="z4"><th scope="row">Räkit ja sähkönsyöttö räkkiin</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="own">Itse</td><td class="own">Itse</td></tr>
-              <tr data-row="8" data-zone="z5"><th scope="row">Jäähdytys (ilma tai neste)</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="mixed">Turnkey: operaattori · Powered shell: itse</td><td class="own">Itse</td></tr>
-              <tr data-row="9" data-zone="z5"><th scope="row">UPS ja varavoima</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="mixed">Turnkey: operaattori · Powered shell: itse</td><td class="own">Itse</td></tr>
-              <tr data-row="10" data-zone="z5"><th scope="row">Kulunvalvonta ja fyysinen turvallisuus</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="mixed">Turnkey: operaattori · Powered shell: itse</td><td class="own">Itse</td></tr>
+              <tr data-row="8" data-zone="z5"><th scope="row">Jäähdytys (ilma tai neste)</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="mixed"><span class="sc-line">Turnkey: operaattori</span><span class="sc-sep"> · </span><span class="sc-line">Powered shell: itse</span></td><td class="own">Itse</td></tr>
+              <tr data-row="9" data-zone="z5"><th scope="row">UPS ja varavoima</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="mixed"><span class="sc-line">Turnkey: operaattori</span><span class="sc-sep"> · </span><span class="sc-line">Powered shell: itse</span></td><td class="own">Itse</td></tr>
+              <tr data-row="10" data-zone="z5"><th scope="row">Kulunvalvonta ja fyysinen turvallisuus</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="mixed"><span class="sc-line">Turnkey: operaattori</span><span class="sc-sep"> · </span><span class="sc-line">Powered shell: itse</span></td><td class="own">Itse</td></tr>
               <tr class="stairs-group"><th scope="colgroup" colspan="6">KIINTEISTÖ JA ENERGIA</th></tr>
               <tr data-row="11" data-zone="z6"><th scope="row">Tontti ja rakennus</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="cp">Datakeskusoperaattori</td><td class="own">Itse</td></tr>
               <tr data-row="12" data-zone="z6"><th scope="row">Sähköliittymä ja muuntamo<sup class="fn">1</sup></th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="cp">Datakeskusoperaattori</td><td class="own">Itse</td></tr>

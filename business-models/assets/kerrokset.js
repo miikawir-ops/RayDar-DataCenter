@@ -92,6 +92,15 @@
     if (on) node.dataset.g = "csp"; else delete node.dataset.g;
   }
 
+  // The vastuuraja in the grid too (R73): a dashed top edge on the first row below
+  // each of a model's demarc lines, from the same gaps as the picture's lines
+  // (gap gXY lies above zone Y).
+  Object.keys(D.models).forEach((m) => {
+    D.models[m].lines.forEach(([gap]) => {
+      cell(String(D.zones["z" + gap.slice(-1)].rows[0]), m).classList.add("demarc-top");
+    });
+  });
+
   // -- Build the overlay ---------------------------------------------------
   const defs = el("defs", {}, svg);
   const pat = el("pattern", { id: "lr-hatch", width: 14, height: 14, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
@@ -286,6 +295,7 @@
     });
     cloudNote.hidden = !m.range;
     heads.forEach((th, i) => {
+      th.classList.toggle("is-col", th.dataset.model === model);
       table.querySelectorAll("tbody tr[data-row]").forEach((tr) => tr.children[i + 1].classList.toggle("is-col", th.dataset.model === model));
     });
     render();

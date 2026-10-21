@@ -863,6 +863,35 @@ def suite_layers(b, run):
           table["rows"] == [[n, c] for n, c in STAIRS] and table["head"] == ["Julkinen pilvi", "GPU-pilvi", "Retail-colocation",
                                                                           "Wholesale-colocation", "Oma datakeskus"],
           str([r for r, w in zip(table["rows"], STAIRS) if r != [w[0], w[1]]][:2]))
+    grid = pg.evaluate("""() => { const heads = [...document.querySelectorAll('.stairs-table thead th[data-model]')];
+        const models = heads.map(th => th.dataset.model), out = Object.fromEntries(models.map(m => [m, []]));
+        document.querySelectorAll('.stairs-table tbody tr[data-row]').forEach(tr => [...tr.querySelectorAll('td')].forEach((td, i) => {
+          if (td.classList.contains('demarc-top')) out[models[i]].push(+tr.dataset.row) }));
+        const D = window.BM_LAYERS, img = {};
+        Object.keys(D.models).forEach(m => img[m] = D.models[m].lines.map(([g]) => D.zones['z' + g.slice(-1)].rows[0]));
+        const cs = getComputedStyle(document.querySelector('.stairs-table td.demarc-top'));
+        const w = heads.map(th => th.getBoundingClientRect().width);
+        const tk = document.querySelector('.stairs-table tr[data-row="8"]').children[4].querySelectorAll('.sc-line');
+        return {grid: out, img, style: [cs.borderTopStyle, cs.borderTopWidth, cs.borderTopColor], spread: Math.max(...w) - Math.min(...w),
+                twoLines: tk.length === 2 && tk[1].getBoundingClientRect().top > tk[0].getBoundingClientRect().top} }""")
+    want_dm = {"public-cloud": [4], "gpu-cloud": [5], "retail-colocation": [7], "wholesale-colocation": [8, 11], "own-data-center": []}
+    check("layers: the grid draws the vastuuraja as a rust dashed top edge at each model's step, where the picture draws it (R73)",
+          grid["grid"] == want_dm and grid["img"] == want_dm and grid["style"] == ["dashed", "3px", "rgb(180, 86, 26)"], str(grid))
+    check("layers: the five model columns are equally wide; wholesale's turnkey/powered-shell cells take two lines (R73)",
+          grid["spread"] <= 1 and grid["twoLines"], str(grid))
+    selc = {}
+    for m in ("public-cloud", "wholesale-colocation"):
+        pg.locator(f"#lr-tab-{m}").click()
+        settle(pg, 300)
+        selc[m] = pg.evaluate("""() => { const ths = [...document.querySelectorAll('.stairs-table thead th[data-model]')];
+            const col = [...document.querySelectorAll('.stairs-table td.is-col')];
+            return {heads: ths.filter(th => th.classList.contains('is-col')).map(th => th.dataset.model),
+                    headBg: getComputedStyle(document.querySelector('.stairs-table thead th.is-col')).backgroundColor,
+                    cells: col.length, edges: [...new Set(col.map(td => getComputedStyle(td).boxShadow))],
+                    rust: [...document.querySelectorAll('.stairs-table td')].some(td => /180, 86, 26/.test(getComputedStyle(td).boxShadow))} }""")
+    check("layers: the selected model is marked once in blue: navy header, blue side edges on its 14 cells, no rust boxes (R73)",
+          all(v["heads"] == [m] and v["headBg"] == "rgb(18, 34, 46)" and v["cells"] == 14 and not v["rust"]
+              and v["edges"] == ["rgb(31, 78, 110) -2px 0px 0px 0px, rgb(31, 78, 110) 2px 0px 0px 0px"] for m, v in selc.items()), str(selc))
     check("layers: five layer groups, and every 'Itse' cell (only those) has the strong fill",
           table["groups"] == ["SOVELLUKSET JA DATA", "ALUSTA", "LAITTEET", "KONESALI", "KIINTEISTÖ JA ENERGIA"] and table["own"],
           str(table["groups"]))
