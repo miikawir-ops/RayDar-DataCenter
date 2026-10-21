@@ -126,8 +126,8 @@ def suite_hub(b, run):
     g = pg.evaluate("""() => ({n:document.querySelectorAll('[data-g]').length,
         resolved:[...document.querySelectorAll('[data-g]')].every(e=>e.tabIndex===0 && BM_GLOSSARY[e.dataset.g]),
         total:Object.keys(BM_GLOSSARY).length})""")
-    check("glossary: 16 tagged terms all resolve; 68 entries loaded",
-          g["n"] == 16 and g["resolved"] and g["total"] == 68, f"{g['n']} tagged, {g['total']} entries")
+    check("glossary: 17 tagged terms all resolve; 68 entries loaded",
+          g["n"] == 17 and g["resolved"] and g["total"] == 68, f"{g['n']} tagged, {g['total']} entries")
     ow = page_width_overflow(pg)
     check("desktop 1680: no horizontal page overflow", ow <= 0, f"overflow {ow}px")
     check("desktop: no step current initially", current_step(pg) is None)
@@ -713,7 +713,8 @@ def suite_layers(b, run):
     check("layers: hovering a staircase row lights its zone, and a zone its rows", hot == ["z5"] and rows_hot == ["5", "6"], f"{hot} {rows_hot}")
     note = pg.evaluate("document.querySelector('.stairs-note').textContent")
     check("layers: the note under the staircase (R61: 'varataan usein omaan käyttöön')",
-          note.startswith("Kerrokset eivät näytä kaikkia eroja.") and "GPU-pilvessä kapasiteetti varataan usein omaan käyttöön" in note, note)
+          note.startswith("Kerrokset eivät näytä kaikkia eroja.") and "GPU-pilvessä kapasiteetti varataan usein omaan käyttöön" in note
+          and "Retail-colocationin arvoa lisää myös verkkoekosysteemi" in note and note.endswith("tärkeämpiä ovat sähkökapasiteetti ja jäähdytys."), note)
 
     # Markers: the connection point (every model) and the waste-heat hotspot.
     vis = []
