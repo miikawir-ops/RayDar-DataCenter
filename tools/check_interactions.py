@@ -613,6 +613,13 @@ def suite_layers(b, run):
     check("layers: five model tabs in the table's order, each controlling the panel",
           [t for t, _ in st["tabs"]] == ["Julkinen pilvi", "GPU-pilvi", "Retail-colocation", "Wholesale-colocation", "Oma datakeskus"]
           and all(c == "lr-panel" for _, c in st["tabs"]), str(st["tabs"]))
+    bars = pg.evaluate("""() => [...document.querySelectorAll('.layers-tab')].map(t => { const b = t.querySelector('.lr-tab-bar');
+        return [t.dataset.model, b && b.getAttribute('aria-hidden'), b ? [...b.children].map(s => s.className.replace('is-', '')) : []] })""")
+    want_bars = [[m, "true", [v.split(":")[0] for _, v in sorted(LAYER_EXPECT[m][0].items())]] for m in LAYER_MODELS]
+    names = [pg.get_by_role("tab", name=n, exact=True).count() for n in
+             ["Julkinen pilvi", "GPU-pilvi", "Retail-colocation", "Wholesale-colocation", "Oma datakeskus"]]
+    check("layers: each tab has its model's 6-segment bar (Z1 on top, Itse dark, shared hatched), aria-hidden; tab names unchanged (R65)",
+          bars == want_bars and names == [1] * 5, f"{bars} {names}")
     check("layers: the side panel is announced (aria-live polite)", st["live"] == "polite")
     check("layers: the staircase is collapsed by default behind its control",
           st["stairsHidden"] and st["toggle"] == ["Näytä kaikki mallit rinnakkain", "false"], str(st["toggle"]))

@@ -62,6 +62,20 @@
     return { who, cls };
   }
 
+  // Each tab carries its model's six zones as a small bar, Z1 on top, so the tab
+  // row reads as a staircase (R65). Decorative: the tab's name stays its text.
+  tabs.forEach((t) => {
+    const bar = document.createElement("span");
+    bar.className = "lr-tab-bar";
+    bar.setAttribute("aria-hidden", "true");
+    Object.keys(D.zones).forEach((z) => {
+      const seg = document.createElement("span");
+      seg.className = "is-" + status(z, t.dataset.model).cls;
+      bar.appendChild(seg);
+    });
+    t.prepend(bar);
+  });
+
   // -- Build the overlay ---------------------------------------------------
   const defs = el("defs", {}, svg);
   const pat = el("pattern", { id: "lr-hatch", width: 14, height: 14, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);

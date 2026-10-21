@@ -185,7 +185,13 @@
 .layers-analogy{margin-top:6px}
 .layers-tabs{display:flex;gap:6px;flex-wrap:wrap}
 .layers-tab{font:600 14px/1.2 var(--f-body);color:var(--navy);background:var(--white);border:1.5px solid var(--line);
-            border-radius:999px;padding:7px 15px;cursor:pointer;white-space:nowrap}
+            border-radius:999px;padding:5px 15px 5px 9px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+/* The tab's own staircase: six zones, Z1 on top, coloured as the picture (R65). */
+.lr-tab-bar{display:inline-flex;flex-direction:column;gap:1px;padding:2px;border-radius:3px;background:var(--white);border:1px solid var(--line)}
+.lr-tab-bar span{display:block;width:12px;height:3px;border-radius:1px;background:#D3DEE8}
+.lr-tab-bar span.is-own{background:var(--navy)}
+.lr-tab-bar span.is-mixed{background:repeating-linear-gradient(90deg,var(--navy) 0 2px,#D3DEE8 2px 4px)}
+.layers-tab[aria-selected="true"] .lr-tab-bar{border-color:var(--white)}
 .layers-tab:hover{border-color:var(--navy)}
 .layers-tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:var(--white)}
 .layers-tab:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
