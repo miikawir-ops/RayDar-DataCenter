@@ -808,6 +808,23 @@ def check_dashboard_page(tmp):
               and all(l["open"] == "Open →" and l["tile"] not in ("rgba(0, 0, 0, 0)", "transparent") for l in links), str(links))
         check("link cards: the explainer card in its cream-and-navy editorial style with an FI tag",
               "fl-editorial" in links[1]["cls"] and links[1]["tag"] == "FI" and "fl-editorial" not in links[0]["cls"], str(links))
+        # R63 item 3: the ticker rows say what the arrow and the percentage are.
+        tk = pg.evaluate("""() => ({key: (document.querySelector('.trend-key') || {}).textContent,
+            vals: [...document.querySelectorAll('#chain .lyr-tk')].map(r => r.lastElementChild.textContent.trim()),
+            tips: [...document.querySelectorAll('#chain .tk-arrow')].map(a => [a.textContent, a.title, a.getAttribute('aria-label')]),
+            bands: LAYERS.flatMap(l => l.tickers.slice(0, 3).map(t => t.delta_band)),
+            exLabels: [...document.querySelectorAll('#expand-area .ex-lbl')].map(e => e.textContent)})""")
+        check("ticker rows: the key line explains the arrow and the 30-day percentage",
+              tk["key"] == "▲ ▼ — revenue growth speeding up / slowing / steady · 30d = share price change over 30 days", str(tk["key"]))
+        check("ticker rows: every percentage is labelled 30d", tk["vals"] and all(v.startswith("30d ") for v in tk["vals"]), str(tk["vals"]))
+        tips = pg.evaluate("TREND_TIP")
+        check("ticker rows: each arrow carries its revenue-growth tooltip (title and screen-reader label), in percentage points",
+              tk["tips"] and all(t[1] == t[2] == tips[b] for t, b in zip(tk["tips"], tk["bands"]))
+              and all("percentage points" in tips[k] for k in ("accelerating", "decelerating", "stable"))
+              and tips["accelerating"].startswith("Revenue growth speeding up: year-on-year growth in the latest quarter is more than 5 percentage points above"),
+              str(tk["tips"][:2]))
+        check("ticker rows: the expanded card labels the trend 'Revenue growth', next to '30d return'",
+              "Revenue growth" in tk["exLabels"] and "Trend" not in tk["exLabels"] and "30d return" in tk["exLabels"], str(tk["exLabels"]))
         b.close()
 
 
