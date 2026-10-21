@@ -247,6 +247,9 @@
       p.textContent = noteText(n);
       detail.appendChild(p);
     });
+    // Zone-specific text (Z5: redundancy, ledger R64), kept in a template like the markers'.
+    const extra = root.querySelector("#lr-zone-" + z);
+    if (extra) detail.appendChild(extra.content.cloneNode(true));
   }
 
   function select(sel) {

@@ -673,11 +673,17 @@ def suite_layers(b, run):
     pg.locator(".zone-btn[data-zone=z2]").click()
     settle(pg, 200)
     n2 = pg.evaluate("[...document.querySelectorAll('#lr-detail .zd-note')].length")
+    x2 = pg.evaluate("document.querySelectorAll('#lr-detail .zd-extra').length")
     pg.locator(".zone-btn[data-zone=z5]").click()
     settle(pg, 200)
     n5 = pg.evaluate("[...document.querySelectorAll('#lr-detail .zd-note')].map(p => p.textContent)")
     check("layers: the GPU cloud's data-centre footnote shows on the building zones only",
           n2 == 0 and n5 == ["GPU-pilvi voi toimia omassa tai colocation-operaattorin datakeskuksessa."], f"{n2} {n5}")
+    x5 = pg.evaluate("""() => ({text: [...document.querySelectorAll('#lr-detail .zd-extra')].map(p => p.textContent),
+        src: [...document.querySelectorAll('#lr-detail .zd-src a')].map(a => a.textContent)})""")
+    check("layers: Z5 (Rakennuksen tekniikka) explains redundancy with its sources, and only Z5 (R64)",
+          x2 == 0 and len(x5["text"]) == 1 and x5["text"][0].startswith("Kahdennus: sähkönsyöttö, UPS, varavoima ja jäähdytys")
+          and "N+1 tai 2N" in x5["text"][0] and x5["src"] == ["Uptime Institute", "CoreSite", "Cushman & Wakefield (2026)"], f"{x2} {x5}")
 
     # Row <-> zone highlight.
     pg.locator(".stairs-toggle").click()
