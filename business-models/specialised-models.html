@@ -11,6 +11,8 @@
 /* Specialised models (Lisamallit.dc.html): six cards, three columns. */
 .spec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
 .spec-card{display:flex;flex-direction:column;gap:10px;padding:24px;border-radius:12px}
+/* #hukkalampo is the hub's waste-heat link target (ledger R61): clear the sticky stepper. */
+.spec-card[id]{scroll-margin-top:calc(var(--header-steps-h) + 16px)}
 .spec-label{font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--ink-3)}
 .spec-card h3{margin:0;font-family:var(--f-display);font-size:22px;font-weight:700}
 .spec-card p{margin:0;font-size:15px;line-height:1.5;color:var(--ink-2)}
@@ -73,7 +75,7 @@
         <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">ESIM.</div><div>Blackstone osti QTS:n (2021); Equinix ja Digital Realty ovat REITejä</div></div>
       </div>
     </div>
-    <div class="spec-card panel">
+    <div class="spec-card panel" id="hukkalampo">
       <div class="spec-label">LISÄTULO</div>
       <h3>Hukkalämmön myynti</h3>
       <p>Palvelinten lämpö myydään kaukolämpöverkkoon. Lisätulo parantaa kannattavuutta ja paikallista hyväksyttävyyttä.</p>

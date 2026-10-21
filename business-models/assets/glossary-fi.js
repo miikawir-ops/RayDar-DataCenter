@@ -17,7 +17,7 @@ window.BM_GLOSSARY = {
   colocation: { term: "Colocation", definition: "Konesalitilan vuokraus omille laitteille: operaattori tarjoaa tilan, sähkön ja jäähdytyksen." },
   committed_use: { term: "Committed use", alt: "myös reserved", definition: "Julkisen pilven alennus, kun asiakas sitoutuu käyttömäärään 1–3 vuodeksi." },
   cross_connect: { term: "Cross-connect", alt: "ristikytkentä", definition: "Suora kaapeliyhteys kahden osapuolen välillä samassa datakeskuksessa; laskutetaan kuukausimaksuna." },
-  csp: { term: "CSP", alt: "cloud service provider", definition: "Pilvipalveluntarjoaja, esim. AWS, Microsoft Azure tai Google Cloud." },
+  csp: { term: "CSP", alt: "cloud service provider", definition: "Pilvipalveluyhtiö, esim. AWS, Microsoft Azure tai Google Cloud." },
   ddtl: { term: "DDTL", alt: "delayed draw term loan", definition: "Laina, jota nostetaan erissä sitä mukaa kuin laitteita hankitaan." },
   demarc: { term: "Demarc", alt: "demarcation point", definition: "Vastuuraja: kohta, jossa vastapuolen vastuu päättyy ja asiakkaan alkaa." },
   developer: { term: "Developer", alt: "datakeskuskehittäjä", definition: "Yhtiö, joka hankkii tontin ja sähkön ja rakentaa kohteen vuokrattavaksi." },

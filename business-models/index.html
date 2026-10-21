@@ -41,7 +41,7 @@
 
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12.5px;color:var(--ink-2);padding-left:162px}
 .legend-title{font-size:11px;color:var(--ink-3)}
-.legend-items{display:flex;gap:6px 14px;align-items:center}  /* the three keys wrap as one group */
+.legend-items{display:flex;gap:6px 14px;align-items:center}  /* the keys wrap as one group */
 .legend-item{display:flex;gap:5px;align-items:center;white-space:nowrap}
 
 /* Five-model matrix. Desktop: a label column plus five model columns whose
@@ -49,7 +49,7 @@
    narrower widths instead of overflowing the source's fixed row heights.
    Compact: the same five <article>s become a snap-scrolling swipe track
    (the dashboard's #chain pattern), one model per screen. */
-.matrix{display:grid;grid-template-columns:150px repeat(5,minmax(0,1fr));grid-template-rows:repeat(13,auto);
+.matrix{display:grid;grid-template-columns:150px repeat(5,minmax(0,1fr));grid-template-rows:repeat(12,auto);
         column-gap:10px;row-gap:7px;overflow:visible}
 .matrix-labels,.model{grid-row:1 / -1;display:grid;grid-template-rows:subgrid;box-sizing:border-box}
 .matrix-labels{padding:12px 0;border:1px solid transparent}
@@ -66,8 +66,6 @@
 .cell--stage,.cell--title{align-items:flex-start}
 .stage{font-size:11.5px;color:var(--rust)}
 .model h2{margin:0;font-family:var(--f-display);font-size:19px;font-weight:700;line-height:1.15}
-.segments{flex:1;display:flex;align-items:center;gap:3px}
-.seg{flex:1 1 0;height:16px;border-radius:3px;box-sizing:border-box}
 .cell--buys{font-size:14px;line-height:1.3;font-weight:600}
 .cell--text{font-size:14px;line-height:1.3;color:var(--ink-2)}
 .cell--why{font-size:14px;line-height:1.3;font-style:italic;color:var(--ink-2)}
@@ -76,12 +74,17 @@
 .risk-box{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px;
           padding:4px 8px;border-radius:6px;box-sizing:border-box;overflow-wrap:anywhere}
 /* "Who bears the risk": the two boxes sit side by side while the column has
-   room (they need ~192px; Pilvipalvelun-tarjoaja is the widest pair) and
+   room (they need ~192px; "AI Oy (sitoumus)" and "GPU-pilvi" are the widest pair) and
    stack below that. Every model column has the same width, so all five
    switch together and the row stays consistent. */
 @container (max-width:199px){ .risk{flex-direction:column} }
 .risk-k{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.06em;opacity:.85}
 .risk-v{font-size:13px;font-weight:600;line-height:1.2}
+/* One colour convention on the hub (Ray, ledger R62): the company is navy and the
+   counterparty light blue, in this table as in the layered section above. The
+   model cards keep the shared fill-own / fill-blue look. */
+.risk-box.fill-own,.legend .swatch.fill-own{background:var(--navy);border:none;color:var(--white)}
+.risk-box.fill-blue,.legend .swatch.fill-blue{background:#E8EFF5;border:1px solid rgba(31,78,110,.35);color:var(--blue)}
 .cell--actors{padding-top:4px;border-top:1px solid var(--line-mid);font-size:13px;font-weight:600;color:var(--rust)}
 /* Row labels repeated inside each cell: visually hidden on desktop (the
    label column shows them; screen readers get them per cell), visible on
@@ -102,18 +105,17 @@
      The last row keeps its fixed top-aligned label: its cells have 4px of
      top padding plus a 1px rule, which the label never had. */
   .matrix-labels > *{align-self:stretch}
-  .matrix-labels > :nth-child(13){align-self:start}
-  .model > :nth-child(3){min-height:20px} .matrix-labels > :nth-child(3){min-height:20px}
+  .matrix-labels > :nth-child(12){align-self:start}
+  .model > :nth-child(3){min-height:40px} .matrix-labels > :nth-child(3){min-height:40px}
   .model > :nth-child(4){min-height:40px} .matrix-labels > :nth-child(4){min-height:40px}
   .model > :nth-child(5){min-height:40px} .matrix-labels > :nth-child(5){min-height:40px}
   .model > :nth-child(6){min-height:40px} .matrix-labels > :nth-child(6){min-height:40px}
   .model > :nth-child(7){min-height:40px} .matrix-labels > :nth-child(7){min-height:40px}
-  .model > :nth-child(8){min-height:40px} .matrix-labels > :nth-child(8){min-height:40px}
-  .model > :nth-child(9){min-height:52px} .matrix-labels > :nth-child(9){min-height:52px}
+  .model > :nth-child(8){min-height:52px} .matrix-labels > :nth-child(8){min-height:52px}
+  .model > :nth-child(9){min-height:40px} .matrix-labels > :nth-child(9){min-height:40px}
   .model > :nth-child(10){min-height:40px} .matrix-labels > :nth-child(10){min-height:40px}
-  .model > :nth-child(11){min-height:40px} .matrix-labels > :nth-child(11){min-height:40px}
-  .model > :nth-child(12){min-height:58px} .matrix-labels > :nth-child(12){min-height:58px}
-  .model > :nth-child(13){min-height:24px} .matrix-labels > :nth-child(13){height:24px}
+  .model > :nth-child(11){min-height:58px} .matrix-labels > :nth-child(11){min-height:58px}
+  .model > :nth-child(12){min-height:24px} .matrix-labels > :nth-child(12){height:24px}
   .matrix-wrap::after{display:none}
 }
 
@@ -166,8 +168,150 @@
   .bottom > section{flex:none}
 }
 
+/* Layered responsibility view (ledger R61; brief docs/briefs/layered-responsibility.md).
+   Generic, above the AI Oy table. The picture is a frozen image
+   (assets/datakeskus-kerrokset.webp, 1672x941); everything that carries
+   meaning (zones, highlights, labels, the demarc line, the buttons) is an SVG
+   overlay with the image's pixel size as its viewBox, drawn by
+   assets/kerrokset.js from the coordinates in assets/kerrokset-data.js. The
+   staircase table is the single source for who handles what. Itse is navy
+   and the counterparty light blue, as in the AI Oy table's risk boxes below
+   (one convention on the hub, ledger R62). */
+.layers{display:flex;flex-direction:column;gap:14px;padding:20px 22px;border-radius:12px}
+.layers-head{display:flex;flex-direction:column;gap:6px}
+.layers-head .kicker{font-size:12px}
+.layers-title{margin:0;font-family:var(--f-display);font-size:28px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.layers-lede{margin:0;font-size:15px;line-height:1.45;color:var(--ink-2);max-width:880px}
+.layers-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.layers-tab{font:600 14px/1.2 var(--f-body);color:var(--navy);background:var(--white);border:1.5px solid var(--line);
+            border-radius:999px;padding:7px 15px;cursor:pointer;white-space:nowrap}
+.layers-tab:hover{border-color:var(--navy)}
+.layers-tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.layers-tab:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+.layers-body{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+.layers-figure{margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.layers-stage{position:relative;border-radius:8px;overflow:hidden;background:#DCE6EF}
+.layers-stage img{display:block;width:100%;height:auto}
+.layers-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+/* SVG overlay. Fills differ in lightness, not only hue; every state also has text. */
+.lr-zone{cursor:pointer;outline:none}
+.lr-zone-shape{fill:transparent;stroke:transparent;stroke-width:3;transition:fill .25s,stroke .25s}
+.lr-zone.is-own .lr-zone-shape{fill:rgba(18,34,46,.08);stroke:var(--navy);stroke-width:2.5}
+.lr-zone.is-mixed .lr-zone-shape{fill:url(#lr-hatch);stroke:var(--blue);stroke-width:3;stroke-dasharray:10 6}
+.lr-zone.is-cp .lr-zone-shape{fill:rgba(232,239,245,.45);stroke:rgba(31,78,110,.35);stroke-width:1.5}
+/* Rust is kept for the demarc line alone: hover is blue, the selected or focused zone navy. */
+.lr-zone:hover .lr-zone-shape,.lr-zone.is-hot .lr-zone-shape{stroke:var(--blue);stroke-width:5}
+.lr-zone:focus-visible .lr-zone-shape{stroke:var(--navy);stroke-width:7;stroke-dasharray:none}
+.lr-zone.is-selected .lr-zone-shape{stroke:var(--navy);stroke-width:7;stroke-dasharray:none}
+.lr-label-box{fill:rgba(255,255,255,.94);stroke:var(--line);stroke-width:1.5}
+.lr-zone.is-selected .lr-label-box,.lr-zone:focus-visible .lr-label-box{stroke:var(--navy);stroke-width:3.5}
+.lr-label-name{font:700 24px var(--f-display);fill:var(--navy)}
+.lr-label-who{font:600 21px var(--f-body);fill:var(--blue)}
+.lr-zone.is-own .lr-label-who{fill:var(--navy)}
+.lr-leader{stroke:var(--navy);stroke-width:1.5;opacity:.55}
+.lr-line-halo{fill:none;stroke:rgba(255,255,255,.85);stroke-width:10;stroke-linejoin:round}
+.lr-line{fill:none;stroke:var(--rust-strong);stroke-width:5;stroke-dasharray:16 10;stroke-linejoin:round}
+.lr-line-label{font:700 20px var(--f-body);fill:var(--rust);paint-order:stroke;stroke:rgba(255,255,255,.92);stroke-width:6px}
+.lr-range{fill:rgba(180,86,26,.14);stroke:none}
+.lr-range-edge{fill:none;stroke:var(--rust-strong);stroke-width:3;stroke-dasharray:3 8;opacity:.9}
+.lr-range-label{font:600 19px var(--f-body);fill:var(--rust);paint-order:stroke;stroke:rgba(255,255,255,.92);stroke-width:6px}
+/* The lines and the range band are drawn over the zones but never take a click. */
+.lr-lines{transition:opacity .3s;pointer-events:none}
+.lr-marker{cursor:pointer;outline:none}
+.lr-marker-ring{fill:var(--white);stroke:var(--navy);stroke-width:4}
+.lr-marker-dot{fill:var(--rust-strong)}
+.lr-marker--heat .lr-marker-dot{fill:#C2412D}
+.lr-heat-shape{fill:transparent;stroke:transparent;stroke-width:4}
+.lr-marker:hover .lr-heat-shape,.lr-marker.is-selected .lr-heat-shape{fill:rgba(194,65,45,.16);stroke:#C2412D}
+.lr-marker:hover .lr-marker-ring,.lr-marker:focus-visible .lr-marker-ring,.lr-marker.is-selected .lr-marker-ring{stroke:var(--blue);stroke-width:7}
+.lr-marker-label{font:700 21px var(--f-body);fill:var(--navy);paint-order:stroke;stroke:rgba(255,255,255,.95);stroke-width:7px}
+.lr-marker-sub{font:500 19px var(--f-body);fill:var(--navy);paint-order:stroke;stroke:rgba(255,255,255,.95);stroke-width:7px}
+/* Legend */
+.layers-legend{display:flex;flex-direction:column;gap:5px;font-size:13px;line-height:1.45;color:var(--ink-2)}
+.layers-legend p{margin:0}
+.lr-keys{display:flex;flex-wrap:wrap;gap:6px 16px}
+.lr-key{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--navy)}
+.lr-swatch{display:inline-block;width:18px;height:13px;border-radius:3px;box-sizing:border-box}
+.lr-swatch--own{background:var(--navy)}
+.lr-swatch--mixed{background:repeating-linear-gradient(135deg,var(--blue-soft) 0 3px,var(--white) 3px 6px);border:1px solid var(--blue)}
+.lr-swatch--cp{background:#E8EFF5;border:1px solid rgba(31,78,110,.45)}
+.lr-swatch--line{height:0;border-top:3px dashed var(--rust-strong);border-radius:0}
+.lr-terms{color:var(--ink-3);font-size:12.5px}
+/* Side panel: the selected zone (announced) and the zone list (also the phone list). */
+.layers-side{display:flex;flex-direction:column;gap:10px;min-width:0}
+.zone-detail{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--cream);min-height:92px}
+.zd-hint{margin:0;font-size:14px;color:var(--ink-3)}
+.zd-title{margin:0 0 4px;font-family:var(--f-display);font-size:17px;font-weight:700}
+.zd-who{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--blue)}
+.zd-who.is-own{color:var(--navy)}
+.zd-rows{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.zd-rows li{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;line-height:1.35;
+            padding-bottom:5px;border-bottom:1px solid var(--line-soft)}
+.zd-rows .zd-cell{font-weight:600;text-align:right}
+.zd-note{margin:8px 0 0;font-size:12.5px;line-height:1.45;color:var(--ink-3)}
+.zone-detail p{font-size:13.5px;line-height:1.5}
+.zone-detail p:last-child{margin-bottom:0}
+.zone-detail a{color:var(--blue);font-weight:600}
+.zd-src{font-size:12px;color:var(--ink-3)}
+.lr-cloud-note{margin:0;font-size:13px;line-height:1.45;color:var(--ink-2);padding:8px 12px;border-left:3px solid var(--rust-strong);background:var(--white)}
+.lr-cloud-note[hidden]{display:none}
+.zone-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.zone-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;cursor:pointer;
+          font:inherit;font-size:14px;color:var(--navy);background:#E8EFF5;border:1px solid rgba(31,78,110,.35);
+          border-radius:8px;padding:8px 11px}
+.zone-btn.is-own{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.zone-btn.is-mixed{background:repeating-linear-gradient(135deg,#D7E3EC 0 6px,#EEF3F7 6px 12px);border-color:var(--blue)}
+.zone-btn .zone-name{font-weight:600}
+.zone-btn .zone-who{font-size:12.5px;font-weight:600;text-align:right}
+.zone-btn:hover,.zone-btn.is-hot{box-shadow:0 0 0 2px var(--blue)}
+.zone-btn[aria-pressed="true"]{box-shadow:0 0 0 3px var(--navy),0 0 0 5px var(--white)}
+.zone-btn:focus-visible,.marker-btn:focus-visible,.stairs-toggle:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+.lr-markers{display:flex;gap:8px;flex-wrap:wrap}
+.marker-btn{display:inline-flex;align-items:center;gap:7px;font:600 13px var(--f-body);color:var(--navy);background:var(--white);
+            border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.marker-btn[aria-pressed="true"]{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy)}
+.marker-dot{width:12px;height:12px;border-radius:50%;border:3px solid var(--navy);box-sizing:border-box;background:var(--rust-strong)}
+.marker-dot--heat{background:#C2412D}
+/* Staircase */
+.stairs{display:flex;flex-direction:column;gap:10px}
+.stairs-toggle{align-self:flex-start;font:600 14px var(--f-body);color:var(--navy);background:var(--white);
+               border:1.5px solid var(--navy);border-radius:999px;padding:7px 16px;cursor:pointer}
+.stairs-toggle::after{content:" ↓"}
+.stairs-toggle[aria-expanded="true"]::after{content:" ↑"}
+.stairs-wrap[hidden]{display:none}
+.stairs-wrap{display:flex;flex-direction:column;gap:8px}
+.stairs-wrap .scroll-x{--fade-to:var(--white)}
+.stairs-table{border-collapse:separate;border-spacing:3px;width:100%;min-width:760px;font-size:13px;line-height:1.3}
+.stairs-table th,.stairs-table td{padding:6px 9px;border-radius:5px;text-align:left;vertical-align:middle}
+.stairs-table thead th{font-family:var(--f-display);font-size:14px;font-weight:700;color:var(--navy)}
+.stairs-table tbody th[scope="row"]{font-weight:600;color:var(--navy);background:var(--cream);width:22%}
+.stairs-table .stairs-group th{padding:9px 2px 2px;font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--rust);background:none}
+.stairs-table td.own{background:var(--navy);color:var(--white);font-weight:600}
+.stairs-table td.mixed{background:repeating-linear-gradient(135deg,#D7E3EC 0 6px,#EEF3F7 6px 12px);color:var(--navy);font-weight:600}
+.stairs-table td.cp{background:#E8EFF5;color:var(--blue)}
+.stairs-table tr.is-hot th[scope="row"],.stairs-table tr:hover th[scope="row"]{box-shadow:inset 0 0 0 2px var(--blue)}
+.stairs-table td.is-col{box-shadow:inset 0 0 0 2px var(--rust-strong)}
+.fn{font-size:.75em;margin-left:2px;color:var(--rust)}
+.stairs-notes{margin:0;padding-left:20px;font-size:12.5px;line-height:1.45;color:var(--ink-3)}
+.stairs-note{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2);max-width:980px}
+.layers-bridge{margin:6px 0 0;font-family:var(--f-display);font-size:16px;font-weight:600;line-height:1.4;color:var(--navy)}
+@media (max-width:1399px){
+  .layers-body{grid-template-columns:minmax(0,1fr)}
+  .layers-side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start}
+  .zone-detail{grid-row:span 2}
+  .lr-cloud-note,.zone-list,.lr-markers{grid-column:2}
+}
+@media (prefers-reduced-motion: reduce){
+  .lr-zone-shape,.lr-lines{transition:none}
+}
+
 /* Compact: tablet and phone */
 @media (max-width:1023px){
+  .layers{padding:16px 14px;gap:12px}
+  .layers-title{font-size:22px}
+  .layers-tabs{flex-wrap:nowrap;overflow-x:auto;margin:0 -14px;padding:2px 14px 6px;scrollbar-width:thin}
+  .layers-side{display:flex;align-items:stretch}  /* undo the 1399px grid's align-items:start */
+  .lr-label,.lr-leader,.lr-line-label,.lr-range-label,.lr-marker-label,.lr-marker-sub{display:none}
   .hub-head{flex-direction:column;align-items:flex-start;gap:8px}
   .hub-title{font-size:30px}
   .hub-lede{text-align:left;max-width:none}
@@ -180,7 +324,7 @@
   .path-line{flex:0 0 20px}
   .legend{padding-left:0}
   .legend-title{flex-basis:100%}
-  .legend-items{flex-wrap:wrap}  /* phones are narrower than the three keys together */
+  .legend-items{flex-wrap:wrap}  /* phones are narrower than the keys together */
 
   .matrix{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;
           margin:0 calc(-1 * var(--gutter));padding:2px var(--gutter) 8px;scroll-padding-left:var(--gutter)}
@@ -218,6 +362,128 @@
     </div>
   </div>
 
+  <section class="layers panel" id="kerrokset" aria-labelledby="h-layers">
+    <div class="layers-head">
+      <div class="kicker">DATAKESKUKSEN KERROKSET</div>
+      <h2 class="layers-title" id="h-layers">Mitä yritys hoitaa itse ja mitä se ostaa</h2>
+      <p class="layers-lede">Jokaisessa mallissa on koko datakeskus kiinteistöstä sovelluksiin. Mallit eroavat siinä, kuinka suuren osan yritys hoitaa itse ja kuinka suuren se ostaa vastapuolelta.</p>
+    </div>
+
+    <div class="layers-tabs" role="tablist" aria-label="Malli">
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-public-cloud" data-model="public-cloud" aria-selected="true" aria-controls="lr-panel">Julkinen pilvi</button>
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-gpu-cloud" data-model="gpu-cloud" aria-selected="false" aria-controls="lr-panel" tabindex="-1">GPU-pilvi</button>
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-retail-colocation" data-model="retail-colocation" aria-selected="false" aria-controls="lr-panel" tabindex="-1">Retail-colocation</button>
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-wholesale-colocation" data-model="wholesale-colocation" aria-selected="false" aria-controls="lr-panel" tabindex="-1">Wholesale-colocation</button>
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-own-data-center" data-model="own-data-center" aria-selected="false" aria-controls="lr-panel" tabindex="-1">Oma datakeskus</button>
+    </div>
+
+    <div class="layers-body" role="tabpanel" id="lr-panel" aria-labelledby="lr-tab-public-cloud">
+      <figure class="layers-figure">
+        <div class="layers-stage">
+          <img src="assets/datakeskus-kerrokset.webp" width="1672" height="941" alt="Läpileikkauskuva talvisessa maisemassa seisovasta datakeskuksesta. Ylimpänä pilvi ja sovellusnäkymät, niiden alla ohjelmistoalusta, palvelimet ja verkkolaitteet, palvelinsali aidattuine räkkeineen ja rakennuksen tekniikka: jäähdytyslaitteet, UPS-järjestelmät ja varavoimakoneet. Alimpana kiinteistö sähköasemineen ja muuntajineen, voimalinjat sekä kaukolämpöputki, joka johtaa kohti kaupunkia.">
+          <svg class="layers-svg" viewBox="0 0 1672 941" role="group" aria-label="Datakeskuksen kerrokset"></svg>
+        </div>
+        <figcaption class="layers-legend">
+          <div class="lr-keys">
+            <span class="lr-key"><span class="lr-swatch lr-swatch--own"></span>Itse</span>
+            <span class="lr-key"><span class="lr-swatch lr-swatch--mixed"></span>Jaettu tai riippuu palvelusta</span>
+            <span class="lr-key"><span class="lr-swatch lr-swatch--cp"></span>Vastapuoli</span>
+            <span class="lr-key"><span class="lr-swatch lr-swatch--line"></span>Vastuuraja</span>
+          </div>
+          <p><b>Itse</b> = yritys, joka tarvitsee laskentakapasiteettia. <b>Vastapuoli</b> = yhtiö, jolta se ostaa loput: CSP, GPU-pilvi, colocation-operaattori tai datakeskusoperaattori.</p>
+          <p><b>Vastuuraja (demarc):</b> kohta, jossa vastapuolen vastuu päättyy ja yrityksen oma vastuu alkaa. Pilvimalleissa raja on piirretty tyypilliseen kohtaansa, ja vaalea alue näyttää, minne se voi siirtyä.</p>
+          <p class="lr-terms">CSP (cloud service provider) = pilvipalveluyhtiö · colocation = vuokrattu konesalitila omille laitteille · turnkey = käyttövalmis sali sähkö- ja jäähdytysjärjestelmineen · powered shell = rakennus valmiine sähköliittymineen, tekniikka on vuokralaisen.</p>
+        </figcaption>
+      </figure>
+
+      <div class="layers-side">
+        <div class="zone-detail" id="lr-detail" aria-live="polite">
+          <p class="zd-hint">Valitse kerros kuvasta tai listasta.</p>
+        </div>
+        <p class="lr-cloud-note" id="lr-cloud-note">Raja riippuu ostetusta palvelusta: IaaS:ssä yritys hallitsee käyttöjärjestelmän, PaaS- ja SaaS-palveluissa vastapuoli hoitaa enemmän (shared responsibility model).</p>
+        <ol class="zone-list" aria-label="Kerrokset">
+          <li><button class="zone-btn" type="button" data-zone="z1"><span class="zone-name">Sovellukset, data ja ohjelmistot</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z2"><span class="zone-name">Ohjelmistoalusta</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z3"><span class="zone-name">Palvelimet ja verkko</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z4"><span class="zone-name">Palvelinsali</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z5"><span class="zone-name">Rakennuksen tekniikka</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z6"><span class="zone-name">Kiinteistö ja liittymä</span><span class="zone-who"></span></button></li>
+        </ol>
+        <div class="lr-markers">
+          <button class="marker-btn" type="button" data-marker="grid"><span class="marker-dot marker-dot--grid" aria-hidden="true"></span>Liittymispiste</button>
+          <button class="marker-btn" type="button" data-marker="heat"><span class="marker-dot marker-dot--heat" aria-hidden="true"></span>Hukkalämpö</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stairs">
+      <button class="stairs-toggle" type="button" aria-expanded="false" aria-controls="lr-stairs">Näytä kaikki mallit rinnakkain</button>
+      <div class="stairs-wrap" id="lr-stairs" hidden>
+        <div class="scroll-x"><div class="scroll-x__inner">
+          <table class="stairs-table">
+            <caption class="visually-hidden">Kuka hoitaa kunkin osan eri malleissa</caption>
+            <thead>
+              <tr><td></td><th scope="col" data-model="public-cloud">Julkinen pilvi</th><th scope="col" data-model="gpu-cloud">GPU-pilvi<sup class="fn">2</sup></th><th scope="col" data-model="retail-colocation">Retail-colocation</th><th scope="col" data-model="wholesale-colocation">Wholesale-colocation</th><th scope="col" data-model="own-data-center">Oma datakeskus</th></tr>
+            </thead>
+            <tbody>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">SOVELLUKSET JA DATA</th></tr>
+              <tr data-row="1" data-zone="z1"><th scope="row">Sovellukset ja tekoälymallit</th><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td></tr>
+              <tr data-row="2" data-zone="z1"><th scope="row">Data</th><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td></tr>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">ALUSTA</th></tr>
+              <tr data-row="3" data-zone="z1"><th scope="row">Käyttöjärjestelmä ja ohjelmistokirjastot</th><td class="mixed">Jaettu: IaaS itse, PaaS CSP</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td></tr>
+              <tr data-row="4" data-zone="z2"><th scope="row">Virtualisointi ja klusterin hallinta</th><td class="cp">CSP</td><td class="mixed">Itse (bare metal) / GPU-pilvi (hallittu)</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td></tr>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">LAITTEET</th></tr>
+              <tr data-row="5" data-zone="z3"><th scope="row">Palvelimet ja tallennus</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td></tr>
+              <tr data-row="6" data-zone="z3"><th scope="row">Verkkolaitteet</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="own">Itse</td><td class="own">Itse</td><td class="own">Itse</td></tr>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">KONESALI</th></tr>
+              <tr data-row="7" data-zone="z4"><th scope="row">Räkit ja sähkönsyöttö räkkiin</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="own">Itse</td><td class="own">Itse</td></tr>
+              <tr data-row="8" data-zone="z5"><th scope="row">Jäähdytys (ilma tai neste)</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="mixed">Turnkey: operaattori · Powered shell: itse</td><td class="own">Itse</td></tr>
+              <tr data-row="9" data-zone="z5"><th scope="row">UPS ja varavoima</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="mixed">Turnkey: operaattori · Powered shell: itse</td><td class="own">Itse</td></tr>
+              <tr data-row="10" data-zone="z5"><th scope="row">Kulunvalvonta ja fyysinen turvallisuus</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="mixed">Turnkey: operaattori · Powered shell: itse</td><td class="own">Itse</td></tr>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">KIINTEISTÖ JA ENERGIA</th></tr>
+              <tr data-row="11" data-zone="z6"><th scope="row">Tontti ja rakennus</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="cp">Datakeskusoperaattori</td><td class="own">Itse</td></tr>
+              <tr data-row="12" data-zone="z6"><th scope="row">Sähköliittymä ja muuntamo<sup class="fn">1</sup></th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="cp">Datakeskusoperaattori</td><td class="own">Itse</td></tr>
+              <tr data-row="13" data-zone="z6"><th scope="row">Sähkön hankinta</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori<sup class="fn">3</sup></td><td class="mixed">Itse tai läpilaskutettuna</td><td class="own">Itse</td></tr>
+              <tr data-row="14" data-zone="z6"><th scope="row">Rakennus- ja ympäristöluvat</th><td class="cp">CSP</td><td class="cp">GPU-pilvi</td><td class="cp">Colocation-operaattori</td><td class="cp">Datakeskusoperaattori</td><td class="own">Itse</td></tr>
+            </tbody>
+          </table>
+        </div></div>
+        <ol class="stairs-notes">
+          <li id="lr-fn1">Verkkoyhtiö vastaa verkosta liittymispisteeseen asti.</li>
+          <li id="lr-fn2">GPU-pilvi voi toimia omassa tai colocation-operaattorin datakeskuksessa.</li>
+          <li id="lr-fn3">Sähkö laskutetaan yleensä operaattorin laskulla (kW tai kWh).</li>
+        </ol>
+      </div>
+      <p class="stairs-note">Kerrokset eivät näytä kaikkia eroja. Julkisen pilven ja GPU-pilven ero on ennen kaikkea sitoumuksessa: GPU-pilvessä kapasiteetti varataan usein omaan käyttöön monivuotisella sopimuksella. Retail- ja wholesale-colocationin ero on mittakaavassa ja sopimuksessa: wholesale on kokonainen sali tai rakennus 5–15 vuoden vuokrasopimuksella. Pilvimalleissa vastuuraja riippuu myös ostetusta palvelusta.</p>
+    </div>
+
+    <!-- Text the script shows (kept here so tools/check_port_text.py sees every word). -->
+    <template id="lr-strings">
+      <span data-key="own">Itse</span>
+      <span data-key="handles">hoitaa</span>
+      <span data-key="handlesOwn">yritys hoitaa itse</span>
+      <span data-key="line">Vastuuraja</span>
+      <span data-key="typical">Vastuuraja, tyypillisesti</span>
+      <span data-key="turnkey">Vastuuraja: turnkey</span>
+      <span data-key="shell">Vastuuraja: powered shell</span>
+      <span data-key="rangePublic">PaaS ja SaaS</span>
+      <span data-key="rangeGpu">hallittu palvelu</span>
+      <span data-key="hide">Piilota rinnakkaisnäkymä</span>
+    </template>
+    <template id="lr-grid">
+      <h3 class="zd-title">Liittymispiste</h3>
+      <p>Liittymispiste: verkkoyhtiön vastuu päättyy tähän. Sähkö ostetaan erikseen (rivi Sähkön hankinta). Kohta on sama kaikissa malleissa, myös omassa datakeskuksessa.</p>
+    </template>
+    <template id="lr-heat">
+      <h3 class="zd-title">Hukkalämpö kaukolämpöverkkoon</h3>
+      <p>Datakeskuksen omistaja tai operaattori voi myydä palvelinten hukkalämmön kaukolämpöyhtiölle. Mäntsälän datakeskus on myynyt hukkalämpöä paikalliseen kaukolämpöverkkoon vuodesta 2015; sen rakensi Yandex, nykyään se on Nebiuksen. Microsoftin ja Fortumin sopimuksessa hukkalämmön talteenotto Microsoftin datakeskuksista Espoossa ja Kirkkonummella alkaa vaiheittain vuodesta 2027.</p>
+      <p><a href="specialised-models.html#hukkalampo">Hukkalämmön myynti &rarr;</a></p>
+      <p class="zd-src">Lähteet: <a href="https://www.datacenterdynamics.com/en/news/yandex-data-center-heats-finnish-city" target="_blank" rel="noopener">DCD (2015)</a> · <a href="https://nebius.com/sustainability/turning-heat-into-a-resource" target="_blank" rel="noopener">Nebius</a> · <a href="https://www.fortum.com/en/media/2026/05/fortum-has-started-heat-production-two-large-data-centre-sites-finland" target="_blank" rel="noopener">Fortum (2026)</a></p>
+    </template>
+  </section>
+
+  <p class="layers-bridge">Yllä rakenne yleisesti. Alla samat mallit kuvitteellisen AI Oy:n kasvupolkuna: miksi yritys siirtyy mallista toiseen ja mitä se ostaa, sitoo ja riskeeraa.</p>
+
   <div class="path">
     <div class="path-label mono-label">AI OY:N KASVUPOLKU</div>
     <div class="path-from">Joustava, ei sidottua pääomaa, kallis yksikköhinta</div>
@@ -227,10 +493,9 @@
   </div>
 
   <div class="legend">
-    <div class="legend-title mono-label">KERROKSET: KIINTEISTÖ JA SÄHKÖ · JÄÄHDYTYS · PALVELIMET · ALUSTA · SOVELLUKSET JA DATA · KUKA OPEROI, EI KUKA OMISTAA:</div>
+    <div class="legend-title mono-label">VÄRIT:</div>
     <div class="legend-items">
       <div class="legend-item"><span class="swatch fill-own"></span>AI Oy</div>
-      <div class="legend-item"><span class="swatch fill-shared"></span>Jaettu</div>
       <div class="legend-item"><span class="swatch fill-blue"></span>Vastapuoli: pilvi- tai colocation-yhtiö</div>
     </div>
   </div>
@@ -240,7 +505,6 @@
       <div class="matrix-labels" aria-hidden="true">
         <div class="mlabel mono-label"></div>
         <div class="mlabel mono-label"></div>
-        <div class="mlabel mono-label">KERROKSET</div>
         <div class="mlabel mono-label">RAKENNUKSEN OMISTAA</div>
         <div class="mlabel mono-label mlabel--strong">AI OY OSTAA</div>
         <div class="mlabel mono-label">AI OY:N SITOUMUKSET</div>
@@ -256,13 +520,12 @@
       <article class="model panel" id="public-cloud" aria-labelledby="h-public-cloud">
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 1 · PUBLIC CLOUD</div></div>
         <div class="cell cell--title"><h2 id="h-public-cloud"><a class="quiet-link" href="public-cloud.html">Julkinen pilvi</a></h2></div>
-        <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span></div></div>
-        <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>Pilvipalvelun&shy;tarjoaja tai kiinteistö&shy;sijoittaja</span></div>
+        <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>CSP tai kiinteistö&shy;sijoittaja</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Palveluna kapasiteettia, alustaa tai ohjelmistoa</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Ei sitoumuksia, maksaa käytön mukaan</span></div>
         <div class="cell cell--text"><div class="cell-label">SOPIMUS · HINNOITTELU</div><span>Ei sitoumusta · käytön mukaan</span></div>
-        <div class="cell cell--text"><div class="cell-label">SÄHKÖN MAKSAA</div><span>Pilvipalvelun&shy;tarjoaja: sisältyy hintaan</span></div>
-        <div class="cell cell--risk"><div class="cell-label">KUKA KANTAA RISKIN</div><div class="risk"><div class="risk-box fill-blue"><div class="risk-k">KÄYTTÖASTE</div><div class="risk-v">Pilvipalvelun&shy;tarjoaja</div></div><div class="risk-box fill-blue"><div class="risk-k">LAITTEET</div><div class="risk-v">Pilvipalvelun&shy;tarjoaja</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">SÄHKÖN MAKSAA</div><span>CSP: sisältyy hintaan</span></div>
+        <div class="cell cell--risk"><div class="cell-label">KUKA KANTAA RISKIN</div><div class="risk"><div class="risk-box fill-blue"><div class="risk-k">KÄYTTÖASTE</div><div class="risk-v">CSP</div></div><div class="risk-box fill-blue"><div class="risk-k">LAITTEET</div><div class="risk-v">CSP</div></div></div></div>
         <div class="cell cell--text"><div class="cell-label">VASTAPUOLEN TULOT</div><span>Käyttöperusteiset maksut</span></div>
         <div class="cell cell--text"><div class="cell-label">MITTAKAAVA</div><span>Yksittäisistä <span class="gloss" data-g="gpu">GPU:ista</span> satoihin</span></div>
         <div class="cell cell--why"><div class="cell-label">MIKSI TÄHÄN VAIHEESEEN</div><span>Aloitus: ei investointeja, kapasiteettia saa heti</span></div>
@@ -272,7 +535,6 @@
       <article class="model panel" id="gpu-cloud" aria-labelledby="h-gpu-cloud">
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 2</div></div>
         <div class="cell cell--title"><h2 id="h-gpu-cloud"><a class="quiet-link" href="gpu-cloud.html">GPU-pilvi</a></h2></div>
-        <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>GPU-pilvi, operaattori tai kiinteistö&shy;sijoittaja</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Palveluna valmista, ylläpidettyä kapasiteettia</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Monivuotinen maksusitoumus, ei omia laitteita</span></div>
@@ -288,7 +550,6 @@
       <article class="model panel" id="retail-colocation" aria-labelledby="h-retail-colocation">
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 3</div></div>
         <div class="cell cell--title"><h2 id="h-retail-colocation"><a class="quiet-link" href="retail-colocation.html">Retail-colocation</a></h2></div>
-        <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-blue"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>Operaattori tai kiinteistö&shy;sijoittaja</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Tilaa ja palveluja: vuokran ja palvelun yhdistelmä</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Omat laitteet ja vuokravastuu</span></div>
@@ -304,7 +565,6 @@
       <article class="model panel" id="wholesale-colocation" aria-labelledby="h-wholesale-colocation">
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 4</div></div>
         <div class="cell cell--title"><h2 id="h-wholesale-colocation"><a class="quiet-link" href="wholesale-colocation.html">Wholesale-colocation</a></h2></div>
-        <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-blue"></span><span class="seg fill-shared"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>Operaattori tai kiinteistö&shy;sijoittaja</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Tilan käyttöoikeuden: lähellä kiinteistövuokraa</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Omat laitteet ja pitkä vuokravastuu</span></div>
@@ -320,7 +580,6 @@
       <article class="model panel" id="own-data-center" aria-labelledby="h-own-data-center">
         <div class="cell cell--stage"><div class="stage mono-label">VAIHE 5</div></div>
         <div class="cell cell--title"><h2 id="h-own-data-center"><a class="quiet-link" href="own-data-center.html">Oma datakeskus</a></h2></div>
-        <div class="cell"><div class="cell-label">KERROKSET</div><div class="segments" aria-hidden="true"><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span><span class="seg fill-own"></span></div></div>
         <div class="cell cell--text"><div class="cell-label">RAKENNUKSEN OMISTAA</div><span>AI Oy</span></div>
         <div class="cell cell--buys"><div class="cell-label">AI OY OSTAA</div><span>Ei mitään: rakentaa itse</span></div>
         <div class="cell cell--text"><div class="cell-label">AI OY:N SITOUMUKSET</div><span>Maa, rakennus, sähköliittymä ja laitteet</span></div>
@@ -380,7 +639,7 @@
     </section>
   </div>
 
-  <div class="terms-note fine-print"><b><a class="quiet-link" href="glossary.html">Termit:</a></b> julkinen pilvi (public cloud) = kaupallinen, monen asiakkaan jakama pilvipalvelu, ei julkisen sektorin pilvi · colocation = vuokrattu konesalitila omille laitteille · retail = räkkejä tai pieniä tiloja monelle asiakkaalle · wholesale = kokonainen sali tai rakennus yhdelle vuokralaiselle · räkki = laitekaappi · cross-connect = suora kaapeliyhteys osapuolten välillä · remote hands = operaattorin tekemät laitetyöt · take-or-pay = maksu käytöstä riippumatta · käyttöaste = kuka maksaa, jos varattu kapasiteetti jää käyttämättä; vuokraamattoman tai myymättömän kapasiteetin riski on palveluntarjoajalla (operaattorilla tai pilvipalveluntarjoajalla).<br>AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimuskestot ovat suuntaa-antavia. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
+  <div class="terms-note fine-print"><b><a class="quiet-link" href="glossary.html">Termit:</a></b> julkinen pilvi (public cloud) = kaupallinen, monen asiakkaan jakama pilvipalvelu, ei julkisen sektorin pilvi · colocation = vuokrattu konesalitila omille laitteille · retail = räkkejä tai pieniä tiloja monelle asiakkaalle · wholesale = kokonainen sali tai rakennus yhdelle vuokralaiselle · räkki = laitekaappi · cross-connect = suora kaapeliyhteys osapuolten välillä · remote hands = operaattorin tekemät laitetyöt · take-or-pay = maksu käytöstä riippumatta · käyttöaste = kuka maksaa, jos varattu kapasiteetti jää käyttämättä; vuokraamattoman tai myymättömän kapasiteetin riski on vastapuolella (CSP:llä, GPU-pilvellä tai operaattorilla).<br>AI Oy on kuvitteellinen; muut yhtiöt ovat todellisia. Sopimuskestot ovat suuntaa-antavia. Lähteet: yhtiöiden julkaisut ja alan uutisointi.</div>
 </main>
 
 <footer id="bm-footer" class="bm-footer"></footer>
@@ -388,6 +647,8 @@
 <script src="assets/glossary-fi.js"></script>
 <script src="assets/glossary.js"></script>
 <script src="assets/chrome.js"></script>
+<script src="assets/kerrokset-data.js"></script>
+<script src="assets/kerrokset.js"></script>
 <script>
 // Hub: matrix <-> growth-path stepper. The stepper (rendered by chrome.js)
 // selects a model; on compact screens it scrolls the swipe track, and
