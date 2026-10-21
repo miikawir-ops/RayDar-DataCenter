@@ -774,6 +774,13 @@ def suite_layers(b, run):
         pg.locator(f"#lr-tab-{m}").click()
         settle(pg, 500)
         vis.append(pg.evaluate("getComputedStyle(document.querySelector('.lr-marker--grid')).display !== 'none'"))
+    mb = pg.evaluate("""() => { const zb = getComputedStyle(document.querySelector('.lr-zone .lr-label-box')).fill;
+        return [...document.querySelectorAll('.lr-marker')].map(g => { const box = g.querySelector('.lr-marker-box'), b = box.getBBox();
+          const t = [...g.querySelectorAll('.lr-marker-label, .lr-marker-sub')].map(e => e.getBBox());
+          return [g.dataset.marker, b.width > 0 && t.every(r => r.x >= b.x && r.y >= b.y && r.x + r.width <= b.x + b.width
+                  && r.y + r.height <= b.y + b.height), getComputedStyle(box).fill === zb] }) }""")
+    check("layers: the connection-point and waste-heat labels sit in white boxes like the zone callouts (R65)",
+          mb == [["grid", True, True], ["heat", True, True]], str(mb))
     pg.locator(".lr-marker--grid .lr-marker-ring").click()
     settle(pg, 200)
     gd = pg.evaluate("document.getElementById('lr-detail').textContent")

@@ -232,8 +232,9 @@
 .lr-heat-shape{fill:transparent;stroke:transparent;stroke-width:4}
 .lr-marker:hover .lr-heat-shape,.lr-marker.is-selected .lr-heat-shape{fill:rgba(194,65,45,.16);stroke:#C2412D}
 .lr-marker:hover .lr-marker-ring,.lr-marker:focus-visible .lr-marker-ring,.lr-marker.is-selected .lr-marker-ring{stroke:var(--blue);stroke-width:7}
-.lr-marker-label{font:700 21px var(--f-body);fill:var(--navy);paint-order:stroke;stroke:rgba(255,255,255,.95);stroke-width:7px}
-.lr-marker-sub{font:500 19px var(--f-body);fill:var(--navy);paint-order:stroke;stroke:rgba(255,255,255,.95);stroke-width:7px}
+.lr-marker-label{font:700 21px var(--f-body);fill:var(--navy)}
+.lr-marker-sub{font:500 19px var(--f-body);fill:var(--navy)}
+.lr-marker.is-selected .lr-marker-box,.lr-marker:focus-visible .lr-marker-box{stroke:var(--navy);stroke-width:3.5}
 /* Legend */
 .layers-legend{display:flex;flex-direction:column;gap:5px;font-size:13px;line-height:1.45;color:var(--ink-2)}
 .layers-legend p{margin:0}
@@ -320,7 +321,7 @@
   .layers-title{font-size:22px}
   .layers-tabs{flex-wrap:nowrap;overflow-x:auto;margin:0 -14px;padding:2px 14px 6px;scrollbar-width:thin}
   .layers-side{display:flex;align-items:stretch}  /* undo the 1399px grid's align-items:start */
-  .lr-label,.lr-leader,.lr-line-label,.lr-range-label,.lr-marker-label,.lr-marker-sub{display:none}
+  .lr-label,.lr-leader,.lr-line-label,.lr-range-label,.lr-marker-label,.lr-marker-sub,.lr-marker-box{display:none}
   .hub-head{flex-direction:column;align-items:flex-start;gap:8px}
   .hub-title{font-size:30px}
   .hub-lede{text-align:left;max-width:none}

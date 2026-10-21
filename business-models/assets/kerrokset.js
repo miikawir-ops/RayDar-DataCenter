@@ -109,7 +109,7 @@
     cur: null, raf: 0, on: false,
   }));
 
-  const markerEls = {};
+  const markerEls = {}, markerLabels = {};
   [["grid", D.grid], ["heat", D.heat]].forEach(([k, m]) => {
     const tpl = root.querySelector("#lr-" + k).content;
     const title = tpl.querySelector(".zd-title").textContent.trim();
@@ -118,7 +118,11 @@
     if (m.poly) el("polygon", { class: "lr-heat-shape", points: pts(m.poly) }, g);
     el("circle", { class: "lr-marker-ring", cx: m.at[0], cy: m.at[1], r: 13 }, g);
     el("circle", { class: "lr-marker-dot", cx: m.at[0], cy: m.at[1], r: 5 }, g);
+    // A white box behind the label, like the zone callouts (R65); sized in sizeLabels().
+    const box = el("rect", { class: "lr-label-box lr-marker-box", rx: 10 }, g);
     const t = el("text", { class: "lr-marker-label", x: m.label[0], y: m.label[1] }, g);
+    const texts = [t];
+    let leader = null;
     if (k === "grid") {
       // The brief's label, "Liittymispiste: verkkoyhtiön vastuu päättyy tähän.",
       // from the template's first sentence, in three short lines over the forest.
@@ -127,13 +131,16 @@
       t.textContent = head + ":";
       const words = rest.split(" "), half = Math.ceil(words.length / 2);
       [words.slice(0, half).join(" "), words.slice(half).join(" ")].forEach((line, i) => {
-        el("text", { class: "lr-marker-sub", x: m.label[0], y: m.label[1] + 25 * (i + 1) }, g).textContent = line;
+        const sub = el("text", { class: "lr-marker-sub", x: m.label[0], y: m.label[1] + 25 * (i + 1) }, g);
+        sub.textContent = line;
+        texts.push(sub);
       });
-      el("line", { class: "lr-leader", x1: m.label[0] + 90, y1: m.label[1] + 60, x2: m.at[0] - 10, y2: m.at[1] - 10 }, g);
+      leader = el("line", { class: "lr-leader", x1: m.label[0] + 90, y1: m.label[1] + 60, x2: m.at[0] - 10, y2: m.at[1] - 10 }, g);
     } else {
       t.textContent = title;
     }
     markerEls[k] = g;
+    markerLabels[k] = { box, texts, leader };
   });
 
   // -- State -----------------------------------------------------------------
@@ -144,6 +151,20 @@
         const w = Math.max(ze.name.getComputedTextLength(), ze.who.getComputedTextLength());
         if (w > 0) ze.box.setAttribute("width", Math.ceil(w + 28));
       } catch (e) { /* hidden on phones: no layout, nothing to size */ }
+    });
+    Object.keys(markerLabels).forEach((k) => {
+      const ml = markerLabels[k];
+      try {
+        const bb = ml.texts.map((t) => t.getBBox()).filter((r) => r.width > 0);
+        if (!bb.length) return;
+        const x0 = Math.min(...bb.map((r) => r.x)), y0 = Math.min(...bb.map((r) => r.y));
+        const x1 = Math.max(...bb.map((r) => r.x + r.width)), y1 = Math.max(...bb.map((r) => r.y + r.height));
+        ml.box.setAttribute("x", x0 - 14);
+        ml.box.setAttribute("y", y0 - 8);
+        ml.box.setAttribute("width", Math.ceil(x1 - x0 + 28));
+        ml.box.setAttribute("height", Math.ceil(y1 - y0 + 16));
+        if (ml.leader) ml.leader.setAttribute("y1", y1 + 8);     // from the box's lower edge
+      } catch (e) { /* hidden on phones */ }
     });
   }
 
