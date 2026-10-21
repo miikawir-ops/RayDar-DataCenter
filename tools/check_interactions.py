@@ -642,6 +642,13 @@ def suite_layers(b, run):
         check(f"layers {m}: zone fills match the legend (Itse navy, shared hatched, counterparty light), no outline at rest (R65)",
               all(ZONE_FILL[v.split(":")[0]] in fills[z][0] and fills[z][1] in ("none", "rgba(0, 0, 0, 0)") for z, v in zones.items()),
               str(fills))
+        if rng:
+            band = pg.evaluate("""(m) => { const D = window.BM_LAYERS, r = document.querySelector('.lr-range'), [a, b] = D.models[m].range;
+                const p = q => q.map(x => x.join(',')).join(' ');
+                return [r.getAttribute('points') === p(D.gaps[a].concat(D.gaps[b].slice().reverse())), getComputedStyle(r).fill,
+                        getComputedStyle(r).stroke, document.querySelectorAll('.lr-range-edge').length] }""", m)
+            check(f"layers {m}: the range is a light shaded band from the typical line to the range end, no dotted line (R65)",
+                  band == [True, "rgba(251, 234, 220, 0.55)", "none", 0], str(band))
         con = pg.evaluate(LABEL_CONTRAST)
         check(f"layers {m}: every label on the picture has contrast >= 4.5 against its box or halo, even over black (R65)",
               len(con) >= 12 and min(r for _, r in con) >= 4.5, str(sorted(con, key=lambda c: c[1])[:3]))

@@ -100,7 +100,6 @@
 
   const gLines = el("g", { class: "lr-lines" }, svg);
   const range = el("polygon", { class: "lr-range" }, gLines);
-  const rangeEdge = el("polyline", { class: "lr-range-edge" }, gLines);
   const rangeLabel = el("text", { class: "lr-range-label", "text-anchor": "end" }, gLines);
   const lines = [0, 1].map(() => ({
     halo: el("polyline", { class: "lr-line-halo" }, gLines),
@@ -236,13 +235,12 @@
     if (m.range) {
       const up = D.gaps[m.range[0]], low = D.gaps[m.range[1]];
       range.setAttribute("points", pts(up.concat(low.slice().reverse())));
-      rangeEdge.setAttribute("points", pts(up));
       rangeLabel.setAttribute("x", up[0][0] - 12);
       rangeLabel.setAttribute("y", up[0][1] + 7);
       rangeLabel.textContent = model === "public-cloud" ? T.rangePublic : T.rangeGpu;
-      [range, rangeEdge, rangeLabel].forEach((e) => { e.style.display = ""; });
+      [range, rangeLabel].forEach((e) => { e.style.display = ""; });
     } else {
-      [range, rangeEdge, rangeLabel].forEach((e) => { e.style.display = "none"; });
+      [range, rangeLabel].forEach((e) => { e.style.display = "none"; });
     }
     cloudNote.hidden = !m.range;
     heads.forEach((th, i) => {
