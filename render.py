@@ -1029,6 +1029,9 @@ const LAYERS       = {layers_js};
 const HISTORY      = {history_js};
 const CAPEX        = {capex_js};
 const HAS_YESTERDAY= {has_yesterday};
+// False while any card is on a single session's reading (the page line shows):
+// then the chain bar names scores, not trends (ledger R63).
+const CONFIRMED_HISTORY = {"false" if single_day else "true"};
 const PREV_LABEL   = {json.dumps(prev_label)};
 
 const CC = {{
@@ -1138,34 +1141,41 @@ function toggleAbout() {{
   btn.innerHTML = open ? "✕ Close" : "ℹ️ About this dashboard";
 }}
 
-function buildBottleneckStrip() {{
+// layers/confirmed default to the page's own; tools/check_confirmation.py passes others.
+function buildBottleneckStrip(layers = LAYERS, confirmed = CONFIRMED_HISTORY) {{
   const strip = document.getElementById("bottleneck-strip");
   if (!strip) return;
-  const scored = LAYERS.filter(l => !l.insufficient);
+  const scored = layers.filter(l => !l.insufficient);
   if (scored.length === 0) {{ strip.innerHTML = `<span style="color:#888780">No sub-layers scored this run.</span>`; return; }}
-  const sorted    = [...scored].sort((a,b) => b.score - a.score);
-  const hotLayers = sorted.filter(l => l.color === "Red");
-  const emerging  = sorted.find(l => l.color === "Orange");
-  const easing    = sorted.find(l => l.color === "Blue");
-  const ease      = easing || sorted[sorted.length-1];
+  const sorted = [...scored].sort((a,b) => b.score - a.score);
+  const label  = t => `<span style="color:#888780">${{t}}</span>`;
+  const named  = l => `<strong style="color:${{(CC[l.color]||CC.Green).border}}">${{l.n1}}</strong>`;
+  const scored_ = l => `<strong style="color:${{(CC[l.color]||CC.Green).border}}">${{l.n1}} (${{l.score.toFixed(0)}})</strong>`;
+  const arrow  = `<span style="color:#B4B2A9;margin:0 4px">→</span>`;
+  const dot    = `<span style="color:#B4B2A9;margin:0 4px">·</span>`;
+  const highest = label("Highest score:") + scored_(sorted[0]);
+  const lowest  = label("Lowest score:") + scored_(sorted[sorted.length-1]);
 
-  let html = "";
-  if (hotLayers.length > 0) {{
-    html += `<span style="color:#888780">Bottleneck${{hotLayers.length > 1 ? "s" : ""}}:</span>`;
-    hotLayers.forEach((l, i) => {{
-      html += `<strong style="color:#E24B4A">${{l.n1}}</strong>`;
-      if (i < hotLayers.length - 1) html += `<span style="color:#E24B4A;margin:0 2px">+</span>`;
-    }});
+  // Trend words only when the colours rest on stored history (ledger R63):
+  // a confirmed Red is a bottleneck, Orange emerging, Blue easing. Without
+  // them, or before confirmation has history, the bar names the highest and
+  // the lowest score.
+  let html;
+  if (!confirmed) {{
+    html = highest + dot + lowest;
+  }} else {{
+    const hot      = sorted.filter(l => l.color === "Red");
+    const emerging = sorted.find(l => l.color === "Orange");
+    const easing   = sorted.find(l => l.color === "Blue");
+    const first = [];
+    if (hot.length) first.push(label(`Bottleneck${{hot.length > 1 ? "s" : ""}}:`) +
+                               hot.map(named).join(`<span style="color:#E24B4A;margin:0 2px">+</span>`));
+    if (emerging) first.push(label("Emerging:") + named(emerging));
+    if (!first.length) first.push(highest);
+    const last = easing ? label("Easing:") + named(easing) : lowest;
+    html = first.join(arrow) + (hot.length || emerging || easing ? arrow : dot) + last;
   }}
-  if (emerging) {{
-    html += `<span style="color:#B4B2A9;margin:0 4px">→</span>`;
-    html += `<span style="color:#888780">Emerging:</span>`;
-    html += `<strong style="color:#EF9F27">${{emerging.n1}}</strong>`;
-  }}
-  html += `<span style="color:#B4B2A9;margin:0 4px">→</span>`;
-  html += `<span style="color:#888780">Easing:</span>`;
-  html += `<strong style="color:${{(CC[ease.color]||CC.Green).border}}">${{ease.n1}}</strong>`;
-  const insuffCount = LAYERS.length - scored.length;
+  const insuffCount = layers.length - scored.length;
   if (insuffCount > 0) html += `<span style="color:#B4B2A9;margin-left:6px">(${{insuffCount}} insufficient data)</span>`;
   strip.innerHTML = html;
 }}
