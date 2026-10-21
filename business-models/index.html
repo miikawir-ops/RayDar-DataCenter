@@ -196,10 +196,11 @@
 .layers-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 /* SVG overlay. Fills differ in lightness, not only hue; every state also has text. */
 .lr-zone{cursor:pointer;outline:none}
-.lr-zone-shape{fill:transparent;stroke:transparent;stroke-width:3;transition:fill .25s,stroke .25s}
-.lr-zone.is-own .lr-zone-shape{fill:rgba(18,34,46,.08);stroke:var(--navy);stroke-width:2.5}
-.lr-zone.is-mixed .lr-zone-shape{fill:url(#lr-hatch);stroke:var(--blue);stroke-width:3;stroke-dasharray:10 6}
-.lr-zone.is-cp .lr-zone-shape{fill:rgba(232,239,245,.45);stroke:rgba(31,78,110,.35);stroke-width:1.5}
+/* Fills match the legend (R65): Itse translucent navy, shared hatched, counterparty a light wash; no outline at rest. */
+.lr-zone-shape{fill:transparent;stroke:transparent;stroke-width:3;transition:fill .35s,stroke .25s}
+.lr-zone.is-own .lr-zone-shape{fill:rgba(18,34,46,.5)}
+.lr-zone.is-mixed .lr-zone-shape{fill:url(#lr-hatch)}
+.lr-zone.is-cp .lr-zone-shape{fill:rgba(232,239,245,.4)}
 /* Rust is kept for the demarc line alone: hover is blue, the selected or focused zone navy. */
 .lr-zone:hover .lr-zone-shape,.lr-zone.is-hot .lr-zone-shape{stroke:var(--blue);stroke-width:5}
 .lr-zone:focus-visible .lr-zone-shape{stroke:var(--navy);stroke-width:7;stroke-dasharray:none}

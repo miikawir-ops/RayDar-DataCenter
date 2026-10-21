@@ -41,6 +41,7 @@
 
   let model = (tabs.find((t) => t.getAttribute("aria-selected") === "true") || tabs[0]).dataset.model;
   let selected = null;     // {zone: "z4"} or {marker: "heat"}
+  let ownBefore = null;    // zones the previous model handled itself
 
   function el(name, attrs, parent) {
     const e = document.createElementNS(NS, name);
@@ -64,15 +65,15 @@
   // -- Build the overlay ---------------------------------------------------
   const defs = el("defs", {}, svg);
   const pat = el("pattern", { id: "lr-hatch", width: 14, height: 14, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
-  el("rect", { width: 14, height: 14, fill: "rgba(255,255,255,.30)" }, pat);
-  el("rect", { width: 5, height: 14, fill: "rgba(31,78,110,.32)" }, pat);
+  el("rect", { width: 14, height: 14, fill: "rgba(232,239,245,.45)" }, pat);
+  el("rect", { width: 6, height: 14, fill: "rgba(18,34,46,.45)" }, pat);
 
   const zoneEls = {};
   const gZones = el("g", { class: "lr-zones" }, svg);
   Object.keys(D.zones).forEach((z) => {
     const d = D.zones[z];
     const g = el("g", { class: "lr-zone", "data-zone": z, tabindex: "0", role: "button", "aria-pressed": "false" }, gZones);
-    el("polygon", { class: "lr-zone-shape", points: pts(d.poly) }, g);
+    const shape = el("polygon", { class: "lr-zone-shape", points: pts(d.poly) }, g);
     const right = d.poly.reduce((a, p) => (p[0] > a[0] ? p : a));
     el("line", { class: "lr-leader", x1: right[0] + 6, y1: right[1], x2: d.label[0], y2: d.label[1] + 31 }, g);
     const lab = el("g", { class: "lr-label" }, g);
@@ -80,7 +81,7 @@
     const name = el("text", { class: "lr-label-name", x: d.label[0] + 14, y: d.label[1] + 27 }, lab);
     name.textContent = zoneName[z];
     const who = el("text", { class: "lr-label-who", x: d.label[0] + 14, y: d.label[1] + 52 }, lab);
-    zoneEls[z] = { g, box, name, who };
+    zoneEls[z] = { g, shape, box, name, who };
   });
 
   const gLines = el("g", { class: "lr-lines" }, svg);
@@ -161,6 +162,13 @@
       t.tabIndex = on ? 0 : -1;
     });
     panel.setAttribute("aria-labelledby", "lr-tab-" + model);
+    // The dark share grows downwards zone by zone (and shrinks from the bottom up).
+    const order = Object.keys(zoneEls), grows = ownBefore === null || m.own.length >= ownBefore;
+    order.forEach((z, i) => {
+      const d = animate && !reduce.matches ? (grows ? i : order.length - 1 - i) * 80 : 0;
+      zoneEls[z].shape.style.transitionDelay = d + "ms, 0ms";
+    });
+    ownBefore = m.own.length;
     Object.keys(zoneEls).forEach((z) => {
       const st = status(z, model), ze = zoneEls[z];
       ze.g.classList.remove("is-own", "is-mixed", "is-cp");

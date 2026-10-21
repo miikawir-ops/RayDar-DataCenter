@@ -535,6 +535,29 @@ STAIRS = [
     ("Sähkön hankinta", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Itse tai läpilaskutettuna", "Itse"]),
     ("Rakennus- ja ympäristöluvat", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Datakeskusoperaattori", "Itse"]),
 ]
+# R65: the zone fills by state (computed style), and WCAG contrast of the overlay's labels.
+ZONE_FILL = {"own": "rgba(18, 34, 46, 0.5)", "mixed": "lr-hatch", "cp": "rgba(232, 239, 245, 0.4)"}
+LAYER_FILLS = """() => Object.fromEntries([...document.querySelectorAll('.lr-zone')].map(g => {
+  const cs = getComputedStyle(g.querySelector('.lr-zone-shape')); return [g.dataset.zone, [cs.fill, cs.stroke]] }))"""
+# Worst case: each label's backing (box or halo) composited over black, the darkest the picture or a fill can be.
+LABEL_CONTRAST = """() => {
+  const rgba = s => { const m = s.match(/[\d.]+/g).map(Number); return [m[0], m[1], m[2], m.length > 3 ? m[3] : 1] };
+  const over = (c, b) => [0, 1, 2].map(i => c[i] * c[3] + b[i] * (1 - c[3]));
+  const lum = c => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4) };
+                     return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]) };
+  const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05) };
+  const out = [];
+  document.querySelectorAll('.lr-zone').forEach(g => {
+    const box = over(rgba(getComputedStyle(g.querySelector('.lr-label-box')).fill), [0, 0, 0]);
+    ['.lr-label-name', '.lr-label-who'].forEach(s => out.push([g.dataset.zone + s,
+      ratio(over(rgba(getComputedStyle(g.querySelector(s)).fill), box), box)]));
+  });
+  document.querySelectorAll('.lr-line-label, .lr-range-label').forEach(t => {
+    if (t.style.display === 'none') return;
+    const cs = getComputedStyle(t), halo = over(rgba(cs.stroke), [0, 0, 0]);
+    out.push([t.getAttribute('class') + ':' + t.textContent, ratio(over(rgba(cs.fill), halo), halo)]);
+  });
+  return out }"""
 LAYER_STATE = """() => {
   const D = window.BM_LAYERS;
   const zones = Object.fromEntries([...document.querySelectorAll('.lr-zone')].map(g => [g.dataset.zone,
@@ -597,7 +620,7 @@ def suite_layers(b, run):
     # Every model: zones, labels, the list, the demarc line(s), the range and the cloud note.
     for m in LAYER_MODELS:
         pg.locator(f"#lr-tab-{m}").click()
-        settle(pg, 650)
+        settle(pg, 1000)    # the last zone's fill starts 400ms late (R65 stagger) and takes 350ms
         s = pg.evaluate(LAYER_STATE)
         zones, lines, rng = LAYER_EXPECT[m]
         got_lines = [(l["pts"], l["label"]) for l in s["lines"]]
@@ -608,6 +631,28 @@ def suite_layers(b, run):
         check(f"layers {m}: demarc line(s) in the right gap(s), labelled", got_lines == want_lines, str(got_lines))
         check(f"layers {m}: the range band and the shared-responsibility note only for the cloud models",
               s["range"] == rng and s["cloudNote"] == rng, f"range {s['range']}, note {s['cloudNote']}")
+        fills = pg.evaluate(LAYER_FILLS)
+        check(f"layers {m}: zone fills match the legend (Itse navy, shared hatched, counterparty light), no outline at rest (R65)",
+              all(ZONE_FILL[v.split(":")[0]] in fills[z][0] and fills[z][1] in ("none", "rgba(0, 0, 0, 0)") for z, v in zones.items()),
+              str(fills))
+        con = pg.evaluate(LABEL_CONTRAST)
+        check(f"layers {m}: every label on the picture has contrast >= 4.5 against its box or halo, even over black (R65)",
+              len(con) >= 12 and min(r for _, r in con) >= 4.5, str(sorted(con, key=lambda c: c[1])[:3]))
+
+    # R65: the dark (Itse) share is the top of the building and grows downwards from tab to tab.
+    owns = [[z for z, v in sorted(LAYER_EXPECT[m][0].items()) if v.startswith("own:")] for m in LAYER_MODELS]
+    check("layers: across the tabs the Itse zones are always the top ones, and their count only grows (1, 1, 3, 4, 6)",
+          [len(o) for o in owns] == [1, 1, 3, 4, 6] and all(o == ["z%d" % (i + 1) for i in range(len(o))] for o in owns), str(owns))
+    pg.locator("#lr-tab-public-cloud").click()
+    settle(pg, 900)
+    pg.locator("#lr-tab-own-data-center").click()
+    down = pg.evaluate("[...document.querySelectorAll('.lr-zone-shape')].map(s => parseFloat(getComputedStyle(s).transitionDelay))")
+    settle(pg, 900)
+    pg.locator("#lr-tab-public-cloud").click()
+    up = pg.evaluate("[...document.querySelectorAll('.lr-zone-shape')].map(s => parseFloat(getComputedStyle(s).transitionDelay))")
+    settle(pg, 900)
+    check("layers: switching tabs fills the zones top-down when the Itse share grows, bottom-up when it shrinks",
+          down == sorted(down) and down[0] < down[-1] and up == sorted(up, reverse=True) and up[0] > up[-1], f"{down} {up}")
 
     # The line slides between gaps; with reduced motion it jumps.
     pg.locator("#lr-tab-public-cloud").click()
