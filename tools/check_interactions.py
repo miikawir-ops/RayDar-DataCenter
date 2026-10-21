@@ -535,6 +535,10 @@ STAIRS = [
     ("Sähkön hankinta", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Itse tai läpilaskutettuna", "Itse"]),
     ("Rakennus- ja ympäristöluvat", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Datakeskusoperaattori", "Itse"]),
 ]
+# R69: zone names and the one-line description at the top of each zone panel.
+ZONE_NAMES = {"z1": "Sovellukset, data ja ohjelmistot", "z2": "Ohjelmistoalusta", "z3": "IT-laitteet",
+              "z4": "Salitila ja räkit", "z5": "Rakennuksen tekniikka", "z6": "Kiinteistö ja liittymä"}
+ZONE_DESC = {z: t for z, t in [('z1', 'Se, mitä varten kapasiteettia tarvitaan: sovellukset, tekoälymallit, niiden data ja käyttöjärjestelmä.'), ('z2', 'Kerros, joka jakaa laitteiden kapasiteetin käyttöön: virtualisointi ja klusterin hallinta.'), ('z3', 'Laitteet, jotka tekevät varsinaisen laskennan ja tallennuksen: palvelimet, tallennusjärjestelmät ja verkkolaitteet.'), ('z4', 'Tila, johon IT-laitteet asennetaan: räkit, häkit ja sähkönsyöttö räkkiin. Täällä ei itse lasketa mitään.'), ('z5', 'Järjestelmät, jotka pitävät salin käynnissä: jäähdytys, UPS, varavoima ja kulunvalvonta.'), ('z6', 'Tontti, rakennus, sähköliittymä ja muuntamo, sähkön hankinta ja luvat.')]}
 # R65: the side panel's default, per model (Ray's texts; three corrected against the cell table, approved 2026-10-21).
 LAYER_SUMMARY = {
     "public-cloud": "Yritys hoitaa sovellukset ja datan, IaaS-palvelussa myös käyttöjärjestelmän. CSP hoitaa kaiken muun virtualisoinnista kiinteistöön.",
@@ -744,8 +748,8 @@ def suite_layers(b, run):
     pg.locator("#lr-tab-retail-colocation").click()
     settle(pg, 650)
     lab = pg.locator(".lr-zone[data-zone=z4]").get_attribute("aria-label")
-    check("layers: zone labels describe the selected model, e.g. 'Palvelinsali: Colocation-operaattori hoitaa'",
-          lab == "Palvelinsali: Colocation-operaattori hoitaa", lab)
+    check("layers: zone labels describe the selected model, e.g. 'Salitila ja räkit: Colocation-operaattori hoitaa'",
+          lab == "Salitila ja räkit: Colocation-operaattori hoitaa", lab)
     pg.locator(".lr-zone[data-zone=z6]").focus()
     pg.keyboard.press("Enter")
     settle(pg, 200)
@@ -757,6 +761,17 @@ def suite_layers(b, run):
     check("layers: Enter on a zone opens its rows and who handles each (retail, Kiinteistö ja liittymä)",
           d["title"] == "Kiinteistö ja liittymä" and d["rows"] == [[n, c[2]] for n, c in STAIRS[10:14]] and d["pressed"] == ["true", "true"],
           str(d))
+    descs = {}
+    for z in ("z1", "z2", "z3", "z4", "z5", "z6"):
+        pg.locator(f".zone-btn[data-zone={z}]").click()
+        settle(pg, 120)
+        descs[z] = pg.evaluate("""() => { const t = document.querySelector('#lr-detail .zd-title'), d = document.querySelector('#lr-detail .zd-desc');
+            return [t && t.textContent, d && d.textContent, d && t && t.nextElementSibling === d] }""")
+    check("layers: each zone panel opens with its one-line description under the title; Z3 and Z4 renamed (R69)",
+          descs == {z: [n, ZONE_DESC[z], True] for z, n in ZONE_NAMES.items()}, str(descs))
+    pg.locator(".lr-zone[data-zone=z6]").focus()
+    pg.keyboard.press("Enter")
+    settle(pg, 200)
     check("layers: the panel shows the zone's footnotes (connection point; retail electricity billing)",
           d["notes"] == ["Verkkoyhtiö vastaa verkosta liittymispisteeseen asti.",
                          "Sähkö laskutetaan yleensä operaattorin laskulla (kW tai kWh)."], str(d["notes"]))
@@ -897,7 +912,7 @@ def suite_layers(b, run):
             pg.locator(".zone-btn[data-zone=z4]").click()
             settle(pg, 200)
             t = pg.evaluate("document.querySelector('#lr-detail .zd-title') && document.querySelector('#lr-detail .zd-title').textContent")
-            check("layers 360: tapping a zone in the list opens it", t == "Palvelinsali", str(t))
+            check("layers 360: tapping a zone in the list opens it", t == "Salitila ja räkit", str(t))
             run.shot(pg, "l2_layers_360.png", full_page=True)
         ctx.close()
 

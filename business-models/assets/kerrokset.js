@@ -40,6 +40,9 @@
   // The panel's default: the selected model's summary (R65).
   const summary = {};
   root.querySelector("#lr-summary").content.querySelectorAll("[data-model]").forEach((p) => { summary[p.dataset.model] = p.textContent.trim(); });
+  // One line per zone on what it is, shown at the top of its panel (R69).
+  const zoneDesc = {};
+  root.querySelector("#lr-zone-desc").content.querySelectorAll("[data-zone]").forEach((p) => { zoneDesc[p.dataset.zone] = p.textContent.trim(); });
   const noteText = (n) => { const li = root.querySelector("#lr-fn" + n); return li ? li.textContent.trim() : ""; };
 
   let model = (tabs.find((t) => t.getAttribute("aria-selected") === "true") || tabs[0]).dataset.model;
@@ -322,7 +325,10 @@
     // the building, so it shows on the building zones only.
     if (D.zones[z].site && st.cls !== "own")
       marks(heads[colOf[model]]).forEach((n) => { if (notes.indexOf(n) < 0) notes.push(n); });
-    detail.append(h, who, ul);
+    const desc = document.createElement("p");
+    desc.className = "zd-desc";
+    desc.textContent = zoneDesc[z];
+    detail.append(h, desc, who, ul);
     notes.forEach((n) => {
       const p = document.createElement("p");
       p.className = "zd-note";

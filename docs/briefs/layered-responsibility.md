@@ -46,8 +46,8 @@ Visual reference for richness: a ChatGPT mockup in a realistic isometric cutaway
 
 - Z1 Sovellukset, data ja ohjelmistot: abstract translucent panels / cloud
 - Z2 Ohjelmistoalusta: thin grid slab, no equipment
-- Z3 Palvelimet ja verkko: servers, storage, network switches
-- Z4 Palvelinsali: rows of racks in cages and suites, power to racks
+- Z3 IT-laitteet (renamed from "Palvelimet ja verkko", ledger R69): servers, storage, network switches
+- Z4 Salitila ja räkit (renamed from "Palvelinsali", ledger R69): rows of racks in cages and suites, power to racks
 - Z5 Rakennuksen tekniikka: cooling units, UPS, backup generators
 - Z6 Kiinteistö ja liittymä: land plot, building shell (rakennus, runko), substation and transformers, grid connection, district heating pipe leading towards a town
 
@@ -83,7 +83,7 @@ Legend (FI): "Vastuuraja (demarc): kohta, jossa vastapuolen vastuu päättyy ja 
 
 - Respect prefers-reduced-motion: the demarc line jumps instead of sliding, highlights change without transitions.
 - Tabs follow the WAI-ARIA tabs pattern (arrow keys, aria-selected).
-- Zones are keyboard-focusable buttons with descriptive labels, e.g. "Palvelinsali: colocation-operaattori hoitaa" for the selected model.
+- Zones are keyboard-focusable buttons with descriptive labels, e.g. "Salitila ja räkit: colocation-operaattori hoitaa" for the selected model.
 - The side panel is announced to screen readers (aria-live="polite").
 - Colour is never the only carrier: "Itse" and counterparty names appear as text; fills differ in lightness, not hue alone.
 

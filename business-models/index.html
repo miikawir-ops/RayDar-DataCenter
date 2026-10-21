@@ -258,6 +258,7 @@
 .zd-back:hover{text-decoration:underline}
 .zd-back:focus-visible,.zone-detail:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
 .zd-title{margin:0 0 4px;font-family:var(--f-display);font-size:17px;font-weight:700}
+.zd-desc{margin:0 0 6px;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
 .zd-who{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--blue)}
 .zd-who.is-own{color:var(--navy)}
 .zd-rows{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
@@ -421,8 +422,8 @@
         <ol class="zone-list" aria-label="Kerrokset">
           <li><button class="zone-btn" type="button" data-zone="z1"><span class="zone-name">Sovellukset, data ja ohjelmistot</span><span class="zone-who"></span></button></li>
           <li><button class="zone-btn" type="button" data-zone="z2"><span class="zone-name">Ohjelmistoalusta</span><span class="zone-who"></span></button></li>
-          <li><button class="zone-btn" type="button" data-zone="z3"><span class="zone-name">Palvelimet ja verkko</span><span class="zone-who"></span></button></li>
-          <li><button class="zone-btn" type="button" data-zone="z4"><span class="zone-name">Palvelinsali</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z3"><span class="zone-name">IT-laitteet</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z4"><span class="zone-name">Salitila ja räkit</span><span class="zone-who"></span></button></li>
           <li><button class="zone-btn" type="button" data-zone="z5"><span class="zone-name">Rakennuksen tekniikka</span><span class="zone-who"></span></button></li>
           <li><button class="zone-btn" type="button" data-zone="z6"><span class="zone-name">Kiinteistö ja liittymä</span><span class="zone-who"></span></button></li>
         </ol>
@@ -499,6 +500,14 @@
       <p>Datakeskuksen omistaja tai operaattori voi myydä palvelinten hukkalämmön kaukolämpöyhtiölle. Mäntsälän datakeskus on myynyt hukkalämpöä paikalliseen kaukolämpöverkkoon vuodesta 2015; sen rakensi Yandex, nykyään se on Nebiuksen. Microsoftin ja Fortumin sopimuksessa hukkalämmön talteenotto Microsoftin datakeskuksista Espoossa ja Kirkkonummella alkaa vaiheittain vuodesta 2027.</p>
       <p><a href="specialised-models.html#hukkalampo">Hukkalämmön myynti &rarr;</a></p>
       <p class="zd-src">Lähteet: <a href="https://www.datacenterdynamics.com/en/news/yandex-data-center-heats-finnish-city" target="_blank" rel="noopener">DCD (2015)</a> · <a href="https://nebius.com/sustainability/turning-heat-into-a-resource" target="_blank" rel="noopener">Nebius</a> · <a href="https://www.fortum.com/en/media/2026/05/fortum-has-started-heat-production-two-large-data-centre-sites-finland" target="_blank" rel="noopener">Fortum (2026)</a> · tarkistettu 10/2026</p>
+    </template>
+    <template id="lr-zone-desc">
+      <p data-zone="z1">Se, mitä varten kapasiteettia tarvitaan: sovellukset, tekoälymallit, niiden data ja käyttöjärjestelmä.</p>
+      <p data-zone="z2">Kerros, joka jakaa laitteiden kapasiteetin käyttöön: virtualisointi ja klusterin hallinta.</p>
+      <p data-zone="z3">Laitteet, jotka tekevät varsinaisen laskennan ja tallennuksen: palvelimet, tallennusjärjestelmät ja verkkolaitteet.</p>
+      <p data-zone="z4">Tila, johon IT-laitteet asennetaan: räkit, häkit ja sähkönsyöttö räkkiin. Täällä ei itse lasketa mitään.</p>
+      <p data-zone="z5">Järjestelmät, jotka pitävät salin käynnissä: jäähdytys, UPS, varavoima ja kulunvalvonta.</p>
+      <p data-zone="z6">Tontti, rakennus, sähköliittymä ja muuntamo, sähkön hankinta ja luvat.</p>
     </template>
     <template id="lr-zone-z5">
       <p class="zd-extra">Kahdennus: sähkönsyöttö, UPS, varavoima ja jäähdytys rakennetaan varalaittein (esim. N+1 tai 2N), jotta yhden laitteen vika tai huolto ei pysäytä toimintaa. Siksi samankokoiset datakeskukset voivat olla hyvin eri hintaisia rakentaa ja ylläpitää; sähkö- ja jäähdytysjärjestelmät ovat rakennuksen suurin kustannuserä.</p>
