@@ -16,8 +16,10 @@ window.BM_LAYERS = {
   // Z4 covers the caged racks only: the free-standing white units on that floor
   // (x 905-990) are in-row cooling, and cooling is row 8 (Z5).
   zones: {
+    // Z1 follows the slab and the tops of the floating panels and the cloud, not a
+    // hull over them (R69: the hull read as a grey roof the picture doesn't have).
     z1: { rows: [1, 2, 3],        label: [1090, 52],
-          poly: [[300,148],[300,128],[385,55],[460,38],[560,14],[720,8],[835,22],[905,45],[950,82],[998,145],[998,160],[700,218]] },
+          poly: [[300,148],[300,128],[385,112],[385,58],[487,50],[507,28],[552,28],[600,17],[650,17],[690,30],[710,14],[835,30],[835,50],[882,60],[885,82],[947,90],[998,145],[998,160],[700,218]] },
     z2: { rows: [4],              label: [1090, 178], leader: [998, 201],
           poly: [[300,148],[700,218],[998,160],[998,242],[700,306],[300,234]] },
     z3: { rows: [5, 6],           label: [1090, 282],
@@ -32,10 +34,10 @@ window.BM_LAYERS = {
   // Demarc lines run along the lower front edges of the slabs (the gap below
   // each zone): g12 = between Z1 and Z2, and so on. g1x and g1t are inside Z1:
   // the public cloud's PaaS and SaaS positions (R66), g1t near the top, parallel
-  // to the others.
+  // to the others; both shortened to stay inside the trimmed Z1 (R69).
   gaps: {
-    g1t: [[380,44],[700,98],[955,46]],
-    g1x: [[330,104],[700,166],[985,110]],
+    g1t: [[392,70],[700,122],[895,84]],
+    g1x: [[392,112],[700,166],[960,115]],
     g12: [[300,152],[700,222],[998,164]],
     g23: [[300,238],[700,310],[998,246]],
     g34: [[279,350],[695,444],[1023,361]],
