@@ -123,8 +123,10 @@ def suite_hub(b, run):
     fam = pg.evaluate("""() => ['IBM Plex Sans','IBM Plex Mono','Space Grotesk'].map(f => [f,
         [...document.fonts].some(ff => ff.family.replace(/"/g,'')===f && ff.status==='loaded')])""")
     check("all three families loaded", all(ok for _, ok in fam), str(fam))
-    g = pg.evaluate("""() => ({n:document.querySelectorAll('[data-g]').length,
-        resolved:[...document.querySelectorAll('[data-g]')].every(e=>e.tabIndex===0 && BM_GLOSSARY[e.dataset.g]),
+    # Hover-only terms (CSP inside the layered view's zone buttons, R69) are left out of the tab order on purpose.
+    g = pg.evaluate("""() => ({n:document.querySelectorAll('[data-g]:not(.gloss--hover)').length,
+        resolved:[...document.querySelectorAll('[data-g]:not(.gloss--hover)')].every(e=>e.tabIndex===0 && BM_GLOSSARY[e.dataset.g])
+          && [...document.querySelectorAll('.gloss--hover[data-g]')].every(e=>e.tabIndex<0 && BM_GLOSSARY[e.dataset.g]),
         total:Object.keys(BM_GLOSSARY).length})""")
     check("glossary: 23 tagged terms all resolve; 75 entries loaded",
           g["n"] == 23 and g["resolved"] and g["total"] == 75, f"{g['n']} tagged, {g['total']} entries")
@@ -541,11 +543,11 @@ ZONE_NAMES = {"z1": "Sovellukset, data ja ohjelmistot", "z2": "Ohjelmistoalusta"
 ZONE_DESC = {z: t for z, t in [('z1', 'Se, mitä varten kapasiteettia tarvitaan: sovellukset, tekoälymallit, niiden data ja käyttöjärjestelmä.'), ('z2', 'Kerros, joka jakaa laitteiden kapasiteetin käyttöön: virtualisointi ja klusterin hallinta.'), ('z3', 'Laitteet, jotka tekevät varsinaisen laskennan ja tallennuksen: palvelimet, tallennusjärjestelmät ja verkkolaitteet.'), ('z4', 'Tila, johon IT-laitteet asennetaan: räkit, häkit ja sähkönsyöttö räkkiin. Täällä ei itse lasketa mitään.'), ('z5', 'Järjestelmät, jotka pitävät salin käynnissä: jäähdytys, UPS, varavoima ja kulunvalvonta.'), ('z6', 'Tontti, rakennus, sähköliittymä ja muuntamo, sähkön hankinta ja luvat.')]}
 # R65: the side panel's default, per model (Ray's texts; three corrected against the cell table, approved 2026-10-21).
 LAYER_SUMMARY = {
-    "public-cloud": "Yritys hoitaa sovellukset ja datan, IaaS-palvelussa myös käyttöjärjestelmän. CSP hoitaa kaiken muun virtualisoinnista kiinteistöön.",
-    "gpu-cloud": "Yritys hoitaa sovellukset, datan ja käyttöjärjestelmän, bare metal -palvelussa myös klusterin hallinnan. GPU-pilvi hoitaa laitteet, konesalin ja kiinteistön.",
-    "retail-colocation": "Yritys omistaa ja hoitaa palvelimensa ja verkkolaitteensa. Colocation-operaattori hoitaa räkkitilan, sähkön, jäähdytyksen ja kiinteistön.",
-    "wholesale-colocation": "Yritys vuokraa kokonaisen salin tai rakennuksen ja kalustaa sen. Turnkey-mallissa operaattori hoitaa jäähdytyksen, UPS:n ja varavoiman; powered shell -mallissa yritys rakentaa nekin itse. Rakennuksen ja sähköliittymän tarjoaa datakeskusoperaattori.",
-    "own-data-center": "Yritys hoitaa kaiken tontista sovelluksiin. Verkkoyhtiön vastuu päättyy liittymispisteeseen.",
+    "public-cloud": "Yritys hoitaa sovellukset ja datan, IaaS-palvelussa myös käyttöjärjestelmän. Pilvipalveluyhtiö (CSP), esimerkiksi Microsoft, Google tai Amazon, hoitaa kaiken muun virtualisoinnista kiinteistöön.",
+    "gpu-cloud": "Yritys hoitaa sovellukset, datan ja käyttöjärjestelmän, bare metal -palvelussa myös klusterin hallinnan. GPU-pilviyhtiö, esimerkiksi CoreWeave, Nebius tai Lambda, hoitaa laitteet, konesalin ja kiinteistön.",
+    "retail-colocation": "Yritys omistaa ja hoitaa palvelimensa ja verkkolaitteensa. Colocation-operaattori, esimerkiksi Equinix, Digital Realty tai Telia, hoitaa räkkitilan, sähkön, jäähdytyksen ja kiinteistön.",
+    "wholesale-colocation": "Yritys vuokraa kokonaisen salin tai rakennuksen ja kalustaa sen. Turnkey-mallissa operaattori hoitaa jäähdytyksen, UPS:n ja varavoiman; powered shell -mallissa yritys rakentaa nekin itse. Rakennuksen ja sähköliittymän tarjoaa datakeskusoperaattori, esimerkiksi Digital Realty tai Equinix.",
+    "own-data-center": "Yritys hoitaa kaiken tontista sovelluksiin. Verkkoyhtiön (esimerkiksi Fingrid tai Caruna) vastuu päättyy liittymispisteeseen.",
 }
 PANEL = """() => ({title: (document.querySelector('#lr-detail .zd-title') || {}).textContent,
   summary: (document.querySelector('#lr-detail .zd-summary') || {}).textContent,
@@ -712,6 +714,26 @@ def suite_layers(b, run):
     check("layers: IaaS, PaaS and SaaS on the band and in the cloud note link to their glossary entries (click, focus, Enter) (R66)",
           keys == [["iaas", "paas", "saas"], ["iaas", "paas", "saas"]] and tip_click == "PaaS" and tip_focus == "SaaS",
           f"{keys} {tip_click} {tip_focus}")
+
+    # R69: CSP in the callouts and the zone list explains itself on hover; a click still selects the zone.
+    tipterm = "() => { const t = document.getElementById('gloss-tip'); return t && !t.hidden ? t.querySelector('.gloss-tip-term').textContent : null }"
+    marks = pg.evaluate("""() => [[...document.querySelectorAll('.lr-label-who.gloss--hover')].map(t => t.closest('.lr-zone').dataset.zone + ':' + t.dataset.g + ':' + t.tabIndex),
+        [...document.querySelectorAll('.zone-who.gloss--hover')].map(t => t.closest('.zone-btn').dataset.zone + ':' + t.dataset.g + ':' + t.tabIndex)]""")
+    pg.locator(".zone-btn[data-zone=z3] .zone-who").hover()
+    settle(pg, 250)
+    hov = pg.evaluate(tipterm)
+    pg.locator(".zone-btn[data-zone=z3] .zone-who").click()
+    settle(pg, 200)
+    sel = pg.evaluate("""() => [document.querySelector('.zone-btn[data-zone=z3]').getAttribute('aria-pressed'),
+        (document.querySelector('#lr-detail .zd-who .gloss') || {}).dataset, (document.querySelector('#lr-detail .zd-who .gloss') || {}).tabIndex]""")
+    pinned = pg.evaluate("() => !document.getElementById('gloss-tip').hidden && !document.querySelector('.zone-btn[data-zone=z3] .zone-who:hover')")
+    pg.mouse.move(5, 5)
+    pg.locator("#lr-detail .zd-back").click()
+    settle(pg, 200)
+    want = ["z2", "z3", "z4", "z5", "z6"]
+    check("layers: CSP in the callouts and zone list shows its glossary tooltip on hover, stays out of the tab order, and a click selects the zone; the panel's CSP is focusable (R69)",
+          marks == [[z + ":csp:-1" for z in want], [z + ":csp:-1" for z in want]] and hov == "CSP" and sel[0] == "true"
+          and sel[1] == {"g": "csp"} and sel[2] == 0 and not pinned, f"{marks} {hov} {sel} {pinned}")
 
     # The line slides between gaps; with reduced motion it jumps.
     pg.locator("#lr-tab-public-cloud").click()

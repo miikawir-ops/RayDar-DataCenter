@@ -82,6 +82,16 @@
     t.prepend(bar);
   });
 
+  // "CSP" in a callout or the zone list explains itself on hover (R69). These sit
+  // inside the zone's own button, so they stay out of the tab order and a click
+  // still selects the zone; the side panel's CSP is the keyboard-reachable term.
+  function csp(node, who) {
+    const on = who === "CSP";
+    node.classList.toggle("gloss", on);
+    node.classList.toggle("gloss--hover", on);
+    if (on) node.dataset.g = "csp"; else delete node.dataset.g;
+  }
+
   // -- Build the overlay ---------------------------------------------------
   const defs = el("defs", {}, svg);
   const pat = el("pattern", { id: "lr-hatch", width: 14, height: 14, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
@@ -221,12 +231,14 @@
       ze.g.classList.remove("is-own", "is-mixed", "is-cp");
       ze.g.classList.add("is-" + st.cls);
       ze.who.textContent = st.who;
+      csp(ze.who, st.who);
       ze.g.setAttribute("aria-label", zoneName[z] + ": " +
         (st.cls === "own" ? T.handlesOwn : st.cls === "cp" ? st.who + " " + T.handles : st.who));
       const btn = zoneBtns.find((b) => b.dataset.zone === z);
       btn.classList.remove("is-own", "is-mixed", "is-cp");
       btn.classList.add("is-" + st.cls);
       btn.querySelector(".zone-who").textContent = st.who;
+      csp(btn.querySelector(".zone-who"), st.who);
     });
     sizeLabels();
     const lead = lines.find((l) => l.on && l.cur);
@@ -305,7 +317,17 @@
     h.textContent = zoneName[z];
     const who = document.createElement("p");
     who.className = "zd-who" + (st.cls === "own" ? " is-own" : "");
-    who.textContent = st.who;
+    if (st.who === "CSP") {
+      // In the panel the abbreviation is a full glossary term, reachable by keyboard (R69).
+      const t = document.createElement("span");
+      t.className = "gloss";
+      t.dataset.g = "csp";
+      t.tabIndex = 0;
+      t.textContent = st.who;
+      who.appendChild(t);
+    } else {
+      who.textContent = st.who;
+    }
     const ul = document.createElement("ul");
     ul.className = "zd-rows";
     const notes = [];

@@ -105,7 +105,7 @@ window.BMGlossary = (function () {
         el.classList.remove("gloss");
         return;
       }
-      el.tabIndex = 0;
+      if (!el.classList.contains("gloss--hover")) el.tabIndex = 0;    // hover-only: inside another control
     });
     if (missing.length) console.warn("Glossary: no entry for", missing);
 
@@ -134,7 +134,7 @@ window.BMGlossary = (function () {
     });
     document.addEventListener("click", (e) => {
       const el = termOf(e.target);
-      if (!el) return;
+      if (!el || el.classList.contains("gloss--hover")) return;    // the enclosing control handles the click
       clearTimeout(hoverTimer);
       if (el === current && pinned()) hide();
       else show(el, "pin");
