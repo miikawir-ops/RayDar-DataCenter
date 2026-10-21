@@ -37,6 +37,9 @@
   const cell = (r, m) => rows[r].tds[colOf[m]];
   const zoneName = {};
   zoneBtns.forEach((b) => { zoneName[b.dataset.zone] = b.querySelector(".zone-name").textContent.trim(); });
+  // The panel's default: the selected model's summary (R65).
+  const summary = {};
+  root.querySelector("#lr-summary").content.querySelectorAll("[data-model]").forEach((p) => { summary[p.dataset.model] = p.textContent.trim(); });
   const noteText = (n) => { const li = root.querySelector("#lr-fn" + n); return li ? li.textContent.trim() : ""; };
 
   let model = (tabs.find((t) => t.getAttribute("aria-selected") === "true") || tabs[0]).dataset.model;
@@ -246,12 +249,29 @@
     heads.forEach((th, i) => {
       table.querySelectorAll("tbody tr[data-row]").forEach((tr) => tr.children[i + 1].classList.toggle("is-col", th.dataset.model === model));
     });
-    if (selected) render();
+    render();
   }
 
   function render() {
     detail.textContent = "";
-    if (selected && selected.marker) {
+    if (!selected) {
+      const h = document.createElement("h3");
+      h.className = "zd-title";
+      h.textContent = tabs.find((t) => t.dataset.model === model).textContent.trim();
+      const p = document.createElement("p");
+      p.className = "zd-summary";
+      p.textContent = summary[model];
+      detail.append(h, p);
+      return;
+    }
+    // A zone or marker is open: a way back to the model's summary.
+    const back = document.createElement("button");
+    back.type = "button";
+    back.className = "zd-back";
+    back.textContent = T.back;
+    back.addEventListener("click", () => { select(null); detail.focus(); });
+    detail.appendChild(back);
+    if (selected.marker) {
       detail.appendChild(root.querySelector("#lr-" + selected.marker).content.cloneNode(true));
       return;
     }
@@ -295,6 +315,7 @@
 
   function select(sel) {
     selected = sel;
+    sel = sel || {};
     Object.keys(zoneEls).forEach((z) => {
       const on = !!sel.zone && sel.zone === z;
       zoneEls[z].g.classList.toggle("is-selected", on);

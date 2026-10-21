@@ -535,6 +535,17 @@ STAIRS = [
     ("Sähkön hankinta", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Itse tai läpilaskutettuna", "Itse"]),
     ("Rakennus- ja ympäristöluvat", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Datakeskusoperaattori", "Itse"]),
 ]
+# R65: the side panel's default, per model (Ray's texts; three corrected against the cell table, approved 2026-10-21).
+LAYER_SUMMARY = {
+    "public-cloud": "Yritys hoitaa sovellukset ja datan, IaaS-palvelussa myös käyttöjärjestelmän. CSP hoitaa kaiken muun virtualisoinnista kiinteistöön.",
+    "gpu-cloud": "Yritys hoitaa sovellukset, datan ja käyttöjärjestelmän, bare metal -palvelussa myös klusterin hallinnan. GPU-pilvi hoitaa laitteet, konesalin ja kiinteistön.",
+    "retail-colocation": "Yritys omistaa ja hoitaa palvelimensa ja verkkolaitteensa. Colocation-operaattori hoitaa räkkitilan, sähkön, jäähdytyksen ja kiinteistön.",
+    "wholesale-colocation": "Yritys vuokraa kokonaisen salin tai rakennuksen ja kalustaa sen. Turnkey-mallissa operaattori hoitaa jäähdytyksen, UPS:n ja varavoiman; powered shell -mallissa yritys rakentaa nekin itse. Rakennuksen ja sähköliittymän tarjoaa datakeskusoperaattori.",
+    "own-data-center": "Yritys hoitaa kaiken tontista sovelluksiin. Verkkoyhtiön vastuu päättyy liittymispisteeseen.",
+}
+PANEL = """() => ({title: (document.querySelector('#lr-detail .zd-title') || {}).textContent,
+  summary: (document.querySelector('#lr-detail .zd-summary') || {}).textContent,
+  back: (document.querySelector('#lr-detail .zd-back') || {}).textContent || null})"""
 # R65: the zone fills by state (computed style), and WCAG contrast of the overlay's labels.
 ZONE_FILL = {"own": "rgba(18, 34, 46, 0.5)", "mixed": "lr-hatch", "cp": "rgba(232, 239, 245, 0.4)"}
 LAYER_FILLS = """() => Object.fromEntries([...document.querySelectorAll('.lr-zone')].map(g => {
@@ -638,6 +649,10 @@ def suite_layers(b, run):
         check(f"layers {m}: demarc line(s) in the right gap(s), labelled", got_lines == want_lines, str(got_lines))
         check(f"layers {m}: the range band and the shared-responsibility note only for the cloud models",
               s["range"] == rng and s["cloudNote"] == rng, f"range {s['range']}, note {s['cloudNote']}")
+        pn = pg.evaluate(PANEL)
+        tab = pg.locator(f"#lr-tab-{m}").inner_text().strip()
+        check(f"layers {m}: with nothing selected the side panel shows the model's summary, no back button (R65)",
+              pn == {"title": tab, "summary": LAYER_SUMMARY[m], "back": None}, str(pn))
         fills = pg.evaluate(LAYER_FILLS)
         check(f"layers {m}: zone fills match the legend (Itse navy, shared hatched, counterparty light), no outline at rest (R65)",
               all(ZONE_FILL[v.split(":")[0]] in fills[z][0] and fills[z][1] in ("none", "rgba(0, 0, 0, 0)") for z, v in zones.items()),
@@ -719,6 +734,14 @@ def suite_layers(b, run):
     check("layers: the panel shows the zone's footnotes (connection point; retail electricity billing)",
           d["notes"] == ["Verkkoyhtiö vastaa verkosta liittymispisteeseen asti.",
                          "Sähkö laskutetaan yleensä operaattorin laskulla (kW tai kWh)."], str(d["notes"]))
+    bk = pg.evaluate(PANEL)["back"]
+    pg.locator("#lr-detail .zd-back").click()
+    settle(pg, 200)
+    after = pg.evaluate("""() => ({...(""" + PANEL + """)(), focus: document.activeElement.id,
+        pressed: [...document.querySelectorAll('.lr-zone, .zone-btn, .lr-marker, .marker-btn')].filter(e => e.getAttribute('aria-pressed') === 'true').length})""")
+    check("layers: an open zone has '← Takaisin yhteenvetoon'; it returns to the model's summary, clears the selection and keeps focus in the panel (R65)",
+          bk == "← Takaisin yhteenvetoon" and after["summary"] == LAYER_SUMMARY["retail-colocation"] and after["back"] is None
+          and after["pressed"] == 0 and after["focus"] == "lr-detail", f"{bk} {after}")
     pg.locator("#lr-tab-gpu-cloud").click()
     settle(pg, 650)
     # Regression (R61): the demarc layer and the range band sat over the zones and took their clicks.

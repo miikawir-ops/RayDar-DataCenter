@@ -249,7 +249,10 @@
 /* Side panel: the selected zone (announced) and the zone list (also the phone list). */
 .layers-side{display:flex;flex-direction:column;gap:10px;min-width:0}
 .zone-detail{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--cream);min-height:92px}
-.zd-hint{margin:0;font-size:14px;color:var(--ink-3)}
+.zd-summary{margin:0}
+.zd-back{display:inline-block;margin:0 0 8px;padding:0;font:600 13px var(--f-body);color:var(--blue);background:none;border:0;cursor:pointer}
+.zd-back:hover{text-decoration:underline}
+.zd-back:focus-visible,.zone-detail:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
 .zd-title{margin:0 0 4px;font-family:var(--f-display);font-size:17px;font-weight:700}
 .zd-who{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--blue)}
 .zd-who.is-own{color:var(--navy)}
@@ -409,9 +412,7 @@
       </figure>
 
       <div class="layers-side">
-        <div class="zone-detail" id="lr-detail" aria-live="polite">
-          <p class="zd-hint">Valitse kerros kuvasta tai listasta.</p>
-        </div>
+        <div class="zone-detail" id="lr-detail" aria-live="polite" tabindex="-1"></div>
         <p class="lr-cloud-note" id="lr-cloud-note">Raja riippuu ostetusta palvelusta: IaaS:ssä yritys hallitsee käyttöjärjestelmän, PaaS- ja SaaS-palveluissa vastapuoli hoitaa enemmän (shared responsibility model).</p>
         <ol class="zone-list" aria-label="Kerrokset">
           <li><button class="zone-btn" type="button" data-zone="z1"><span class="zone-name">Sovellukset, data ja ohjelmistot</span><span class="zone-who"></span></button></li>
@@ -481,6 +482,7 @@
       <span data-key="rangePublic">PaaS ja SaaS</span>
       <span data-key="rangeGpu">hallittu palvelu</span>
       <span data-key="hide">Piilota rinnakkaisnäkymä</span>
+      <span data-key="back">← Takaisin yhteenvetoon</span>
     </template>
     <template id="lr-grid">
       <h3 class="zd-title">Liittymispiste</h3>
@@ -495,6 +497,13 @@
     <template id="lr-zone-z5">
       <p class="zd-extra">Kahdennus: sähkönsyöttö, UPS, varavoima ja jäähdytys rakennetaan varalaittein (esim. N+1 tai 2N), jotta yhden laitteen vika tai huolto ei pysäytä toimintaa. Siksi samankokoiset datakeskukset voivat olla hyvin eri hintaisia rakentaa ja ylläpitää; sähkö- ja jäähdytysjärjestelmät ovat rakennuksen suurin kustannuserä.</p>
       <p class="zd-src">Lähteet: <a href="https://datacenters.lbl.gov/sites/default/files/(TUI3011B)SimpleModelDetermingTrueTCO.pdf" target="_blank" rel="noopener">Uptime Institute</a> · <a href="https://www.coresite.com/blog/data-center-redundancy-n-1-vs-2n-1" target="_blank" rel="noopener">CoreSite</a> · <a href="https://ir.cushmanwakefield.com/news/press-release-details/2026/Cushman--Wakefield-Releases-2026-Data-Center-Development-Cost-Guide-Citing-21-Rise-in-Per-MW-Construction-Costs/default.aspx" target="_blank" rel="noopener">Cushman &amp; Wakefield (2026)</a></p>
+    </template>
+    <template id="lr-summary">
+      <p data-model="public-cloud">Yritys hoitaa sovellukset ja datan, IaaS-palvelussa myös käyttöjärjestelmän. CSP hoitaa kaiken muun virtualisoinnista kiinteistöön.</p>
+      <p data-model="gpu-cloud">Yritys hoitaa sovellukset, datan ja käyttöjärjestelmän, bare metal -palvelussa myös klusterin hallinnan. GPU-pilvi hoitaa laitteet, konesalin ja kiinteistön.</p>
+      <p data-model="retail-colocation">Yritys omistaa ja hoitaa palvelimensa ja verkkolaitteensa. Colocation-operaattori hoitaa räkkitilan, sähkön, jäähdytyksen ja kiinteistön.</p>
+      <p data-model="wholesale-colocation">Yritys vuokraa kokonaisen salin tai rakennuksen ja kalustaa sen. Turnkey-mallissa operaattori hoitaa jäähdytyksen, UPS:n ja varavoiman; powered shell -mallissa yritys rakentaa nekin itse. Rakennuksen ja sähköliittymän tarjoaa datakeskusoperaattori.</p>
+      <p data-model="own-data-center">Yritys hoitaa kaiken tontista sovelluksiin. Verkkoyhtiön vastuu päättyy liittymispisteeseen.</p>
     </template>
   </section>
 
