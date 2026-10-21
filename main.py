@@ -125,7 +125,8 @@ def _confirmed_color(
     CONFIRMED RED — today > 65 AND 2+ of last 3 days also > 55
     CONFIRMED ORANGE — today >= 45 AND 2+ of last 3 days also >= 40
     CONFIRMED BLUE — today < 25 AND 2+ of last 3 days also < 30
-    HOLDING — keep the recent dominant colour if today's score is within
+    STEADY GREEN — today Green AND all 3 last sessions stored as Green (R63)
+    HOLDING —keep the recent dominant colour if today's score is within
               its band (for Green the band check always passes: gap 0)
     DEFAULT — Green if 25 <= score < 45, else today's colour
 
@@ -178,6 +179,14 @@ def _confirmed_color(
 
     if today_score < 25 and days_below_30 >= 2:
         return "Blue", f"Blue, confirmed: {days_below_30} {span} also below 30{suffix}", "confirmed"
+
+    # Steady Green (ledger R63): Green now and in each of the last 3 sessions,
+    # all stored. The stored colour is the one the card showed (the confirmed
+    # colour saved by render.save_scores_history), not a score in the Green
+    # band. Green has no confirmed branch above, so without this a sub-layer
+    # read "Kept Green ... isn't confirmed yet" however long it stayed Green.
+    if today_color == "Green" and k == CONFIRM_WINDOW and all(c == "Green" for _, _, c in stored):
+        return "Green", "Green, steady: also Green in the last 3 sessions", "steady"
 
     # Same window as the scores above: a missing session adds no colour.
     prev_colors = [color for _, _, color in stored if color]
