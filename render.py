@@ -458,6 +458,27 @@ COMPANY_CONTEXT = {
 
 # ── Master HTML builder ───────────────────────────────────────────────────────
 
+def regime_label(scored_data: dict, macro_data: dict) -> str:
+    """The market regime and multiplier the scores actually used (ledger R71).
+
+    Every scored ticker result carries the engine's "regime" and "multiplier",
+    so the page reads them instead of re-deriving the rule here. Only when no
+    ticker was scored at all does it ask the engine's own rule for this macro data.
+    """
+    applied = {(r.get("regime"), r.get("multiplier"))
+               for layer in scored_data.values() for r in (layer.get("all_tickers") or [])
+               if r.get("regime") is not None}
+    if not applied:
+        from score_engine import ScoreEngine
+        applied = {ScoreEngine(macro_data).get_macro_multiplier([])[::-1]}
+    if len(applied) > 1:
+        raise ValueError(f"scores used more than one market regime in one run: {sorted(applied)}")
+    regime, mult = applied.pop()
+    if regime.startswith("Unknown"):
+        return f"Market regime: {regime}"
+    return f"Market regime: {regime} · scores × {mult:.2f}"
+
+
 def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = None,
                        capex_data: dict = None) -> str:
     if market_data is None:
@@ -486,14 +507,7 @@ def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = 
     nasdaq_raw   = macro_data.get("nasdaq_vs_spx_20d")
     nasdaq_r     = nasdaq_raw * 100 if nasdaq_raw is not None else None
 
-    if vix is None and yield_ch is None and nasdaq_r is None:
-        reg_lbl = "Market regime: Unknown (macro data unavailable)"
-    elif (vix is not None and vix > 30) or (yield_ch is not None and yield_ch > 100):
-        reg_lbl = "Market regime: Risk-Off"
-    elif (vix is not None and vix > 20) or (yield_ch is not None and yield_ch > 50):
-        reg_lbl = "Market regime: Neutral"
-    else:
-        reg_lbl = "Market regime: Risk-On"
+    reg_lbl = regime_label(scored_data, macro_data)
 
     vix_disp    = f"{vix:.1f}" if vix is not None else "—"
     vix_note    = ("Low fear" if (vix is not None and vix < 20) else "Elevated" if vix is not None else "No data")
@@ -836,7 +850,8 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
           <b>Risk-On</b> — VIX low, yields stable, tech leading. Full signal strength.<br>
           <b>Neutral</b> — Some uncertainty. Scores dampened.<br>
           <b>Risk-Off</b> — High fear, rising yields, tech selling off.<br><br>
-          Signals: VIX · 10Y yield change · NASDAQ vs S&amp;P 500
+          Signals: VIX · 10Y yield change · NASDAQ vs S&amp;P 500<br><br>
+          <b>Rule applied:</b> Risk-Off (scores × 0.65) needs two risk signals: VIX above 30, 10Y yield up more than 100 bps over 20 sessions, NASDAQ more than 5 points behind the S&amp;P 500 over its last 20 closes. Neutral (× 0.85) needs one risk signal or two neutral ones: VIX above 20, yield up more than 50 bps, NASDAQ more than 2 points behind. Otherwise Risk-On (× 1.00). A missing signal doesn't vote.
         </div>
       </div>
     </div>
