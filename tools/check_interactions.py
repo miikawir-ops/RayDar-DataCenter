@@ -556,7 +556,7 @@ LAYER_SUMMARY = {
     "public-cloud": "Yritys hoitaa sovellukset ja datan, IaaS-palvelussa myös käyttöjärjestelmän. Pilvipalveluyhtiö (CSP), esimerkiksi Microsoft, Google tai Amazon, hoitaa kaiken muun virtualisoinnista kiinteistöön.",
     "gpu-cloud": "Yritys hoitaa sovellukset, datan ja käyttöjärjestelmän, bare metal -palvelussa myös klusterin hallinnan. GPU-pilviyhtiö, esimerkiksi CoreWeave, Nebius tai Lambda, hoitaa laitteet, konesalin ja kiinteistön.",
     "retail-colocation": "Yritys omistaa ja hoitaa palvelimensa ja verkkolaitteensa. Colocation-operaattori, esimerkiksi Equinix, Digital Realty tai Telia, hoitaa räkkitilan, sähkön, jäähdytyksen ja kiinteistön.",
-    "wholesale-colocation": "Yritys vuokraa kokonaisen salin tai rakennuksen ja kalustaa sen. Turnkey-mallissa operaattori hoitaa jäähdytyksen, UPS:n ja varavoiman; powered shell -mallissa yritys rakentaa nekin itse. Rakennuksen ja sähköliittymän tarjoaa datakeskusoperaattori, esimerkiksi Digital Realty tai Equinix.",
+    "wholesale-colocation": "Yritys vuokraa kokonaisen salin tai rakennuksen ja kalustaa sen. Turnkey-mallissa operaattori hoitaa jäähdytyksen, UPS:n, varavoiman ja kulunvalvonnan; powered shell -mallissa yritys rakentaa nekin itse. Rakennuksen ja sähköliittymän tarjoaa datakeskusoperaattori, esimerkiksi Digital Realty tai Equinix.",
     "own-data-center": "Yritys hoitaa kaiken tontista sovelluksiin. Verkkoyhtiön (esimerkiksi Fingrid tai Caruna) vastuu päättyy liittymispisteeseen.",
 }
 PANEL = """() => ({title: (document.querySelector('#lr-detail .zd-title') || {}).textContent,
