@@ -851,7 +851,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
           <b>Neutral</b> — Some uncertainty. Scores dampened.<br>
           <b>Risk-Off</b> — High fear, rising yields, tech selling off.<br><br>
           Signals: VIX · 10Y yield change · NASDAQ vs S&amp;P 500<br><br>
-          <b>Rule applied:</b> Risk-Off (scores × 0.65) needs two risk signals: VIX above 30, 10Y yield up more than 100 bps over 20 sessions, NASDAQ more than 5 points behind the S&amp;P 500 over its last 20 closes. Neutral (× 0.85) needs one risk signal or two neutral ones: VIX above 20, yield up more than 50 bps, NASDAQ more than 2 points behind. Otherwise Risk-On (× 1.00). A missing signal doesn't vote.
+          <b>Rule applied:</b> Risk-Off (scores × 0.65) needs two risk signals: VIX above 30, 10Y yield up more than 100 bps over 20 sessions, NASDAQ more than 5 percentage points behind the S&amp;P 500 over its last 20 closes. Neutral (× 0.85) needs one risk signal or two neutral ones: VIX above 20, yield up more than 50 bps, NASDAQ more than 2 percentage points behind. Otherwise Risk-On (× 1.00). A missing signal doesn't vote.
         </div>
       </div>
     </div>

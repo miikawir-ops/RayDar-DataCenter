@@ -824,7 +824,8 @@ def check_regime_label(tmp):
               shown == want and want.startswith("Market regime: " + regime)
               and (used == {(regime, mult)} or regime.startswith("Unknown")), f"{shown!r}, engine {regime} x{mult}, used {used}")
     check("regime label: the tooltip states the voting rule the engine applies",
-          "<b>Rule applied:</b> Risk-Off (scores × 0.65) needs two risk signals" in page and "A missing signal doesn't vote." in page)
+          "<b>Rule applied:</b> Risk-Off (scores × 0.65) needs two risk signals" in page and "A missing signal doesn't vote." in page
+          and "5 percentage points behind" in page and "2 percentage points behind" in page and " points behind" not in page.replace("percentage points behind", ""))
 
 
 def check_dashboard_page(tmp):
