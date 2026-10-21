@@ -1,4 +1,4 @@
-// Finnish glossary for the business-models pages: 68 terms, Tilanne 9/2026.
+// Finnish glossary for the business-models pages: 72 terms, Tilanne 9/2026 (four added 10/2026, ledger R64).
 // Imported once from the approved Claude Design export (Sanasto.dc.html, kept
 // outside git in Output/business-models-source/). From here on this file is the
 // single source of truth for glossary content: inline tooltips read it now, and
@@ -41,10 +41,12 @@ window.BM_GLOSSARY = {
   refinancing: { term: "Jälleenrahoitus", alt: "refinancing", definition: "Kallis rakennusaikainen laina korvataan halvemmalla, kun kohde on valmis ja vuokrattu." },
   residual_value: { term: "Jäännösarvo", alt: "residual value", definition: "Kohteen arvo, kun sopimus tai alkuperäinen käyttö päättyy." },
   residual_value_guarantee: { term: "Jäännösarvotakuu", alt: "residual value guarantee", definition: "Vuokralainen takaa kohteen arvon, jos se ei jatka sopimusta." },
+  redundancy: { term: "Kahdennus", alt: "redundancy", definition: "Kriittiset sähkö- ja jäähdytyslaitteet rakennetaan varalle, jotta yhden laitteen vika tai huolto ei pysäytä toimintaa. N = täyteen kuormaan tarvittava kapasiteetti; N+1 = yksi varalaite lisää; 2N = koko järjestelmä kahdennettuna." },
   transmission_grid_connection: { term: "Kantaverkkoliittymä", definition: "Liityntä Fingridin hallinnoimaan kantaverkkoon." },
   capacity: { term: "Kapasiteetti", alt: "kW, MW, GW", definition: "Datakeskuksen koko ja hinta ilmaistaan sähkötehona, ei neliömetreinä." },
   sustainability_linked_loan: { term: "Kestävyyteen sidottu laina", alt: "sustainability-linked loan", definition: "Laina, jonka korko riippuu sovittujen kestävyystavoitteiden saavuttamisesta." },
   cluster: { term: "Klusteri", alt: "cluster", definition: "Yhteen kytketyt palvelimet, jotka toimivat yhtenä kokonaisuutena." },
+  availability: { term: "Käytettävyys", alt: "availability", definition: "Osuus ajasta, jolloin palvelu toimii; SLA:ssa luvattu taso. Vuodessa (365 vrk = 8 760 h) 99,9 % sallii n. 8 h 46 min katkoa, 99,99 % n. 53 min ja 99,999 % n. 5 min." },
   utilization_risk: { term: "Käyttöasteriski", definition: "Riski siitä, että kapasiteetti jää vajaalle käytölle. Kantaja riippuu sopimusmallista." },
   lease: { term: "Lease", definition: "Pitkäaikainen vuokrasopimus; wholesale-colocationin sopimusmuoto." },
   mrc_nrc: { term: "MRC ja NRC", alt: "monthly / non-recurring charge", definition: "Kuukausimaksu ja kertamaksu." },
@@ -70,10 +72,12 @@ window.BM_GLOSSARY = {
   spv: { term: "SPV", alt: "special purpose vehicle", definition: "Erillisyhtiö, joka perustetaan omistamaan yksi kohde ja kantamaan sen velka." },
   take_or_pay: { term: "Take-or-pay", definition: "Sovitusta määrästä maksetaan, käytti tai ei." },
   off_balance_sheet_financing: { term: "Taseen ulkopuolinen rahoitus", alt: "off-balance sheet", definition: "Velka on toisen yhtiön taseessa, vaikka hyöty ja osa riskistä ovat käyttäjällä." },
+  tier_classification: { term: "Tier-luokitus", alt: "Tier classification", definition: "Uptime Institutein nelitasoinen luokitus datakeskuksen sähkö- ja jäähdytysinfrastruktuurille. Tier I: perustaso, huolto vaatii katkon. Tier II: varakomponentit sähköön ja jäähdytykseen. Tier III: laitteita voi huoltaa ja vaihtaa ilman katkoa. Tier IV: vikasietoinen; yksittäinen laitevika ei vaikuta IT-laitteisiin." },
   time_to_market: { term: "Time-to-market", definition: "Aika, jossa uusi kapasiteetti saadaan käyttöön; usein sähköliittymä ratkaisee." },
   convertible_note: { term: "Vaihtovelkakirja", alt: "convertible note", definition: "Joukkovelkakirja, jonka voi myöhemmin vaihtaa yhtiön osakkeiksi." },
   counterparty_risk: { term: "Vastapuoliriski", alt: "counterparty risk", definition: "Riski, ettei sopimuskumppani pysty täyttämään sitoumustaan." },
   vendor_financing: { term: "Vendor financing", definition: "Laitetoimittaja rahoittaa asiakkaansa hankintoja, esim. sijoittamalla siihen." },
+  network_ecosystem: { term: "Verkkoekosysteemi", alt: "network ecosystem", definition: "Datakeskuksessa toimivat operaattorit, pilvipalvelut ja muut yritykset, joihin asiakas voi kytkeytyä suoraan cross-connectilla. Mitä useampi osapuoli, sitä arvokkaampi datakeskus on jokaiselle." },
   green_bond: { term: "Vihreä joukkovelkakirja", alt: "green bond", definition: "Laina, jonka varat korvamerkitään ympäristöhankkeisiin, esim. energiatehokkaaseen datakeskukseen." },
   white_space: { term: "White space", definition: "Palvelinsali, jossa asiakkaiden räkit ovat." },
   wholesale_colocation: { term: "Wholesale-colocation", definition: "Kokonainen sali tai rakennus yhdelle vuokralaiselle, tyypillisesti 5–15 vuoden sopimuksin." },
