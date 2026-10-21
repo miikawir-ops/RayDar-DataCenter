@@ -823,6 +823,33 @@ def check_dashboard_page(tmp):
               and all("percentage points" in tips[k] for k in ("accelerating", "decelerating", "stable"))
               and tips["accelerating"].startswith("Revenue growth speeding up: year-on-year growth in the latest quarter is more than 5 percentage points above"),
               str(tk["tips"][:2]))
+        # R63 item 4: trend words in the chain bar only when stored history backs the colours.
+        strip = pg.evaluate("""() => {
+          const L = (id, n1, score, color) => ({id, n1, score, color, insufficient: false, tickers: []});
+          const run = (layers, confirmed) => { buildBottleneckStrip(layers, confirmed);
+            return document.getElementById('bottleneck-strip').innerText.replace(/\\s+/g, ' ').trim(); };
+          const green = [L('a', 'Optical', 44, 'Green'), L('b', 'Cooling', 38, 'Green'), L('c', 'Colocation', 27.4, 'Green')];
+          const out = {noHistory: run(green, false), allGreen: run(green, true),
+            all: run([L('a', 'Optical', 70, 'Red'), L('b', 'Cooling', 50, 'Orange'), L('c', 'Colocation', 20, 'Blue')], true),
+            orange: run([L('a', 'Optical', 50, 'Orange'), L('c', 'Colocation', 30, 'Green')], true),
+            blue: run([L('a', 'Optical', 40, 'Green'), L('c', 'Colocation', 20, 'Blue')], true),
+            redNoHistory: run([L('a', 'Optical', 70, 'Red'), L('c', 'Colocation', 20, 'Blue')], false),
+            pageConfirmed: CONFIRMED_HISTORY};
+          out.page = run(LAYERS, CONFIRMED_HISTORY);
+          return out }""")
+        check("chain bar: before confirmation has history it names scores: 'Highest score: … · Lowest score: …' (even with Red/Blue)",
+              strip["noHistory"] == "Highest score: Optical (44) · Lowest score: Colocation (27)"
+              and strip["redNoHistory"] == "Highest score: Optical (70) · Lowest score: Colocation (20)", str(strip))
+        check("chain bar: with history but no confirmed Red, Orange or Blue, the same two scores",
+              strip["allGreen"] == "Highest score: Optical (44) · Lowest score: Colocation (27)", strip["allGreen"])
+        check("chain bar: confirmed Red, Orange and Blue keep Bottleneck, Emerging and Easing",
+              strip["all"] == "Bottleneck: Optical → Emerging: Cooling → Easing: Colocation", strip["all"])
+        check("chain bar: no Red or Orange -> 'Highest score' at the top end; no Blue -> 'Lowest score' at the bottom end",
+              strip["orange"] == "Emerging: Optical → Lowest score: Colocation (30)"
+              and strip["blue"] == "Highest score: Optical (40) → Easing: Colocation", f"{strip['orange']} | {strip['blue']}")
+        check("chain bar: this page (no stored history) shows the scores version",
+              strip["pageConfirmed"] is False and strip["page"].startswith("Highest score:") and " · Lowest score:" in strip["page"],
+              strip["page"])
         check("ticker rows: the expanded card labels the trend 'Revenue growth', next to '30d return'",
               "Revenue growth" in tk["exLabels"] and "Trend" not in tk["exLabels"] and "30d return" in tk["exLabels"], str(tk["exLabels"]))
         b.close()
