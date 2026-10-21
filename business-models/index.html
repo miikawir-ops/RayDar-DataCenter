@@ -313,6 +313,8 @@
 .fn{font-size:.75em;margin-left:2px;color:var(--rust)}
 .stairs-notes{margin:0;padding-left:20px;font-size:12.5px;line-height:1.45;color:var(--ink-3)}
 .stairs-note{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2);max-width:980px}
+.stairs-note p{margin:0 0 4px}
+.stairs-note ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:3px}
 .layers-bridge{margin:6px 0 0;font-family:var(--f-display);font-size:16px;font-weight:600;line-height:1.4;color:var(--navy)}
 @media (max-width:1399px){
   .layers-body{grid-template-columns:minmax(0,1fr)}
@@ -406,7 +408,7 @@
         <figcaption class="layers-legend">
           <div class="lr-keys">
             <span class="lr-key"><span class="lr-swatch lr-swatch--own"></span>Itse</span>
-            <span class="lr-key"><span class="lr-swatch lr-swatch--mixed"></span>Jaettu tai riippuu palvelusta</span>
+            <span class="lr-key"><span class="lr-swatch lr-swatch--mixed"></span>Jaettu tai riippuu palvelusta tai sopimuksesta</span>
             <span class="lr-key"><span class="lr-swatch lr-swatch--cp"></span>Vastapuoli</span>
             <span class="lr-key"><span class="lr-swatch lr-swatch--line"></span>Vastuuraja</span>
           </div>
@@ -473,7 +475,15 @@
           <li id="lr-fn3">Sähkö laskutetaan yleensä operaattorin laskulla (kW tai kWh).</li>
         </ol>
       </div>
-      <p class="stairs-note">Kerrokset eivät näytä kaikkia eroja. Julkisen pilven ja GPU-pilven ero on ennen kaikkea sitoumuksessa: GPU-pilvessä kapasiteetti varataan usein omaan käyttöön monivuotisella sopimuksella. Retail- ja wholesale-colocationin ero on mittakaavassa ja sopimuksessa: wholesale on kokonainen sali tai rakennus 5–15 vuoden vuokrasopimuksella. Pilvimalleissa vastuuraja riippuu myös ostetusta palvelusta. Retail-colocationin arvoa lisää myös verkkoekosysteemi: samassa rakennuksessa toimivat operaattorit ja pilvipalvelut, joihin voi kytkeytyä suoraan (<span class="gloss" data-g="cross_connect">cross-connect</span>). Wholesale-asiakkaalle tärkeämpiä ovat sähkökapasiteetti ja jäähdytys.</p>
+      <div class="stairs-note">
+        <p>Kerrokset eivät näytä kaikkia eroja.</p>
+        <ul>
+          <li>Julkinen pilvi ja GPU-pilvi: ero on ennen kaikkea sitoumuksessa. GPU-pilvessä kapasiteetti varataan usein omaan käyttöön monivuotisella sopimuksella.</li>
+          <li>Retail ja wholesale: ero on mittakaavassa ja sopimuksessa. Wholesale on kokonainen sali tai rakennus 5–15 vuoden vuokrasopimuksella.</li>
+          <li>Retail-colocationin arvoa lisää myös verkkoekosysteemi: samassa rakennuksessa toimivat operaattorit ja pilvipalvelut, joihin voi kytkeytyä suoraan (<span class="gloss" data-g="cross_connect">cross-connect</span>). Wholesale-asiakkaalle tärkeämpiä ovat sähkökapasiteetti ja jäähdytys.</li>
+          <li>Pilvimalleissa vastuuraja riippuu myös ostetusta palvelusta.</li>
+        </ul>
+      </div>
     </div>
 
     <!-- Text the script shows (kept here so tools/check_port_text.py sees every word). -->

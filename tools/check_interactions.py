@@ -872,10 +872,13 @@ def suite_layers(b, run):
     settle(pg, 150)
     rows_hot = pg.evaluate("[...document.querySelectorAll('.stairs-table tr.is-hot')].map(tr => tr.dataset.row)")
     check("layers: hovering a staircase row lights its zone, and a zone its rows", hot == ["z5"] and rows_hot == ["5", "6"], f"{hot} {rows_hot}")
-    note = pg.evaluate("document.querySelector('.stairs-note').textContent")
-    check("layers: the note under the staircase (R61: 'varataan usein omaan käyttöön')",
-          note.startswith("Kerrokset eivät näytä kaikkia eroja.") and "GPU-pilvessä kapasiteetti varataan usein omaan käyttöön" in note
-          and "Retail-colocationin arvoa lisää myös verkkoekosysteemi" in note and note.endswith("tärkeämpiä ovat sähkökapasiteetti ja jäähdytys."), note)
+    note = pg.evaluate("""() => [document.querySelector('.stairs-note > p').textContent,
+        [...document.querySelectorAll('.stairs-note li')].map(li => li.textContent)]""")
+    check("layers: the note under the staircase is a lead sentence and a four-item list (R61 wording; R69 list)",
+          note == ["Kerrokset eivät näytä kaikkia eroja.", ["Julkinen pilvi ja GPU-pilvi: ero on ennen kaikkea sitoumuksessa. GPU-pilvessä kapasiteetti varataan usein omaan käyttöön monivuotisella sopimuksella.", "Retail ja wholesale: ero on mittakaavassa ja sopimuksessa. Wholesale on kokonainen sali tai rakennus 5–15 vuoden vuokrasopimuksella.", "Retail-colocationin arvoa lisää myös verkkoekosysteemi: samassa rakennuksessa toimivat operaattorit ja pilvipalvelut, joihin voi kytkeytyä suoraan (cross-connect). Wholesale-asiakkaalle tärkeämpiä ovat sähkökapasiteetti ja jäähdytys.", "Pilvimalleissa vastuuraja riippuu myös ostetusta palvelusta."]], str(note))
+    key = pg.evaluate("[...document.querySelectorAll('.lr-key')].map(k => k.textContent)")
+    check("layers: the legend's hatched key reads 'Jaettu tai riippuu palvelusta tai sopimuksesta' (R69)",
+          key == ["Itse", "Jaettu tai riippuu palvelusta tai sopimuksesta", "Vastapuoli", "Vastuuraja"], str(key))
 
     # Markers: the connection point (every model) and the waste-heat hotspot.
     vis = []
