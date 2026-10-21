@@ -1,12 +1,16 @@
 """Interaction checks for the business-models explainer: chrome, navigation,
 glossary tooltips, deep links and swipe behaviour, from 1680px down to 360px.
 
-Three suites (all run by default):
+Four suites (all run by default):
   hub    the hub: tooltips (hover, click-pin, Esc, keyboard focus), stepper and
          deep links, matrix row alignment at 1440/1280/1024, phone swipe track
   cards  the five model cards: stepper, glossary tags, overflow, layer-cake spans
   pages  value chain, financing, specialised models, Why Finland, glossary:
          page nav (inline vs "Sivut" menu), tags, overflow, links between pages
+  layers the hub's layered responsibility view (ledger R61): image and overlay,
+         who handles each zone per model, demarc lines, tabs (ARIA), side panel,
+         markers, the staircase table exactly, reduced motion, phones; the AI Oy
+         table without its bar row; no "tarjoaja" anywhere
 
 Every run also checks for console errors and third-party requests (anything
 not served from --base's origin). Touch is Chromium emulation, not a real device.
@@ -496,7 +500,321 @@ def suite_pages(b, run):
     ctx.close()
 
 
-SUITES = {"hub": suite_hub, "cards": suite_cards, "pages": suite_pages}
+# -- layers: the hub's layered responsibility view (ledger R61) ----------------
+# Who handles each zone per model, as the page must show it (Ray's brief v2 with
+# his R61 corrections), the demarc gaps and the cloud range.
+LAYER_MODELS = ["public-cloud", "gpu-cloud", "retail-colocation", "wholesale-colocation", "own-data-center"]
+LAYER_EXPECT = {
+    "public-cloud": ({"z1": "own:Itse", "z2": "cp:CSP", "z3": "cp:CSP", "z4": "cp:CSP", "z5": "cp:CSP", "z6": "cp:CSP"},
+                     [("g12", "Vastuuraja, tyypillisesti")], True),
+    "gpu-cloud": ({"z1": "own:Itse", "z2": "mixed:Itse (bare metal) / GPU-pilvi (hallittu)", "z3": "cp:GPU-pilvi",
+                   "z4": "cp:GPU-pilvi", "z5": "cp:GPU-pilvi", "z6": "cp:GPU-pilvi"},
+                  [("g23", "Vastuuraja, tyypillisesti")], True),
+    "retail-colocation": ({"z1": "own:Itse", "z2": "own:Itse", "z3": "own:Itse", "z4": "cp:Colocation-operaattori",
+                           "z5": "cp:Colocation-operaattori", "z6": "cp:Colocation-operaattori"},
+                          [("g34", "Vastuuraja")], False),
+    "wholesale-colocation": ({"z1": "own:Itse", "z2": "own:Itse", "z3": "own:Itse", "z4": "own:Itse",
+                              "z5": "mixed:Turnkey: operaattori · Powered shell: itse", "z6": "cp:Datakeskusoperaattori"},
+                             [("g45", "Vastuuraja: turnkey"), ("g56", "Vastuuraja: powered shell")], False),
+    "own-data-center": ({z: "own:Itse" for z in ("z1", "z2", "z3", "z4", "z5", "z6")}, [], False),
+}
+# The staircase, exactly: 14 rows x 5 models (brief cells; R61: row 14 renamed, GPU cell 4 option B).
+STAIRS = [
+    ("Sovellukset ja tekoälymallit", ["Itse"] * 5),
+    ("Data", ["Itse"] * 5),
+    ("Käyttöjärjestelmä ja ohjelmistokirjastot", ["Jaettu: IaaS itse, PaaS CSP", "Itse", "Itse", "Itse", "Itse"]),
+    ("Virtualisointi ja klusterin hallinta", ["CSP", "Itse (bare metal) / GPU-pilvi (hallittu)", "Itse", "Itse", "Itse"]),
+    ("Palvelimet ja tallennus", ["CSP", "GPU-pilvi", "Itse", "Itse", "Itse"]),
+    ("Verkkolaitteet", ["CSP", "GPU-pilvi", "Itse", "Itse", "Itse"]),
+    ("Räkit ja sähkönsyöttö räkkiin", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Itse", "Itse"]),
+    ("Jäähdytys (ilma tai neste)", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Turnkey: operaattori · Powered shell: itse", "Itse"]),
+    ("UPS ja varavoima", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Turnkey: operaattori · Powered shell: itse", "Itse"]),
+    ("Kulunvalvonta ja fyysinen turvallisuus", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Turnkey: operaattori · Powered shell: itse", "Itse"]),
+    ("Tontti ja rakennus", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Datakeskusoperaattori", "Itse"]),
+    ("Sähköliittymä ja muuntamo", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Datakeskusoperaattori", "Itse"]),
+    ("Sähkön hankinta", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Itse tai läpilaskutettuna", "Itse"]),
+    ("Rakennus- ja ympäristöluvat", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Datakeskusoperaattori", "Itse"]),
+]
+LAYER_STATE = """() => {
+  const D = window.BM_LAYERS;
+  const zones = Object.fromEntries([...document.querySelectorAll('.lr-zone')].map(g => [g.dataset.zone,
+    (g.classList.contains('is-own') ? 'own' : g.classList.contains('is-mixed') ? 'mixed' : 'cp') + ':' + g.querySelector('.lr-label-who').textContent]));
+  const lines = [...document.querySelectorAll('.lr-lines .lr-line')].filter(l => l.style.display !== 'none')
+    .map((l, i) => ({pts: l.getAttribute('points'), label: document.querySelectorAll('.lr-lines .lr-line-label')[i].textContent}));
+  const range = document.querySelector('.lr-range').style.display !== 'none';
+  const sel = [...document.querySelectorAll('.layers-tab')].filter(t => t.getAttribute('aria-selected') === 'true').map(t => t.dataset.model);
+  const list = Object.fromEntries([...document.querySelectorAll('.zone-btn')].map(b => [b.dataset.zone, b.querySelector('.zone-who').textContent]));
+  return {zones, lines, range, sel, list, cloudNote: !document.getElementById('lr-cloud-note').hidden,
+          gap: Object.fromEntries(Object.entries(D.gaps).map(([k, v]) => [k, v.map(p => p.join(',')).join(' ')]))} }"""
+
+
+def suite_layers(b, run):
+    hub = run.base + "index.html"
+    log = []
+    ctx = b.new_context(viewport={"width": 1680, "height": 1050})
+    pg = ctx.new_page()
+    instrument(pg, log)
+    pg.goto(hub)
+    pg.wait_for_load_state("networkidle")
+    pg.evaluate("document.fonts.ready")
+    st = pg.evaluate("""() => {
+      const sec = document.getElementById('kerrokset'), path = document.querySelector('.path'), m = document.getElementById('matrix');
+      const img = sec.querySelector('.layers-stage img'), svg = sec.querySelector('.layers-svg');
+      const bridge = document.querySelector('.layers-bridge');
+      const before = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+      const D = window.BM_LAYERS;
+      return {order: before(sec, bridge) && before(bridge, path) && before(path, m),
+              title: sec.querySelector('h2').textContent, bridge: bridge.textContent,
+              img: [img.currentSrc.split('/').pop(), img.naturalWidth, img.naturalHeight, img.complete], alt: img.alt,
+              viewBox: svg.getAttribute('viewBox'), data: [D.width, D.height],
+              polys: [...svg.querySelectorAll('.lr-zone')].every(g => g.querySelector('polygon').getAttribute('points') ===
+                     D.zones[g.dataset.zone].poly.map(p => p.join(',')).join(' ')),
+              zoneA11y: [...svg.querySelectorAll('.lr-zone')].map(g => [g.dataset.zone, g.tabIndex, g.getAttribute('role')]),
+              markers: [...svg.querySelectorAll('.lr-marker')].map(g => [g.dataset.marker, g.tabIndex, g.getAttribute('role')]),
+              tabs: [...sec.querySelectorAll('[role=tab]')].map(t => [t.textContent, t.getAttribute('aria-controls')]),
+              live: document.getElementById('lr-detail').getAttribute('aria-live'),
+              stairsHidden: document.getElementById('lr-stairs').hidden,
+              toggle: [sec.querySelector('.stairs-toggle').textContent, sec.querySelector('.stairs-toggle').getAttribute('aria-expanded')]} }""")
+    check("layers: section, then the bridge sentence, then the AI Oy growth path and table",
+          st["order"] and st["title"] == "Mitä yritys hoitaa itse ja mitä se ostaa"
+          and st["bridge"].startswith("Yllä rakenne yleisesti. Alla samat mallit kuvitteellisen AI Oy:n kasvupolkuna"), str(st["title"]))
+    check("layers: the WebP image (1672x941) loaded, with Finnish alt text",
+          st["img"] == ["datakeskus-kerrokset.webp", 1672, 941, True] and st["alt"].startswith("Läpileikkauskuva")
+          and len(st["alt"]) > 200, str(st["img"]))
+    check("layers: the overlay's viewBox is the image's pixel size and matches the data file",
+          st["viewBox"] == "0 0 1672 941" and st["data"] == [1672, 941], st["viewBox"])
+    check("layers: six zone polygons exactly as measured in kerrokset-data.js", st["polys"] and len(st["zoneA11y"]) == 6)
+    check("layers: zones and both markers are keyboard-focusable buttons",
+          all(t == 0 and r == "button" for _, t, r in st["zoneA11y"]) and [m[0] for m in st["markers"]] == ["grid", "heat"]
+          and all(t == 0 and r == "button" for _, t, r in st["markers"]), str(st["zoneA11y"] + st["markers"]))
+    check("layers: five model tabs in the table's order, each controlling the panel",
+          [t for t, _ in st["tabs"]] == ["Julkinen pilvi", "GPU-pilvi", "Retail-colocation", "Wholesale-colocation", "Oma datakeskus"]
+          and all(c == "lr-panel" for _, c in st["tabs"]), str(st["tabs"]))
+    check("layers: the side panel is announced (aria-live polite)", st["live"] == "polite")
+    check("layers: the staircase is collapsed by default behind its control",
+          st["stairsHidden"] and st["toggle"] == ["Näytä kaikki mallit rinnakkain", "false"], str(st["toggle"]))
+
+    # Every model: zones, labels, the list, the demarc line(s), the range and the cloud note.
+    for m in LAYER_MODELS:
+        pg.locator(f"#lr-tab-{m}").click()
+        settle(pg, 650)
+        s = pg.evaluate(LAYER_STATE)
+        zones, lines, rng = LAYER_EXPECT[m]
+        got_lines = [(l["pts"], l["label"]) for l in s["lines"]]
+        want_lines = [(s["gap"][g], label) for g, label in lines]
+        check(f"layers {m}: zones and labels show who handles each (Itse strong, counterparty named)",
+              s["zones"] == zones and s["sel"] == [m], str(s["zones"]))
+        check(f"layers {m}: the zone list says the same", {z: v.split(":", 1)[1] for z, v in zones.items()} == s["list"], str(s["list"]))
+        check(f"layers {m}: demarc line(s) in the right gap(s), labelled", got_lines == want_lines, str(got_lines))
+        check(f"layers {m}: the range band and the shared-responsibility note only for the cloud models",
+              s["range"] == rng and s["cloudNote"] == rng, f"range {s['range']}, note {s['cloudNote']}")
+
+    # The line slides between gaps; with reduced motion it jumps.
+    pg.locator("#lr-tab-public-cloud").click()
+    settle(pg, 650)
+    pg.locator("#lr-tab-retail-colocation").click()
+    settle(pg, 120)
+    mid = pg.evaluate(LAYER_STATE)
+    check("layers: the demarc line slides (mid-way 120ms after switching)",
+          mid["lines"] and mid["lines"][0]["pts"] not in (mid["gap"]["g12"], mid["gap"]["g34"]), str(mid["lines"][:1]))
+    settle(pg, 600)
+
+    # Keyboard: WAI-ARIA tabs.
+    pg.locator("#lr-tab-public-cloud").click()
+    settle(pg, 600)
+    pg.locator("#lr-tab-public-cloud").focus()
+    pg.keyboard.press("ArrowRight")
+    settle(pg, 100)
+    k1 = pg.evaluate("[document.activeElement.id, document.querySelector('[role=tab][aria-selected=true]').id, document.activeElement.tabIndex]")
+    pg.keyboard.press("End")
+    settle(pg, 100)
+    k2 = pg.evaluate("document.querySelector('[role=tab][aria-selected=true]').id")
+    pg.keyboard.press("Home")
+    settle(pg, 100)
+    k3 = pg.evaluate("document.querySelector('[role=tab][aria-selected=true]').id")
+    pg.keyboard.press("ArrowLeft")
+    settle(pg, 100)
+    k4 = pg.evaluate("document.querySelector('[role=tab][aria-selected=true]').id")
+    tabidx = pg.evaluate("[...document.querySelectorAll('[role=tab]')].map(t => t.tabIndex)")
+    check("layers: tabs follow the ARIA pattern (arrows, Home, End; only the selected tab is in the tab order)",
+          k1 == ["lr-tab-gpu-cloud", "lr-tab-gpu-cloud", 0] and k2 == "lr-tab-own-data-center" and k3 == "lr-tab-public-cloud"
+          and k4 == "lr-tab-own-data-center" and tabidx == [-1, -1, -1, -1, 0], f"{k1} {k2} {k3} {k4} {tabidx}")
+
+    # A zone opens its rows in the side panel, from the staircase.
+    pg.locator("#lr-tab-retail-colocation").click()
+    settle(pg, 650)
+    lab = pg.locator(".lr-zone[data-zone=z4]").get_attribute("aria-label")
+    check("layers: zone labels describe the selected model, e.g. 'Palvelinsali: Colocation-operaattori hoitaa'",
+          lab == "Palvelinsali: Colocation-operaattori hoitaa", lab)
+    pg.locator(".lr-zone[data-zone=z6]").focus()
+    pg.keyboard.press("Enter")
+    settle(pg, 200)
+    d = pg.evaluate("""() => ({title: document.querySelector('#lr-detail .zd-title').textContent,
+        rows: [...document.querySelectorAll('#lr-detail .zd-rows li')].map(li => [...li.children].map(c => c.textContent)),
+        notes: [...document.querySelectorAll('#lr-detail .zd-note')].map(p => p.textContent),
+        pressed: [document.querySelector('.lr-zone[data-zone=z6]').getAttribute('aria-pressed'),
+                  document.querySelector('.zone-btn[data-zone=z6]').getAttribute('aria-pressed')]})""")
+    check("layers: Enter on a zone opens its rows and who handles each (retail, Kiinteistö ja liittymä)",
+          d["title"] == "Kiinteistö ja liittymä" and d["rows"] == [[n, c[2]] for n, c in STAIRS[10:14]] and d["pressed"] == ["true", "true"],
+          str(d))
+    check("layers: the panel shows the zone's footnotes (connection point; retail electricity billing)",
+          d["notes"] == ["Verkkoyhtiö vastaa verkosta liittymispisteeseen asti.",
+                         "Sähkö laskutetaan yleensä operaattorin laskulla (kW tai kWh)."], str(d["notes"]))
+    pg.locator("#lr-tab-gpu-cloud").click()
+    settle(pg, 650)
+    # Regression (R61): the demarc layer and the range band sat over the zones and took their clicks.
+    try:
+        pg.locator(".lr-zone[data-zone=z2] .lr-zone-shape").click(timeout=3000)
+        settle(pg, 200)
+        through = pg.evaluate("document.querySelector('.lr-zone[data-zone=z2]').getAttribute('aria-pressed')") == "true"
+    except Exception as e:
+        through = False
+    check("layers: a click on a zone under the range band reaches the zone (lines never take clicks)", through)
+    pg.locator(".zone-btn[data-zone=z2]").click()
+    settle(pg, 200)
+    n2 = pg.evaluate("[...document.querySelectorAll('#lr-detail .zd-note')].length")
+    pg.locator(".zone-btn[data-zone=z5]").click()
+    settle(pg, 200)
+    n5 = pg.evaluate("[...document.querySelectorAll('#lr-detail .zd-note')].map(p => p.textContent)")
+    check("layers: the GPU cloud's data-centre footnote shows on the building zones only",
+          n2 == 0 and n5 == ["GPU-pilvi voi toimia omassa tai colocation-operaattorin datakeskuksessa."], f"{n2} {n5}")
+
+    # Row <-> zone highlight.
+    pg.locator(".stairs-toggle").click()
+    settle(pg, 200)
+    tg = pg.evaluate("[document.querySelector('.stairs-toggle').textContent, document.querySelector('.stairs-toggle').getAttribute('aria-expanded'), document.getElementById('lr-stairs').hidden]")
+    check("layers: the control opens the staircase and changes its label", tg == ["Piilota rinnakkaisnäkymä", "true", False], str(tg))
+    table = pg.evaluate("""() => ({head: [...document.querySelectorAll('.stairs-table thead th')].map(th => th.childNodes[0].textContent.trim()),
+        rows: [...document.querySelectorAll('.stairs-table tbody tr[data-row]')].map(tr => {
+          const t = el => { const c = el.cloneNode(true); c.querySelectorAll('.fn').forEach(f => f.remove()); return c.textContent.trim(); };
+          return [t(tr.querySelector('th')), [...tr.querySelectorAll('td')].map(t)] }),
+        groups: [...document.querySelectorAll('.stairs-group th')].map(th => th.textContent),
+        own: [...document.querySelectorAll('.stairs-table td')].every(td => (td.textContent.trim() === 'Itse') === td.classList.contains('own'))})""")
+    check("layers: the staircase has exactly the brief's 14 rows x 5 models (with the R61 corrections)",
+          table["rows"] == [[n, c] for n, c in STAIRS] and table["head"] == ["Julkinen pilvi", "GPU-pilvi", "Retail-colocation",
+                                                                          "Wholesale-colocation", "Oma datakeskus"],
+          str([r for r, w in zip(table["rows"], STAIRS) if r != [w[0], w[1]]][:2]))
+    check("layers: five layer groups, and every 'Itse' cell (only those) has the strong fill",
+          table["groups"] == ["SOVELLUKSET JA DATA", "ALUSTA", "LAITTEET", "KONESALI", "KIINTEISTÖ JA ENERGIA"] and table["own"],
+          str(table["groups"]))
+    pg.locator(".stairs-table tr[data-row='8']").hover()
+    settle(pg, 150)
+    hot = pg.evaluate("[...document.querySelectorAll('.lr-zone.is-hot')].map(g => g.dataset.zone)")
+    pg.mouse.move(5, 5)
+    pg.locator(".lr-zone[data-zone=z3] .lr-label-box").hover()
+    settle(pg, 150)
+    rows_hot = pg.evaluate("[...document.querySelectorAll('.stairs-table tr.is-hot')].map(tr => tr.dataset.row)")
+    check("layers: hovering a staircase row lights its zone, and a zone its rows", hot == ["z5"] and rows_hot == ["5", "6"], f"{hot} {rows_hot}")
+    note = pg.evaluate("document.querySelector('.stairs-note').textContent")
+    check("layers: the note under the staircase (R61: 'varataan usein omaan käyttöön')",
+          note.startswith("Kerrokset eivät näytä kaikkia eroja.") and "GPU-pilvessä kapasiteetti varataan usein omaan käyttöön" in note, note)
+
+    # Markers: the connection point (every model) and the waste-heat hotspot.
+    vis = []
+    for m in LAYER_MODELS:
+        pg.locator(f"#lr-tab-{m}").click()
+        settle(pg, 500)
+        vis.append(pg.evaluate("getComputedStyle(document.querySelector('.lr-marker--grid')).display !== 'none'"))
+    pg.locator(".lr-marker--grid .lr-marker-ring").click()
+    settle(pg, 200)
+    gd = pg.evaluate("document.getElementById('lr-detail').textContent")
+    check("layers: the connection-point marker is there in every model and says where the network company's responsibility ends",
+          all(vis) and "Liittymispiste: verkkoyhtiön vastuu päättyy tähän." in gd, gd[:120])
+    pg.locator(".lr-marker--heat .lr-marker-ring").click()
+    settle(pg, 200)
+    hd = pg.evaluate("""() => ({text: document.getElementById('lr-detail').textContent,
+        links: [...document.querySelectorAll('#lr-detail a')].map(a => a.getAttribute('href'))})""")
+    check("layers: the waste-heat hotspot: Mäntsälä since 2015 (Yandex, now Nebius), Microsoft and Fortum, link to the specialised models page",
+          "Mäntsälän datakeskus on myynyt hukkalämpöä paikalliseen kaukolämpöverkkoon vuodesta 2015" in hd["text"] and "Nebius" in hd["text"]
+          and "Fortumin" in hd["text"] and "specialised-models.html#hukkalampo" in hd["links"], str(hd["links"]))
+    check("layers: the Fortum source is the ecosystem page's own",
+          "https://www.fortum.com/en/media/2026/05/fortum-has-started-heat-production-two-large-data-centre-sites-finland" in hd["links"])
+    errs = [l for l in log if l[0] in ("console", "pageerror")]
+    check("layers: no console errors/warnings or page errors", not errs, str(errs))
+    run.shot(pg, "l1_layers_1680.png", full_page=True)
+    ctx.close()
+
+    # Reduced motion: the line jumps.
+    ctx = b.new_context(viewport={"width": 1680, "height": 1050}, reduced_motion="reduce")
+    pg = ctx.new_page()
+    pg.goto(hub)
+    pg.wait_for_load_state("networkidle")
+    pg.locator("#lr-tab-wholesale-colocation").click()
+    settle(pg, 30)
+    s = pg.evaluate(LAYER_STATE)
+    check("layers: with reduced motion the line jumps to its gap at once",
+          [l["pts"] for l in s["lines"]] == [s["gap"]["g45"], s["gap"]["g56"]], str(s["lines"]))
+    ctx.close()
+
+    # The waste-heat link lands on its card.
+    ctx = b.new_context(viewport={"width": 1680, "height": 1050})
+    pg = ctx.new_page()
+    pg.goto(run.base + "specialised-models.html#hukkalampo")
+    pg.wait_for_load_state("networkidle")
+    settle(pg, 300)
+    ht = pg.evaluate("() => { const e = document.getElementById('hukkalampo'); const r = e && e.getBoundingClientRect(); return e && [e.querySelector('h3').textContent, r.top >= 0 && r.top < innerHeight] }")
+    check("layers: specialised-models.html#hukkalampo lands on 'Hukkalämmön myynti'", ht == ["Hukkalämmön myynti", True], str(ht))
+    ctx.close()
+
+    # Phones and the layouts between: no sideways scroll; on phones the labels give way to the zone list.
+    for w, h, mobile in WIDTHS:
+        ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=mobile, has_touch=mobile)
+        pg = ctx.new_page()
+        pg.goto(hub)
+        pg.wait_for_load_state("networkidle")
+        ph = pg.evaluate("""() => { const st = document.querySelector('.layers-stage').getBoundingClientRect(), side = document.querySelector('.layers-side').getBoundingClientRect();
+            const lab = document.querySelector('.lr-label'); return {below: side.top >= st.bottom - 1, beside: side.left >= st.right - 1,
+            labels: getComputedStyle(lab).display !== 'none', overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth} }""")
+        if w < 1024:
+            check(f"layers {w}: zone list below the picture, labels hidden, no sideways scroll",
+                  ph["below"] and not ph["labels"] and ph["overflow"] <= 0, str(ph))
+        else:
+            check(f"layers {w}: labels on the picture, side panel {'beside' if w >= 1400 else 'below'} it, no sideways scroll",
+                  ph["labels"] and (ph["beside"] if w >= 1400 else ph["below"]) and ph["overflow"] <= 0, str(ph))
+        if w == 360:
+            pg.locator(".zone-btn[data-zone=z4]").click()
+            settle(pg, 200)
+            t = pg.evaluate("document.querySelector('#lr-detail .zd-title') && document.querySelector('#lr-detail .zd-title').textContent")
+            check("layers 360: tapping a zone in the list opens it", t == "Palvelinsali", str(t))
+            run.shot(pg, "l2_layers_360.png", full_page=True)
+        ctx.close()
+
+    # The AI Oy table: no bar row; the legend keeps the risk colours.
+    ctx = b.new_context(viewport={"width": 1680, "height": 1050})
+    pg = ctx.new_page()
+    pg.goto(hub)
+    pg.wait_for_load_state("networkidle")
+    mt = pg.evaluate("""() => ({labels: [...document.querySelectorAll('.matrix-labels .mlabel')].map(e => e.textContent),
+        segs: document.querySelectorAll('.segments').length,
+        legend: [document.querySelector('.legend-title').textContent, [...document.querySelectorAll('.legend-item')].map(e => e.textContent)]})""")
+    check("table: the KERROKSET bar row is gone (the section above shows the layers)",
+          "KERROKSET" not in mt["labels"] and mt["segs"] == 0 and len(mt["labels"]) == 12, str(mt["labels"]))
+    check("table: the legend names the risk boxes' two colours",
+          mt["legend"] == ["VÄRIT:", ["AI Oy", "Vastapuoli: pilvi- tai colocation-yhtiö"]], str(mt["legend"]))
+    col = pg.evaluate("""() => { const bg = s => getComputedStyle(document.querySelector(s)).backgroundColor;
+        return {ownBox: bg('.risk-box.fill-own'), cpBox: bg('.risk-box.fill-blue'), ownKey: bg('.legend .swatch.fill-own'),
+                cpKey: bg('.legend .swatch.fill-blue'), ownCell: bg('.stairs-table td.own'), cpCell: bg('.stairs-table td.cp'),
+                ownBtn: bg('.zone-btn.is-own'), cpBtn: bg('.zone-btn.is-cp')} }""")
+    check("table: one colour convention on the hub (R62): the company navy, the counterparty light blue, in the section and the table",
+          len({col["ownBox"], col["ownKey"], col["ownCell"], col["ownBtn"]}) == 1 and col["ownBox"] == "rgb(18, 34, 46)"
+          and len({col["cpBox"], col["cpKey"], col["cpCell"], col["cpBtn"]}) == 1 and col["cpBox"] == "rgb(232, 239, 245)", str(col))
+    ctx.close()
+
+    # Naming rule, site-wide (R61): no "tarjoaja" as a role name anywhere in the explainer.
+    ctx = b.new_context(viewport={"width": 1280, "height": 900})
+    pg = ctx.new_page()
+    found = {}
+    for slug in ["index"] + CARDS + PAGES:
+        pg.goto(run.base + slug + ".html")
+        pg.wait_for_load_state("networkidle")
+        n = pg.evaluate("() => (document.body.innerText.match(/tarjoaj/gi) || []).length + Object.values(window.BM_GLOSSARY || {}).filter(e => /tarjoaj/i.test(e.definition)).length")
+        if n:
+            found[slug] = n
+    check("naming: no 'tarjoaja' on any explainer page or in the glossary", not found, str(found))
+    ctx.close()
+
+
+SUITES = {"hub": suite_hub, "cards": suite_cards, "pages": suite_pages, "layers": suite_layers}
 
 
 def main():
