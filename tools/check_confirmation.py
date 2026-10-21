@@ -559,6 +559,20 @@ def check_window():
     stored, missing = main._confirmation_window("optical", [], SESSIONS, D("2026-10-07"))
     check("start: an empty history names no missing days", not stored and not missing)
 
+    # R63: steady Green, judged on the stored (shown) colour, not the score band.
+    hist = [entry(d, {"optical": (35.0, "Green")}) for d in ("2026-10-01", "2026-10-02", "2026-10-05")]
+    c, note, branch = confirm(38.0, "Green", hist, "2026-10-06")
+    check("steady: Green now and in all 3 stored sessions reads 'Green, steady'",
+          (c, note, branch) == ("Green", "Green, steady: also Green in the last 3 sessions", "steady"), f"{branch}: {note}")
+    hist[1] = entry("2026-10-02", {"optical": (35.0, "Orange")})     # Green-band score, but shown Orange (held)
+    c, note, branch = confirm(38.0, "Green", hist, "2026-10-06")
+    check("steady: a session shown in another colour (score in the Green band) keeps the holding note",
+          branch == "holding" and note.startswith("Kept Green: latest score 38.0 isn't confirmed yet"), f"{branch}: {note}")
+    hist = [entry(d, {"optical": (35.0, "Green")}) for d in ("2026-10-01", "2026-10-02")]
+    c, note, branch = confirm(38.0, "Green", hist, "2026-10-06")
+    check("steady: with a session missing, the holding note stays (names the missing day)",
+          branch == "holding" and note.endswith("(no reading for Mon Oct 5)"), f"{branch}: {note}")
+
     # 7-day limit: after an exceptional closure, older entries don't count.
     gap_sessions = [D("2026-09-30"), D("2026-10-01"), D("2026-10-12")]
     hist = [entry(d, {"optical": (50.0, "Orange")}) for d in ("2026-09-30", "2026-10-01", "2026-10-12")]
