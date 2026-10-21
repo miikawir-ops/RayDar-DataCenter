@@ -788,6 +788,45 @@ def check_rendered_note(tmp, shots):
           json.dumps([l.get("note") for l in js]))
 
 
+def check_regime_label(tmp):
+    """R71: the page's market-regime label is the regime and multiplier the engine applied, for
+    the cases where the old render.py rule disagreed (VIX alone) and the edges (two risk signals,
+    nothing usable). Rendered end to end through stage_score() and generate_dashboard()."""
+    from score_engine import ScoreEngine
+    work = os.path.join(tmp, "regime")
+    os.makedirs(work, exist_ok=True)
+    os.chdir(work)
+    render.SCORES_HISTORY_FILE = "scores_history.json"
+    layers = list(SUB_LAYERS)
+    market_data = {"sub_layers": {lid: [fixture_ticker(lid[:4].upper())] for lid in layers},
+                   "meta": {"generic_feed_failures": [], "session": "2026-10-06",
+                            "sessions": [s.isoformat() for s in SESSIONS if s <= D("2026-10-06")]}}
+    cases = [("VIX 25 alone", {"vix": 25.0, "yield_10y_change": None, "nasdaq_vs_spx_20d": None},
+              "Market regime: Risk-On · scores × 1.00"),
+             ("VIX 35 alone", {"vix": 35.0, "yield_10y_change": None, "nasdaq_vs_spx_20d": None},
+              "Market regime: Neutral · scores × 0.85"),
+             ("VIX 35 + yield +120 bps", {"vix": 35.0, "yield_10y_change": 120.0, "nasdaq_vs_spx_20d": None},
+              "Market regime: Risk-Off · scores × 0.65"),
+             ("all three missing", {"vix": None, "yield_10y_change": None, "nasdaq_vs_spx_20d": None},
+              "Market regime: Unknown (macro data unavailable)")]
+    for name, macro, want in cases:
+        if os.path.exists("scores_history.json"):
+            os.remove("scores_history.json")
+        macro = dict(macro, data_missing=[])
+        scored = main.stage_score(market_data, macro)
+        render.generate_dashboard(scored, macro, market_data, None)
+        page = open("index.html", encoding="utf-8").read()
+        m = re.search(r'<div class="reg-pill" tabindex="0">(.*?)\n\s*<div class="reg-tooltip">', page, re.S)
+        shown = m.group(1).strip() if m else None
+        mult, regime = ScoreEngine(macro).get_macro_multiplier([])
+        used = {(t["regime"], t["multiplier"]) for l in scored.values() for t in (l.get("all_tickers") or [])}
+        check(f"regime label, {name}: the page shows the regime the scores used ({want})",
+              shown == want and want.startswith("Market regime: " + regime)
+              and (used == {(regime, mult)} or regime.startswith("Unknown")), f"{shown!r}, engine {regime} x{mult}, used {used}")
+    check("regime label: the tooltip states the voting rule the engine applies",
+          "<b>Rule applied:</b> Risk-Off (scores × 0.65) needs two risk signals" in page and "A missing signal doesn't vote." in page)
+
+
 def check_dashboard_page(tmp):
     """R59 items 2 and 5, in a browser on the page check_rendered_note() rendered: the section heading,
     the card anchors (index.html#layer-<id> opens that card) and the family link cards' style."""
@@ -886,6 +925,7 @@ def run(shots):
         check_workflow()
         check_rendered_note(tmp, shots)
         check_dashboard_page(tmp)
+        check_regime_label(tmp)
     finally:
         os.chdir(cwd)
         render.SCORES_HISTORY_FILE = real_file
