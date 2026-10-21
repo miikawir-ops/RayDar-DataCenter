@@ -541,7 +541,7 @@ LAYER_FILLS = """() => Object.fromEntries([...document.querySelectorAll('.lr-zon
   const cs = getComputedStyle(g.querySelector('.lr-zone-shape')); return [g.dataset.zone, [cs.fill, cs.stroke]] }))"""
 # Worst case: each label's backing (box or halo) composited over black, the darkest the picture or a fill can be.
 LABEL_CONTRAST = """() => {
-  const rgba = s => { const m = s.match(/[\d.]+/g).map(Number); return [m[0], m[1], m[2], m.length > 3 ? m[3] : 1] };
+  const rgba = s => { const m = s.match(/[\\d.]+/g).map(Number); return [m[0], m[1], m[2], m.length > 3 ? m[3] : 1] };
   const over = (c, b) => [0, 1, 2].map(i => c[i] * c[3] + b[i] * (1 - c[3]));
   const lum = c => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4) };
                      return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]) };
