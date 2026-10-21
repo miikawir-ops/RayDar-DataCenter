@@ -222,6 +222,8 @@
 .lr-line-label{font:700 20px var(--f-body);fill:var(--rust);paint-order:stroke;stroke:rgba(255,255,255,.92);stroke-width:6px}
 /* The cloud range (R65): a light shaded band from the typical line to where the line can move. */
 .lr-range{fill:rgba(251,234,220,.55);stroke:none}
+.lr-pos-halo{fill:none;stroke:rgba(255,255,255,.75);stroke-width:5;stroke-linejoin:round}
+.lr-pos-line{fill:none;stroke:var(--rust-strong);stroke-width:2;stroke-linejoin:round}
 .lr-range-label{font:600 19px var(--f-body);fill:var(--rust);paint-order:stroke;stroke:rgba(255,255,255,.92);stroke-width:6px}
 /* The lines and the range band are drawn over the zones but never take a click. */
 .lr-lines{transition:opacity .3s;pointer-events:none}
@@ -324,7 +326,7 @@
   .layers-title{font-size:22px}
   .layers-tabs{flex-wrap:nowrap;overflow-x:auto;margin:0 -14px;padding:2px 14px 6px;scrollbar-width:thin}
   .layers-side{display:flex;align-items:stretch}  /* undo the 1399px grid's align-items:start */
-  .lr-label,.lr-leader,.lr-line-label,.lr-range-label,.lr-marker-label,.lr-marker-sub,.lr-marker-box{display:none}
+  .lr-label,.lr-leader,.lr-line-label,.lr-range-label,.lr-pos-halo,.lr-pos-line,.lr-marker-label,.lr-marker-sub,.lr-marker-box{display:none}
   .hub-head{flex-direction:column;align-items:flex-start;gap:8px}
   .hub-title{font-size:30px}
   .hub-lede{text-align:left;max-width:none}
@@ -479,7 +481,9 @@
       <span data-key="typical">Vastuuraja, tyypillisesti</span>
       <span data-key="turnkey">Vastuuraja: turnkey</span>
       <span data-key="shell">Vastuuraja: powered shell</span>
-      <span data-key="rangePublic">PaaS ja SaaS</span>
+      <span data-key="iaas">IaaS</span>
+      <span data-key="paas">PaaS</span>
+      <span data-key="saas">SaaS</span>
       <span data-key="rangeGpu">hallittu palvelu</span>
       <span data-key="hide">Piilota rinnakkaisnäkymä</span>
       <span data-key="back">← Takaisin yhteenvetoon</span>

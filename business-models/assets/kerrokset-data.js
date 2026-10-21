@@ -28,9 +28,11 @@ window.BM_LAYERS = {
           poly: [[245,585],[676,730],[1045,632],[1045,725],[1110,745],[1160,790],[980,860],[640,920],[215,800],[215,655]] }
   },
   // Demarc lines run along the lower front edges of the slabs (the gap below
-  // each zone): g12 = between Z1 and Z2, and so on. g1x is inside Z1, the upper
-  // end of the public cloud's range (PaaS/SaaS).
+  // each zone): g12 = between Z1 and Z2, and so on. g1x and g1t are inside Z1:
+  // the public cloud's PaaS and SaaS positions (R66), g1t near the top, parallel
+  // to the others.
   gaps: {
+    g1t: [[380,44],[700,98],[955,46]],
     g1x: [[330,104],[700,166],[985,110]],
     g12: [[300,152],[700,222],[998,164]],
     g23: [[300,238],[700,310],[998,246]],
@@ -40,9 +42,11 @@ window.BM_LAYERS = {
   },
   // Per model: own = zones the company typically handles itself; lines = the
   // demarc line(s), [gap, label key]; range = [upper, lower] gap of the band
-  // the line moves in (cloud models only).
+  // the line moves in (cloud models only); positions = named service models on
+  // the band, [gap, label key] (public cloud: IaaS, PaaS, SaaS; R66).
   models: {
-    "public-cloud":         { own: ["z1"],                         lines: [["g12", "typical"]],  range: ["g1x", "g12"] },
+    "public-cloud":         { own: ["z1"],                         lines: [["g12", "typical"]],  range: ["g1t", "g12"],
+                            positions: [["g12", "iaas"], ["g1x", "paas"], ["g1t", "saas"]] },
     "gpu-cloud":            { own: ["z1", "z2"],                   lines: [["g23", "typical"]],  range: ["g12", "g23"] },
     "retail-colocation":    { own: ["z1", "z2", "z3"],             lines: [["g34", "line"]] },
     "wholesale-colocation": { own: ["z1", "z2", "z3", "z4"],       lines: [["g45", "turnkey"], ["g56", "shell"]] },

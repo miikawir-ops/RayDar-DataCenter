@@ -104,6 +104,13 @@
   const gLines = el("g", { class: "lr-lines" }, svg);
   const range = el("polygon", { class: "lr-range" }, gLines);
   const rangeLabel = el("text", { class: "lr-range-label", "text-anchor": "end" }, gLines);
+  // Named positions on the band (public cloud: IaaS, PaaS, SaaS; R66): a thin solid
+  // line along the gap and the name at its left end.
+  const posEls = [0, 1, 2].map(() => ({
+    halo: el("polyline", { class: "lr-pos-halo" }, gLines),
+    line: el("polyline", { class: "lr-pos-line" }, gLines),
+    label: el("text", { class: "lr-range-label lr-pos-label", "text-anchor": "end" }, gLines),
+  }));
   const lines = [0, 1].map(() => ({
     halo: el("polyline", { class: "lr-line-halo" }, gLines),
     line: el("polyline", { class: "lr-line" }, gLines),
@@ -240,11 +247,24 @@
       range.setAttribute("points", pts(up.concat(low.slice().reverse())));
       rangeLabel.setAttribute("x", up[0][0] - 12);
       rangeLabel.setAttribute("y", up[0][1] + 7);
-      rangeLabel.textContent = model === "public-cloud" ? T.rangePublic : T.rangeGpu;
-      [range, rangeLabel].forEach((e) => { e.style.display = ""; });
+      rangeLabel.textContent = T.rangeGpu;
+      range.style.display = "";
+      rangeLabel.style.display = m.positions ? "none" : "";
     } else {
       [range, rangeLabel].forEach((e) => { e.style.display = "none"; });
     }
+    posEls.forEach((pe, i) => {
+      const spec = m.positions && m.positions[i];
+      [pe.halo, pe.line, pe.label].forEach((e) => { e.style.display = spec ? "" : "none"; });
+      if (!spec) return;
+      const g = D.gaps[spec[0]];
+      pe.halo.setAttribute("points", pts(g));
+      pe.line.setAttribute("points", pts(g));
+      pe.label.setAttribute("x", g[0][0] - 12);
+      pe.label.setAttribute("y", g[0][1] + 7);
+      pe.label.textContent = T[spec[1]];
+      pe.label.dataset.gap = spec[0];
+    });
     cloudNote.hidden = !m.range;
     heads.forEach((th, i) => {
       table.querySelectorAll("tbody tr[data-row]").forEach((tr) => tr.children[i + 1].classList.toggle("is-col", th.dataset.model === model));

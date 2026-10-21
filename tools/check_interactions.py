@@ -664,6 +664,13 @@ def suite_layers(b, run):
                         getComputedStyle(r).stroke, document.querySelectorAll('.lr-range-edge').length] }""", m)
             check(f"layers {m}: the range is a light shaded band from the typical line to the range end, no dotted line (R65)",
                   band == [True, "rgba(251, 234, 220, 0.55)", "none", 0], str(band))
+        pos = pg.evaluate("""() => ({pos: [...document.querySelectorAll('.lr-pos-label')].filter(t => t.style.display !== 'none')
+            .map(t => [t.textContent, t.dataset.gap]), range: [...document.querySelectorAll('.lr-range-label:not(.lr-pos-label)')]
+            .filter(t => t.style.display !== 'none').map(t => t.textContent)})""")
+        want_pos = {"public-cloud": {"pos": [["IaaS", "g12"], ["PaaS", "g1x"], ["SaaS", "g1t"]], "range": []},
+                    "gpu-cloud": {"pos": [], "range": ["hallittu palvelu"]}}.get(m, {"pos": [], "range": []})
+        check(f"layers {m}: public cloud names IaaS (Z1/Z2 line), PaaS (inside Z1) and SaaS (top) on its band; GPU cloud keeps 'hallittu palvelu' (R66)",
+              pos == want_pos, str(pos))
         con = pg.evaluate(LABEL_CONTRAST)
         check(f"layers {m}: every label on the picture has contrast >= 4.5 against its box or halo, even over black (R65)",
               len(con) >= 12 and min(r for _, r in con) >= 4.5, str(sorted(con, key=lambda c: c[1])[:3]))
