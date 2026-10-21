@@ -217,6 +217,9 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 .term-name{font-family:var(--f-display);font-size:15px;font-weight:700}
 .term-alt{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
 .term-def{font-size:13px;line-height:1.4;color:var(--ink-2)}
+/* Network ecosystem panel (retail card, ledger R64) */
+.eco{display:flex;flex-direction:column;gap:8px;padding:18px 24px;border-radius:14px}
+.eco-text{margin:0;font-size:14px;line-height:1.55;color:var(--ink-2);max-width:980px}
 .card-note{font-size:12.5px}
 
 /* Horizontal scroller with an edge fade: the dashboard's #chain swipe-row
