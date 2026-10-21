@@ -201,8 +201,8 @@
   },
   {
     "date": "2026-10-20",
-    "time": "18:59",
-    "run_at": "2026-10-21T18:59:44+00:00",
+    "time": "19:21",
+    "run_at": "2026-10-21T19:21:26+00:00",
     "model_version": 2,
     "scores": {
       "cooling": {
@@ -231,7 +231,7 @@
         }
       },
       "compute": {
-        "score": 31.27,
+        "score": 31.25,
         "color": "Green",
         "ratings": {
           "SMCI": "C",
