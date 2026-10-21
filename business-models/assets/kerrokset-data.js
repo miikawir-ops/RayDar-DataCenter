@@ -10,13 +10,15 @@ window.BM_LAYERS = {
   height: 941,
   // Zones top to bottom (brief: Z1-Z6). rows = staircase rows (1-14) in the zone.
   // poly = clickable area; label = where the zone's label sits (left edge, top);
-  // site = part of the building and its plot (Z4-Z6).
+  // site = part of the building and its plot (Z4-Z6). leader = where the callout's
+  // leader line starts, when the rightmost corner won't do (Z2: from its corner the
+  // leader crossed the public cloud's 'Vastuuraja, tyypillisesti' label; R69).
   // Z4 covers the caged racks only: the free-standing white units on that floor
   // (x 905-990) are in-row cooling, and cooling is row 8 (Z5).
   zones: {
     z1: { rows: [1, 2, 3],        label: [1090, 52],
           poly: [[300,148],[300,128],[385,55],[460,38],[560,14],[720,8],[835,22],[905,45],[950,82],[998,145],[998,160],[700,218]] },
-    z2: { rows: [4],              label: [1090, 178],
+    z2: { rows: [4],              label: [1090, 178], leader: [998, 201],
           poly: [[300,148],[700,218],[998,160],[998,242],[700,306],[300,234]] },
     z3: { rows: [5, 6],           label: [1090, 282],
           poly: [[303,236],[700,306],[998,242],[998,330],[1023,346],[1023,358],[695,440],[279,347],[282,336],[303,256]] },

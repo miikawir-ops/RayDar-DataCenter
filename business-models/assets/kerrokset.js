@@ -104,7 +104,8 @@
     const d = D.zones[z];
     const g = el("g", { class: "lr-zone", "data-zone": z, tabindex: "0", role: "button", "aria-pressed": "false" }, gZones);
     const shape = el("polygon", { class: "lr-zone-shape", points: pts(d.poly) }, g);
-    const right = d.poly.reduce((a, p) => (p[0] > a[0] ? p : a));
+    // The leader leaves from the zone's rightmost corner, or from d.leader where set.
+    const right = d.leader || d.poly.reduce((a, p) => (p[0] > a[0] ? p : a));
     el("line", { class: "lr-leader", x1: right[0] + 6, y1: right[1], x2: d.label[0], y2: d.label[1] + 31 }, g);
     const lab = el("g", { class: "lr-label" }, g);
     const box = el("rect", { class: "lr-label-box", x: d.label[0], y: d.label[1], rx: 10, width: 300, height: 62 }, lab);

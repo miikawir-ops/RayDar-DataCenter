@@ -207,12 +207,13 @@
 .lr-zone.is-own .lr-zone-shape{fill:rgba(18,34,46,.5)}
 .lr-zone.is-mixed .lr-zone-shape{fill:url(#lr-hatch)}
 .lr-zone.is-cp .lr-zone-shape{fill:rgba(232,239,245,.4)}
-/* Rust is kept for the demarc line alone: hover is blue, the selected or focused zone navy. */
-.lr-zone:hover .lr-zone-shape,.lr-zone.is-hot .lr-zone-shape{stroke:var(--blue);stroke-width:5}
-.lr-zone:focus-visible .lr-zone-shape{stroke:var(--navy);stroke-width:7;stroke-dasharray:none}
-.lr-zone.is-selected .lr-zone-shape{stroke:var(--navy);stroke-width:7;stroke-dasharray:none}
+/* Rust is kept for the demarc line alone. One selection colour (R69): the selected or focused
+   zone and the selected list item are blue; hover is the lighter blue. */
+.lr-zone:hover .lr-zone-shape,.lr-zone.is-hot .lr-zone-shape{stroke:var(--blue-soft);stroke-width:4}
+.lr-zone:focus-visible .lr-zone-shape{stroke:var(--blue);stroke-width:5;stroke-dasharray:none}
+.lr-zone.is-selected .lr-zone-shape{stroke:var(--blue);stroke-width:5;stroke-dasharray:none}
 .lr-label-box{fill:rgba(255,255,255,.94);stroke:var(--line);stroke-width:1.5}
-.lr-zone.is-selected .lr-label-box,.lr-zone:focus-visible .lr-label-box{stroke:var(--navy);stroke-width:3.5}
+.lr-zone.is-selected .lr-label-box,.lr-zone:focus-visible .lr-label-box{stroke:var(--blue);stroke-width:3.5}
 .lr-label-name{font:700 24px var(--f-display);fill:var(--navy)}
 .lr-label-who{font:600 21px var(--f-body);fill:var(--blue)}
 .lr-zone.is-own .lr-label-who{fill:var(--navy)}
@@ -238,7 +239,7 @@
 .lr-marker:hover .lr-marker-ring,.lr-marker:focus-visible .lr-marker-ring,.lr-marker.is-selected .lr-marker-ring{stroke:var(--blue);stroke-width:7}
 .lr-marker-label{font:700 21px var(--f-body);fill:var(--navy)}
 .lr-marker-sub{font:500 19px var(--f-body);fill:var(--navy)}
-.lr-marker.is-selected .lr-marker-box,.lr-marker:focus-visible .lr-marker-box{stroke:var(--navy);stroke-width:3.5}
+.lr-marker.is-selected .lr-marker-box,.lr-marker:focus-visible .lr-marker-box{stroke:var(--blue);stroke-width:3.5}
 /* Legend */
 .layers-legend{display:flex;flex-direction:column;gap:5px;font-size:13px;line-height:1.45;color:var(--ink-2)}
 .layers-legend p{margin:0}
@@ -281,8 +282,8 @@
 .zone-btn.is-mixed{background:repeating-linear-gradient(135deg,#D7E3EC 0 6px,#EEF3F7 6px 12px);border-color:var(--blue)}
 .zone-btn .zone-name{font-weight:600}
 .zone-btn .zone-who{font-size:12.5px;font-weight:600;text-align:right}
-.zone-btn:hover,.zone-btn.is-hot{box-shadow:0 0 0 2px var(--blue)}
-.zone-btn[aria-pressed="true"]{box-shadow:0 0 0 3px var(--navy),0 0 0 5px var(--white)}
+.zone-btn:hover,.zone-btn.is-hot{box-shadow:0 0 0 2px var(--blue-soft)}
+.zone-btn[aria-pressed="true"]{box-shadow:0 0 0 3px var(--blue),0 0 0 5px var(--white)}
 .zone-btn:focus-visible,.marker-btn:focus-visible,.stairs-toggle:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
 .lr-markers{display:flex;gap:8px;flex-wrap:wrap}
 .marker-btn{display:inline-flex;align-items:center;gap:7px;font:600 13px var(--f-body);color:var(--navy);background:var(--white);

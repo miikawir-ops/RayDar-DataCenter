@@ -537,6 +537,16 @@ STAIRS = [
     ("Sähkön hankinta", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Itse tai läpilaskutettuna", "Itse"]),
     ("Rakennus- ja ympäristöluvat", ["CSP", "GPU-pilvi", "Colocation-operaattori", "Datakeskusoperaattori", "Itse"]),
 ]
+# R69: labels on the lines must keep clear of the callouts' leader lines (sampled along each leader).
+LEADER_CLEAR = """() => { const out = [];
+  const labels = [...document.querySelectorAll('.lr-line-label, .lr-range-label')].filter(t => t.style.display !== 'none' && t.textContent);
+  document.querySelectorAll('.lr-zone .lr-leader').forEach(l => {
+    const [x1, y1, x2, y2] = ['x1', 'y1', 'x2', 'y2'].map(a => +l.getAttribute(a));
+    labels.forEach(t => { const b = t.getBBox();
+      for (let i = 0; i <= 60; i++) { const x = x1 + (x2 - x1) * i / 60, y = y1 + (y2 - y1) * i / 60;
+        if (x >= b.x - 2 && x <= b.x + b.width + 2 && y >= b.y - 2 && y <= b.y + b.height + 2) {
+          out.push(t.textContent + ' x ' + l.closest('.lr-zone').dataset.zone); break; } } }); });
+  return out }"""
 # R69: zone names and the one-line description at the top of each zone panel.
 ZONE_NAMES = {"z1": "Sovellukset, data ja ohjelmistot", "z2": "Ohjelmistoalusta", "z3": "IT-laitteet",
               "z4": "Salitila ja räkit", "z5": "Rakennuksen tekniikka", "z6": "Kiinteistö ja liittymä"}
@@ -677,6 +687,8 @@ def suite_layers(b, run):
                     "gpu-cloud": {"pos": [], "range": ["hallittu palvelu"]}}.get(m, {"pos": [], "range": []})
         check(f"layers {m}: public cloud names IaaS (Z1/Z2 line), PaaS (inside Z1) and SaaS (top) on its band; GPU cloud keeps 'hallittu palvelu' (R66)",
               pos == want_pos, str(pos))
+        hits = pg.evaluate(LEADER_CLEAR)
+        check(f"layers {m}: no demarc or band label sits on a callout's leader line (R69)", hits == [], str(hits))
         con = pg.evaluate(LABEL_CONTRAST)
         check(f"layers {m}: every label on the picture has contrast >= 4.5 against its box or halo, even over black (R65)",
               len(con) >= 12 and min(r for _, r in con) >= 4.5, str(sorted(con, key=lambda c: c[1])[:3]))
@@ -794,6 +806,10 @@ def suite_layers(b, run):
     pg.locator(".lr-zone[data-zone=z6]").focus()
     pg.keyboard.press("Enter")
     settle(pg, 200)
+    sc = pg.evaluate("""() => [getComputedStyle(document.querySelector('.lr-zone.is-selected .lr-zone-shape')).stroke,
+        getComputedStyle(document.querySelector('.zone-btn[aria-pressed=true]')).boxShadow]""")
+    check("layers: the selected zone's outline and the selected list item share one accent colour, blue, not navy (R69)",
+          sc[0] == "rgb(31, 78, 110)" and sc[1].startswith("rgb(31, 78, 110)"), str(sc))
     check("layers: the panel shows the zone's footnotes (connection point; retail electricity billing)",
           d["notes"] == ["Verkkoyhtiö vastaa verkosta liittymispisteeseen asti.",
                          "Sähkö laskutetaan yleensä operaattorin laskulla (kW tai kWh)."], str(d["notes"]))
