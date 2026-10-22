@@ -251,8 +251,8 @@
   },
   {
     "date": "2026-10-21",
-    "time": "08:18",
-    "run_at": "2026-10-22T08:18:55+00:00",
+    "time": "16:43",
+    "run_at": "2026-10-22T16:43:52+00:00",
     "model_version": 2,
     "scores": {
       "cooling": {
@@ -263,7 +263,7 @@
         }
       },
       "networking": {
-        "score": 40.63,
+        "score": 38.23,
         "color": "Green",
         "ratings": {
           "ANET": "B",
@@ -281,7 +281,7 @@
         }
       },
       "compute": {
-        "score": 32.7,
+        "score": 35.44,
         "color": "Green",
         "ratings": {
           "SMCI": "C",
