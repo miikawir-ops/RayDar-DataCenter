@@ -1012,10 +1012,6 @@ live date for rendered changes) · **superseded** · **declined**.
 
 Queued work that isn't a ledger request in progress.
 
-- **Chain bar at 360 px (R63, minor).** The bar is a flex row beside the About button, so at 360 px
-  "Highest score: … · Lowest score: …" wraps over four lines. Readable; a full-width row on
-  phones would keep it on one or two lines.
-
 - **Run rate never shows (ledger R47).** `run_rate` is null for all 12
   tickers on the live page: `fetch_ticker_data()` fills `revenue_quarterly`
   only on the fallback path (when the quarterly revenue growth can't be
@@ -1029,12 +1025,6 @@ Queued work that isn't a ledger request in progress.
   none for Green, so a sustained Green always lands in "holding". The note
   is the R36/R42 wording; whether a steady Green should read as confirmed is
   Ray's call (user-facing text).
-- **Long walkthrough steps on phones (R53, minor).** At 360px the walkthrough
-  text sits in a narrow column between Prev (left, vertically centred) and
-  Next (below), so money step 7 with its Finland note runs about 20 lines.
-  Readable, no sideways scroll; putting Prev and Next on one row under the
-  text would give the text the full width.
-
 - **Check runs that stall (R70 asked to log recurrences, 2026-10-23).** Page loads that time out with no
   code change, each passing on rerun: R79 local, check_ecosystem `phones` suite, `open_page` on
   ecosystem.html (wait_for_load_state timeout); R79 live, check_ecosystem gave no summary (suite not
