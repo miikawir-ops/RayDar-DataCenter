@@ -29,7 +29,12 @@
 // v9 (2026-10-11, R52/R53): money step 7 (the public sector's share), the
 // hyperscaler note in step 1 and the Daily signals link in step 3; the GPU
 // cloud (neocloud) stakeholder and its relationships; EXAMPLES, sourced
-// companies per stakeholder.
+// companies per stakeholder. v10 (2026-10-23, R76): money step 3 split in two
+// (the operator buys the facility's systems; the IT hardware is bought by whoever
+// runs the IT layer), so the money path has 8 steps; every payment carries a
+// phase (build = one-off investment, operate = recurring) for the explorer's
+// Money flows view; equipment -> hyperscaler; step 1, energy and public-sector
+// wording.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -78,7 +83,7 @@ const STAKEHOLDERS = [
     posterBox: { x: 55.5, y: 16.5, w: 16.7, h: 7.7 }, posterAccent: "#21E4FF" },
 
   { id: "energy_gen", name: "Energy & Power Generation", x: 100, y: 140,
-    description: "Producers supplying the grid — renewables (wind, solar, hydro), nuclear, gas, and other sources — that a data center's power ultimately comes from.",
+    description: "Producers supplying the grid — renewables (wind, solar, hydro), nuclear, gas, and other sources — that a data center's power ultimately comes from. A data center buys its electricity from a retailer or on the power exchange; large buyers often also sign a PPA with a producer.",
     posterBox: { x: 2.1, y: 19.7, w: 16.7, h: 9.8 }, posterAccent: "#008644" },
   { id: "tso", name: "Transmission (TSO)", x: 100, y: 230,
     description: "Operates the national high-voltage transmission grid and substations. In Finland: Fingrid.",
@@ -98,7 +103,7 @@ const STAKEHOLDERS = [
     posterBox: { x: 2.1, y: 55.5, w: 17.4, h: 11.6 }, posterAccent: "#D4A017" },
 
   { id: "equipment", name: "Equipment & Technology Suppliers", x: 900, y: 140,
-    description: "Suppliers of compute (GPU/ASIC) hardware and power/electrical equipment for the facility. Cooling, storage, networking and backup power suppliers are shown as their own stakeholders on the map.",
+    description: "Suppliers of compute (GPU/ASIC) hardware and power/electrical equipment for the facility. Cooling, storage, networking and backup power suppliers are shown as their own stakeholders on the map. Compute hardware is bought by whoever runs the IT layer (a hyperscaler, a GPU cloud or a colocation customer); the operator buys the facility's power and electrical equipment.",
     posterBox: { x: 58.4, y: 27.0, w: 18.9, h: 12.8 }, posterAccent: "#22DCF8" },
   { id: "capital", name: "Capital & Finance", x: 900, y: 230,
     description: "Infrastructure funds, data center REITs, lenders, and equity partners financing construction and operation.",
@@ -199,7 +204,7 @@ const RELATIONSHIPS = [
   { from: "storage",            to: "operator",  type: "goods",    label: "Storage & data services",
     explanation: "Storage suppliers provide the arrays and systems used for data protection and backup." },
   { from: "equipment",          to: "operator",  type: "goods",    label: "Equipment & components",
-    explanation: "Equipment suppliers provide the compute hardware and electrical equipment installed inside the facility." },
+    explanation: "Equipment suppliers provide the facility's power and electrical equipment; compute hardware goes to whoever runs the IT layer." },
   { from: "capital",            to: "operator",  type: "capital",  label: "Financing & investment",
     explanation: "Infrastructure funds, REITs, and lenders finance the facility's construction and ongoing operation." },
   // Points the way the capacity flows: the operator leases it to the
@@ -231,6 +236,9 @@ const RELATIONSHIPS = [
   // GPU cloud (neocloud) relationships (R52/R53).
   { from: "operator",           to: "neocloud", type: "contract", label: "Colocation (space, power & cooling)", added: true,
     explanation: "A GPU cloud often rents space, power and cooling in an operator's facility for its GPU servers; some build and run their own sites instead." },
+  // R76: the hyperscaler buys its own IT hardware, like the GPU cloud below.
+  { from: "equipment",          to: "hyperscaler", type: "goods", label: "Servers, GPUs & network gear", added: true,
+    explanation: "Hyperscalers buy the servers, GPUs and network equipment for their own data centers and for the capacity they lease from operators." },
   { from: "equipment",          to: "neocloud", type: "goods",    label: "GPUs & servers", added: true,
     explanation: "GPU clouds buy GPU servers and networking equipment from equipment suppliers; the GPUs are their main asset." },
   { from: "capital",            to: "neocloud", type: "capital",  label: "Debt & equity financing", added: true,
@@ -252,8 +260,8 @@ const WALKTHROUGH_STEPS = [
     description: "The facility connects to the grid — via the transmission operator (TSO) for large direct connections, or a distribution operator (DSO) for regional supply — and often secures a long-term power purchase agreement (PPA) with a renewable energy producer." },
   { title: "5. Equipment", highlightIds: ["equipment", "cooling", "network", "storage", "backup_power", "operator"],
     description: "Compute, networking, storage, cooling, and backup power equipment are installed by specialist suppliers." },
-  { title: "6. Customers", highlightIds: ["operator", "hyperscaler", "enterprise"],
-    description: "Capacity reaches customers in different forms: operators lease colocation space (retail or wholesale), landlords lease powered shells, and hyperscalers sell cloud services to businesses." },
+  { title: "6. Customers", highlightIds: ["operator", "hyperscaler", "neocloud", "enterprise"],
+    description: "Capacity reaches customers in different forms: operators lease colocation space (retail or wholesale), landlords lease powered shells, hyperscalers sell cloud services to businesses, and GPU clouds rent out GPU capacity." },
   { title: "7. Waste heat", highlightIds: ["district_heating", "operator"],
     description: "Heat generated by the facility's cooling systems can be captured and sold into a district heating network instead of released into the air." },
 ];
@@ -271,18 +279,19 @@ const CASE_STUDY = {
 };
 
 // Second guided walkthrough: who pays whom. Drafted from and consistent with
-// RELATIONSHIPS above. Step 7, the public sector's share (R52/R53), adds the
+// RELATIONSHIPS above. Step 8, the public sector's share (R52/R53; step 7
+// until v10), adds the
 // public-sector payments in general terms, each checked against official
 // sources (its `sources`); `note` is a dated Finland-specific line.
 const MONEY_WALKTHROUGH_STEPS = [
   { title: "1. Customers pay for capacity", highlightIds: ["enterprise", "hyperscaler", "neocloud", "operator"],
-    description: "Enterprises and hyperscalers pay data center operators for colocation space, landlords receive rent for powered shells, and enterprises pay hyperscalers for cloud services. In a hyperscaler's own facility there is no rent: the hyperscaler builds and operates the site itself — Google's data center in Hamina is one example.",
+    description: "Enterprises and hyperscalers pay data center operators for colocation: space, power and cross-connects (direct cable links to carriers and clouds in the same building), landlords receive rent for powered shells, and enterprises pay hyperscalers for cloud services. In a hyperscaler's own facility there is no rent: the hyperscaler builds and operates the site itself — Google's data center in Hamina is one example.",
     payments: [
-      { from: "enterprise",  to: "hyperscaler", what: "cloud service fees" },
-      { from: "hyperscaler", to: "operator",    what: "rent for leased capacity" },
-      { from: "enterprise",  to: "operator",    what: "colocation fees" },
-      { from: "enterprise",  to: "neocloud",    what: "GPU capacity fees" },
-      { from: "hyperscaler", to: "neocloud",    what: "GPU capacity contracts" },
+      { from: "enterprise",  to: "hyperscaler", what: "cloud service fees", phase: "operate" },
+      { from: "hyperscaler", to: "operator",    what: "rent for leased capacity", phase: "operate" },
+      { from: "enterprise",  to: "operator",    what: "colocation fees: space, power and cross-connects", phase: "operate" },
+      { from: "enterprise",  to: "neocloud",    what: "GPU capacity fees", phase: "operate" },
+      { from: "hyperscaler", to: "neocloud",    what: "GPU capacity contracts", phase: "operate" },
     ],
     sources: [
       { label: "DCD — Google to invest in a second facility in Hamina, at its own site in the former Summa paper mill",
@@ -291,44 +300,63 @@ const MONEY_WALKTHROUGH_STEPS = [
   { title: "2. Paying for the build", highlightIds: ["operator", "construction", "capital"],
     description: "The operator or developer pays construction firms to build the facility, largely funded up front by lenders and investors.",
     payments: [
-      { from: "operator", to: "construction", what: "construction contracts" },
-      { from: "capital",  to: "operator",     what: "loans and equity" },
-      { from: "capital",  to: "construction", what: "development financing" },
+      { from: "operator", to: "construction", what: "construction contracts", phase: "build" },
+      { from: "capital",  to: "operator",     what: "loans and equity", phase: "build" },
+      { from: "capital",  to: "construction", what: "development financing", phase: "build" },
     ] },
-  { title: "3. The operator pays its suppliers", highlightIds: ["operator", "equipment", "cooling", "network", "storage", "backup_power"],
-    description: "The operator pays equipment, cooling, network, storage and backup power suppliers for the hardware and systems that keep the facility running.",
-    link: { href: "index.html", text: "This spending is the investment flow the Daily signals page tracks →" },
+  // Steps 3 and 4 (R76): the operator buys the facility's systems; the IT
+  // hardware is bought by whoever runs the IT layer (in colocation, the
+  // customer: the business-models pages show servers as "Itse" there).
+  { title: "3. The operator pays for the facility's systems", highlightIds: ["operator", "equipment", "cooling", "backup_power", "network"],
+    description: "The operator pays the suppliers of the systems that keep the facility running: power and electrical equipment, cooling, backup power and the site's network connections.",
     payments: [
-      { from: "operator", to: "equipment",    what: "compute and electrical equipment" },
-      { from: "operator", to: "cooling",      what: "cooling systems and service" },
-      { from: "operator", to: "network",      what: "connectivity" },
-      { from: "operator", to: "storage",      what: "storage systems" },
-      { from: "operator", to: "backup_power", what: "generators, fuel and UPS systems" },
+      { from: "operator", to: "equipment",    what: "power and electrical equipment", phase: "build" },
+      { from: "operator", to: "cooling",      what: "cooling systems", phase: "build" },
+      { from: "operator", to: "cooling",      what: "maintenance and service", phase: "operate" },
+      { from: "operator", to: "backup_power", what: "generators and UPS systems", phase: "build" },
+      { from: "operator", to: "backup_power", what: "fuel and maintenance", phase: "operate" },
+      { from: "operator", to: "network",      what: "connectivity", phase: "operate" },
     ] },
-  { title: "4. The operator pays for energy", highlightIds: ["operator", "energy_gen", "tso", "dso"],
+  { title: "4. IT hardware: the biggest bill", highlightIds: ["hyperscaler", "neocloud", "enterprise", "equipment", "storage"],
+    description: "Servers, GPUs, storage and network gear are bought by whoever runs the IT layer: the hyperscaler or GPU cloud, or in colocation the customer itself. In an AI data center this is by far the largest cost: Epoch AI estimates that for a 1 GW AI data center, servers are about 60% of the annualized total cost of ownership and electricity, the largest running cost, about 7%. The hardware is replaced every few years, so in practice the bill recurs.",
+    link: { href: "index.html", text: "Steps 3 and 4 are the investment flow the Daily signals page tracks →" },
+    payments: [
+      { from: "hyperscaler", to: "equipment", what: "servers and GPUs", phase: "build" },
+      { from: "neocloud",    to: "equipment", what: "GPUs and servers", phase: "build" },
+      { from: "enterprise",  to: "equipment", what: "own servers, in colocation", phase: "build" },
+      { from: "hyperscaler", to: "storage",   what: "storage systems", phase: "build" },
+    ],
+    // Verified 2026-10-23: $8.5B a year TCO for 1 GW, servers $5B (60%), energy
+    // $0.6B (about 7%), "the largest OpEx category"; IT equipment over 5 years.
+    sources: [
+      { label: "Epoch AI — AI data center cost breakdown (14 May 2026)",
+        url: "https://epoch.ai/data-insights/ai-datacenter-cost-breakdown" },
+    ] },
+  { title: "5. The operator pays for energy", highlightIds: ["operator", "energy_gen", "tso", "dso"],
     description: "The operator pays for electricity, through a supplier or the market, often combined with a long-term PPA, which fixes the price with a producer, plus network fees to the grid operator it's connected to (usually the DSO; the TSO for large direct connections).",
     payments: [
-      { from: "operator", to: "energy_gen", what: "electricity, often under a long-term PPA" },
-      { from: "operator", to: "dso",        what: "network fees (to the TSO instead, for large direct connections)" },
+      { from: "operator", to: "energy_gen", what: "electricity, from a retailer or the exchange, often with a long-term PPA", phase: "operate" },
+      { from: "operator", to: "dso",        what: "network fees (to the TSO instead, for large direct connections)", phase: "operate" },
     ] },
-  { title: "5. Returns to capital providers", highlightIds: ["operator", "capital"],
+  { title: "6. Returns to capital providers", highlightIds: ["operator", "capital"],
     description: "Lenders receive interest and repayments, equity investors such as infrastructure funds receive returns, and where a REIT owns the building, the operator pays it rent.",
     payments: [
-      { from: "operator", to: "capital", what: "interest and repayments, investor returns, and rent where a REIT owns the building" },
+      { from: "operator", to: "capital", what: "interest and repayments, investor returns, and rent where a REIT owns the building", phase: "operate" },
     ] },
-  { title: "6. Heat flows back as revenue", highlightIds: ["operator", "district_heating"],
+  { title: "7. Heat flows back as revenue", highlightIds: ["operator", "district_heating"],
     description: "Where waste heat is captured and sold into a district heating network, money flows the other way: the district heating company pays the operator for the heat.",
     payments: [
-      { from: "district_heating", to: "operator", what: "payment for the waste heat" },
+      { from: "district_heating", to: "operator", what: "payment for the waste heat", phase: "operate" },
     ] },
-  { title: "7. The public sector's share", highlightIds: ["public_sector", "operator"],
+  { title: "8. The public sector's share", highlightIds: ["public_sector", "operator"],
     description: "The public sector is paid along the way. Where a municipality owns the land, it receives the sale price or rent, and its building control charges fees for permits. Once the facility stands, its owner pays property tax to that municipality every year. The state collects electricity tax through the electricity bill. Income taxes are shared: the operator's corporate income tax goes to the state and municipalities, and its employees' income tax to the state and their home municipalities.",
     note: "In Finland, data centres paid the lower electricity tax class until 30 June 2026 and have paid the general class since 1 July 2026: an energy tax of 2.24 c/kWh instead of 0.05 c/kWh. A ten-year tax-relief scheme the Government decided on in December 2025 was dropped in September 2026. (Reviewed 10/2026.)",
     payments: [
-      { from: "operator", to: "public_sector", what: "land price or rent (where the municipality owns the land) and building-permit fees" },
-      { from: "operator", to: "public_sector", what: "property tax, every year" },
-      { from: "operator", to: "public_sector", what: "electricity tax, to the state through the electricity bill" },
-      { from: "operator", to: "public_sector", what: "corporate income tax, shared by the state and municipalities" },
+      { from: "operator", to: "public_sector", what: "land price and building-permit fees", phase: "build" },
+      { from: "operator", to: "public_sector", what: "land rent, where the municipality leases the plot", phase: "operate" },
+      { from: "operator", to: "public_sector", what: "property tax, every year", phase: "operate" },
+      { from: "operator", to: "public_sector", what: "electricity tax, to the state through the electricity bill", phase: "operate" },
+      { from: "operator", to: "public_sector", what: "corporate income tax, shared by the state and municipalities", phase: "operate" },
     ],
     sources: [
       { label: "Kuntaliitto — selling and leasing plots as tools of municipal land policy", url: "https://www.kuntaliitto.fi/sites/default/files/media/file/Toimiva%2Byhdyskunta%2Bon%2Bkuntalaisen%2Barjen%2Bkulmakivi_Kuntaliitto_luottamushenkil%C3%B6t-compressed_1.pdf" },

@@ -224,6 +224,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .legend-chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block;box-shadow:0 0 6px currentColor}
 .legend-chip[aria-pressed="false"]{opacity:0.35}
 .legend-chip:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
+.legend[hidden],.phase-note[hidden]{display:none}
+/* Explorer mode switch and Money flows (R76): every payment of the money walkthrough,
+   payer -> payee, in the money arrows' colour; build dashed, operate solid; one width
+   throughout (no sourced amounts per flow). */
+.ex-mode{display:flex;gap:4px;padding:3px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(175,169,236,0.25)}
+.ex-mode-btn{font-size:12px;font-weight:600;color:#C8D4E8;background:transparent;border:0;border-radius:7px;padding:5px 12px;cursor:pointer}
+.ex-mode-btn[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,#3C3489,#4A3FC2)}
+.ex-mode-btn:focus-visible{outline:2px solid #85B7EB;outline-offset:2px}
+.phase-note{font-size:11px;color:#AEB9CC;margin:-4px 0 10px}
+.phase-chip svg{display:block}
+.money-edge{transition:opacity .2s;stroke-width:2.5;filter:drop-shadow(0 0 3px var(--glow))}
+.money-edge.build{stroke-dasharray:8 6}
+.money-edge:focus,.money-edge:focus-visible{outline:none}
+.edge-labels{pointer-events:none}
+.edge-labels text{font-size:10px;font-weight:600;fill:#F2F6FF;paint-order:stroke;stroke:#070C1E;stroke-width:3.5px;stroke-linejoin:round}
+.mobile-pay-title{margin-top:10px;font-weight:700;color:#fff}
+.mobile-pay-phase{margin-top:4px;font-size:10.5px;font-weight:600;letter-spacing:.04em;color:#FDE826}
+.mobile-pay-list{margin:2px 0 0;padding-left:16px}
 .map-layout{display:flex;gap:14px;flex-wrap:wrap}
 .map-wrap{flex:1;min-width:320px;border-radius:8px;padding:6px;
           background:radial-gradient(ellipse at 50% 48%,#132042 0%,#0B1330 50%,#070C1E 100%)}
@@ -508,8 +526,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       <div class="map-card">
         <div class="map-toolbar">
           <div class="map-title">Explore the ecosystem</div>
+          <div class="ex-mode" role="group" aria-label="What the arrows show">
+            <button type="button" class="ex-mode-btn" id="ex-mode-rel" aria-pressed="true">Relationships</button>
+            <button type="button" class="ex-mode-btn" id="ex-mode-money" aria-pressed="false">Money flows</button>
+          </div>
           <div class="legend" id="legend" role="group" aria-label="Filter by relationship type"></div>
+          <div class="legend" id="phase-legend" role="group" aria-label="Filter by phase" hidden></div>
         </div>
+        <div class="phase-note" id="phase-note" hidden>Build = one-off investment · Operate = recurring payments</div>
         <div class="map-layout">
           <div class="map-wrap">
             <svg id="map-svg" viewBox="-20 -20 1040 740" role="img" aria-label="Interactive diagram of data center ecosystem stakeholders and relationships"></svg>
@@ -568,7 +592,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
 </div>
 
-<script src="ecosystem-data.v9.js"></script>
+<script src="ecosystem-data.v10.js"></script>
 <script src="dashboard-companies.js"></script>
 <script>
 (function() {
@@ -1007,6 +1031,75 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     svg.appendChild(line);
   });
 
+  // ── Money flows (R76): one source, MONEY_WALKTHROUGH_STEPS, as on the poster.
+  // One arrow per payer -> payee pair and phase, with that pair's labels joined;
+  // each step's own labels are kept for the walkthrough's highlight.
+  const PHASES = { build: "Build", operate: "Operate" };
+  const MONEY_EDGES = [];
+  (function () {
+    const byKey = {};
+    MONEY_WALKTHROUGH_STEPS.forEach((step, si) => (step.payments || []).forEach(p => {
+      const key = p.from + ">" + p.to + ">" + p.phase;
+      if (!byKey[key]) MONEY_EDGES.push(byKey[key] = { from: p.from, to: p.to, phase: p.phase, whats: [], byStep: {} });
+      const e = byKey[key];
+      if (!e.whats.includes(p.what)) e.whats.push(p.what);
+      (e.byStep[si] = e.byStep[si] || []).push(p.what);
+    }));
+  })();
+  const moneyGroup = document.createElementNS(NS, "g");
+  moneyGroup.setAttribute("id", "money-edges");
+  svg.appendChild(moneyGroup);
+  const mPairCount = {}, mPairSeen = {};
+  MONEY_EDGES.forEach(e => { mPairCount[pairKey(e)] = (mPairCount[pairKey(e)] || 0) + 1; });
+  MONEY_EDGES.forEach((e, i) => {
+    const a = byId[e.from], b = byId[e.to];
+    const pa = boxEdgePoint(a.x, a.y, nodeW(a.id) / 2, nodeH(a.id) / 2, b.x, b.y);
+    const pb = boxEdgePoint(b.x, b.y, nodeW(b.id) / 2, nodeH(b.id) / 2, a.x, a.y);
+    const key = pairKey(e), n = mPairCount[key];
+    if (n > 1) {
+      const k = mPairSeen[key] = (mPairSeen[key] || 0) + 1;
+      const [c1, c2] = key.split("|").map(id => byId[id]);
+      const len = Math.hypot(c2.x - c1.x, c2.y - c1.y) || 1;
+      const off = (k - (n + 1) / 2) * 12;
+      const nx = -(c2.y - c1.y) / len * off, ny = (c2.x - c1.x) / len * off;
+      pa.x += nx; pa.y += ny; pb.x += nx; pb.y += ny;
+    }
+    e.pa = pa; e.pb = pb;
+    const line = document.createElementNS(NS, "line");
+    line.setAttribute("id", "money-" + i);
+    line.setAttribute("class", "money-edge " + e.phase);
+    line.dataset.from = e.from; line.dataset.to = e.to; line.dataset.phase = e.phase;
+    line.setAttribute("x1", pa.x); line.setAttribute("y1", pa.y);
+    line.setAttribute("x2", pb.x); line.setAttribute("y2", pb.y);
+    line.setAttribute("stroke", FLOW_TYPES.capital.color);
+    line.style.setProperty("--glow", FLOW_TYPES.capital.color);
+    line.setAttribute("marker-end", "url(#arrow-capital)");
+    line.setAttribute("tabindex", "0");
+    line.setAttribute("role", "img");
+    const text = a.name + " pays " + b.name + " (" + PHASES[e.phase] + "): " + e.whats.join("; ");
+    line.setAttribute("aria-label", text);
+    const title = document.createElementNS(NS, "title");
+    title.textContent = text;
+    line.appendChild(title);
+    const showTip = (evt) => {
+      const tip = document.getElementById("map-tooltip");
+      tip.textContent = text;
+      tip.style.display = "block";
+      const x = evt.clientX !== undefined ? evt.clientX : (svg.getBoundingClientRect().left + 20);
+      const y = evt.clientY !== undefined ? evt.clientY : (svg.getBoundingClientRect().top + 20);
+      tip.style.left = Math.min(x + 12, window.innerWidth - 260) + "px";
+      tip.style.top = (y + 12) + "px";
+    };
+    const hideTip = () => { document.getElementById("map-tooltip").style.display = "none"; };
+    line.addEventListener("mouseenter", showTip);
+    line.addEventListener("mousemove", showTip);
+    line.addEventListener("mouseleave", hideTip);
+    line.addEventListener("focus", showTip);
+    line.addEventListener("blur", hideTip);
+    e.el = line;
+    moneyGroup.appendChild(line);
+  });
+
   STAKEHOLDERS.forEach(s => {
     const g = document.createElementNS(NS, "g");
     g.setAttribute("id", "node-" + s.id);
@@ -1069,6 +1162,61 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     svg.appendChild(g);
   });
 
+  // Labels for the arrows of the selected stakeholder (both modes) and of the
+  // current money step (R76), drawn over the boxes. A selected box's labels sit
+  // towards the other end of each arrow, so they spread out around it.
+  const labelGroup = document.createElementNS(NS, "g");
+  labelGroup.setAttribute("class", "edge-labels");
+  labelGroup.setAttribute("aria-hidden", "true");
+  svg.appendChild(labelGroup);
+  // A pair's build and operate arrows label at different points along the line.
+  function edgeLabelAt(pa, pb, fromId, text, phase) {
+    let t;
+    if (selectedStakeholder) {
+      const d = phase === "build" ? 0.35 : 0.62;            // distance from the selected box
+      t = fromId === selectedStakeholder ? d : 1 - d;
+    } else {
+      t = phase === "build" ? 0.4 : phase === "operate" ? 0.6 : 0.5;
+    }
+    return { pa, pb, t, text };
+  }
+  // One payment per label; the rest are counted (the arrow's tooltip and the card list them all).
+  const moneyLabel = whats => whats[0] + (whats.length > 1 ? " (+" + (whats.length - 1) + " more)" : "");
+  // Each label slides along its own arrow until it clears the labels already
+  // placed (around the busy operator box several arrows run close together).
+  function drawEdgeLabels(items) {
+    while (labelGroup.firstChild) labelGroup.removeChild(labelGroup.firstChild);
+    const placed = [], hits = (r) => placed.some(q => r.x < q.x + q.width + 3 && q.x < r.x + r.width + 3 && r.y < q.y + q.height + 2 && q.y < r.y + r.height + 2);
+    items.forEach(it => {
+      const lines = wrapLines(it.text, 26);
+      const text = document.createElementNS(NS, "text");
+      text.setAttribute("text-anchor", "middle");
+      lines.forEach(ln => { const tspan = document.createElementNS(NS, "tspan"); tspan.textContent = ln; text.appendChild(tspan); });
+      labelGroup.appendChild(text);
+      const at = (t, dy = 0) => {
+        const x = it.pa.x + (it.pb.x - it.pa.x) * t, y = it.pa.y + (it.pb.y - it.pa.y) * t + dy;
+        [...text.children].forEach((tspan, li) => { tspan.setAttribute("x", x); tspan.setAttribute("y", y + (li - (lines.length - 1) / 2) * 12 + 3); });
+        return text.getBBox();
+      };
+      let box = at(it.t);
+      search:
+      for (const dy of [0, -16, 16, -30, 30]) {
+        for (const dt of [0, 0.1, -0.1, 0.18, -0.18, 0.26, -0.26, 0.33, -0.33]) {
+          const t = it.t + dt;
+          if (t < 0.12 || t > 0.88) continue;
+          box = at(t, dy);
+          if (!hits(box)) break search;
+        }
+      }
+      if (hits(box)) box = at(it.t);      // nowhere clear: keep its usual spot
+      placed.push(box);
+    });
+  }
+  // The money walkthrough's current step, when the explorer can show it.
+  function moneyStepIndex() {
+    return (wtMode === "money" && wtStep >= 0 && !selectedStakeholder && highlightSet) ? wtStep : -1;
+  }
+
   function isEdgeHighlighted(rel) {
     if (highlightSet) return highlightSet.has(rel.from) && highlightSet.has(rel.to);
     if (selectedStakeholder) return edgeConnects(rel, selectedStakeholder);
@@ -1078,19 +1226,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     if (highlightSet) return highlightSet.has(id);
     if (selectedStakeholder) {
       if (id === selectedStakeholder) return true;
-      return RELATIONSHIPS.some(r => edgeConnects(r, selectedStakeholder) && (r.from === id || r.to === id));
+      return (exMode === "money" ? MONEY_EDGES : RELATIONSHIPS).some(r => edgeConnects(r, selectedStakeholder) && (r.from === id || r.to === id));
     }
     return true;
   }
 
   function renderExplorer() {
     const anySelection = !!(highlightSet || selectedStakeholder);
+    const money = exMode === "money", stepIdx = moneyStepIndex(), labels = [];
     RELATIONSHIPS.forEach((rel, i) => {
       const el = document.getElementById("edge-" + i);
       const typeOk = activeFlowTypes.has(rel.type);
       const selOk = isEdgeHighlighted(rel);
+      el.style.display = money ? "none" : "";
       el.style.opacity = !typeOk ? 0.06 : (anySelection && !selOk) ? 0.45 : 1;
+      if (!money && typeOk && selectedStakeholder && selOk)
+        labels.push(edgeLabelAt({ x: +el.getAttribute("x1"), y: +el.getAttribute("y1") }, { x: +el.getAttribute("x2"), y: +el.getAttribute("y2") }, rel.from, rel.label));
     });
+    MONEY_EDGES.forEach(e => {
+      const phaseOk = phaseFilter === "all" || e.phase === phaseFilter;
+      const on = selectedStakeholder ? edgeConnects(e, selectedStakeholder)
+               : stepIdx >= 0 ? !!e.byStep[stepIdx]
+               : highlightSet ? highlightSet.has(e.from) && highlightSet.has(e.to) : true;
+      e.el.style.display = money ? "" : "none";
+      e.el.style.opacity = !phaseOk ? 0.06 : (anySelection && !on) ? 0.15 : 1;
+      e.el.classList.toggle("is-on", money && phaseOk && anySelection && on);
+      if (money && phaseOk && on && (selectedStakeholder || stepIdx >= 0))
+        labels.push(edgeLabelAt(e.pa, e.pb, e.from, moneyLabel(stepIdx >= 0 && !selectedStakeholder ? e.byStep[stepIdx] : e.whats), e.phase));
+    });
+    drawEdgeLabels(labels);
     STAKEHOLDERS.forEach(s => {
       const el = document.getElementById("node-" + s.id);
       const on = isNodeHighlighted(s.id);
@@ -1102,7 +1266,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   function updateSidePanel() {
     const panel = document.getElementById("side-panel");
     if (!selectedStakeholder) {
-      panel.innerHTML = '<div class="side-panel-empty">Click a stakeholder, or use the legend to filter by relationship type.</div>';
+      panel.innerHTML = '<div class="side-panel-empty">' + (exMode === "money"
+        ? "Click a stakeholder to see who it pays and who pays it, or use the chips to filter by phase."
+        : "Click a stakeholder, or use the legend to filter by relationship type.") + '</div>';
       return;
     }
     panel.innerHTML = stakeholderDetailHtml(selectedStakeholder);
@@ -1125,6 +1291,58 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     legend.appendChild(btn);
   });
 
+  // Explorer mode (R76): Relationships (the flow-type chips) or Money flows (the
+  // phase chips and the legend line). Default Relationships.
+  let exMode = "rel", phaseFilter = "all";
+  const exModeRel = document.getElementById("ex-mode-rel"), exModeMoney = document.getElementById("ex-mode-money");
+  const phaseLegend = document.getElementById("phase-legend"), phaseNote = document.getElementById("phase-note");
+  const phaseSample = ph => '<svg width="22" height="8" viewBox="0 0 22 8" aria-hidden="true"><line x1="1" y1="4" x2="21" y2="4" stroke="'
+    + FLOW_TYPES.capital.color + '" stroke-width="2.5"' + (ph === "build" ? ' stroke-dasharray="5 3"' : "") + '/></svg>';
+  [["all", "All"], ["build", PHASES.build], ["operate", PHASES.operate]].forEach(([key, label]) => {
+    const btn = document.createElement("button");
+    btn.className = "legend-chip phase-chip";
+    btn.type = "button";
+    btn.dataset.phase = key;
+    btn.setAttribute("aria-pressed", String(key === "all"));
+    btn.style.background = "rgba(255,255,255,0.06)";
+    btn.innerHTML = (key === "all" ? "" : phaseSample(key)) + label;
+    btn.addEventListener("click", () => {
+      phaseFilter = key;
+      phaseLegend.querySelectorAll(".phase-chip").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.phase === key)));
+      renderExplorer();
+    });
+    phaseLegend.appendChild(btn);
+  });
+  function setExMode(mode) {
+    exMode = mode;
+    exModeRel.setAttribute("aria-pressed", String(mode === "rel"));
+    exModeMoney.setAttribute("aria-pressed", String(mode === "money"));
+    legend.hidden = mode === "money";
+    phaseLegend.hidden = phaseNote.hidden = mode !== "money";
+    renderExplorer();
+    updateSidePanel();
+  }
+  exModeRel.addEventListener("click", () => setExMode("rel"));
+  exModeMoney.addEventListener("click", () => setExMode("money"));
+
+  // Phones (R76): the explorer is hidden there, so each stakeholder lists its
+  // payments, "Pays" and "Is paid by", grouped by phase.
+  function mobilePaysHtml(id) {
+    const all = MONEY_WALKTHROUGH_STEPS.flatMap(st => st.payments || []);
+    const section = (title, list, otherOf) => {
+      if (!list.length) return "";
+      let html = '<div class="mobile-pay-title">' + title + '</div>';
+      ["build", "operate"].forEach(ph => {
+        const seen = new Set(), items = list.filter(p => p.phase === ph).filter(p => {
+          const k = otherOf(p) + "|" + p.what; if (seen.has(k)) return false; seen.add(k); return true; });
+        if (!items.length) return;
+        html += '<div class="mobile-pay-phase">' + PHASES[ph] + '</div><ul class="mobile-pay-list">'
+              + items.map(p => '<li><strong>' + byId[otherOf(p)].name + ':</strong> ' + p.what + '</li>').join('') + '</ul>';
+      });
+      return html;
+    };
+    return section("Pays", all.filter(p => p.from === id), p => p.to) + section("Is paid by", all.filter(p => p.to === id), p => p.from);
+  }
   const mobileList = document.getElementById("mobile-list");
   STAKEHOLDERS.forEach(s => {
     const det = document.createElement("details");
@@ -1134,7 +1352,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     det.appendChild(sum);
     const body = document.createElement("div");
     body.className = "mobile-item-body";
-    body.innerHTML = "<p>" + s.description + "</p>" + examplesHtml(s.id, true) + relHtml(s.id);
+    body.innerHTML = "<p>" + s.description + "</p>" + examplesHtml(s.id, true) + relHtml(s.id) + mobilePaysHtml(s.id);
     det.appendChild(body);
     mobileList.appendChild(det);
   });
@@ -1426,6 +1644,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   // to the intro.
   function startPath(mode) {
     wtMode = mode;
+    // The explorer follows the path: money arrows for Follow the money (R76).
+    setExMode(mode === "money" ? "money" : "rel");
     wtModeLife.setAttribute("aria-pressed", String(mode === "life"));
     wtModeMoney.setAttribute("aria-pressed", String(mode === "money"));
     showStep(0);
