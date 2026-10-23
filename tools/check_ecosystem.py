@@ -27,6 +27,8 @@ from urllib.parse import urlsplit
 
 from playwright.sync_api import sync_playwright
 
+import pw_guard
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Desktop and laptop windows, including short ones (high display scaling).
@@ -47,8 +49,7 @@ def open_page(b, run, w, h, mobile=False, hash_=""):
     pg.on("console", lambda m: log.append(m.text) if m.type in ("error", "warning") else None)
     pg.on("pageerror", lambda e: log.append(str(e)))
     pg.on("request", lambda r: reqs.append(r.url))
-    pg.goto(run["base"] + "ecosystem.html" + hash_)
-    pg.wait_for_load_state("networkidle")
+    pw_guard.load(pg, run["base"] + "ecosystem.html" + hash_)
     pg.wait_for_timeout(150)
     return ctx, pg, log, reqs
 
@@ -387,7 +388,7 @@ def right_edge(p, run):
     b = p.chromium.launch(ignore_default_args=["--hide-scrollbars"])
     for w, h in ((1280, 800), (1440, 900), (1680, 1050), (1920, 1080)):
         ctx = b.new_context(viewport={"width": w, "height": h})
-        pg = ctx.new_page(); pg.goto(run["base"] + "ecosystem.html"); pg.wait_for_load_state("networkidle"); pg.wait_for_timeout(150)
+        pg = ctx.new_page(); pw_guard.load(pg, run["base"] + "ecosystem.html"); pg.wait_for_timeout(150)
         st = pg.evaluate(EDGE)
         bad = {k: v for k, v in st["items"].items() if v["gap"] < 0 or v["clipped"]}
         check(f"edge {w}: no sideways scroll, and 'Content reviewed', the Open pills and Next sit inside the right edge",
@@ -728,17 +729,25 @@ def main():
     run = {"base": base, "origin": f"{parts.scheme}://{parts.netloc}/", "shots": args.shots}
     if args.shots:
         os.makedirs(args.shots, exist_ok=True)
-    with sync_playwright() as p:
-        b = p.chromium.launch()
-        for suite in (poster_desktop, walkthroughs, flows_desktop, explorer, navigation, content_r53, money_flows, phones):
-            print(f"== {suite.__name__}")
-            suite(b, run)
-        print("== right_edge")
-        right_edge(p, run)
-        b.close()
-    fails = [r for r in results if not r[1]]
-    print(f"\n{len(results) - len(fails)}/{len(results)} checks passed")
-    return 1 if fails else 0
+    suites = (poster_desktop, walkthroughs, flows_desktop, explorer, navigation, content_r53, money_flows, phones)
+    try:
+        with sync_playwright() as p:
+            b = p.chromium.launch()
+            for suite in suites:
+                print(f"== {suite.__name__}")
+                failed = pw_guard.run_suite(suite.__name__, suite, b, run)
+                if failed:                       # a timed-out or aborted suite counts as a failed check
+                    results.append((failed, False))
+            print("== right_edge")
+            failed = pw_guard.run_suite("right_edge", right_edge, p, run)
+            if failed:
+                results.append((failed, False))
+            b.close()
+    finally:                                     # the summary prints even if the run itself breaks (R80)
+        fails = [r for r in results if not r[1]]
+        print(f"\n{len(results) - len(fails)}/{len(results)} checks passed")
+        print(f"     {pw_guard.summary()}")
+    return 1 if fails or not results else 0
 
 
 if __name__ == "__main__":

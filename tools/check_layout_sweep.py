@@ -27,6 +27,8 @@ from urllib.parse import urljoin
 
 from playwright.sync_api import sync_playwright
 
+import pw_guard
+
 PAGES = ["index", "public-cloud", "gpu-cloud", "retail-colocation", "wholesale-colocation", "own-data-center",
          "value-chain", "financing", "specialised-models", "why-finland", "glossary"]
 # Boxes whose content must stay inside them. Anything inside a sideways scroller
@@ -105,11 +107,10 @@ def phone_cases(b, base, shots):
         ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=True, has_touch=True)
         pg = ctx.new_page()
         # Dashboard chain bar: the page's own bar, then a long one (three trend words) that must scroll.
-        resp = pg.goto(urljoin(root, "index.html"))
+        resp = pw_guard.load(pg, urljoin(root, "index.html"))
         if not resp or resp.status != 200:
             print(f"SKIP chain bar {w}: no dashboard at {urljoin(root, 'index.html')} (generated in CI)")
         else:
-            pg.wait_for_load_state("networkidle")
             st = pg.evaluate(STRIP)
             if shots:
                 pg.locator("#bottleneck-strip").scroll_into_view_if_needed()
@@ -130,8 +131,7 @@ def phone_cases(b, base, shots):
             print(("OK   " if good else "FAIL ") + f"chain bar {w}: the cue goes at the end of the scroll")
             ok &= good
         # Ecosystem walkthrough: every step of both paths.
-        pg.goto(urljoin(root, "ecosystem.html"))
-        pg.wait_for_load_state("networkidle")
+        pw_guard.load(pg, urljoin(root, "ecosystem.html"))
         bad, longest = [], None
         for mode in ("life", "money"):
             pg.locator("#wt-mode-" + mode).click(); pg.wait_for_timeout(250)
@@ -168,31 +168,50 @@ def main():
     if args.shots:
         os.makedirs(args.shots, exist_ok=True)
     widths = sorted(set(range(args.min, args.max + 1, args.step)) | {args.max})
-    failed = False
-    with sync_playwright() as p:
-        b = p.chromium.launch()
-        for slug in args.pages:
-            pg = b.new_page(viewport={"width": args.max, "height": 900})
-            pg.goto(args.base + slug + ".html")
-            pg.wait_for_load_state("networkidle")
-            pg.evaluate("document.fonts.ready")
-            bad = []
-            for w in widths:
-                pg.set_viewport_size({"width": w, "height": 900})
-                pg.wait_for_timeout(30)
-                issues = pg.evaluate(CHECK, BOXES)
-                if issues:
-                    bad.append((w, issues))
-            pg.close()
-            if bad:
-                failed = True
-                print(f"FAIL {slug}: {len(bad)}/{len(widths)} widths, {bad[0][0]}-{bad[-1][0]}px; at {bad[0][0]}px: {bad[0][1][:4]}")
-            else:
-                print(f"OK   {slug}: clean at all {len(widths)} widths ({args.min}-{args.max}px)")
-        if not phone_cases(b, args.base, args.shots):
+    failed, clean, done = False, 0, 0
+
+    def sweep(b, slug):
+        nonlocal failed, clean
+        pg = b.new_page(viewport={"width": args.max, "height": 900})
+        pw_guard.load(pg, args.base + slug + ".html")
+        pg.evaluate("document.fonts.ready")
+        bad = []
+        for w in widths:
+            pg.set_viewport_size({"width": w, "height": 900})
+            pg.wait_for_timeout(30)
+            issues = pg.evaluate(CHECK, BOXES)
+            if issues:
+                bad.append((w, issues))
+        pg.close()
+        if bad:
             failed = True
-        b.close()
-    return 1 if failed else 0
+            print(f"FAIL {slug}: {len(bad)}/{len(widths)} widths, {bad[0][0]}-{bad[-1][0]}px; at {bad[0][0]}px: {bad[0][1][:4]}")
+        else:
+            clean += 1
+            print(f"OK   {slug}: clean at all {len(widths)} widths ({args.min}-{args.max}px)")
+
+    phones_ok = None
+
+    def phones(b):
+        nonlocal failed, phones_ok
+        phones_ok = phone_cases(b, args.base, args.shots)
+        if not phones_ok:
+            failed = True
+
+    try:
+        with sync_playwright() as p:
+            b = p.chromium.launch()
+            for slug in args.pages:
+                if pw_guard.run_suite("sweep " + slug, sweep, b, slug):
+                    failed = True
+                done += 1
+            if pw_guard.run_suite("phones", phones, b):
+                failed = True
+            b.close()
+    finally:                                     # the summary prints even if the run itself breaks (R80)
+        phone_txt = "clean" if phones_ok else "not finished" if phones_ok is None else "failed"
+        print(f"\nlayout sweep: {clean}/{len(args.pages)} pages clean, phone cases {phone_txt}; {pw_guard.summary()}")
+    return 1 if failed or done < len(args.pages) or not phones_ok else 0
 
 
 if __name__ == "__main__":
