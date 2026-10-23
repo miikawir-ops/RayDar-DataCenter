@@ -301,8 +301,8 @@
   },
   {
     "date": "2026-10-22",
-    "time": "13:18",
-    "run_at": "2026-10-23T13:18:57+00:00",
+    "time": "13:49",
+    "run_at": "2026-10-23T13:49:10+00:00",
     "model_version": 2,
     "scores": {
       "cooling": {
@@ -321,7 +321,7 @@
         }
       },
       "optical": {
-        "score": 40.58,
+        "score": 40.59,
         "color": "Green",
         "ratings": {
           "CIEN": "B",
@@ -331,7 +331,7 @@
         }
       },
       "compute": {
-        "score": 35.36,
+        "score": 35.38,
         "color": "Green",
         "ratings": {
           "SMCI": "C",
