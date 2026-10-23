@@ -52,4 +52,4 @@ Needs Ray's approval before committing:
 ## Post-launch
 - Any change to scoring logic, weights, or thresholds requires checking live output before and after the change, not just a local run.
 - Known limitations recorded in PLAN.md stay tracked after launch — a working dashboard is not evidence an open question got resolved.
-- requirements.txt isn't pinned, so CI installs the latest packages each run (yfinance 1.7.0 on 2026-10-10, against 1.4.0 locally; prices differ in the third decimal). Before treating a local run as evidence of live behaviour, check the versions in the run's "Install dependencies" log; if they differ, repeat the check in a venv with CI's versions (PLAN.md ledger R43).
+- requirements.txt is pinned to exactly what CI installed in run 38068453210 (ledger R44), and the local .venv uses the same pins (Python 3.12.10 locally, 3.12.15 in CI). Change a version only on purpose and re-run check_confirmation.py; an unpinned yfinance once changed the analyst data's shape without an error (ledger R35, R43).

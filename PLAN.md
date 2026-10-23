@@ -1033,11 +1033,6 @@ Queued work that isn't a ledger request in progress.
   Next (below), so money step 7 with its Finland note runs about 20 lines.
   Readable, no sideways scroll; putting Prev and Next on one row under the
   text would give the text the full width.
-- **CLAUDE.md calls requirements.txt unpinned (found 2026-10-11, doc only).**
-  The "Post-launch" rule still says "requirements.txt isn't pinned, so CI
-  installs the latest packages each run"; every package has been pinned to
-  CI's versions since R44 (`356ea61`). The version-check advice still holds
-  for future pin changes; the first clause is stale.
 
 ## Queue: carry over to the parent's own session (AI_valuechain)
 
