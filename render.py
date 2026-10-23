@@ -768,6 +768,12 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   .layer{{min-width:100px}}
 }}
 @media(max-width:768px){{
+  /* Chain bar on phones (R79): its own full-width row on one line; a longer bar
+     scrolls sideways, with a fade at the cut edge as the cue (.is-cut, set by script). */
+  #bottleneck-strip{{flex:1 1 100% !important;flex-wrap:nowrap !important;white-space:nowrap;overflow-x:auto;scrollbar-width:none}}   /* over its inline style */
+  #bottleneck-strip::-webkit-scrollbar{{display:none}}
+  #bottleneck-strip > *{{flex-shrink:0}}
+  #bottleneck-strip.is-cut{{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}}
   .hero{{padding:14px 12px 16px}}
   .hero-title{{font-size:15px}}
   .hero-title span:first-child{{font-size:22px!important}}
@@ -1193,7 +1199,20 @@ function buildBottleneckStrip(layers = LAYERS, confirmed = CONFIRMED_HISTORY) {{
   const insuffCount = layers.length - scored.length;
   if (insuffCount > 0) html += `<span style="color:#B4B2A9;margin-left:6px">(${{insuffCount}} insufficient data)</span>`;
   strip.innerHTML = html;
+  syncStripCut();
 }}
+
+// Phones (R79): .is-cut shows the fade cue while the one-line chain bar has more to
+// scroll to; it goes once the end is reached or nothing overflows.
+function syncStripCut() {{
+  const s = document.getElementById("bottleneck-strip");
+  if (s) s.classList.toggle("is-cut", s.scrollLeft + s.clientWidth < s.scrollWidth - 1);
+}}
+window.addEventListener("resize", syncStripCut);
+document.addEventListener("DOMContentLoaded", () => {{
+  const s = document.getElementById("bottleneck-strip");
+  if (s) s.addEventListener("scroll", syncStripCut, {{ passive: true }});
+}});
 
 // Reusable mobile swipe-row pattern (see .chain-arrow/.chain-fade/#chain-wrap
 // in the <style> block for the CSS half) — horizontally scroll-snapping row
