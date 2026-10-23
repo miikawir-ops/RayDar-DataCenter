@@ -113,7 +113,7 @@ def suite_hub(b, run):
     pg = ctx.new_page()
     instrument(pg, log)
     pw_guard.load(pg, hub)
-    pg.wait_for_load_state("networkidle")
+    pw_guard.settled(pg)
     pg.evaluate("document.fonts.ready")
     errs = [l for l in log if l[0] in ("console", "pageerror")]
     check("desktop: no console errors/warnings or page errors", not errs, str(errs))
@@ -201,7 +201,7 @@ def suite_hub(b, run):
     ctx = b.new_context(viewport={"width": 1680, "height": 1050})
     pg = ctx.new_page()
     pw_guard.load(pg, hub + "#own-data-center")
-    pg.wait_for_load_state("networkidle")
+    pw_guard.settled(pg)
     settle(pg, 400)
     st = pg.evaluate("() => [...document.querySelectorAll('.model.is-active')].map(m=>m.id)")
     check("desktop: deep link #own-data-center selects column 5 + step 5",
@@ -213,7 +213,7 @@ def suite_hub(b, run):
         ctx = b.new_context(viewport={"width": w, "height": 900})
         pg = ctx.new_page()
         pw_guard.load(pg, hub)
-        pg.wait_for_load_state("networkidle")
+        pw_guard.settled(pg)
         pg.evaluate("document.fonts.ready")
         align = pg.evaluate("""() => { const cols=[document.querySelector('.matrix-labels'),...document.querySelectorAll('.model')];
             let worst=0; for(let i=0;i<11;i++){ const tops=(i<2 ? cols.slice(1) : cols).map(c=>c.children[i].getBoundingClientRect().top);
@@ -234,7 +234,7 @@ def suite_hub(b, run):
         pg = ctx.new_page()
         instrument(pg, log)
         pw_guard.load(pg, hub)
-        pg.wait_for_load_state("networkidle")
+        pw_guard.settled(pg)
         pg.evaluate("document.fonts.ready")
         errs = [l for l in log if l[0] in ("console", "pageerror")]
         check(f"phone {w}: no console errors", not errs, str(errs))
@@ -313,7 +313,7 @@ def suite_hub(b, run):
         ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=True, has_touch=True)
         pg = ctx.new_page()
         pw_guard.load(pg, hub + "#own-data-center")
-        pg.wait_for_load_state("networkidle")
+        pw_guard.settled(pg)
         settle(pg, 600)
         # Card 5 is the last card: the track ends before it can reach the
         # snap line, so "shown" means fully visible inside the track.
@@ -378,7 +378,7 @@ def open_page(b, run, slug, w, h, mobile):
     pg.on("pageerror", lambda e: log.append(str(e)))
     pg.on("request", lambda r: reqs.append(r.url))
     pw_guard.load(pg, run.base + slug + ".html")
-    pg.wait_for_load_state("networkidle")
+    pw_guard.settled(pg)
     pg.evaluate("document.fonts.ready")
     tag = f"{slug} @{w}"
     check(f"{tag}: no console errors", not log, str(log))
@@ -422,14 +422,14 @@ def suite_cards(b, run):
     # Navigation: hub heading -> card, card stepper -> other card, brand -> hub
     ctx = b.new_context(viewport={"width": 1680, "height": 1000})
     pg = ctx.new_page()
-    pw_guard.load(pg, run.base + "index.html"); pg.wait_for_load_state("networkidle")
-    pg.locator("#h-wholesale-colocation a").click(); pg.wait_for_load_state("networkidle")
+    pw_guard.load(pg, run.base + "index.html"); pw_guard.settled(pg)
+    pw_guard.click_to(pg, pg.locator("#h-wholesale-colocation a"))
     check("hub: model heading opens its card", pg.url.endswith("/wholesale-colocation.html"), pg.url)
-    pg.locator('.bm-step[data-step="public-cloud"]').click(); pg.wait_for_load_state("networkidle")
+    pw_guard.click_to(pg, pg.locator('.bm-step[data-step="public-cloud"]'))
     check("card: header stepper opens another card", pg.url.endswith("/public-cloud.html"), pg.url)
     cur = pg.evaluate("() => document.querySelectorAll('.bm-pages a[aria-current]').length")
     check("card: no header page link marked current (One pager is current only on the hub)", cur == 0, str(cur))
-    pg.locator(".bm-brand").click(); pg.wait_for_load_state("networkidle")
+    pw_guard.click_to(pg, pg.locator(".bm-brand"))
     check("card: brand link returns to the hub", pg.url.endswith("/business-models/index.html"), pg.url)
     for slug in CARDS:
         r = pw_guard.load(pg, run.base + slug + ".html")
@@ -487,18 +487,18 @@ def suite_pages(b, run):
     ctx = b.new_context(viewport={"width": 1680, "height": 1000}); pg = ctx.new_page()
     for slug in ["index"] + CARDS + PAGES:
         r = pw_guard.load(pg, run.base + slug + ".html"); check(f"{slug}.html served (200)", r.status == 200, str(r.status))
-    pw_guard.load(pg, run.base + "index.html"); pg.wait_for_load_state("networkidle")
+    pw_guard.load(pg, run.base + "index.html"); pw_guard.settled(pg)
     links = pg.evaluate("() => ({vc: document.querySelector('#h-vc a')?.getAttribute('href'), spec: document.querySelector('#h-spec a')?.getAttribute('href'), terms: document.querySelector('.terms-note a')?.getAttribute('href'), pages: [...document.querySelectorAll('.bm-pages-list a')].map(a=>a.getAttribute('href'))})")
     check("hub: panel titles + Termit link to their pages; header lists One pager, then the 5 pages",
           links["vc"] == "value-chain.html" and links["spec"] == "specialised-models.html" and links["terms"] == "glossary.html"
           and links["pages"] == ["./"] + [s + ".html" for s in PAGES], str(links))
-    pg.locator("#h-vc a").click(); pg.wait_for_load_state("networkidle")
+    pw_guard.click_to(pg, pg.locator("#h-vc a"))
     check("hub: value-chain title opens the page", pg.url.endswith("/value-chain.html"), pg.url)
-    pg.locator('.bm-pages-list a[href="glossary.html"]').click(); pg.wait_for_load_state("networkidle")
+    pw_guard.click_to(pg, pg.locator('.bm-pages-list a[href="glossary.html"]'))
     check("header: page link navigates", pg.url.endswith("/glossary.html"), pg.url)
-    pg.locator('.bm-pages-list a[href="./"]').click(); pg.wait_for_load_state("networkidle")
+    pw_guard.click_to(pg, pg.locator('.bm-pages-list a[href="./"]'))
     check("header: One pager returns to the hub", pg.url.endswith("/business-models/") and pg.evaluate("document.body.dataset.page") == "hub", pg.url)
-    pw_guard.load(pg, run.base + "glossary.html#g-rack"); pg.wait_for_load_state("networkidle"); pg.wait_for_timeout(300)
+    pw_guard.load(pg, run.base + "glossary.html#g-rack"); pw_guard.settled(pg); pg.wait_for_timeout(300)
     gt = pg.evaluate("() => { const e=document.getElementById('g-rack'); const r=e.getBoundingClientRect(); return {top:r.top, vh:innerHeight, target: e.matches(':target')} }")
     check("glossary: #g-rack deep link scrolls to the card and highlights it", gt["target"] and 0 <= gt["top"] < gt["vh"], str(gt))
     ctx.close()
@@ -607,7 +607,7 @@ def suite_layers(b, run):
     pg = ctx.new_page()
     instrument(pg, log)
     pw_guard.load(pg, hub)
-    pg.wait_for_load_state("networkidle")
+    pw_guard.settled(pg)
     pg.evaluate("document.fonts.ready")
     st = pg.evaluate("""() => {
       const sec = document.getElementById('kerrokset'), path = document.querySelector('.path'), m = document.getElementById('matrix');
@@ -949,7 +949,7 @@ def suite_layers(b, run):
     ctx = b.new_context(viewport={"width": 1680, "height": 1050}, reduced_motion="reduce")
     pg = ctx.new_page()
     pw_guard.load(pg, hub)
-    pg.wait_for_load_state("networkidle")
+    pw_guard.settled(pg)
     pg.locator("#lr-tab-wholesale-colocation").click()
     settle(pg, 30)
     s = pg.evaluate(LAYER_STATE)
@@ -961,7 +961,7 @@ def suite_layers(b, run):
     ctx = b.new_context(viewport={"width": 1680, "height": 1050})
     pg = ctx.new_page()
     pw_guard.load(pg, run.base + "specialised-models.html#hukkalampo")
-    pg.wait_for_load_state("networkidle")
+    pw_guard.settled(pg)
     settle(pg, 300)
     ht = pg.evaluate("() => { const e = document.getElementById('hukkalampo'); const r = e && e.getBoundingClientRect(); return e && [e.querySelector('h3').textContent, r.top >= 0 && r.top < innerHeight] }")
     check("layers: specialised-models.html#hukkalampo lands on 'Hukkalämmön myynti'", ht == ["Hukkalämmön myynti", True], str(ht))
@@ -972,7 +972,7 @@ def suite_layers(b, run):
         ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=mobile, has_touch=mobile)
         pg = ctx.new_page()
         pw_guard.load(pg, hub)
-        pg.wait_for_load_state("networkidle")
+        pw_guard.settled(pg)
         ph = pg.evaluate("""() => { const st = document.querySelector('.layers-stage').getBoundingClientRect(), side = document.querySelector('.layers-side').getBoundingClientRect();
             const lab = document.querySelector('.lr-label'); return {below: side.top >= st.bottom - 1, beside: side.left >= st.right - 1,
             labels: getComputedStyle(lab).display !== 'none', overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth} }""")
@@ -994,7 +994,7 @@ def suite_layers(b, run):
     ctx = b.new_context(viewport={"width": 1680, "height": 1050})
     pg = ctx.new_page()
     pw_guard.load(pg, hub)
-    pg.wait_for_load_state("networkidle")
+    pw_guard.settled(pg)
     mt = pg.evaluate("""() => ({labels: [...document.querySelectorAll('.matrix-labels .mlabel')].map(e => e.textContent),
         segs: document.querySelectorAll('.segments').length,
         legend: [document.querySelector('.legend-title').textContent, [...document.querySelectorAll('.legend-item')].map(e => e.textContent)]})""")
@@ -1017,7 +1017,7 @@ def suite_layers(b, run):
     found = {}
     for slug in ["index"] + CARDS + PAGES:
         pw_guard.load(pg, run.base + slug + ".html")
-        pg.wait_for_load_state("networkidle")
+        pw_guard.settled(pg)
         n = pg.evaluate("() => (document.body.innerText.match(/tarjoaj/gi) || []).length + Object.values(window.BM_GLOSSARY || {}).filter(e => /tarjoaj/i.test(e.definition)).length")
         if n:
             found[slug] = n
