@@ -242,6 +242,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .mobile-pay-title{margin-top:10px;font-weight:700;color:#fff}
 .mobile-pay-phase{margin-top:4px;font-size:10.5px;font-weight:600;letter-spacing:.04em;color:#FDE826}
 .mobile-pay-list{margin:2px 0 0;padding-left:16px}
+.side-panel .mobile-pay-title:first-of-type{margin-top:2px}
+.side-pay-desc{margin-top:12px;padding-top:10px;border-top:1px solid rgba(175,169,236,0.2)}
 .map-layout{display:flex;gap:14px;flex-wrap:wrap}
 .map-wrap{flex:1;min-width:320px;border-radius:8px;padding:6px;
           background:radial-gradient(ellipse at 50% 48%,#132042 0%,#0B1330 50%,#070C1E 100%)}
@@ -592,7 +594,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
 </div>
 
-<script src="ecosystem-data.v10.js"></script>
+<script src="ecosystem-data.v11.js"></script>
 <script src="dashboard-companies.js"></script>
 <script>
 (function() {
@@ -976,11 +978,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     return { x: cx + dx * t, y: cy + dy * t };
   }
 
+  // Arrows go around boxes other than their own two ends (R77): an arrow whose
+  // straight line would cross another box is bent into a curve, trying larger
+  // bends to either side until it clears every other box by ROUTE_PAD.
+  const ROUTE_PAD = 8;
+  const MAP = { x0: -12, y0: -12, x1: 1012, y1: 712 };      // inside the viewBox (-20 -20 1040 740)
+  const boxRect = (s, pad) => ({ x0: s.x - nodeW(s.id) / 2 - pad, y0: s.y - nodeH(s.id) / 2 - pad,
+                                 x1: s.x + nodeW(s.id) / 2 + pad, y1: s.y + nodeH(s.id) / 2 + pad });
+  const qAt = (p0, c, p1, t) => ({ x: (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * c.x + t * t * p1.x,
+                                   y: (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * c.y + t * t * p1.y });
+  function crossesBoxes(p0, c, p1, ends) {
+    for (let k = 1; k < 48; k++) {
+      const q = qAt(p0, c, p1, k / 48);
+      if (q.x < MAP.x0 || q.x > MAP.x1 || q.y < MAP.y0 || q.y > MAP.y1) return true;     // stays on the map
+      if (STAKEHOLDERS.some(s => !ends.includes(s.id) && (r => q.x > r.x0 && q.x < r.x1 && q.y > r.y0 && q.y < r.y1)(boxRect(s, ROUTE_PAD)))) return true;
+    }
+    return false;
+  }
+  // Returns {pa, c, pb}: the end points on the two boxes and the curve's control point.
+  function route(a, b, pa, pb) {
+    const mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2, len = Math.hypot(pb.x - pa.x, pb.y - pa.y) || 1;
+    const nx = -(pb.y - pa.y) / len, ny = (pb.x - pa.x) / len, ends = [a.id, b.id];
+    if (!crossesBoxes(pa, { x: mx, y: my }, pb, ends)) return { pa, c: { x: mx, y: my }, pb };
+    for (let step = 1; step <= 16; step++) for (const off of [30 * step, -30 * step]) {
+      const c = { x: mx + nx * off, y: my + ny * off };
+      // leave and enter each box towards the bend
+      const qa = boxEdgePoint(a.x, a.y, nodeW(a.id) / 2, nodeH(a.id) / 2, c.x, c.y);
+      const qb = boxEdgePoint(b.x, b.y, nodeW(b.id) / 2, nodeH(b.id) / 2, c.x, c.y);
+      if (!crossesBoxes(qa, c, qb, ends)) return { pa: qa, c, pb: qb };
+    }
+    return { pa, c: { x: mx, y: my }, pb };
+  }
+  const curveD = g => "M" + g.pa.x + "," + g.pa.y + " Q" + g.c.x + "," + g.c.y + " " + g.pb.x + "," + g.pb.y;
+
   // Two relationships between the same pair (cloud services one way, data
   // the other) are drawn side by side rather than on top of each other:
   // each is shifted across the line, using one shared direction per pair so
   // opposite-direction arrows land on opposite sides.
   const pairKey = r => [r.from, r.to].sort().join("|");
+  const relGeo = [];
   const pairCount = {}, pairSeen = {};
   RELATIONSHIPS.forEach(r => { pairCount[pairKey(r)] = (pairCount[pairKey(r)] || 0) + 1; });
   RELATIONSHIPS.forEach((rel, i) => {
@@ -996,11 +1032,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       const nx = -(c2.y - c1.y) / len * off, ny = (c2.x - c1.x) / len * off;
       pa.x += nx; pa.y += ny; pb.x += nx; pb.y += ny;
     }
-    const line = document.createElementNS(NS, "line");
+    const geo = relGeo[i] = route(a, b, pa, pb);
+    const line = document.createElementNS(NS, "path");
     line.setAttribute("id", "edge-" + i);
     line.setAttribute("class", "edge-line");
-    line.setAttribute("x1", pa.x); line.setAttribute("y1", pa.y);
-    line.setAttribute("x2", pb.x); line.setAttribute("y2", pb.y);
+    line.setAttribute("fill", "none");
+    line.setAttribute("d", curveD(geo));
     line.setAttribute("stroke", FLOW_TYPES[rel.type].color);
     line.setAttribute("stroke-width", "2");
     line.style.setProperty("--glow", FLOW_TYPES[rel.type].color);
@@ -1064,13 +1101,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       const nx = -(c2.y - c1.y) / len * off, ny = (c2.x - c1.x) / len * off;
       pa.x += nx; pa.y += ny; pb.x += nx; pb.y += ny;
     }
-    e.pa = pa; e.pb = pb;
-    const line = document.createElementNS(NS, "line");
+    e.geo = route(a, b, pa, pb);
+    const line = document.createElementNS(NS, "path");
     line.setAttribute("id", "money-" + i);
     line.setAttribute("class", "money-edge " + e.phase);
     line.dataset.from = e.from; line.dataset.to = e.to; line.dataset.phase = e.phase;
-    line.setAttribute("x1", pa.x); line.setAttribute("y1", pa.y);
-    line.setAttribute("x2", pb.x); line.setAttribute("y2", pb.y);
+    line.setAttribute("fill", "none");
+    line.setAttribute("d", curveD(e.geo));
     line.setAttribute("stroke", FLOW_TYPES.capital.color);
     line.style.setProperty("--glow", FLOW_TYPES.capital.color);
     line.setAttribute("marker-end", "url(#arrow-capital)");
@@ -1170,7 +1207,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   labelGroup.setAttribute("aria-hidden", "true");
   svg.appendChild(labelGroup);
   // A pair's build and operate arrows label at different points along the line.
-  function edgeLabelAt(pa, pb, fromId, text, phase) {
+  function edgeLabelAt(geo, fromId, text, phase) {
     let t;
     if (selectedStakeholder) {
       const d = phase === "build" ? 0.35 : 0.62;            // distance from the selected box
@@ -1178,37 +1215,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     } else {
       t = phase === "build" ? 0.4 : phase === "operate" ? 0.6 : 0.5;
     }
-    return { pa, pb, t, text };
+    return { geo, t, text };
   }
   // One payment per label; the rest are counted (the arrow's tooltip and the card list them all).
-  const moneyLabel = whats => whats[0] + (whats.length > 1 ? " (+" + (whats.length - 1) + " more)" : "");
+  // A pair named in MONEY_ARROW_LABELS takes its summary label (R77).
+  const moneyLabel = (e, whats) => (whats.length > 1 && MONEY_ARROW_LABELS[e.from + ">" + e.to + ">" + e.phase])
+    || whats[0] + (whats.length > 1 ? " (+" + (whats.length - 1) + " more)" : "");
   // Each label slides along its own arrow until it clears the labels already
   // placed (around the busy operator box several arrows run close together).
   function drawEdgeLabels(items) {
     while (labelGroup.firstChild) labelGroup.removeChild(labelGroup.firstChild);
-    const placed = [], hits = (r) => placed.some(q => r.x < q.x + q.width + 3 && q.x < r.x + r.width + 3 && r.y < q.y + q.height + 2 && q.y < r.y + r.height + 2);
+    // The boxes count as placed, so labels stay outside them (R77).
+    const off = r => r.x < MAP.x0 || r.y < MAP.y0 || r.x + r.width > MAP.x1 || r.y + r.height > MAP.y1;
+    const placed = STAKEHOLDERS.map(s => { const r = boxRect(s, 2); return { x: r.x0, y: r.y0, width: r.x1 - r.x0, height: r.y1 - r.y0 }; }), hits = (r) => placed.some(q => r.x < q.x + q.width + 3 && q.x < r.x + r.width + 3 && r.y < q.y + q.height + 2 && q.y < r.y + r.height + 2);
     items.forEach(it => {
       const lines = wrapLines(it.text, 26);
       const text = document.createElementNS(NS, "text");
       text.setAttribute("text-anchor", "middle");
       lines.forEach(ln => { const tspan = document.createElementNS(NS, "tspan"); tspan.textContent = ln; text.appendChild(tspan); });
       labelGroup.appendChild(text);
-      const at = (t, dy = 0) => {
-        const x = it.pa.x + (it.pb.x - it.pa.x) * t, y = it.pa.y + (it.pb.y - it.pa.y) * t + dy;
+      const at = (t, dy = 0, dx = 0) => {
+        const q = qAt(it.geo.pa, it.geo.c, it.geo.pb, t), x = q.x + dx, y = q.y + dy;
         [...text.children].forEach((tspan, li) => { tspan.setAttribute("x", x); tspan.setAttribute("y", y + (li - (lines.length - 1) / 2) * 12 + 3); });
         return text.getBBox();
       };
-      let box = at(it.t);
+      // First a spot clear of the boxes and the other labels; failing that, one
+      // clear of the boxes at least; failing that, its usual spot.
+      const boxes = placed.slice(0, STAKEHOLDERS.length), hitsBox = r => off(r) || boxes.some(q => r.x < q.x + q.width + 3 && q.x < r.x + r.width + 3 && r.y < q.y + q.height + 2 && q.y < r.y + r.height + 2);
+      let box = null;
       search:
-      for (const dy of [0, -16, 16, -30, 30]) {
-        for (const dt of [0, 0.1, -0.1, 0.18, -0.18, 0.26, -0.26, 0.33, -0.33]) {
-          const t = it.t + dt;
-          if (t < 0.12 || t > 0.88) continue;
-          box = at(t, dy);
-          if (!hits(box)) break search;
+      for (const test of [r => off(r) || hits(r), hitsBox]) {
+        for (const dx of [0, 50, -50, 90, -90, 130, -130]) for (const dy of [0, -16, 16, -30, 30, -44, 44]) {
+          for (const dt of [0, 0.1, -0.1, 0.18, -0.18, 0.26, -0.26, 0.33, -0.33]) {
+            const t = it.t + dt;
+            if (t < 0.12 || t > 0.88) continue;
+            box = at(t, dy, dx);
+            if (!test(box)) break search;
+            box = null;
+          }
         }
       }
-      if (hits(box)) box = at(it.t);      // nowhere clear: keep its usual spot
+      if (!box) box = at(it.t);
       placed.push(box);
     });
   }
@@ -1241,7 +1288,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       el.style.display = money ? "none" : "";
       el.style.opacity = !typeOk ? 0.06 : (anySelection && !selOk) ? 0.45 : 1;
       if (!money && typeOk && selectedStakeholder && selOk)
-        labels.push(edgeLabelAt({ x: +el.getAttribute("x1"), y: +el.getAttribute("y1") }, { x: +el.getAttribute("x2"), y: +el.getAttribute("y2") }, rel.from, rel.label));
+        labels.push(edgeLabelAt(relGeo[i], rel.from, rel.label));
     });
     MONEY_EDGES.forEach(e => {
       const phaseOk = phaseFilter === "all" || e.phase === phaseFilter;
@@ -1252,7 +1299,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       e.el.style.opacity = !phaseOk ? 0.06 : (anySelection && !on) ? 0.15 : 1;
       e.el.classList.toggle("is-on", money && phaseOk && anySelection && on);
       if (money && phaseOk && on && (selectedStakeholder || stepIdx >= 0))
-        labels.push(edgeLabelAt(e.pa, e.pb, e.from, moneyLabel(stepIdx >= 0 && !selectedStakeholder ? e.byStep[stepIdx] : e.whats), e.phase));
+        labels.push(edgeLabelAt(e.geo, e.from, moneyLabel(e, stepIdx >= 0 && !selectedStakeholder ? e.byStep[stepIdx] : e.whats), e.phase));
     });
     drawEdgeLabels(labels);
     STAKEHOLDERS.forEach(s => {
@@ -1269,6 +1316,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       panel.innerHTML = '<div class="side-panel-empty">' + (exMode === "money"
         ? "Click a stakeholder to see who it pays and who pays it, or use the chips to filter by phase."
         : "Click a stakeholder, or use the legend to filter by relationship type.") + '</div>';
+      return;
+    }
+    // Money flows (R77): who it pays and who pays it first, then the description
+    // and examples; the relationship cards are left to the Relationships mode.
+    if (exMode === "money") {
+      const s = byId[selectedStakeholder];
+      panel.innerHTML = '<div class="side-panel-title">' + s.name + '</div>' + (mobilePaysHtml(s.id) || '<div>No payments in the money path.</div>')
+        + '<div class="side-pay-desc">' + s.description + '</div>' + examplesHtml(s.id, true);
       return;
     }
     panel.innerHTML = stakeholderDetailHtml(selectedStakeholder);
@@ -1457,18 +1512,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     const nx = Math.max(R.x0, Math.min(x, R.x1)), ny = Math.max(R.y0, Math.min(y, R.y1));
     return (x - nx) ** 2 + (y - ny) ** 2 < r * r;
   };
-  function badgeSpot(mx, my, placed) {
+  // `curveOk` (R77): the curve through a candidate spot must also clear the other
+  // boxes and the printed pills; tried first within CURVE_REACH, else ignored.
+  const CURVE_REACH = 240;
+  function badgeSpot(mx, my, placed, curveOk) {
     const taken = placed.map(b => ({ x0: b.x - BADGE_R, y0: b.y - BADGE_R, x1: b.x + BADGE_R, y1: b.y + BADGE_R }));
     const clear = (x, y) => x > BADGE_R && y > BADGE_R && x < BADGE_MAX_X && y < BADGE_MAX_Y
       && !avoidRects.some(R => circleHitsRect(x, y, BADGE_R, R)) && !taken.some(R => circleHitsRect(x, y, BADGE_R, R));
-    for (let r = 0; r <= 260; r += 4) {
-      const n = Math.max(1, Math.round(2 * Math.PI * r / 4));
-      for (let k = 0; k < n; k++) {
-        const x = mx + r * Math.cos(2 * Math.PI * k / n), y = my + r * Math.sin(2 * Math.PI * k / n);
-        if (clear(x, y)) return { x, y };
+    for (const pass of curveOk ? [true, false] : [false]) {
+      for (let r = 0; r <= (pass ? CURVE_REACH : 260); r += 4) {
+        const n = Math.max(1, Math.round(2 * Math.PI * r / 4));
+        for (let k = 0; k < n; k++) {
+          const x = mx + r * Math.cos(2 * Math.PI * k / n), y = my + r * Math.sin(2 * Math.PI * k / n);
+          if (clear(x, y) && (!pass || curveOk(x, y))) return { x, y };
+        }
       }
     }
     return { x: mx, y: my };  // nowhere clear within reach: keep the midpoint (the check reports it)
+  }
+  // The money curve for a badge spot: leave and enter each box towards it, bent through it.
+  function moneyCurve(a, b, spot) {
+    const pa = boxEdgePoint(a.x, a.y, a.hw, a.hh, spot.x, spot.y), pb = boxEdgePoint(b.x, b.y, b.hw, b.hh, spot.x, spot.y);
+    return { pa, pb, c: { x: 2 * spot.x - (pa.x + pb.x) / 2, y: 2 * spot.y - (pa.y + pb.y) / 2 } };
+  }
+  function curveClear(cv, fromId, toId) {
+    const obst = POSTER_LABELS.map(pctRect).concat(posterStakeholders.filter(s => s.id !== fromId && s.id !== toId).map(s => pctRect(s.posterBox)));
+    for (let k = 1; k < 48; k++) {
+      const q = qAt(cv.pa, cv.c, cv.pb, k / 48);
+      if (obst.some(R => q.x > R.x0 && q.x < R.x1 && q.y > R.y0 && q.y < R.y1)) return false;
+    }
+    return true;
   }
   // One arrow per pair of poster boxes (several payments between the same
   // two boxes share it; the card lists each), and none between stakeholders
@@ -1484,11 +1557,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       // The usual gentle curve's midpoint, then the nearest clear spot to it.
       let pa = boxEdgePoint(a.x, a.y, a.hw, a.hh, b.x, b.y), pb = boxEdgePoint(b.x, b.y, b.hw, b.hh, a.x, a.y);
       const dx = pb.x - pa.x, dy = pb.y - pa.y, len = Math.hypot(dx, dy) || 1, bend = Math.min(70, len * 0.2);
-      const spot = badgeSpot((pa.x + pb.x) / 2 - dy / len * bend / 2, (pa.y + pb.y) / 2 + dx / len * bend / 2, placed);
+      const spot = badgeSpot((pa.x + pb.x) / 2 - dy / len * bend / 2, (pa.y + pb.y) / 2 + dx / len * bend / 2, placed,
+                             (x, y) => curveClear(moneyCurve(a, b, { x, y }), from, to));
       placed.push(spot);
       // Leave and enter each box towards the badge, and bend the curve so its middle is the badge.
-      pa = boxEdgePoint(a.x, a.y, a.hw, a.hh, spot.x, spot.y); pb = boxEdgePoint(b.x, b.y, b.hw, b.hh, spot.x, spot.y);
-      const c = { x: 2 * spot.x - (pa.x + pb.x) / 2, y: 2 * spot.y - (pa.y + pb.y) / 2 };
+      const cv = moneyCurve(a, b, spot);
+      pa = cv.pa; pb = cv.pb;
+      const c = cv.c;
       const g = document.createElementNS(NS, "g");
       g.setAttribute("class", "money-pay"); g.dataset.from = from; g.dataset.to = to;
       g.style.setProperty("--glow", color);

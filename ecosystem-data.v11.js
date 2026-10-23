@@ -1,4 +1,4 @@
-// ecosystem-data.v9.js — single source of truth for the interactive Data
+// ecosystem-data.v11.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -34,7 +34,8 @@
 // runs the IT layer), so the money path has 8 steps; every payment carries a
 // phase (build = one-off investment, operate = recurring) for the explorer's
 // Money flows view; equipment -> hyperscaler; step 1, energy and public-sector
-// wording.
+// wording. v11 (2026-10-23, R77): MONEY_ARROW_LABELS; the storage relationship
+// says who buys storage.
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -202,7 +203,7 @@ const RELATIONSHIPS = [
   { from: "network",            to: "operator",  type: "goods",    label: "Connectivity & bandwidth",
     explanation: "Network suppliers provide the fiber, switches, and interconnection that link the facility to the wider internet." },
   { from: "storage",            to: "operator",  type: "goods",    label: "Storage & data services",
-    explanation: "Storage suppliers provide the arrays and systems used for data protection and backup." },
+    explanation: "Storage suppliers provide the arrays and systems for data protection and backup; like servers, they are bought by whoever runs the IT layer." },
   { from: "equipment",          to: "operator",  type: "goods",    label: "Equipment & components",
     explanation: "Equipment suppliers provide the facility's power and electrical equipment; compute hardware goes to whoever runs the IT layer." },
   { from: "capital",            to: "operator",  type: "capital",  label: "Financing & investment",
@@ -371,6 +372,13 @@ const MONEY_WALKTHROUGH_STEPS = [
       { label: "The Star (Xinhua) — Finland drops planned financial support for data centers, 2.9.2026", url: "https://www.thestar.com.my/news/world/2026/09/02/finland-drops-planned-financial-support-for-data-centers" },
     ] },
 ];
+
+// The explorer's money arrows label a pair with several payments by its first
+// payment and "(+N more)"; these pairs get a summary label instead (R77). The
+// arrow's tooltip and the panels still list every payment.
+const MONEY_ARROW_LABELS = {
+  "operator>public_sector>operate": "taxes and land rent",
+};
 
 // Examples per stakeholder (R52/R53): well-known global companies and ones
 // in Finland, each publicly verifiable (sources below). `dashboard` names the
