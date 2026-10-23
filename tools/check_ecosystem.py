@@ -729,6 +729,7 @@ def main():
     run = {"base": base, "origin": f"{parts.scheme}://{parts.netloc}/", "shots": args.shots}
     if args.shots:
         os.makedirs(args.shots, exist_ok=True)
+    pw_guard.keep_awake()
     suites = (poster_desktop, walkthroughs, flows_desktop, explorer, navigation, content_r53, money_flows, phones)
     try:
         with sync_playwright() as p:

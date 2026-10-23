@@ -168,6 +168,7 @@ def main():
     if args.shots:
         os.makedirs(args.shots, exist_ok=True)
     widths = sorted(set(range(args.min, args.max + 1, args.step)) | {args.max})
+    pw_guard.keep_awake()
     failed, clean, done = False, 0, 0
 
     def sweep(b, slug):

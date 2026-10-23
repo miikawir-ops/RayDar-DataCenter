@@ -1034,6 +1034,7 @@ def main():
     ap.add_argument("--suite", nargs="*", choices=list(SUITES), default=list(SUITES))
     ap.add_argument("--shots", metavar="DIR", help="also save the review screenshots here (e.g. Output/screenshots/business-models)")
     args = ap.parse_args()
+    pw_guard.keep_awake()
     run = Run(args.base, args.shots)
     summary = []
     try:

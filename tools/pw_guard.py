@@ -15,6 +15,8 @@ load() and run every suite through run_suite():
 - a suite that times out or raises is recorded and the run goes on to the next suite, so each
   tool can always print its summary (summary() gives the retry and timeout counts for it).
 """
+import atexit
+import sys
 import time
 from urllib.parse import urlsplit
 
@@ -24,6 +26,24 @@ LOAD_S = 30
 ACTION_MS = 30_000
 SUITE_S = 600
 state = {"suite": "-", "page": "-", "started": 0.0, "retries": [], "failures": []}
+
+
+# Keep the computer awake while a check runs (R82): a laptop that idles into sleep suspends the
+# network mid-run (net::ERR_NETWORK_IO_SUSPENDED, R69/R81). This only prevents idle sleep; closing
+# the lid or a manual sleep still suspends the machine. No-op off Windows.
+ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
+
+
+def _execution_state(flags):
+    if sys.platform == "win32":
+        import ctypes
+        ctypes.windll.kernel32.SetThreadExecutionState(flags)
+
+
+def keep_awake():
+    """Called by each check tool at the start of its run; reset when the process ends, errors included."""
+    _execution_state(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
+    atexit.register(_execution_state, ES_CONTINUOUS)
 
 
 class SuiteTimeout(Exception):
