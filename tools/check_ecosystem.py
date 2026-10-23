@@ -400,7 +400,8 @@ def right_edge(p, run):
 
 
 def content_r53(b, run):
-    """R52/R53: money step 7, the step 1 and 3 additions, examples on every card, the GPU cloud."""
+    """R52/R53: the public-sector step (8 since R76), the step 1 addition, the Daily signals link
+    (step 4 since R76), examples on every card, the GPU cloud."""
     ctx, pg, log, _ = open_page(b, run, 1680, 1050)
     pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(350)
     st1 = pg.evaluate("""() => ({desc: document.getElementById('wt-desc').textContent,
@@ -408,10 +409,13 @@ def content_r53(b, run):
     check("money step 1: says a hyperscaler's own facility has no rent (Hamina)",
           "no rent" in st1["desc"] and "Hamina" in st1["desc"], st1["desc"])
     check("money step 1: lists the GPU cloud payments", sum("GPU Cloud" in t for t in st1["pays"]) == 2, str(st1["pays"]))
-    pg.locator("#wt-next").click(); pg.wait_for_timeout(250); pg.locator("#wt-next").click(); pg.wait_for_timeout(350)
+    pg.locator("#wt-next").click(); pg.wait_for_timeout(250); pg.locator("#wt-next").click(); pg.wait_for_timeout(250)
+    no_link = pg.evaluate("document.getElementById('wt-link').hidden")
+    pg.locator("#wt-next").click(); pg.wait_for_timeout(350)
     link = pg.evaluate("() => { const a = document.getElementById('wt-link'); return {hidden: a.hidden, href: a.getAttribute('href'), text: a.textContent} }")
-    check("money step 3: links to the Daily signals page as the investment flow it tracks",
-          not link["hidden"] and link["href"] == "index.html" and "Daily signals" in link["text"], str(link))
+    check("money step 4 (R76): links to the Daily signals page as the investment flow of steps 3 and 4; step 3 has no link",
+          no_link and not link["hidden"] and link["href"] == "index.html"
+          and link["text"] == "Steps 3 and 4 are the investment flow the Daily signals page tracks →", str(link))
     for _ in range(4):
         pg.locator("#wt-next").click(); pg.wait_for_timeout(250)
     pg.wait_for_timeout(200)
@@ -422,14 +426,14 @@ def content_r53(b, run):
         pays: [...document.querySelectorAll('#compact-card .sc-pay-list li')].length,
         sources: document.querySelectorAll('#compact-card .sc-sources a').length,
         linkHidden: document.getElementById('wt-link').hidden})""")
-    check("money step 7: the public sector's share lights the municipality and the operator, one arrow, four payments",
-          st7["title"] == "7. The public sector's share" and st7["lit"] == ["operator", "public_sector"]
-          and st7["arrows"] == ["operator>public_sector"] and st7["pays"] == 4, str(st7))
-    check("money step 7: the dated Finland line (energy tax 2.24 c/kWh from 1 July 2026, scheme dropped)",
+    check("money step 8: the public sector's share lights the municipality and the operator, one arrow, five payments (R76: land split)",
+          st7["title"] == "8. The public sector's share" and st7["lit"] == ["operator", "public_sector"]
+          and st7["arrows"] == ["operator>public_sector"] and st7["pays"] == 5, str(st7))
+    check("money step 8: the dated Finland line (energy tax 2.24 c/kWh from 1 July 2026, scheme dropped)",
           st7["note"] and "2.24 c/kWh" in st7["note"] and "1 July 2026" in st7["note"] and "dropped" in st7["note"]
           and "Reviewed 10/2026" in st7["note"], str(st7["note"]))
-    check("money step 7: the card lists its sources", st7["sources"] >= 8, str(st7["sources"]))
-    check("money step 7: no stray link from step 3", st7["linkHidden"])
+    check("money step 8: the card lists its sources", st7["sources"] >= 8, str(st7["sources"]))
+    check("money step 8: no stray link from step 4", st7["linkHidden"])
     pg.locator("#wt-prev").click(); pg.wait_for_timeout(300)
     check("the step note disappears on a step without one", pg.evaluate("document.getElementById('wt-note').hidden"))
 
@@ -483,6 +487,140 @@ def content_r53(b, run):
     ctx.close()
 
 
+# R76: the phase of every payment, as Ray set them (2026-10-23): build in step 2, step 4, the
+# operator's equipment, cooling and generator purchases in step 3 and the land price in step 8;
+# operate everywhere else.
+BUILD = {("operator", "construction", "construction contracts"), ("capital", "operator", "loans and equity"),
+         ("capital", "construction", "development financing"), ("operator", "equipment", "power and electrical equipment"),
+         ("operator", "cooling", "cooling systems"), ("operator", "backup_power", "generators and UPS systems"),
+         ("hyperscaler", "equipment", "servers and GPUs"), ("neocloud", "equipment", "GPUs and servers"),
+         ("enterprise", "equipment", "own servers, in colocation"), ("hyperscaler", "storage", "storage systems"),
+         ("operator", "public_sector", "land price and building-permit fees")}
+MONEY_STATE = """() => ({edges: [...document.querySelectorAll('.money-edge')].map(e => ({from: e.dataset.from, to: e.dataset.to,
+    phase: e.dataset.phase, label: e.getAttribute('aria-label'), shown: e.style.display !== 'none', op: e.style.opacity,
+    dash: getComputedStyle(e).strokeDasharray, width: getComputedStyle(e).strokeWidth})),
+  relShown: [...document.querySelectorAll('.edge-line')].filter(e => e.style.display !== 'none').length,
+  modes: ['ex-mode-rel', 'ex-mode-money'].map(id => document.getElementById(id).getAttribute('aria-pressed')),
+  flowChips: !document.getElementById('legend').hidden, phaseChips: document.getElementById('phase-legend').hidden ? null
+    : [...document.querySelectorAll('.phase-chip')].map(c => [c.textContent, c.getAttribute('aria-pressed')]),
+  note: document.getElementById('phase-note').hidden ? null : document.getElementById('phase-note').textContent,
+  labels: [...document.querySelectorAll('.edge-labels text')].map(t => t.textContent),
+  overlap: (() => { const r = [...document.querySelectorAll('.edge-labels text')].map(t => t.getBBox()); let n = 0;
+    for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) { const a = r[i], c = r[j];
+      if (a.x < c.x + c.width && c.x < a.x + a.width && a.y < c.y + c.height && c.y < a.y + a.height) n++; } return n })()})"""
+
+
+def money_flows(b, run):
+    """R76: the money path's phases, the explorer's Money flows mode, labels on selection, the
+    walkthrough in the explorer, and the phone list's payments."""
+    ctx, pg, log, _ = open_page(b, run, 1680, 1050)
+    pays = pg.evaluate("() => MONEY_WALKTHROUGH_STEPS.flatMap((s, i) => (s.payments || []).map(p => [i + 1, p.from, p.to, p.what, p.phase]))")
+    titles = pg.evaluate("() => MONEY_WALKTHROUGH_STEPS.map(s => s.title)")
+    check("money path: 8 steps, step 3 the facility's systems and step 4 the IT hardware (R76)",
+          len(titles) == 8 and titles[2] == "3. The operator pays for the facility's systems" and titles[3] == "4. IT hardware: the biggest bill", str(titles))
+    wrong = [p for p in pays if p[4] != ("build" if (p[1], p[2], p[3]) in BUILD else "operate")]
+    check("every payment has its phase: build (one-off investment) or operate (recurring), as set in R76",
+          not wrong and all(p[4] in ("build", "operate") for p in pays) and len({(p[1], p[2], p[3]) for p in pays if p[4] == "build"}) == len(BUILD),
+          str(wrong[:4]))
+    hw = [p for p in pays if p[0] in (3, 4) and p[2] in ("equipment", "storage")]
+    check("the IT hardware is bought by whoever runs the IT layer, the operator only the facility's power and electrical equipment",
+          sorted((p[1], p[3]) for p in hw) == sorted([("operator", "power and electrical equipment"), ("hyperscaler", "servers and GPUs"),
+          ("neocloud", "GPUs and servers"), ("enterprise", "own servers, in colocation"), ("hyperscaler", "storage systems")]), str(hw))
+    data = pg.evaluate("""() => ({eq: STAKEHOLDERS.find(s => s.id === 'equipment').description,
+        rel: RELATIONSHIPS.filter(r => r.from === 'equipment' && r.to === 'hyperscaler').map(r => [r.type, r.label, !!r.added]),
+        src: MONEY_WALKTHROUGH_STEPS[3].sources.map(s => s.url)})""")
+    check("equipment: the description says who buys compute hardware; equipment -> hyperscaler added",
+          data["eq"].endswith("the operator buys the facility's power and electrical equipment.")
+          and data["rel"] == [["goods", "Servers, GPUs & network gear", True]], str(data))
+    check("money step 4 cites Epoch AI's cost breakdown", data["src"] == ["https://epoch.ai/data-insights/ai-datacenter-cost-breakdown"], str(data["src"]))
+
+    pg.locator("#toggle-explorer").click(); pg.wait_for_timeout(250)
+    st = pg.evaluate(MONEY_STATE)
+    check("explorer: the mode switch starts on Relationships, money arrows hidden",
+          st["modes"] == ["true", "false"] and st["flowChips"] and st["phaseChips"] is None and st["note"] is None
+          and not any(e["shown"] for e in st["edges"]) and st["relShown"] == pg.evaluate("RELATIONSHIPS.length"), str({k: st[k] for k in ("modes", "flowChips", "relShown")}))
+    pg.locator("#ex-mode-money").click(); pg.wait_for_timeout(250)
+    st = pg.evaluate(MONEY_STATE)
+    edges = st["edges"]
+    missing = [p for p in pays if not any(e["from"] == p[1] and e["to"] == p[2] and e["phase"] == p[4] and p[3] in e["label"] for e in edges)]
+    check("Money flows: every payment of the money path is in the explorer's money view (payer -> payee, by phase)",
+          not missing and all(e["shown"] for e in edges), str(missing[:4]))
+    keys = [(e["from"], e["to"], e["phase"]) for e in edges]
+    check("Money flows: one arrow per payer -> payee pair and phase", len(keys) == len(set(keys)) == len({(p[1], p[2], p[4]) for p in pays}), str(len(keys)))
+    check("Money flows: phase chips All / Build / Operate replace the flow-type chips, with the legend line",
+          st["modes"] == ["false", "true"] and not st["flowChips"] and st["relShown"] == 0
+          and st["phaseChips"] == [["All", "true"], ["Build", "false"], ["Operate", "false"]]
+          and st["note"] == "Build = one-off investment · Operate = recurring payments", str({k: st[k] for k in ("phaseChips", "note")}))
+    check("Money flows: build dashed, operate solid, one width throughout (no sourced amounts per flow)",
+          all((e["dash"] != "none") == (e["phase"] == "build") for e in edges) and len({e["width"] for e in edges}) == 1,
+          str({(e["phase"], e["dash"], e["width"]) for e in edges}))
+    pg.locator(".phase-chip[data-phase=build]").click(); pg.wait_for_timeout(250)
+    st = pg.evaluate(MONEY_STATE)
+    check("Money flows: the Build chip fades the operate arrows out",
+          all(e["op"] == ("1" if e["phase"] == "build" else "0.06") for e in st["edges"]), str({(e["phase"], e["op"]) for e in st["edges"]}))
+    if run["shots"]:
+        pg.locator("#view-explorer").screenshot(path=os.path.join(run["shots"], "eco_money_build_1680.png"))
+    pg.locator(".phase-chip[data-phase=all]").click(); pg.wait_for_timeout(200)
+    if run["shots"]:
+        pg.locator("#view-explorer").screenshot(path=os.path.join(run["shots"], "eco_money_all_1680.png"))
+    pg.locator("#node-operator").click(); pg.wait_for_timeout(300)
+    st = pg.evaluate(MONEY_STATE)
+    mine = [e for e in st["edges"] if "operator" in (e["from"], e["to"])]
+    check("Money flows: selecting the operator labels its arrows and fades the rest, labels clear of each other",
+          len(st["labels"]) == len(mine) and all(e["op"] == "1" for e in mine)
+          and all(e["op"] == "0.15" for e in st["edges"] if e not in mine) and st["overlap"] == 0, f"{len(st['labels'])}/{len(mine)} overlap {st['overlap']}")
+    if run["shots"]:
+        pg.locator("#view-explorer").screenshot(path=os.path.join(run["shots"], "eco_money_operator_1680.png"))
+    pg.locator("#node-operator").click(); pg.wait_for_timeout(200)
+    pg.locator("#ex-mode-rel").click(); pg.wait_for_timeout(200)
+    pg.locator("#node-operator").click(); pg.wait_for_timeout(300)
+    st = pg.evaluate(MONEY_STATE)
+    n_rel = pg.evaluate("() => RELATIONSHIPS.filter(r => r.from === 'operator' || r.to === 'operator').length")
+    check("Relationships: selecting a box labels its arrows too, clear of each other", len(st["labels"]) == n_rel and st["overlap"] == 0,
+          f"{len(st['labels'])}/{n_rel} overlap {st['overlap']}")
+    pg.locator("#node-operator").click(); pg.wait_for_timeout(200)
+    # The money walkthrough in the explorer: choosing it shows the money arrows; each step's payments lit and labelled.
+    pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(300)
+    bad = []
+    for i in range(8):
+        if i:
+            pg.locator("#wt-next").click(); pg.wait_for_timeout(250)
+        st = pg.evaluate(MONEY_STATE)
+        step = [p for p in pays if p[0] == i + 1]
+        lit = sorted({(e["from"], e["to"], e["phase"]) for e in st["edges"] if e["op"] == "1"})
+        if st["modes"] != ["false", "true"] or lit != sorted({(p[1], p[2], p[4]) for p in step}) or st["overlap"]:
+            bad.append(f"step {i + 1}: lit {lit}")
+        if i == 3 and run["shots"]:
+            pg.locator("#view-explorer").screenshot(path=os.path.join(run["shots"], "eco_money_step4_explorer_1680.png"))
+    check("explorer: the money walkthrough switches to Money flows and lights each step's payments", not bad, "; ".join(bad[:2]))
+    pg.locator("#wt-mode-life").click(); pg.wait_for_timeout(250)
+    check("explorer: the life path switches back to Relationships", pg.evaluate(MONEY_STATE)["modes"] == ["true", "false"])
+    check("money flows: no console errors", not log, str(log))
+    ctx.close()
+
+    # The poster at money step 4: its badges (one per pair of boxes) clear of labels and boxes (also checked for every step above).
+    ctx, pg, log, _ = open_page(b, run, 1680, 1050)
+    pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(250)
+    for _ in range(3):
+        pg.locator("#wt-next").click(); pg.wait_for_timeout(250)
+    arrows = pg.evaluate("() => [...document.querySelectorAll('#money-svg .money-pay')].map(g => g.dataset.from + '>' + g.dataset.to).sort()")
+    check("poster, money step 4: arrows from the cloud box and the customers to equipment and storage",
+          arrows == ["enterprise>equipment", "hyperscaler>equipment", "hyperscaler>storage"], str(arrows))
+    if run["shots"]:
+        pg.locator("#view-poster").screenshot(path=os.path.join(run["shots"], "eco_poster_money_step4_1680.png"))
+    ctx.close()
+
+    # Phones: the explorer is hidden, so the list shows each stakeholder's payments.
+    ctx, pg, log, _ = open_page(b, run, 390, 844, mobile=True)
+    m = pg.evaluate("""() => { const item = [...document.querySelectorAll('#mobile-list .mobile-item')].find(d => d.querySelector('summary').textContent === 'Data Center Operator');
+        return {titles: [...item.querySelectorAll('.mobile-pay-title')].map(e => e.textContent), phases: [...item.querySelectorAll('.mobile-pay-phase')].map(e => e.textContent),
+                items: item.querySelectorAll('.mobile-pay-list li').length} }""")
+    check("phone: each stakeholder lists who it pays and who pays it, grouped by phase",
+          m["titles"] == ["Pays", "Is paid by"] and m["phases"] == ["Build", "Operate", "Build", "Operate"] and m["items"] >= 15, str(m))
+    check("phone money list: no console errors", not log, str(log))
+    ctx.close()
+
+
 def phones(b, run):
     for w, h in PHONES:
         ctx, pg, log, _ = open_page(b, run, w, h, mobile=True)
@@ -509,7 +647,7 @@ def main():
         os.makedirs(args.shots, exist_ok=True)
     with sync_playwright() as p:
         b = p.chromium.launch()
-        for suite in (poster_desktop, walkthroughs, flows_desktop, explorer, navigation, content_r53, phones):
+        for suite in (poster_desktop, walkthroughs, flows_desktop, explorer, navigation, content_r53, money_flows, phones):
             print(f"== {suite.__name__}")
             suite(b, run)
         print("== right_edge")
