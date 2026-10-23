@@ -12,11 +12,18 @@ Needs Playwright (Chromium) and the site served locally, e.g. from the repo root
     python tools/check_layout_sweep.py                       # all 11 pages, 1024-1680px, 8px steps
     python tools/check_layout_sweep.py --pages index --step 4
     python tools/check_layout_sweep.py --base https://miikawir-ops.github.io/RayDar-DataCenter/business-models/
+    python tools/check_layout_sweep.py --shots Output/screenshots/phones   # also the R79 phone cases' screenshots
+
+It also checks two phone layouts at 360 and 390px (R79): the dashboard's chain bar (one line, a
+fade cue when it scrolls; skipped when the dashboard isn't generated locally) and the ecosystem
+page's walkthrough (every step's text and both buttons on screen).
 
 Exit code 0 when every page is clean at every width, 1 otherwise.
 """
 import argparse
+import os
 import sys
+from urllib.parse import urljoin
 
 from playwright.sync_api import sync_playwright
 
@@ -73,6 +80,82 @@ CHECK = """(BOXES) => {
 }"""
 
 
+PHONES = ((360, 740), (390, 844))
+STRIP = """() => { const s = document.getElementById('bottleneck-strip'), r = s.getBoundingClientRect(), cs = getComputedStyle(s);
+  const tops = new Set([...s.children].map(c => Math.round(c.getBoundingClientRect().top)));
+  return {rows: tops.size, h: Math.round(r.height), right: Math.round(r.right), vw: document.documentElement.clientWidth,
+          over: s.scrollWidth > s.clientWidth + 1, cut: s.classList.contains('is-cut'), wrap: cs.flexWrap,
+          sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth} }"""
+WT = """() => { const w = document.querySelector('.walkthrough').getBoundingClientRect(), t = document.getElementById('wt-text');
+  const p = document.getElementById('wt-prev').getBoundingClientRect(), n = document.getElementById('wt-next').getBoundingClientRect();
+  const c = document.querySelector('.wt-controls').getBoundingClientRect();
+  return {title: document.getElementById('wt-title').textContent, h: Math.round(w.height), vh: innerHeight,
+          oneRow: Math.abs(p.top - n.top) < 2 && p.top > t.getBoundingClientRect().bottom - 1,
+          inside: p.left >= w.left && n.right <= w.right + 0.5 && n.bottom <= w.bottom + 0.5,
+          full: t.getBoundingClientRect().width >= c.width - 2, over: t.scrollHeight > t.clientHeight + 1,
+          cut: t.classList.contains('is-cut'), len: t.textContent.length,
+          sideways: document.documentElement.scrollWidth - document.documentElement.clientWidth} }"""
+
+
+def phone_cases(b, base, shots):
+    """R79: the chain bar and the walkthrough at phone widths. Returns True when clean."""
+    root = base.rsplit("business-models/", 1)[0]
+    ok = True
+    for w, h in PHONES:
+        ctx = b.new_context(viewport={"width": w, "height": h}, is_mobile=True, has_touch=True)
+        pg = ctx.new_page()
+        # Dashboard chain bar: the page's own bar, then a long one (three trend words) that must scroll.
+        resp = pg.goto(urljoin(root, "index.html"))
+        if not resp or resp.status != 200:
+            print(f"SKIP chain bar {w}: no dashboard at {urljoin(root, 'index.html')} (generated in CI)")
+        else:
+            pg.wait_for_load_state("networkidle")
+            st = pg.evaluate(STRIP)
+            if shots:
+                pg.locator("#bottleneck-strip").scroll_into_view_if_needed()
+                pg.screenshot(path=os.path.join(shots, f"chain_bar_{w}.png"), clip={"x": 0, "y": max(0, pg.locator("#bottleneck-strip").bounding_box()["y"] - 60), "width": w, "height": 160})
+            pg.evaluate("""() => buildBottleneckStrip([
+              {n1: 'Optical', score: 82, color: 'Red'}, {n1: 'Networking', score: 81, color: 'Red'},
+              {n1: 'Cooling', score: 66, color: 'Orange'}, {n1: 'Colocation', score: 30, color: 'Blue'}], true)""")
+            pg.wait_for_timeout(50)
+            lg = pg.evaluate(STRIP)
+            good = (st["rows"] == 1 and st["wrap"] == "nowrap" and st["right"] <= st["vw"] and st["cut"] == st["over"] and not st["sideways"]
+                    and lg["rows"] == 1 and lg["over"] and lg["cut"] and lg["right"] <= lg["vw"] and not lg["sideways"])
+            print(("OK   " if good else "FAIL ") + f"chain bar {w}: one line ({st['h']}px, cue {st['cut']} when cut {st['over']}); a long bar scrolls with the cue: {lg['over']}/{lg['cut']}")
+            ok &= good
+            pg.evaluate("() => { const s = document.getElementById('bottleneck-strip'); s.scrollLeft = s.scrollWidth; s.dispatchEvent(new Event('scroll')); }")
+            pg.wait_for_timeout(50)
+            end = pg.evaluate(STRIP)
+            good = not end["cut"]
+            print(("OK   " if good else "FAIL ") + f"chain bar {w}: the cue goes at the end of the scroll")
+            ok &= good
+        # Ecosystem walkthrough: every step of both paths.
+        pg.goto(urljoin(root, "ecosystem.html"))
+        pg.wait_for_load_state("networkidle")
+        bad, longest = [], None
+        for mode in ("life", "money"):
+            pg.locator("#wt-mode-" + mode).click(); pg.wait_for_timeout(250)
+            n = pg.evaluate(f"({'WALKTHROUGH_STEPS' if mode == 'life' else 'MONEY_WALKTHROUGH_STEPS'}).length")
+            for i in range(n):
+                if i:
+                    pg.locator("#wt-next").click(); pg.wait_for_timeout(200)
+                st = pg.evaluate(WT)
+                if not (st["h"] <= st["vh"] and st["oneRow"] and st["inside"] and st["full"] and st["cut"] == st["over"] and not st["sideways"]):
+                    bad.append(f"{st['title']}: {st}")
+                if not longest or st["len"] > longest[1]:
+                    longest = (mode, st["len"], i, st["title"])
+        print(("OK   " if not bad else "FAIL ") + f"walkthrough {w}: every step fits the screen, text full width, Prev and Next on one row under it" + (f"; {bad[:2]}" if bad else ""))
+        ok &= not bad
+        if shots and longest:
+            pg.locator("#wt-mode-" + longest[0]).click(); pg.wait_for_timeout(250)
+            for _ in range(longest[2]):
+                pg.locator("#wt-next").click(); pg.wait_for_timeout(200)
+            pg.locator(".walkthrough").screenshot(path=os.path.join(shots, f"walkthrough_longest_{w}.png"))
+            print(f"     longest step: {longest[3]} ({longest[1]} characters)")
+        ctx.close()
+    return ok
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--base", default="http://127.0.0.1:8765/business-models/")
@@ -80,7 +163,10 @@ def main():
     ap.add_argument("--min", type=int, default=1024)
     ap.add_argument("--max", type=int, default=1680)
     ap.add_argument("--step", type=int, default=8)
+    ap.add_argument("--shots", help="folder for the R79 phone cases' screenshots")
     args = ap.parse_args()
+    if args.shots:
+        os.makedirs(args.shots, exist_ok=True)
     widths = sorted(set(range(args.min, args.max + 1, args.step)) | {args.max})
     failed = False
     with sync_playwright() as p:
@@ -103,6 +189,8 @@ def main():
                 print(f"FAIL {slug}: {len(bad)}/{len(widths)} widths, {bad[0][0]}-{bad[-1][0]}px; at {bad[0][0]}px: {bad[0][1][:4]}")
             else:
                 print(f"OK   {slug}: clean at all {len(widths)} widths ({args.min}-{args.max}px)")
+        if not phone_cases(b, args.base, args.shots):
+            failed = True
         b.close()
     return 1 if failed else 0
 
