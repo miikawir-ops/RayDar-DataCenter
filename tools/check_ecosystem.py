@@ -526,6 +526,25 @@ LABELS_CLEAR = """() => { const nodes = STAKEHOLDERS.map(s => document.querySele
     || nodes.some(b => r.x < b.x + b.width && b.x < r.x + r.width && r.y < b.y + b.height && b.y < r.y + r.height)).map(([t]) => t) }"""
 
 
+# R78: poster money arrows may not cross a stakeholder box other than their own two ends, nor a
+# printed label pill. Any crossing fails unless it is listed here, by money step and arrow, with
+# its reason; a listed crossing that no longer happens fails too, so the list can't go stale.
+POSTER_CROSSINGS_ALLOWED = {
+    (2, "capital>construction", "Equipment & Technology Suppliers"):
+        "Equipment sits between the two boxes across their full width; the gap on its left is about 12px "
+        "after margins and the card column closes the right, so no curve clears it without the poster "
+        "image edit (R23).",
+}
+POSTER_CROSSINGS = """() => { const W = 1536, H = 966, out = [];
+  document.querySelectorAll('#money-svg .money-pay').forEach(g => { const path = g.querySelector('path'), L = path.getTotalLength();
+    const rects = STAKEHOLDERS.filter(s => s.posterBox && s.id !== g.dataset.from && s.id !== g.dataset.to).map(s => [s.name, s.posterBox])
+      .concat(POSTER_LABELS.map(l => [l.label, l]));
+    for (const [n, b] of rects) { const x0 = b.x * W / 100, y0 = b.y * H / 100, x1 = x0 + b.w * W / 100, y1 = y0 + b.h * H / 100;
+      for (let k = 1; k < 80; k++) { const q = path.getPointAtLength(L * k / 80);
+        if (q.x > x0 && q.x < x1 && q.y > y0 && q.y < y1) { out.push([g.dataset.from + '>' + g.dataset.to, n]); break; } } } });
+  return out }"""
+
+
 def money_flows(b, run):
     """R76: the money path's phases, the explorer's Money flows mode, labels on selection, the
     walkthrough in the explorer, and the phone list's payments."""
@@ -656,15 +675,20 @@ def money_flows(b, run):
     arrows = pg.evaluate("() => [...document.querySelectorAll('#money-svg .money-pay')].map(g => g.dataset.from + '>' + g.dataset.to).sort()")
     check("poster, money step 4: arrows from the cloud box and the customers to equipment and storage",
           arrows == ["enterprise>equipment", "hyperscaler>equipment", "hyperscaler>storage"], str(arrows))
-    # R77: the curves to Equipment would have to pass between Capital & Finance and the printed pills;
-    # the gap (about 37px) can't take a euro badge with its margins, so where no clear curve is found
-    # the arrow keeps its earlier route. Reported, not failed.
-    cross = pg.evaluate("""() => { const W = 1536, H = 966, cap = STAKEHOLDERS.find(s => s.id === 'capital').posterBox, out = [];
-        const x0 = cap.x * W / 100, y0 = cap.y * H / 100, x1 = x0 + cap.w * W / 100, y1 = y0 + cap.h * H / 100;
-        document.querySelectorAll('#money-svg .money-pay').forEach(g => { const p = g.querySelector('path'), L = p.getTotalLength();
-          for (let k = 1; k < 60; k++) { const q = p.getPointAtLength(L * k / 60); if (q.x > x0 && q.x < x1 && q.y > y0 && q.y < y1) { out.push(g.dataset.from + '>' + g.dataset.to); break; } } });
-        return out }""")
-    print(f"     note: poster money step 4 curves still crossing Capital & Finance (no room to its left): {cross}")
+    pg.locator("#wt-mode-money").click(); pg.wait_for_timeout(300)      # back to money step 1
+    found = set()
+    for i in range(8):
+        if i:
+            pg.locator("#wt-next").click(); pg.wait_for_timeout(250)
+        for arrow, what in pg.evaluate(POSTER_CROSSINGS):
+            found.add((i + 1, arrow, what))
+        if run["shots"] and i + 1 in (2, 5):
+            pg.locator("#view-poster").screenshot(path=os.path.join(run["shots"], f"eco_poster_money_step{i + 1}_1680.png"))
+    new = sorted(found - set(POSTER_CROSSINGS_ALLOWED)); stale = sorted(set(POSTER_CROSSINGS_ALLOWED) - found)
+    check(f"poster: no money curve crosses another box or a printed pill, in any step, beyond the allowlist ({len(POSTER_CROSSINGS_ALLOWED)} listed) (R78)",
+          not new and not stale, f"not allowed {new}; listed but no longer crossing {stale}")
+    for key, why in POSTER_CROSSINGS_ALLOWED.items():
+        print(f"     allowed: money step {key[0]}, {key[1]} crosses {key[2]}: {why}")
     if run["shots"]:
         pg.locator("#view-poster").screenshot(path=os.path.join(run["shots"], "eco_poster_money_step4_1680.png"))
     ctx.close()
