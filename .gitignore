@@ -27,6 +27,3 @@ Output/
 # directory and would silently drop committed hub pages such as
 # business-models/index.html.
 /index.html
-
-# Curated site build (published to the public site repo, never committed here)
-/_site/
