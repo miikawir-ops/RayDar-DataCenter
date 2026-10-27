@@ -15,7 +15,7 @@ Needs Playwright (Chromium) and the site served locally, e.g. from the repo root
     python -m http.server 8765 --bind 127.0.0.1
     python tools/check_ecosystem.py
     python tools/check_ecosystem.py --shots Output/screenshots/ecosystem
-    python tools/check_ecosystem.py --base https://miikawir-ops.github.io/RayDar-DataCenter/
+    python tools/check_ecosystem.py --base https://datacenter.raydar.fi/
 
 Exit code 0 when every check passes, 1 otherwise.
 """

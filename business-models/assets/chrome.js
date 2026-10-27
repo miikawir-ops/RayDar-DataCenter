@@ -18,7 +18,7 @@
     hub: "index.html",
     ecosystem: "../ecosystem.html",
     dashboard: "../index.html",
-    family: "https://miikawir-ops.github.io/AI_valuechain/",
+    family: "https://raydar.fi/",
     // AI Oy's growth path, in order. Slugs double as the hub's deep-link
     // hashes (#gpu-cloud) and as the model card file names (gpu-cloud.html).
     models: [

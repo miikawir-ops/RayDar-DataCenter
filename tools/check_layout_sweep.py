@@ -11,7 +11,7 @@ Needs Playwright (Chromium) and the site served locally, e.g. from the repo root
     python -m http.server 8765 --bind 127.0.0.1
     python tools/check_layout_sweep.py                       # all 11 pages, 1024-1680px, 8px steps
     python tools/check_layout_sweep.py --pages index --step 4
-    python tools/check_layout_sweep.py --base https://miikawir-ops.github.io/RayDar-DataCenter/business-models/
+    python tools/check_layout_sweep.py --base https://datacenter.raydar.fi/business-models/
     python tools/check_layout_sweep.py --shots Output/screenshots/phones   # also the R79 phone cases' screenshots
 
 It also checks two phone layouts at 360 and 390px (R79): the dashboard's chain bar (one line, a

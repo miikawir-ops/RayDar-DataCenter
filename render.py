@@ -841,7 +841,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       <div class="hero-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="font-size:30px;font-weight:500;letter-spacing:-1px">Ray<span style="color:#85B7EB;font-weight:300">Dar</span></span>
         <span style="font-size:11px;font-weight:600;color:#0A0818;background:#85B7EB;padding:2px 8px;border-radius:10px;letter-spacing:.04em">DATA CENTER</span>
-        <a href="https://miikawir-ops.github.io/AI_valuechain/" class="hero-sibling-link">← RayDar AI value chain</a>
+        <a href="https://raydar.fi/" class="hero-sibling-link">← RayDar AI value chain</a>
         <span style="width:5px;height:5px;border-radius:50%;background:#E24B4A;flex-shrink:0;display:inline-block;margin-top:6px"></span>
         <span style="font-size:14px;font-weight:400;background:linear-gradient(90deg,#85B7EB,#AFA9EC,#85B7EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:0.08em;opacity:0.95">AI data center infrastructure intelligence</span>
       </div>
@@ -1036,7 +1036,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     Not financial advice · Always do your own research · Data may be up to 90 days old
   </div>
   <div class="footer-family" style="margin-top:6px">
-    <a href="https://miikawir-ops.github.io/AI_valuechain/" target="_blank" rel="noopener">Part of the RayDar family</a> — AI value chain intelligence, one layer at a time.
+    <a href="https://raydar.fi/" target="_blank" rel="noopener">Part of the RayDar family</a> — AI value chain intelligence, one layer at a time.
   </div>
   <div class="footer-cobhc">
     ⚔️ Built in Espoo, Finland · <span>Are You Dead Yet?</span> — the market will tell you 🤘

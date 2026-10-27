@@ -24,7 +24,7 @@ Needs Playwright (Chromium) and the site served locally, e.g. from the repo root
     python -m http.server 8765 --bind 127.0.0.1
     python tools/check_interactions.py
     python tools/check_interactions.py --suite hub --shots Output/screenshots/business-models
-    python tools/check_interactions.py --base https://miikawir-ops.github.io/RayDar-DataCenter/business-models/
+    python tools/check_interactions.py --base https://datacenter.raydar.fi/business-models/
 The hub suite also follows the header's links to the dashboard and the ecosystem
 page. Locally the dashboard root (index.html) exists only after `python main.py
 --now` (it's generated and gitignored); without it that check fails.
