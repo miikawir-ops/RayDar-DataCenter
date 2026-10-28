@@ -283,7 +283,7 @@ NAV = """() => { const q = s => document.querySelector(s), cs = e => getComputed
             w: r.width, titleSize: parseFloat(cs(t).fontSize), titleWeight: +cs(t).fontWeight}; };
   const start = q('#wt-start'), wt = q('.walkthrough'), tab = q('#toggle-poster');
   const toRgb = hex => { const n = parseInt(hex.slice(1), 16); return 'rgb(' + [n >> 16 & 255, n >> 8 & 255, n & 255].join(', ') + ')'; };
-  const lum = c => { const m = (c.match(/[\d.]+/g) || [0, 0, 0]).map(Number);
+  const lum = c => { const m = (c.match(/[\\d.]+/g) || [0, 0, 0]).map(Number);
     const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
     return 0.2126 * f(m[0]) + 0.7152 * f(m[1]) + 0.0722 * f(m[2]); };
   const icon = id => { const i = document.querySelector('#' + id + ' .wt-mode-icon');
@@ -460,7 +460,7 @@ def content_r53(b, run):
     for sid in pg.evaluate("() => STAKEHOLDERS.filter(s => s.posterBox).map(s => s.id)"):
         pg.evaluate("(id) => document.getElementById('hotspot-' + id).scrollIntoView({block: 'center'})", sid)
         pg.locator("#hotspot-" + sid).click(); pg.wait_for_timeout(420)
-        c = pg.evaluate("""() => ({card: (document.getElementById('compact-card').textContent.match(/Reviewed 10\/2026/g) || []).length,
+        c = pg.evaluate("""() => ({card: (document.getElementById('compact-card').textContent.match(/Reviewed 10\\/2026/g) || []).length,
             panelSources: document.querySelectorAll('#panel-below .sc-sources a').length,
             dash: [...document.querySelectorAll('#compact-card a.sc-dash-link')].map(a => [a.getAttribute('href'), a.textContent])})""")
         exp_groups = pg.evaluate("(id) => 1 + ((POSTER_GROUPS[id] || {}).extraIds || []).length", sid)
