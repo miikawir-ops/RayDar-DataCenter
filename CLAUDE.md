@@ -49,6 +49,7 @@ Needs Ray's approval before committing:
 - Ship finished changes right away: once a change is approved (or needs no approval), commit, push and deploy it at once with a manual workflow_dispatch, then verify live. Don't hold finished changes for the next scheduled run. The approval gates in this file still apply before committing (PLAN.md ledger R55).
 - The Pages source must stay "GitHub Actions" (API: `build_type: workflow`). In branch mode, every push serves the raw repo, which has no dashboard (index.html is gitignored), so the root 404s (PLAN.md step 7, corrected 2026-10-06). After any deploy, check the root as well as the page you changed.
 - Before a domain or hosting cutover, probe only throwaway paths over http (e.g. /probe-123.html), never / or real pages: GitHub's CDN caches the pre-cutover 404 for an unknown time.
+- Mirror (planned 2026-10-28): https://miikawir-ops.github.io/raydar-mirror/ serves copies of all three sites (/, /datacenter/, /vice/) for networks that block raydar.fi; it is built by the raydar-mirror repo's own workflow, which pulls the live sites, so nothing here changes for it. While it exists, never create a miikawir-ops.github.io account-level repo with a custom domain: GitHub would then redirect every project site without its own domain, the mirror included, to that domain.
 
 ## Post-launch
 - Any change to scoring logic, weights, or thresholds requires checking live output before and after the change, not just a local run.
