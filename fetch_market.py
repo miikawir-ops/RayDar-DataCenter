@@ -688,7 +688,7 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             "analyst_count":     info.get("numberOfAnalystOpinions", 0),
             "sector":            info.get("sector", "N/A"),
             "data_date":         hist.index[-1].date().isoformat() if not hist.empty else None,
-            "data_age_note":     "Quarterly financials may be up to 90 days old",
+            "data_age_note":     "Quarterly financials are the latest reported quarter and can be several months old",
             "data_missing":      data_missing,
             "_fields_seen":      sorted(seen),
         }, data_missing)

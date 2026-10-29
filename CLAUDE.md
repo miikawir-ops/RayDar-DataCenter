@@ -21,7 +21,7 @@ Needs Ray's approval before committing:
 - User-facing text, especially content colleagues may rely on.
 
 ## Data & honesty (dashboards)
-- Financial data may be stale (quarterly financials up to 90 days old) — disclose it.
+- Financial data may be stale — disclose it, as "Quarterly financials are the latest reported quarter and can be several months old" (Ray, 2026-10-28, R85). Don't put a maximum age on the page: DLR's newest usable quarter was 211 days old on 2026-10-28 (Yahoo's newest column empty), so "up to 90 days" was wrong.
 - Distinguish "the signal is real" from "the price moved." Never conflate them.
 - Not financial advice — the dashboards inform decisions, they don't make them.
 - A keyword-matching signal needs a topical requirement — a bare identifier match alone must never count. A company name or ticker symbol appearing in a headline is not news about that company's fundamentals on its own. Satisfy this either by removing identifier-only keywords entirely (the simpler fix) or by requiring a separate topical match alongside a kept identifier — either is fine; the requirement is the outcome, not a specific mechanism.

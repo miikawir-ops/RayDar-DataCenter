@@ -500,7 +500,7 @@ def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = 
     datetime_str = f"{date_str} · {time_str} UTC"
     # The session the scores belong to, next to when they were fetched (R42).
     fetch_note   = (f"Data: close of {day_label(session)} · fetched {time_str} UTC · "
-                    "Quarterly financials may be up to 90 days old")
+                    "Quarterly financials are the latest reported quarter and can be several months old")
 
     vix          = macro_data.get("vix")
     yield_ch     = macro_data.get("yield_10y_change")
@@ -948,7 +948,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     </div>
     <div style="font-size:11px;font-weight:500;color:#1A1A1A;margin-bottom:6px">Data sources</div>
     <p style="margin-bottom:2px">Stock prices &amp; fundamentals, capex data — Yahoo Finance · News signals — Reuters, Yahoo Finance, MarketWatch, CNBC</p>
-    <p style="margin-top:8px;font-size:10px;color:#B4B2A9">Quarterly financials may be up to 90 days old · Not financial advice · Always do your own research</p>
+    <p style="margin-top:8px;font-size:10px;color:#B4B2A9">Quarterly financials are the latest reported quarter and can be several months old · Not financial advice · Always do your own research</p>
   </div>
   <div id="chain-wrap" style="position:relative">
     <div style="display:flex;align-items:stretch;gap:0" id="chain"></div>
@@ -1033,7 +1033,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="footer">
   <div><strong>RayDar Data Center</strong> · {datetime_str}</div>
   <div style="font-size:11px;color:#888780;margin-top:2px">
-    Not financial advice · Always do your own research · Data may be up to 90 days old
+    Not financial advice · Always do your own research · Quarterly financials are the latest reported quarter and can be several months old
   </div>
   <div class="footer-family" style="margin-top:6px">
     <a href="https://raydar.fi/" target="_blank" rel="noopener">Part of the RayDar family</a> — AI value chain intelligence, one layer at a time.
