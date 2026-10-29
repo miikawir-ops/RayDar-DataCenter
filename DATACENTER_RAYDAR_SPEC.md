@@ -53,7 +53,8 @@ identical to parent.
 - **Not financial advice:** provide factual signals and analysis, never recommendations.
 - **Data honesty:** a failed or missing fetch is `None`, named in that record's
   `data_missing` list — never a silent default, estimate, or 0 (PLAN.md decision #6).
-  Never fabricate. Quarterly financials may be up to 90 days old — always disclosed.
+  Never fabricate. Quarterly financials are the latest reported quarter and can be
+  several months old — always disclosed.
 
 ## A5. Visual design (match parent for family consistency)
 
