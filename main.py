@@ -445,6 +445,13 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
         if confirm_note:
             layer_status = confirm_note
 
+        # Red needs measured acceleration in at least one company: no path
+        # (instant, confirmed, held) may reach Red without it (the parent's
+        # rule, ledger R88 step 3).
+        if layer_color == "Red" and not delta_candidates:
+            layer_color  = "Orange"
+            layer_status = "Emerging — acceleration not measured for any company in the sub-layer"
+
         best = dict(best_ticker)
         best["color"]  = layer_color
         best["score"]  = weighted_score

@@ -227,10 +227,13 @@ class ScoreEngine:
         # High-margin multiplier: +8% for high-margin accelerators (GM > 55%).
         # Absence of gross_margin just skips the (optional, additive-only)
         # bonus — never fabricates a penalty, so no missing-data risk here.
+        # Not when acceleration is unmeasured: the bonus rewards high-margin
+        # *accelerators*, and an unknown delta isn't one (the parent's rule,
+        # ledger R88 step 3).
         gross_margin = data.get("gross_margin")
         if gross_margin is None:
             missing.append("gross_margin")
-        elif gross_margin > 0.55 and (delta is None or delta >= 0):
+        elif gross_margin > 0.55 and delta is not None and delta >= 0:
             raw = min(raw * 1.08, 100.0)
 
         # Fundamental override — negative delta = decelerating = can't be a bottleneck
@@ -442,7 +445,11 @@ class ScoreEngine:
             return "Blue", f"Cooling — negative growth delta ({delta*100:.1f}%)"
 
         if score > 65:
-            if delta is not None and delta < 0.05:
+            # Red needs measured acceleration: an unmeasured delta (fewer than
+            # 6 quarters of revenue) can't confirm a bottleneck (ledger R88).
+            if delta is None:
+                return "Orange", "Emerging — high score, acceleration not measured"
+            if delta < 0.05:
                 return "Orange", f"Emerging — high score but acceleration slowing ({delta*100:.1f}%)"
             return "Red", "Confirmed bottleneck — revenue accelerating into supply constraint"
         elif score >= 45:
