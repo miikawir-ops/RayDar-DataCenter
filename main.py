@@ -86,6 +86,15 @@ CONFIRM_WINDOW     = 3
 MAX_ENTRY_AGE_DAYS = 7
 
 
+def _older_version_in_window(history: list, sessions: list, current: datetime.date) -> bool:
+    """True when a confirmation-window session is stored under another
+    model version: the card note then says the earlier sessions aren't on the
+    current method, instead of implying nothing was stored (ledger R88)."""
+    cutoff  = current - datetime.timedelta(days=MAX_ENTRY_AGE_DAYS)
+    window  = {s.isoformat() for s in sessions if cutoff <= s < current}
+    return any(e.get("date") in window and e.get("model_version") != MODEL_VERSION for e in history)
+
+
 def _confirmation_window(layer_id: str, history: list, sessions: list,
                          current: datetime.date) -> tuple[list, list]:
     """
@@ -157,7 +166,9 @@ def _confirmed_color(
 
     if k < 2:
         log.debug(f"  {layer_id}: {today_color} unconfirmed — only {k} history days")
-        stored_txt = f"{k} of 2 earlier sessions stored" + (f"; {gap}" if gap else "")
+        what = ("scored with the current method" if _older_version_in_window(history, sessions, current)
+                else "stored")
+        stored_txt = f"{k} of 2 earlier sessions {what}" + (f"; {gap}" if gap else "")
         return today_color, f"Latest session only — not yet confirmed ({stored_txt})", NO_HISTORY
 
     suffix = f" ({gap})" if gap else ""

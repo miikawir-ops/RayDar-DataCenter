@@ -92,6 +92,10 @@ def check_page():
     check("no comparison across the change: METHOD_BREAK set, no previous session label",
           "const METHOD_BREAK = true;" in html and 'const PREV_LABEL   = "";' in html and "const HAS_YESTERDAY= false;" in html)
     check("the card says 'no comparison: method changed' rather than 'first run'", "no comparison: method changed" in html)
+    layers_js = re.search(r"const LAYERS\s*=\s*(\[.*?\]);\n", html, re.S).group(1)
+    notes = {l["id"]: l.get("note", "") for l in json.loads(layers_js)}
+    check("the card note says the earlier sessions aren't on the current method, not that none were stored",
+          all("0 of 2 earlier sessions scored with the current method" in n for n in notes.values()), notes)
     note = re.search(r"<strong>Methodology change after the (\w{3} \w{3} \d+) close:</strong> ([^<]+)", html)
     check("a dated note says colour changes reflect the fix, not a market move",
           note is not None and note.group(1) == "Tue Oct 6" and "reflect the fix, not a market move" in note.group(2),
