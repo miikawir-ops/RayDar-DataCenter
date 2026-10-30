@@ -505,7 +505,7 @@ def check_sessions_fetch():
 
 
 def confirm(score, color, history, current, layer="optical"):
-    return main._confirmed_color(score, color, layer, 0.05, history, SESSIONS, D(current))
+    return main._confirmed_color(score, color, layer, history, SESSIONS, D(current))
 
 
 def check_window():

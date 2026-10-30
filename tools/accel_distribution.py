@@ -58,7 +58,7 @@ def report(label, sel):
     return sel
 
 
-for label, cut in (("> +60 pp (instant Red, main.py)", 0.60), ("> +40 pp (leader boost floor 45)", 0.40),
+for label, cut in (("> +60 pp (instant Red, removed in R90)", 0.60), ("> +40 pp (leader boost floor 45)", 0.40),
                    ("> +20 pp (A rating, once in pp)", 0.20), ("> +5 pp (accelerating band; Red needs >= +5)", 0.05)):
     sel = report(label, [r for r in rows if r[2] > cut])
     if cut >= 0.40:

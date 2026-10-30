@@ -108,10 +108,26 @@ def check_decel_threshold():
           main._layer_color_from_score(50.0, -0.03)[0] != "Blue" and main._layer_color_from_score(50.0, -0.06)[0] == "Blue")
 
 
+def check_no_delta_instant_red():
+    """R90: no instant Red from one company's acceleration (fund_delta > 0.60);
+    instant Red stays for a score above 80."""
+    import inspect
+    hist = [{"date": d, "model_version": main.MODEL_VERSION, "scores": {"optical": {"score": 50.0, "color": "Green"}}}
+            for d in ("2026-10-01", "2026-10-02", "2026-10-05")]
+    import datetime
+    sess = [datetime.date(2026, 10, d) for d in (1, 2, 5, 6)]
+    check("_confirmed_color no longer takes a fund_delta", "top_fund_delta" not in inspect.signature(main._confirmed_color).parameters)
+    color, note, branch = main._confirmed_color(50.0, "Orange", "optical", hist, sess, sess[-1])
+    check("a sub-layer at 50 isn't instant Red", not (color == "Red" and branch == "instant"), (color, branch))
+    color, note, branch = main._confirmed_color(85.0, "Red", "optical", hist, sess, sess[-1])
+    check("a score above 80 is still instant Red", color == "Red" and branch == "instant", (color, branch))
+
+
 def run():
     logging.disable(logging.CRITICAL)
     check_engine()
     check_decel_threshold()
+    check_no_delta_instant_red()
     check_layer_guard()
     check_labels()
     failed = [n for n, ok in results if not ok]

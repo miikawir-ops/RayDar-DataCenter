@@ -125,7 +125,6 @@ def _confirmed_color(
     today_score: float,
     today_color: str,
     layer_id: str,
-    top_fund_delta: float | None,
     history: list,
     sessions: list,
     current: datetime.date,
@@ -135,7 +134,9 @@ def _confirmed_color(
     change requires confirmation across multiple daily runs to prevent
     single-day data noise from flipping the dashboard signal.
 
-    INSTANT RED   — today_score > 80, OR top_fund_delta > 0.60
+    INSTANT RED   — today_score > 80 (the one-company shortcut, fund_delta
+                    above 0.60, was removed in ledger R90: on true YoY it
+                    fired 3 times since 2021, all SMCI, one off a trough)
     CONFIRMED RED — today > 65 AND 2+ of last 3 days also > 55
     CONFIRMED ORANGE — today >= 45 AND 2+ of last 3 days also >= 40
     CONFIRMED BLUE — today < 25 AND 2+ of last 3 days also < 30
@@ -178,10 +179,6 @@ def _confirmed_color(
     if today_score > 80:
         log.info(f"  {layer_id}: instant Red — extreme score {today_score:.1f} > 80")
         return "Red", f"Red without waiting: score {today_score:.1f} is above 80", "instant"
-
-    if top_fund_delta and top_fund_delta > 0.60:
-        log.info(f"  {layer_id}: instant Red — fund_delta {top_fund_delta:.2f} > 0.60")
-        return "Red", "Red without waiting: revenue growth at one of its companies is accelerating sharply", "instant"
 
     days_above_55  = sum(1 for s in recent if s > 55)
     days_above_40  = sum(1 for s in recent if s >= 40)
@@ -455,7 +452,7 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
 
         # ── 3-day color confirmation ─────────────────────────────────────────
         layer_color, confirm_note, confirm_branch = _confirmed_color(
-            weighted_score, layer_color, layer_id, top_fund_delta,
+            weighted_score, layer_color, layer_id,
             history, sessions, current,
         )
         if confirm_note:
