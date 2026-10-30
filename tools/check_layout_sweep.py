@@ -174,7 +174,12 @@ def main():
     def sweep(b, slug):
         nonlocal failed, clean
         pg = b.new_page(viewport={"width": args.max, "height": 900})
-        pw_guard.load(pg, args.base + slug + ".html")
+        resp = pw_guard.load(pg, args.base + slug + ".html")
+        if not resp or resp.status != 200:         # a 404 page has no layout to break, so it used to pass (R95)
+            failed = True
+            pg.close()
+            print(f"FAIL {slug}: {args.base + slug + '.html'} returned {resp.status if resp else 'no response'}, not 200")
+            return
         pg.evaluate("document.fonts.ready")
         bad = []
         for w in widths:
