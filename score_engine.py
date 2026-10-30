@@ -79,6 +79,13 @@ from pathlib import Path
 
 from config import MODEL_VERSION
 
+# Decelerating = YoY growth fell by more than 5 percentage points between the
+# latest two quarters — the card's own "stable" band (±5 pp). A smaller dip is
+# noise on true YoY: 18.6% of company-quarters since 2021 were dips between
+# -5 and 0 pp (tools/accel_distribution.py; Ray, 2026-10-30, ledger R90, the
+# parent's rule).
+DECEL_THRESHOLD = -0.05
+
 log = logging.getLogger(__name__)
 
 # One entry per ticker per session, no cap (ledger R33c): the inputs behind
@@ -237,8 +244,8 @@ class ScoreEngine:
         elif gross_margin > 0.55 and delta is not None and delta >= 0:
             raw = min(raw * 1.08, 100.0)
 
-        # Fundamental override — negative delta = decelerating = can't be a bottleneck
-        if delta is not None and delta < 0:
+        # Fundamental override — decelerating (below DECEL_THRESHOLD) = can't be a bottleneck
+        if delta is not None and delta < DECEL_THRESHOLD:
             raw = min(raw, 40.0)
 
         return self._clamp(raw), delta
@@ -442,7 +449,7 @@ class ScoreEngine:
         ticker-level insufficient-data case is handled before this is
         called, in process_sector()).
         """
-        if delta is not None and delta < 0:
+        if delta is not None and delta < DECEL_THRESHOLD:
             return "Blue", f"Cooling — negative growth delta ({delta*100:.1f}%)"
 
         if score > 65:

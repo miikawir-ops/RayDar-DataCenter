@@ -94,9 +94,24 @@ def check_labels():
           '"— not measured"' in src and '" pp YoY vs prior qtr · "' in src)
 
 
+def check_decel_threshold():
+    """R90: decelerating means YoY fell by more than 5 pp, the card's own
+    "stable" band; a smaller dip is noise, not Blue (old rule: any drop)."""
+    e = ScoreEngine(MACRO)
+    color, _ = e.determine_color(50.0, -0.03, False, [])
+    check("a -3 pp dip isn't Blue (old code: Blue at any drop)", color != "Blue", color)
+    color, _ = e.determine_color(50.0, -0.06, False, [])
+    check("a -6 pp drop is Blue", color == "Blue", color)
+    capped, _ = e.calculate_acceleration(ticker("A", growth_curr=1.2, growth_prev=1.23, gm_delta=0.1, data_missing=[]), [])
+    check("a -3 pp dip isn't capped at 40 (old code: capped)", capped > 40, capped)
+    check("the sub-layer turns Blue below -5 pp only",
+          main._layer_color_from_score(50.0, -0.03)[0] != "Blue" and main._layer_color_from_score(50.0, -0.06)[0] == "Blue")
+
+
 def run():
     logging.disable(logging.CRITICAL)
     check_engine()
+    check_decel_threshold()
     check_layer_guard()
     check_labels()
     failed = [n for n, ok in results if not ok]

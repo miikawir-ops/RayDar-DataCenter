@@ -50,6 +50,7 @@ import argparse
 import datetime
 
 from config import MODEL_VERSION
+from score_engine import DECEL_THRESHOLD
 from render import day_label
 
 logging.basicConfig(
@@ -233,7 +234,7 @@ def _confirmed_color(
 
 def _layer_color_from_score(score: float, top_delta: float | None) -> tuple[str, str]:
     """Derive sub-layer color from the market-cap weighted composite score."""
-    if top_delta is not None and top_delta < 0:
+    if top_delta is not None and top_delta < DECEL_THRESHOLD:
         return "Blue", f"Cooling — dominant ticker decelerating ({top_delta*100:.1f}%)"
     if score > 65:
         return "Red", "Confirmed bottleneck — weighted sub-layer score"
