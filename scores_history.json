@@ -548,5 +548,57 @@
         }
       }
     }
+  },
+  {
+    "date": "2026-10-29",
+    "time": "07:29",
+    "run_at": "2026-10-30T07:29:21+00:00",
+    "model_version": 3,
+    "methodology_change": true,
+    "methodology_note": "Revenue growth is now true year-over-year (each quarter against the same quarter a year earlier), with SEC filings filling quarters Yahoo Finance lacks, and each company's news is scored on its own feed. Earlier colours rested on a 2-quarter calculation; colour changes from this date reflect the fix, not a market move.",
+    "scores": {
+      "cooling": {
+        "score": 54.53,
+        "color": "Orange",
+        "ratings": {
+          "VRT": "A"
+        }
+      },
+      "networking": {
+        "score": 36.46,
+        "color": "Green",
+        "ratings": {
+          "ANET": "B",
+          "CSCO": "B"
+        }
+      },
+      "optical": {
+        "score": 43.26,
+        "color": "Green",
+        "ratings": {
+          "CIEN": "B",
+          "LITE": "B",
+          "COHR": "B",
+          "GLW": "B"
+        }
+      },
+      "compute": {
+        "score": 28.55,
+        "color": "Blue",
+        "ratings": {
+          "SMCI": "C",
+          "DELL": "C",
+          "HPE": "C"
+        }
+      },
+      "colocation": {
+        "score": 33.64,
+        "color": "Green",
+        "ratings": {
+          "EQIX": "C",
+          "DLR": "B"
+        }
+      }
+    }
   }
 ]
