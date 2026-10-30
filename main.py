@@ -8,7 +8,7 @@ no radar, no auto-publish) — matching the "don't get ahead of the build
 order" discipline used for score_engine.py (step 3). --now writes
 index.html but doesn't deploy it; that's step 7.
 
-Adapted from reference/main.py. Reuses market-cap weighting, bottleneck
+Adapted from main.py in the parent's code as copied here at ebc5d6f. Reuses market-cap weighting, bottleneck
 leader boost, Red reality check, and 3-day color confirmation AS-IS in
 design — with two adaptations:
 
@@ -25,7 +25,7 @@ design — with two adaptations:
    case — the market-cap-weighted average of one ticker at 100% of
    total_mcap already IS that ticker's own score.
 
-2. Red reality check (decision #3): reference/main.py's version reads
+2. Red reality check (decision #3): the parent's main.py (at ebc5d6f) reads
    `t.get("rating", "C")` for the dominant companies' quality, but "rating"
    (A/B/C/D) is only ever assigned by render.py (step 6) — at the point
    this check runs, no ticker dict has a "rating" key yet. Defaulting to
@@ -243,7 +243,7 @@ def _red_reality_check(
     A sub-layer cannot be Red if its two largest companies by market cap are
     both rated C or D. See module docstring: skipped (no verdict, color
     unchanged) until render.py (step 6) actually assigns "rating" — reusing
-    reference/main.py's t.get("rating", "C") default here would make this
+    the parent's main.py's t.get("rating", "C") default (at ebc5d6f) here would make this
     ALWAYS fire, a bug in the reference, not the intended selective check.
     """
     if color != "Red":
@@ -295,7 +295,7 @@ def stage_fetch() -> tuple[dict, dict]:
     Returns (market_data, macro_data). market_data is
     {"sub_layers": {...}, "meta": {...}} per fetch_market.run_pipeline().
     On a total fetch failure, returns an empty/all-missing shape — never
-    fabricated defaults (decision #6; replaces reference/main.py's
+    fabricated defaults (decision #6; replaces the parent's main.py's (at ebc5d6f)
     hardcoded MACRO_DEFAULTS = {"vix": 20.0, ...} fallback).
 
     The trading-session calendar is fetched first and outside that

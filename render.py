@@ -1,7 +1,7 @@
 """
 render.py — HTML dashboard generator for RayDar Data Center (PLAN.md step 6).
 
-Adapted from reference/render.py (1782 lines). Reuses the dark hero, laser
+Adapted from render.py in the parent's code as copied here at ebc5d6f (1782 lines). Reuses the dark hero, laser
 beam, chain status bar, sub-layer cards with ratings/forecasts, expand
 panels, and heat trail (Part A5/A6) — with fixes and deliberate scope cuts,
 both stated explicitly here and in the commit message, not left as silent

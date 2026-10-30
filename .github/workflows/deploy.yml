@@ -104,7 +104,7 @@ jobs:
           test -f _site/business-models/index.html
         # Only the generated dashboard, the hand-authored ecosystem page
         # and its image, and the Finnish business-models pages are uploaded
-        # — not the whole repo (source files, PLAN.md, reference/, etc. stay
+        # — not the whole repo (source files, PLAN.md, etc. stay
         # out of the deployed site regardless of the repo's own visibility).
         # business-models/ is copied as a whole folder, so a new page or
         # asset can't be silently left out. The test fails the run if the

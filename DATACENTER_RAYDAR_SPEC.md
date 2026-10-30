@@ -249,6 +249,8 @@ The sub-agent succeeds if it:
    numbered-decisions format. See PLAN.md decision #7.
 PART D — REFERENCE IMPLEMENTATION (reuse the parent's proven code)
 
+(2026-10-30, ledger R88: reference/ was removed. It is in git history at ebc5d6f; compare against the parent repo's current code.)
+
 The reference/ folder contains the WORKING, PROVEN implementation from the parent AI value chain agent (RayDar). This is the source of the RayDar DNA — not a description of it, but the actual battle-tested logic. Reuse it; do not rebuild from scratch.
 
 reference/

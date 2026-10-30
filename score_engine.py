@@ -1,7 +1,8 @@
 """
 score_engine.py — Composite scoring engine for RayDar Data Center sub-layers.
 
-BOTTLENECK-FOCUSED MODEL v3.1, adapted from reference/score_engine.py (PLAN.md
+BOTTLENECK-FOCUSED MODEL v3.1, adapted from score_engine.py in the parent's code as
+copied here at ebc5d6f (PLAN.md
 step 3) per decision #6's None-handling contract — see "Missing-data handling"
 below for what changed and why.
 
@@ -23,7 +24,7 @@ Color thresholds:
 Macro multiplier: Risk-On 1.0 / Neutral 0.85 / Risk-Off 0.65
 
 Missing-data handling (decision #6 — this is the reason step 3 isn't a pure
-copy of reference/score_engine.py, per spec D3's "reuse the design, not a bug
+copy of the parent's score_engine.py (at ebc5d6f), per spec D3's "reuse the design, not a bug
 found empirically" rule):
 
   The reference's `_get(data, key, default=X)` helper silently substituted a

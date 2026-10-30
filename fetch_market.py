@@ -6,7 +6,8 @@ Fetches all data needed by score_engine.py from free sources:
   - SEC EDGAR : quarterly revenue yfinance lacks (edgar.py, from the parent)
   - feedparser: news headlines for keyword scoring
 
-Adapted from the parent AI value chain agent's fetch_market.py (reference/).
+Adapted from the parent AI value chain agent's fetch_market.py (the parent's code as copied here at ebc5d6f,
+2026-08-31; reference/ was removed in ledger R88).
 Sub-layer swap (Part B2 of DATACENTER_RAYDAR_SPEC.md): the parent's single
 "Data center" layer becomes 5 sub-layers (cooling/networking/optical/
 compute/colocation), defined in config.py. Sub-layer definitions live in

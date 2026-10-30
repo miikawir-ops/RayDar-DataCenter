@@ -12,8 +12,9 @@ General working rules live in the global ~/.claude/CLAUDE.md. This file adds pro
 - Register an edit to approved explainer text in tools/port_deviations.json first, then make it: `python tools/check_port_text.py --all` fails until the edit is in place on every page.
 - End each batch report with the ledger rows still open or held.
 
-## Diagnosis — reference/
-- The global rule on copied/reference versions applies directly to reference/: a fix made here doesn't confirm or rule out the same bug in the parent's live code, and a parent fix doesn't confirm or rule out whether reference/ here is already stale.
+## Diagnosis — code ported from the parent
+- reference/ (the parent's code as copied here at ebc5d6f, 2026-08-31) was removed on 2026-10-30 (ledger R88): it still had the bugs the parent fixed later, and nothing used it. It stays in git history (`git show ebc5d6f:reference/fetch_market.py`). Compare against the parent repo's current code, not a copy.
+- The global rule on copied versions still applies: a fix made here doesn't confirm or rule out the same bug in the parent's live code, or the reverse; test each side directly.
 
 ## Approval scope (in addition to global)
 Needs Ray's approval before committing:
