@@ -52,6 +52,10 @@ Needs Ray's approval before committing:
 - Before a domain or hosting cutover, probe only throwaway paths over http (e.g. /probe-123.html), never / or real pages: GitHub's CDN caches the pre-cutover 404 for an unknown time.
 - Mirror fallback (cancelled 2026-10-29, not running): AI_valuechain's tools/mirror/ can build a github.io copy of all three sites (https://miikawir-ops.github.io/raydar-mirror/: /, /datacenter/, /vice/) for networks that block raydar.fi, from its own repo pulling the live sites; setup steps in its README. If it is ever set up, while it exists never create a miikawir-ops.github.io account-level repo with a custom domain: GitHub would then redirect every project site without its own domain, the mirror included, to that domain.
 
+## Scoring-method freeze (Ray, 2026-10-30, ledger R91)
+- From the R88 deploy (2026-10-30, model_version 3) until the review around 2027-01-24, alongside the parent's January review: bug fixes only. No change to scoring logic, weights, thresholds or what feeds the scores, so history from model_version 3 stays comparable. Anything else goes to PLAN.md's queue.
+- Before-deploy evidence for a change, like R88's: `tools/save_fetch.py` + `tools/replay.py` (before/after), `tools/accel_distribution.py` (thresholds).
+
 ## Post-launch
 - Any change to scoring logic, weights, or thresholds requires checking live output before and after the change, not just a local run.
 - Known limitations recorded in PLAN.md stay tracked after launch — a working dashboard is not evidence an open question got resolved.

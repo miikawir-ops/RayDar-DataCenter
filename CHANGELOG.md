@@ -1,12 +1,12 @@
 # Changelog
 
-## Deploy date added on deploy — revenue growth was not year-over-year; news pooled across sub-layers (ledger R88)
+## 2026-10-30 — revenue growth was not year-over-year; news pooled across sub-layers (ledger R88)
 
 **Methodology change.** Scores from the deploy date on are not like-for-like with earlier ones. `config.MODEL_VERSION` goes from 2 to 3. Entries stored under version 2 are kept exactly as published. The first version-3 entry carries `methodology_change: true`. Colour confirmation ignores entries from other versions, the page compares nothing across the change ("no comparison: method changed"), the heat trail marks the last old-version day, and a dated note on the page says colour changes reflect the fix, not a market move. Backtests must not compare across it.
 
 ### What was wrong
 
-All of these came in when the parent's code was ported, between 2026-09-15 and 2026-09-18, and were live from the first deploy (2026-09-20) until this fix: about six weeks.
+All of these came in when the parent's code was ported, between 2026-09-15 and 2026-09-18, and were live from the first deploy (2026-09-20) until this fix's deploy on 2026-10-30 (run 118, session 2026-10-29): about six weeks.
 
 - **Revenue "YoY" growth compared the latest quarter with the one 2 quarters back.** `fetch_market.py` took the `dropna()` columns 0 and 2 as "this quarter vs a year ago", and 1 and 3 as the previous quarter's version. So acceleration (the growth delta, 65% of the score through the acceleration signal) was the difference of two 2-quarter changes. When a column was missing, `growth_prev` fell back to `info["earningsGrowth"]`, which is EPS growth, not revenue. Introduced in `a862f7e` (2026-09-15), the port of the parent's fetch code; the parent had the same bug and fixed it on 2026-10-24.
 - **News velocity was pooled across a sub-layer.** `run_pipeline()` passed the whole sub-layer's ticker list into the news ownership filter, so every company in a sub-layer got the same score. On 2026-10-29's live headlines that was 7.0 for all four optical companies, against 3.0 / 0.0 / 3.0 / 1.0 each on its own feed. Introduced in `a862f7e` (2026-09-15).
@@ -29,4 +29,6 @@ All of these came in when the parent's code was ported, between 2026-09-15 and 2
 ### Verified
 
 - Each fix has a check in `tools/` that fails on the old code: `check_revenue_growth.py`, `check_acceleration.py`, `check_news.py`, `check_method_change.py`. `check_confirmation.py` still passes.
-- Replay, calibration and live check: *added before deploy.*
+- Calibration: `tools/accel_distribution.py`, 221 company-quarters since 2021-07 (numbers above).
+- Replay (`tools/save_fetch.py`, `tools/replay.py`): one fetch per code version on session 2026-10-29, identical except growth and news fields. Old → new: cooling 54.7 Green → 54.5 Orange, networking 36.0 → 36.5 Green, optical 42.3 → 43.3 Green, compute 34.2 Green → 28.6 Blue, colocation 31.4 → 33.6 Green. The two colour changes come from confirmation restarting on the new version (with the history treated as comparable all five stay Green); both are the latest session's own readings. Ratings that changed: VRT B → A (A was unreachable before), DLR and LITE C → B, HPE and EQIX B → C.
+- Live check (2026-10-30, run 118, `50dcd66`): the live page matches the final replay exactly (all sub-layer scores, colours and notes, every card's rating, band and forecast). The first version-3 history entry (2026-10-29) carries `methodology_change`; `growth_history.json` was written to the data branch with EDGAR quarters for all 12 companies.
