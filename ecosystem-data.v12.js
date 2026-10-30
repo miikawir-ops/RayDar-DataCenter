@@ -1,4 +1,4 @@
-// ecosystem-data.v11.js — single source of truth for the interactive Data
+// ecosystem-data.v12.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -35,7 +35,9 @@
 // phase (build = one-off investment, operate = recurring) for the explorer's
 // Money flows view; equipment -> hyperscaler; step 1, energy and public-sector
 // wording. v11 (2026-10-23, R77): MONEY_ARROW_LABELS; the storage relationship
-// says who buys storage.
+// says who buys storage. v12 (2026-10-30, R93): the Hämeenlinna fee source,
+// whose old page is gone, points at the city's current fee schedule (1.2.2026);
+// the storage example Pure Storage is now Everpure (rebrand 23.2.2026, R94).
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -361,7 +363,7 @@ const MONEY_WALKTHROUGH_STEPS = [
     ],
     sources: [
       { label: "Kuntaliitto — selling and leasing plots as tools of municipal land policy", url: "https://www.kuntaliitto.fi/sites/default/files/media/file/Toimiva%2Byhdyskunta%2Bon%2Bkuntalaisen%2Barjen%2Bkulmakivi_Kuntaliitto_luottamushenkil%C3%B6t-compressed_1.pdf" },
-      { label: "City of Hämeenlinna — building-control fees from 1.1.2025, under the Building Act (751/2023)", url: "https://www.hameenlinna.fi/rakennusvalvonnan_viranomaistehtavista_seka_muista_tehtavista_suoritettavat_maksut_1_1_2025__839992-1" },
+      { label: "City of Hämeenlinna — building-control fees from 1.2.2026, under the Building Act (751/2023)", url: "https://www.hameenlinna.fi/wp-content/uploads/2026/09/rakennusvalvonnan_taksa_1_2_2026_ilman_muutoksia_1102086-1.pdf" },
       { label: "Vero.fi — Real estate tax: paid to the municipality where the property is", url: "https://www.vero.fi/en/individuals/property/real-estate-tax/" },
       { label: "Ministry of Finance — Business taxation: corporate tax shares of the state and municipalities (tax year 2024)", url: "https://vm.fi/en/business-taxation" },
       { label: "Ministry of Finance — Taxation of earned income: municipal tax", url: "https://vm.fi/en/taxation-of-earned-income" },
@@ -455,9 +457,10 @@ const EXAMPLES = {
       { label: "Cinia — the C-Lion1 submarine cable, Helsinki–Rostock", url: "https://www.cinia.fi/en/news/c-lion1-submarine-cable-fully-restored" },
       { label: "Nokia — data center networking", url: "https://www.nokia.com/newsroom/nokia-announces-generational-step-in-data-center-networking-new-os-and-tools-give-cloud-builders-unprecedented-ability-to-adapt-automate-and-scale/" },
     ] },
-  storage: { global: ["NetApp", "Pure Storage", "Dell Technologies"], finland: [],
+  storage: { global: ["NetApp", "Everpure (formerly Pure Storage)", "Dell Technologies"], finland: [],
     sources: [
-      { label: "NetApp", url: "https://www.netapp.com/" }, { label: "Pure Storage", url: "https://www.purestorage.com/" },
+      { label: "NetApp", url: "https://www.netapp.com/" }, { label: "Everpure (formerly Pure Storage)", url: "https://www.everpuredata.com/" },
+      { label: "Everpure — Pure Storage becomes Everpure, 23.2.2026", url: "https://www.everpuredata.com/company/newsroom/press-releases/pure-storage-becomes-everpure.html" },
       { label: "Dell Technologies", url: "https://www.dell.com/" },
     ] },
   enterprise: { global: ["Netflix (on AWS)", "Spotify (on Google Cloud)"], finland: ["Säästöpankkiryhmä (on Microsoft Azure)"],

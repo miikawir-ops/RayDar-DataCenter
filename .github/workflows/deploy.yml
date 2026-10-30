@@ -97,7 +97,7 @@ jobs:
           mkdir -p _site/assets
           cp index.html _site/index.html
           cp ecosystem.html _site/ecosystem.html
-          cp ecosystem-data.v11.js _site/ecosystem-data.v11.js
+          cp ecosystem-data.v12.js _site/ecosystem-data.v12.js
           cp dashboard-companies.js _site/dashboard-companies.js
           cp assets/ecosystem-v2.webp _site/assets/ecosystem-v2.webp
           cp og-image.jpg favicon.svg favicon.png apple-touch-icon.png _site/
