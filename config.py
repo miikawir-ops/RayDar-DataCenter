@@ -62,10 +62,12 @@ COMPANY_NAMES = {
 # weights change (ledger R45 item 4); every history and audit entry carries it.
 # 1 = the model live as of 2026-10-10. 2 = ledger R45: analyst grades from
 # upgrades_downgrades, the momentum fix, and the news counting rules.
+# 3 = ledger R88: true YoY revenue growth (EDGAR-filled), per-ticker news,
+# no bonus or Red on unmeasured acceleration. Not comparable with 1-2.
 # Data-format exemptions in fetch_market.KNOWN_FORMAT_BREAKS expire at a
 # given version, so the release that fixes a break can't ship with the
 # exemption still in place (ledger R48).
-MODEL_VERSION = 2
+MODEL_VERSION = 3
 
 # Single-quarter YoY capex-trend label thresholds (PLAN.md decision #4).
 # Picked from verified capex history, not guessed: pre-AI hyperscaler capex growth

@@ -67,7 +67,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO)
 
 import fetch_market  # noqa: E402
-from config import SUB_LAYERS  # noqa: E402
+from config import SUB_LAYERS, MODEL_VERSION as CURRENT_VERSION  # noqa: E402
 import main          # noqa: E402
 import render        # noqa: E402
 
@@ -123,7 +123,9 @@ SESSIONS = calendar("2026-09-14", "2026-12-04", holidays=("2026-11-26",))   # Th
 
 
 def entry(date, layers):
-    return {"date": date, "time": "18:00",
+    # Fixtures are current-version history: entries from another model
+    # version are skipped by confirmation (ledger R88, tools/check_method_change.py).
+    return {"date": date, "time": "18:00", "model_version": CURRENT_VERSION,
             "scores": {lid: ({"score": s, "color": c} if s is not None else {"color": c})
                        for lid, (s, c) in layers.items()}}
 
@@ -434,7 +436,7 @@ def check_r45_inputs():
         hist = json.load(open("scores_history.json"))
         audit = json.load(open("audit_log.json"))
         from config import MODEL_VERSION
-        check("model_version: on every history entry", all(e.get("model_version") == MODEL_VERSION == 2 for e in hist))
+        check("model_version: on every history entry", all(e.get("model_version") == MODEL_VERSION == 3 for e in hist))   # 3 since R88
         check("model_version: on every audit entry", audit and all(e.get("model_version") == MODEL_VERSION for e in audit))
     finally:
         os.chdir(cwd)

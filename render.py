@@ -58,6 +58,16 @@ from config import SUB_LAYERS, MODEL_VERSION
 log = logging.getLogger(__name__)
 
 SCORES_HISTORY_FILE = "scores_history.json"
+# config.MODEL_VERSION: the first history entry under a new version is flagged
+# methodology_change (for backtests). The page compares nothing across
+# versions, marks the last old-version day in the heat trail, and shows
+# METHOD_NOTE, dated, for METHOD_NOTE_DAYS calendar days after it (ledger R88,
+# the parent's rule).
+METHOD_NOTE      = ("Revenue growth is now true year-over-year (each quarter against the same quarter a year "
+                    "earlier), with SEC filings filling quarters Yahoo Finance lacks, and each company's news is "
+                    "scored on its own feed. Earlier colours rested on a 2-quarter calculation; colour changes "
+                    "from this date reflect the fix, not a market move.")
+METHOD_NOTE_DAYS = 7
 # Sessions kept in the history: enough for the heat trail's 90 calendar
 # days (about 64 sessions), now that the history persists between runs.
 MAX_HISTORY_DAYS    = 70
@@ -213,12 +223,23 @@ def save_scores_history(scored_data: dict, session: str):
     run_at records when the run actually happened (UTC).
     """
     history = load_scores_history()
+    # An entry stored under another model version is kept as published: it's
+    # what the site showed for that session (ledger R88). This version's first
+    # entry is written when the session advances.
+    existing = next((e for e in history if e.get("date") == session), None)
+    if existing and existing.get("model_version") != MODEL_VERSION:
+        log.info(f"  {session} is stored under model_version {existing.get('model_version')}; "
+                 "kept as published, not overwritten")
+        return
     history = [e for e in history if e.get("date") != session]
+    earlier = [e for e in history if e.get("date", "") < session]
+    changed = bool(earlier) and earlier[-1].get("model_version") != MODEL_VERSION
     history.append({
         "date": session,
         "time": datetime.datetime.now().strftime("%H:%M"),
         "run_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "model_version": MODEL_VERSION,     # ledger R45 item 4
+        **({"methodology_change": True, "methodology_note": METHOD_NOTE} if changed else {}),
         "scores": {
             layer_id: {
                 "score": result["best"].get("score"),
@@ -415,15 +436,23 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
     return json.dumps(layers, allow_nan=False)
 
 
+def method_boundary(history: list):
+    """The last session stored under an older MODEL_VERSION (ISO date), or None."""
+    old = [e["date"] for e in history if e.get("date") and e.get("model_version") != MODEL_VERSION]
+    return max(old) if old else None
+
+
 def _history_js_data(history: list, scored_data: dict) -> str:
     layer_ids = list(scored_data.keys())
     date_map  = {e["date"]: e.get("scores", {}) for e in history}
+    boundary  = method_boundary(history)
     today     = datetime.datetime.now().date()
     days_out  = []
     for i in range(89, -1, -1):
         d     = today - datetime.timedelta(days=i)
         d_str = d.strftime("%Y-%m-%d")
-        day_data = {"date": d_str, "label": d.strftime("%b %d"), "short": d.strftime("%d"), "layers": {}}
+        day_data = {"date": d_str, "label": d.strftime("%b %d"), "short": d.strftime("%d"), "layers": {},
+                    "method_boundary": d_str == boundary}
         scores = date_map.get(d_str, {})
         for lid in layer_ids:
             day_data["layers"][lid] = scores[lid].get("color", "none") if lid in scores else "none"
@@ -495,8 +524,20 @@ def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = 
     save_scores_history(scored_data, session)
 
     prev_date, yesterday = get_yesterday_scores(scored_data, session)
-    prev_label   = day_label(prev_date) if prev_date else ""
     full_history = load_scores_history()
+    # No comparison across model versions: if the previous stored session was
+    # scored under another version, no score deltas, colour-change badges or
+    # rating arrows (ledger R88, the parent's rule).
+    by_date      = {e.get("date"): e for e in full_history}
+    method_break = bool(prev_date) and (by_date.get(prev_date) or {}).get("model_version") != MODEL_VERSION
+    if method_break:
+        prev_date, yesterday = None, {}
+    prev_label   = day_label(prev_date) if prev_date else ""
+    boundary     = method_boundary(full_history)
+    method_note_html = ""
+    if boundary and 0 <= (datetime.date.fromisoformat(session) - datetime.date.fromisoformat(boundary)).days <= METHOD_NOTE_DAYS:
+        method_note_html = (f'<div class="fetch-note" style="margin-bottom:8px;color:#5F5E5A">'
+                            f'<strong>Methodology change after the {day_label(boundary)} close:</strong> {METHOD_NOTE}</div>')
     # Run time in UTC, labelled as such in the header, title and footer (R43).
     now          = datetime.datetime.now(datetime.timezone.utc)
     date_str     = now.strftime("%A, %B %d %Y")
@@ -917,6 +958,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     </div>
   </div>
   <div class="fetch-note" style="margin-bottom:8px;color:#6A7A9A">{fetch_note}</div>
+  {method_note_html}
   {single_day_html}
   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
     <div id="bottleneck-strip" style="display:flex;align-items:center;gap:8px;padding:8px 12px;
@@ -1058,6 +1100,7 @@ const HAS_YESTERDAY= {has_yesterday};
 // then the chain bar names scores, not trends (ledger R63).
 const CONFIRMED_HISTORY = {"false" if single_day else "true"};
 const PREV_LABEL   = {json.dumps(prev_label)};
+const METHOD_BREAK = {"true" if method_break else "false"};
 
 const CC = {{
   Red:    {{bg:"#FCEBEB",border:"#E24B4A",pill:"#E24B4A",pft:"#FCEBEB",lbl:"Hot"}},
@@ -1285,7 +1328,9 @@ function buildChain() {{
       <div class="lyr-delta">
         ${{HAS_YESTERDAY && l.delta_score !== null
           ? deltaArrow(l.delta_score) + "<span style='font-size:10px;color:#888780;margin-left:2px'>vs " + PREV_LABEL + "</span>"
-          : "<span style='font-size:10px;color:#B4B2A9'>first run</span>"}}
+          : METHOD_BREAK
+            ? "<span style='font-size:10px;color:#B4B2A9'>no comparison: method changed</span>"
+            : "<span style='font-size:10px;color:#B4B2A9'>first run</span>"}}
       </div>
       <div class="lyr-bar"><div class="lyr-fill" style="width:${{pct}}%;background:${{c.border}}"></div></div>
       <div class="lyr-meta">News ${{l.news_vel != null ? l.news_vel : "—"}} hits · <span title="Revenue acceleration of the sub-layer's top-scoring company (YoY change vs the prior quarter), not price momentum">Rev. acceleration ${{l.momentum_label}}</span></div>
@@ -1491,6 +1536,10 @@ function buildHeat() {{
         displayColor = days === 7 ? colorFromName(l.color) : "#EDEAE0";
         cell.style.opacity = days === 7 ? "0.4" : "1";
         cell.title = `${{l.n1}} · ${{day.label}} · ${{days===7?"estimated":"no data yet"}}`;
+      }}
+      if (day.method_boundary) {{
+        cell.style.borderRight = "2px dashed #888780";
+        cell.title += " · scoring method changed after this day — later colours aren't comparable";
       }}
       cell.style.background = displayColor;
       g.appendChild(cell);

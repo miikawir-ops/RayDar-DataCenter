@@ -49,6 +49,7 @@ import logging
 import argparse
 import datetime
 
+from config import MODEL_VERSION
 from render import day_label
 
 logging.basicConfig(
@@ -99,7 +100,10 @@ def _confirmation_window(layer_id: str, history: list, sessions: list,
     by_date = {e.get("date"): e for e in history}
     stored, missing = [], []
     for s in window:
-        layer = ((by_date.get(s.isoformat()) or {}).get("scores") or {}).get(layer_id) or {}
+        entry = by_date.get(s.isoformat()) or {}
+        if entry and entry.get("model_version") != MODEL_VERSION:
+            continue   # scored under an older model version: not comparable history (ledger R88)
+        layer = (entry.get("scores") or {}).get(layer_id) or {}
         if layer.get("score") is not None:
             stored.append((s, layer["score"], layer.get("color")))
         elif first is not None and s >= first:
