@@ -928,6 +928,47 @@ def fetch_capex_trend(tickers: list = None) -> list:
     return results
 
 
+GROWTH_HISTORY_FILE = "growth_history.json"   # persisted on the data branch, like scores_history.json
+
+
+def apply_growth_history(results: dict, path: str = GROWTH_HISTORY_FILE) -> None:
+    """Persist each ticker's YoY revenue growth at its quarter-end, and use
+    the stored history for growth_prev (the YoY of the quarter before
+    growth_quarter): a fallback when EDGAR has none (an EDGAR outage), and a
+    cross-check when it does. {ticker: {"YYYY-MM-DD": yoy}}. A value only
+    ever comes from a computed YoY, never an estimate. From the parent's
+    fetch_market.py (ledger R88)."""
+    p = Path(path)
+    try:
+        hist = json.loads(p.read_text()) if p.exists() else {}
+    except Exception as e:
+        log.warning(f"  {path} unreadable, starting a new one: {e}")
+        hist = {}
+    for tickers in results.values():
+        for t in (tickers or []):
+            q, g = t.get("growth_quarter"), t.get("growth_curr")
+            if not q or g is None:
+                continue
+            mine = hist.setdefault(t["ticker"], {})
+            q0   = datetime.date.fromisoformat(q)
+            prev = next(((d, v) for d, v in sorted(mine.items(), reverse=True)
+                         if 75 <= (q0 - datetime.date.fromisoformat(d)).days <= 105), None)
+            if prev and t.get("growth_prev") is None:
+                t["growth_prev"] = prev[1]
+                t["revenue_source"] = f"{t.get('revenue_source', '')}; prev YoY from {path} ({prev[0]})"
+                t["data_missing"] = [m for m in t.get("data_missing", []) if m != "growth_prev"]
+            elif prev and abs(t["growth_prev"] - prev[1]) > 0.01:
+                log.warning(f"  {t['ticker']}: previous-quarter YoY {t['growth_prev']:+.1%} "
+                            f"disagrees with stored {prev[1]:+.1%} for {prev[0]}")
+            # One entry per quarter: Yahoo and EDGAR date the same quarter a few
+            # days apart (the parent's MU 2026-08-31 vs 2026-09-03), so a changed
+            # label replaces the stored one instead of adding a duplicate.
+            for d in [d for d in mine if d != q and abs((datetime.date.fromisoformat(d) - q0).days) <= edgar.DATE_TOL_DAYS]:
+                del mine[d]
+            mine[q] = g
+    p.write_text(json.dumps(hist, indent=1, sort_keys=True))
+
+
 def run_pipeline(portfolio_file: str = "portfolio.json") -> dict:
     """
     Returns {"sub_layers": {sub_layer_id: [ticker dicts]}, "meta": {...}}.
@@ -955,6 +996,7 @@ def run_pipeline(portfolio_file: str = "portfolio.json") -> dict:
         tickers_data      = add_peer_outperformance(tickers_data)
         results[layer_id] = tickers_data
         log.info(f"    {len(tickers_data)}/{len(layer_tickers)} tickers OK")
+    apply_growth_history(results)
     fetched = [t for ts in results.values() for t in ts]
     check_fields(fetched)
     for t in fetched:

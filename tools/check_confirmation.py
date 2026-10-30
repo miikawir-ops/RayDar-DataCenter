@@ -697,10 +697,13 @@ def check_workflow():
     check("workflow: the build-and-deploy job never gets contents: write", "contents: write" not in build)
     restore = build.find("git show origin/data:scores_history.json")
     run = build.find("python main.py --now")
-    check("workflow: the build restores both files from the data branch before the pipeline runs",
-          0 < restore < run and "git show origin/data:audit_log.json" in build, f"restore at {restore}, pipeline at {run}")
-    check("workflow: the build hands both files on as an artifact",
-          re.search(r"upload-artifact@v\d[\s\S]*?scores_history\.json[\s\S]*?audit_log\.json", build) is not None)
+    check("workflow: the build restores all three files from the data branch before the pipeline runs",
+          0 < restore < run and "git show origin/data:audit_log.json" in build
+          and 0 < build.find("git show origin/data:growth_history.json") < run, f"restore at {restore}, pipeline at {run}")
+    check("workflow: the build hands all three files on as an artifact",
+          re.search(r"upload-artifact@v\d[\s\S]*?scores_history\.json[\s\S]*?audit_log\.json[\s\S]*?growth_history\.json", build) is not None)
+    check("workflow: the save job commits growth_history.json too (R88)",
+          "git add scores_history.json audit_log.json growth_history.json" in save)
     check("workflow: only the save job has contents: write, and it runs after the build",
           "contents: write" in save and re.search(r"needs: \[?build-and-deploy", save) is not None
           and text.count("contents: write") == 1)

@@ -17,6 +17,7 @@ __pycache__/
 # Runtime artifacts (score_engine.py / main.py generate these, not source)
 audit_log.json
 scores_history.json
+growth_history.json
 Output/
 
 # Generated dashboard — committing this at repo root is PLAN.md step 7's

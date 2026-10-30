@@ -1,4 +1,4 @@
-"""Checks for revenue growth (PLAN.md ledger R88 step 1): growth is
+"""Checks for revenue growth (PLAN.md ledger R88 steps 1-2): growth is
 year-over-year, a quarter against the quarter ending ~a year earlier,
 matched by date. Acceleration (growth delta) is the change in that YoY
 between the latest two quarters, so it needs 6 quarters; with fewer it's
@@ -93,11 +93,40 @@ def check_edgar_fill():
     check("revenue_source names EDGAR", r["revenue_source"].startswith("yfinance + EDGAR"), r["revenue_source"])
 
 
+def check_growth_history():
+    """Step 2: each run stores growth_curr at its quarter-end; next quarter the
+    stored value is growth_prev when EDGAR has none. The same quarter dated a
+    few days apart by Yahoo and EDGAR is stored once (the parent's 2026-10-25 bug)."""
+    import json, tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        path = os.path.join(tmp, "growth_history.json")
+        run1 = {"cooling": [{"ticker": "VRT", "growth_quarter": "2026-06-30", "growth_curr": 0.212, "growth_prev": None,
+                             "revenue_source": "yfinance only", "data_missing": ["growth_prev"]},
+                            {"ticker": "NONE", "growth_quarter": None, "growth_curr": None, "growth_prev": None}]}
+        fetch_market.apply_growth_history(run1, path)
+        check("growth history stores computed YoY only", json.load(open(path)) == {"VRT": {"2026-06-30": 0.212}},
+              open(path).read())
+        run2 = {"cooling": [{"ticker": "VRT", "growth_quarter": "2026-09-30", "growth_curr": 0.30, "growth_prev": None,
+                             "revenue_source": "yfinance only", "data_missing": ["growth_prev"]}]}
+        fetch_market.apply_growth_history(run2, path)
+        t = run2["cooling"][0]
+        check("next quarter, the stored YoY measures acceleration EDGAR can't",
+              t["growth_prev"] == 0.212 and "growth_prev" not in t["data_missing"]
+              and "growth_history.json (2026-06-30)" in t["revenue_source"], t)
+        mu = lambda q: {"compute": [{"ticker": "SMCI", "growth_quarter": q, "growth_curr": 0.93, "growth_prev": 1.22,
+                                     "revenue_source": "x", "data_missing": []}]}
+        fetch_market.apply_growth_history(mu("2026-07-03"), path)
+        fetch_market.apply_growth_history(mu("2026-06-30"), path)
+        stored = json.load(open(path))["SMCI"]
+        check("one entry per quarter when the source date shifts by days", list(stored) == ["2026-06-30"], stored)
+
+
 def run():
     logging.disable(logging.CRITICAL)
     check_true_yoy()
     check_six_quarters()
     check_edgar_fill()
+    check_growth_history()
     failed = [n for n, ok in results if not ok]
     print(f"\n{len(results) - len(failed)}/{len(results)} checks passed")
     return 1 if failed else 0

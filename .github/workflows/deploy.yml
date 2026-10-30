@@ -62,11 +62,13 @@ jobs:
           git fetch --depth=1 origin data:refs/remotes/origin/data
           git show origin/data:scores_history.json > scores_history.json
           git show origin/data:audit_log.json > audit_log.json
-          python -c "import json; h = json.load(open('scores_history.json')); a = json.load(open('audit_log.json')); print(f'Restored {len(h)} sessions of history and {len(a)} audit entries')"
+          git show origin/data:growth_history.json > growth_history.json
+          python -c "import json; h = json.load(open('scores_history.json')); a = json.load(open('audit_log.json')); g = json.load(open('growth_history.json')); print(f'Restored {len(h)} sessions of history, {len(a)} audit entries and growth history for {len(g)} tickers')"
         # Fails the run if the branch, either file, or valid JSON is missing:
         # a run never silently starts a fresh history (ledger R33a/R33d).
         # The first run started from the empty files committed to the data
-        # branch on 2026-10-15.
+        # branch on 2026-10-15; growth_history.json (ledger R88) from an
+        # empty {} committed there before its first run.
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -86,6 +88,7 @@ jobs:
           path: |
             scores_history.json
             audit_log.json
+            growth_history.json
           if-no-files-found: error
           retention-days: 7
 
@@ -140,13 +143,13 @@ jobs:
 
       - name: Commit and push to the data branch
         run: |
-          python3 -c "import json; [json.load(open('_incoming/' + f)) for f in ('scores_history.json', 'audit_log.json')]"
-          cp _incoming/scores_history.json _incoming/audit_log.json .
+          python3 -c "import json; [json.load(open('_incoming/' + f)) for f in ('scores_history.json', 'audit_log.json', 'growth_history.json')]"
+          cp _incoming/scores_history.json _incoming/audit_log.json _incoming/growth_history.json .
           rm -rf _incoming
           session=$(python3 -c "import json; print(max(e['date'] for e in json.load(open('scores_history.json'))))")
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add scores_history.json audit_log.json
+          git add scores_history.json audit_log.json growth_history.json
           if git diff --cached --quiet; then echo "Nothing changed; nothing to save"; exit 0; fi
           git commit -m "data: session $session (run $GITHUB_RUN_ID, $GITHUB_EVENT_NAME)"
           git push origin HEAD:data
