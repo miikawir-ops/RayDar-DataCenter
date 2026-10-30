@@ -981,14 +981,17 @@ def run_pipeline(portfolio_file: str = "portfolio.json") -> dict:
     for layer_id, layer_config in SUB_LAYERS.items():
         log.info(f"  Sub-layer: {layer_config['name']}")
         tickers_data = []
-        layer_tickers = layer_config["tickers"]   # pass to filter news correctly
+        layer_tickers = layer_config["tickers"]
         for ticker in layer_tickers:
             log.info(f"    Fetching {ticker}...")
+            # Ownership filter on this ticker alone: the whole sub-layer's
+            # list here gave every ticker in it the same, pooled news score
+            # (the parent's c74acc1 bug, ledger R88 step 4).
             data = fetch_ticker_data(
                 ticker, headlines,
                 layer_config["context_keywords"],
                 brand_keywords=layer_config["brand_keywords"],
-                layer_tickers=layer_tickers,       # ← ownership filter
+                layer_tickers=[ticker],
                 failed_ticker_feeds=failed_ticker_feeds,
             )
             if data:
@@ -1105,7 +1108,7 @@ if __name__ == "__main__":
                     ticker, headlines,
                     layer["context_keywords"],
                     brand_keywords=layer["brand_keywords"],
-                    layer_tickers=layer["tickers"],
+                    layer_tickers=[ticker],          # this ticker's own news (R88 step 4)
                     failed_ticker_feeds=failed_ticker_feeds,
                 )
                 if data:
