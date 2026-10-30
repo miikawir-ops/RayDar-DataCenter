@@ -13,6 +13,7 @@ All of these came in when the parent's code was ported, between 2026-09-15 and 2
 - **The sub-layer's news number came from the first company in config order**, and the divergence text paired it with the best company's growth delta: two companies' signals in one sentence. Introduced in `252ebbd` (2026-09-18).
 - **Unmeasured acceleration was treated as accelerating.** With the growth delta unknown, the +8% high-margin bonus still applied, a company above 65 could be Red, and a sub-layer could reach Red with no measured company. Introduced in `8110074` (2026-09-17), and for sub-layers in `1c63eb1` (2026-09-17), the port of the aggregation.
 - **Labels.** The layer card's "Momentum" was revenue acceleration, not price. A missing delta read "unknown". Introduced in `252ebbd` (2026-09-18).
+- **A ratings could never appear.** `company_rating`'s thresholds are in percentage points (A above +20) but it got the growth delta as a fraction, so A needed +2,000 pp; the forecast's −10 pp test never fired either. 0 of 12 companies were A on 2026-10-30. Introduced in `252ebbd` (2026-09-18).
 
 ### Fix
 
@@ -20,7 +21,9 @@ All of these came in when the parent's code was ported, between 2026-09-15 and 2
 - YoY is persisted per quarter-end in `growth_history.json` on the data branch, as a fallback and cross-check.
 - Unmeasured acceleration gets no margin bonus and never reaches Red, for a company or a sub-layer.
 - Each company's news is scored on its own feed; the sub-layer's news number is the best company's own.
-- "Rev. acceleration" replaces "Momentum" on the layer card. The expanded card gives the YoY change in pp, or "not measured".
+- "Rev. acceleration" replaces "Momentum" on the layer card. The expanded card's row is "YoY vs prior qtr", e.g. "▲ +19.2 pp · accelerating", or "— not measured".
+- Ratings read the growth delta in pp, as in the parent; C is a drop below −5 pp.
+- Thresholds recalibrated on true YoY (`tools/accel_distribution.py`, 221 company-quarters since 2021; approved by Ray, ledger R90): decelerating (Blue, the score cap at 40, the sub-layer's Blue) means YoY down more than 5 pp, not any drop (18.6% of company-quarters were dips between −5 and 0); the one-company instant Red on a delta above +60 pp is removed (3 firings, all SMCI, one a rebound off negative YoY). Instant Red on a score above 80 and the leader boost stay.
 - `reference/`, the 2026-08-31 copy of the parent's code with all of these bugs, is removed.
 
 ### Verified
