@@ -56,13 +56,7 @@ for lid, r in scored.items():
         "news_vel": l.get("news_vel"), "momentum": l.get("momentum_label"),
         "companies": {t["ticker"]: {"score": t.get("score"), "color": t.get("color"), "delta": t.get("fund_delta"),
                                     "news": t.get("news_velocity")} for t in r.get("all_tickers", [])},
-        "cards": {t["sym"]: {"rating": t["rating"], "band": t["delta_band"], "forecast": t["forecast"]["label"],
-                             # The A-D rule with fund_delta in pp, as its thresholds assume (the parent's
-                             # call): a proposal column, not what this code renders.
-                             "rating_pp": render.company_rating(
-                                 (next(x for x in r["all_tickers"] if x["ticker"] == t["sym"]).get("fund_delta") or 0) * 100
-                                 if next(x for x in r["all_tickers"] if x["ticker"] == t["sym"]).get("fund_delta") is not None else None,
-                                 t["color"], t["hype"])}
+        "cards": {t["sym"]: {"rating": t["rating"], "band": t["delta_band"], "forecast": t["forecast"]["label"]}
                   for t in l["tickers"]},
     }
 open(snap_path, "w").write(json.dumps(snap, indent=1, sort_keys=True))

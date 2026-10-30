@@ -88,9 +88,18 @@ SUB_LAYER_SUBTITLES = {
 }
 
 
+def pp(fund_delta: float | None) -> float | None:
+    """fund_delta (a fraction, 0.371) in percentage points (37.1), the unit the
+    rating thresholds are written in (ledger R90)."""
+    return fund_delta * 100 if fund_delta is not None else None
+
+
 def company_rating(delta: float | None, color: str, is_hype: bool) -> str | None:
     """
-    A/B/C/D rating for individual companies. Returns None (not a
+    A/B/C/D rating for individual companies; delta is the growth delta in
+    percentage points (pp(fund_delta)). The fraction used to come in, so
+    "> 20" needed +2,000 pp and A never appeared (ledger R90). C is a drop
+    below DECEL_THRESHOLD in pp (-5), as in the parent. Returns None (not a
     fabricated letter) when delta is None — see module docstring.
     """
     if delta is None:
@@ -99,9 +108,7 @@ def company_rating(delta: float | None, color: str, is_hype: bool) -> str | None
         return "A"
     elif color in ("Red", "Orange", "Green") and delta > 0 and not is_hype:
         return "B"
-    elif is_hype or delta < -5:
-        return "C"
-    elif delta < 0:
+    elif is_hype or delta < -5:   # decelerating: score_engine.DECEL_THRESHOLD in pp
         return "C"
     else:
         return "B"
@@ -110,7 +117,8 @@ def company_rating(delta: float | None, color: str, is_hype: bool) -> str | None
 def rating_forecast(current_rating: str | None, delta: float | None, delta_band: str,
                     is_hype: bool, color: str) -> dict:
     """
-    Forecast where rating is heading based on momentum signals. Explicit
+    Forecast where rating is heading based on momentum signals; delta is in
+    percentage points, like company_rating's (ledger R90). Explicit
     guard for a missing rating — reference's elif chain had none, so a
     missing rating would silently fall through to `else: # D`.
     """
@@ -246,7 +254,7 @@ def save_scores_history(scored_data: dict, session: str):
                 "color": result["best"].get("color"),
                 "ratings": {
                     t.get("ticker"): company_rating(
-                        t.get("fund_delta"),
+                        pp(t.get("fund_delta")),
                         t.get("color", "Green"),
                         t.get("is_hype", False),
                     )
@@ -366,7 +374,7 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
                 spark_dates = []
             t_color   = t_scored.get("color", "Green")
             t_hype    = t_scored.get("is_hype", False)
-            t_rating  = company_rating(t_fd, t_color, t_hype)
+            t_rating  = company_rating(pp(t_fd), t_color, t_hype)
             t_prev_rating  = yesterday_ratings.get(sym, "")
             rating_changed = bool(t_prev_rating) and bool(t_rating) and t_prev_rating != t_rating
             ret30    = t_scored.get("price_30d_return")
@@ -389,7 +397,7 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
                 "prev_rating":  t_prev_rating,
                 "rating_up":    rating_changed and t_rating is not None and t_prev_rating in ("A","B","C","D") and ord(t_rating) < ord(t_prev_rating),
                 "rating_down":  rating_changed and t_rating is not None and t_prev_rating in ("A","B","C","D") and ord(t_rating) > ord(t_prev_rating),
-                "forecast":     rating_forecast(t_rating, t_fd, delta_band, t_hype, t_color),
+                "forecast":     rating_forecast(t_rating, pp(t_fd), delta_band, t_hype, t_color),
                 "run_rate":     round(rev_q * 4 / 1e9, 1) if rev_q else None,
                 "pct_of_high":  round((price / w52h) * 100) if price and w52h else None,
                 "week52_high":  w52h,

@@ -123,11 +123,26 @@ def check_no_delta_instant_red():
     check("a score above 80 is still instant Red", color == "Red" and branch == "instant", (color, branch))
 
 
+def check_rating_units():
+    """R90: the rating thresholds are in pp; fund_delta is a fraction. VRT's
+    +37.1 pp in an Orange sub-layer is A (old code: B, since 0.371 < 20)."""
+    scored = {"cooling": {"best": {"ticker": "VRT", "score": 54.5, "color": "Orange", "fund_delta": 0.371, "news_velocity": 1.0},
+                          "all_tickers": [{"ticker": "VRT", "score": 54.5, "color": "Orange", "fund_delta": 0.371, "is_hype": False},
+                                          {"ticker": "DIP", "score": 40.0, "color": "Green", "fund_delta": -0.03, "is_hype": False},
+                                          {"ticker": "DROP", "score": 30.0, "color": "Green", "fund_delta": -0.12, "is_hype": False}],
+                          "tickers_scored": 3, "tickers_total": 3}}
+    t = {x["sym"]: x for x in json.loads(render._chain_js_data(scored, {"sub_layers": {}}, {}))[0]["tickers"]}
+    check("+37.1 pp in an Orange sub-layer rates A (old code: B)", t["VRT"]["rating"] == "A", t["VRT"]["rating"])
+    check("a -3 pp dip rates B, not C (decelerating is below -5 pp)", t["DIP"]["rating"] == "B", t["DIP"]["rating"])
+    check("a -12 pp drop rates C", t["DROP"]["rating"] == "C", t["DROP"]["rating"])
+
+
 def run():
     logging.disable(logging.CRITICAL)
     check_engine()
     check_decel_threshold()
     check_no_delta_instant_red()
+    check_rating_units()
     check_layer_guard()
     check_labels()
     failed = [n for n, ok in results if not ok]
