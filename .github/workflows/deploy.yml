@@ -72,12 +72,12 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run pipeline (fetch -> score -> capex -> render)
+        env:
+          # SEC asks for a contact in the User-Agent ("Name email"); unset,
+          # EDGAR may refuse and revenue acceleration shows as "not measured"
+          # (edgar.py, ledger R88). yfinance and the RSS feeds need nothing.
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: python main.py --now
-        # No secrets needed: yfinance and the RSS feeds fetch_market.py
-        # uses are both unauthenticated (verified — grepped this project's
-        # own fetch code and reference/fetch_market.py for API-key/env-var
-        # usage, found none). GITHUB_TOKEN above is the only credential
-        # involved, and Actions provides it automatically.
 
       - name: Hand the history and audit log to the save job
         uses: actions/upload-artifact@v4

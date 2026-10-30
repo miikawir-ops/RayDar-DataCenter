@@ -2,7 +2,8 @@
 fetch_market.py — Market data pipeline for RayDar Data Center.
 
 Fetches all data needed by score_engine.py from free sources:
-  - yfinance  : prices, revenue growth, gross margins, volume, short interest
+  - yfinance  : prices, revenue, gross margins, volume, short interest
+  - SEC EDGAR : quarterly revenue yfinance lacks (edgar.py, from the parent)
   - feedparser: news headlines for keyword scoring
 
 Adapted from the parent AI value chain agent's fetch_market.py (reference/).
@@ -40,6 +41,7 @@ import yfinance as yf
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import edgar
 from config import SUB_LAYERS, CAPEX_TICKERS, MODEL_VERSION, COMPANY_NAMES, GENERIC_BOTTLENECK_KEYWORDS
 
 log = logging.getLogger(__name__)
@@ -404,6 +406,45 @@ def score_news_velocity(
     return round(min(weighted_hits, 20.0) / 2.0, 1)
 
 
+def merged_revenue(ticker: str, yf_revenue: dict) -> tuple:
+    """({quarter_end: revenue}, source). EDGAR fills the quarters yfinance
+    lacks (older ones for acceleration, and a newest one yfinance leaves
+    blank), only from a concept that matches yfinance where both exist.
+    From the parent's fetch_market.py (ledger R88)."""
+    revenue = dict(yf_revenue)
+    edgar_rev, edgar_note = edgar.quarterly_revenue(ticker, revenue)
+    if not edgar_rev:
+        return revenue, f"yfinance only (EDGAR: {edgar_note})"
+    for d, v in edgar_rev.items():
+        if not any(abs((d - y).days) <= edgar.DATE_TOL_DAYS for y in revenue):
+            revenue[d] = v
+    return revenue, f"yfinance + EDGAR {edgar_note}"
+
+
+def quarterly_yoy(revenue: dict) -> tuple:
+    """(growth_curr, growth_prev, latest_quarter_end) from {quarter_end: revenue}.
+
+    YoY is a quarter against the quarter ending 350-380 days earlier, matched
+    by date, not column position (the old code compared the latest quarter
+    with the one 2 quarters back and called it YoY, ledger R88). growth_prev
+    is the YoY of the quarter before the latest one, so it needs 6 quarters
+    of revenue. Anything without its year-earlier quarter is None, never a
+    stand-in. From the parent's fetch_market.py.
+    """
+    ends = sorted(revenue, reverse=True)
+    if not ends:
+        return None, None, None
+
+    def yoy(end):
+        prior = next((p for p in ends if 350 <= (end - p).days <= 380), None)
+        base  = revenue[prior] if prior is not None else None
+        return round((revenue[end] - base) / abs(base), 4) if base else None
+
+    q0 = ends[0]
+    q1 = next((e for e in ends[1:] if 75 <= (q0 - e).days <= 105), None)
+    return yoy(q0), (yoy(q1) if q1 is not None else None), q0
+
+
 def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
                       brand_keywords: list = None, layer_tickers: list = None,
                       failed_ticker_feeds: set = None):
@@ -515,6 +556,8 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
 
         growth_curr       = None
         growth_prev       = None
+        growth_quarter    = None   # quarter-end of growth_curr
+        revenue_source    = "none"
         gm_delta          = None
         revenue_quarterly = None
         financials        = None
@@ -529,13 +572,9 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
                         break
                 if rev_row is not None:
                     seen.add("quarterly_financials.Total Revenue|Revenue")
-                    cols = rev_row.dropna()
-                    if len(cols) >= 4:
-                        q0, q1, q4, q5 = cols.iloc[0], cols.iloc[1], cols.iloc[2], cols.iloc[3]
-                        if q4 and q4 != 0:
-                            growth_curr = round((q0 - q4) / abs(q4), 4)
-                        if q5 and q5 != 0:
-                            growth_prev = round((q1 - q5) / abs(q5), 4)
+                    yf_rev = {pd.Timestamp(k).date(): float(v) for k, v in rev_row.dropna().items()}
+                    revenue, revenue_source = merged_revenue(ticker, yf_rev)
+                    growth_curr, growth_prev, growth_quarter = quarterly_yoy(revenue)
 
                 gm_row   = None
                 rev_row2 = None
@@ -575,8 +614,10 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             except Exception:
                 pass
             growth_curr = info.get("revenueGrowth")
-        if growth_prev is None:
-            growth_prev = info.get("earningsGrowth")
+            if growth_curr is not None:
+                revenue_source = "yfinance info.revenueGrowth"
+        # No fallback for growth_prev: earningsGrowth is EPS growth, not
+        # revenue. Without 6 quarters, acceleration is unmeasured (None).
 
         if revenue_quarterly is None:
             data_missing.append("revenue_quarterly")
@@ -668,6 +709,8 @@ def fetch_ticker_data(ticker: str, headlines: list, context_keywords: list,
             "currency":          info.get("currency", "USD"),
             "growth_curr":       growth_curr,
             "growth_prev":       growth_prev,
+            "growth_quarter":    growth_quarter.isoformat() if growth_quarter else None,
+            "revenue_source":    revenue_source,
             "gm_delta":          gm_delta,
             "gross_margin":      gross_margin,
             "news_velocity":     news_velocity,
