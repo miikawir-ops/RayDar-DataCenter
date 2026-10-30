@@ -551,8 +551,8 @@
   },
   {
     "date": "2026-10-29",
-    "time": "08:43",
-    "run_at": "2026-10-30T08:43:42+00:00",
+    "time": "09:04",
+    "run_at": "2026-10-30T09:04:53+00:00",
     "model_version": 3,
     "methodology_change": true,
     "methodology_note": "Revenue growth is now true year-over-year (each quarter against the same quarter a year earlier), with SEC filings filling quarters Yahoo Finance lacks, and each company's news is scored on its own feed. Earlier colours rested on a 2-quarter calculation; colour changes from this date reflect the fix, not a market move.",
