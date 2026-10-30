@@ -909,8 +909,9 @@ def check_dashboard_page(tmp):
         check("chain bar: this page (no stored history) shows the scores version",
               strip["pageConfirmed"] is False and strip["page"].startswith("Highest score:") and " · Lowest score:" in strip["page"],
               strip["page"])
-        check("ticker rows: the expanded card labels the trend 'Revenue growth', next to '30d return'",
-              "Revenue growth" in tk["exLabels"] and "Trend" not in tk["exLabels"] and "30d return" in tk["exLabels"], str(tk["exLabels"]))
+        # R90 replaced R63's 'Revenue growth' with the parent's label: the pp value says what it is.
+        check("ticker rows: the expanded card labels the trend 'YoY vs prior qtr', next to '30d return'",
+              "YoY vs prior qtr" in tk["exLabels"] and "Trend" not in tk["exLabels"] and "30d return" in tk["exLabels"], str(tk["exLabels"]))
         b.close()
 
 

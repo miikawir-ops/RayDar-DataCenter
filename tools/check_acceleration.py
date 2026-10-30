@@ -90,8 +90,8 @@ def check_labels():
     src = open(os.path.join(REPO, "render.py"), encoding="utf-8").read()
     check("the layer card says 'Rev. acceleration', not 'Momentum'",
           "Rev. acceleration ${{l.momentum_label}}" in src and "· Momentum ${{l.momentum_label}}" not in src)
-    check("the expanded card shows '— not measured' or the pp change",
-          '"— not measured"' in src and '" pp YoY vs prior qtr · "' in src)
+    check("the expanded card's row is 'YoY vs prior qtr': '— not measured' or '▲ +x.x pp · band' (R90)",
+          '<span class="ex-lbl">YoY vs prior qtr</span>' in src and '"— not measured"' in src and '" pp · " + t.delta_band' in src)
 
 
 def check_decel_threshold():

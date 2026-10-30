@@ -1423,7 +1423,7 @@ function buildExpand() {{
         Run rate $${{t.run_rate}}B/yr</div>` : ""}}
       <div class="ex-row"><span class="ex-lbl">${{t.price_date ? "Close " + t.price_date : "Price"}}</span><span>${{priceTxt}}</span></div>
       <div class="ex-row"><span class="ex-lbl">30d return</span><span style="color:${{rc}}">${{retTxt}}</span></div>
-      <div class="ex-row"><span class="ex-lbl">Revenue growth</span><span style="color:${{tCol}}" title="${{TREND_TIP[t.delta_band] || TREND_TIP.unknown}}">${{t.delta_band === "unknown" || t.accel_pp == null ? "— not measured" : tIcon + " " + fmt(t.accel_pp) + " pp YoY vs prior qtr · " + t.delta_band}}</span></div>
+      <div class="ex-row"><span class="ex-lbl">YoY vs prior qtr</span><span style="color:${{tCol}}" title="${{TREND_TIP[t.delta_band] || TREND_TIP.unknown}}">${{t.delta_band === "unknown" || t.accel_pp == null ? "— not measured" : tIcon + " " + fmt(t.accel_pp) + " pp · " + t.delta_band}}</span></div>
       <div style="margin-top:6px;padding:5px 8px;border-radius:5px;
                   background:#F8F8F7;border-left:2px solid ${{t.forecast.color}}">
         <span style="font-size:10px;font-weight:500;color:${{t.forecast.color}}">
