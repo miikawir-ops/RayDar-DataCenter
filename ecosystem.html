@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Data Center Ecosystem — RayDar Data Center</title>
+<meta name="description" content="An interactive map of the data center ecosystem: who builds, powers, equips, finances and uses data centers, and how capacity and money flow between them.">
+<meta property="og:title" content="Data Center Ecosystem — RayDar Data Center">
+<meta property="og:description" content="An interactive map of the data center ecosystem: who builds, powers, equips, finances and uses data centers, and how capacity and money flow between them.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datacenter.raydar.fi/ecosystem.html">
+<meta property="og:image" content="https://datacenter.raydar.fi/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="RayDar Data Center title over the data center ecosystem poster">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -598,7 +612,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="footer">
   <div><strong>RayDar Data Center</strong></div>
   <div style="font-size:11px;color:#888780;margin-top:2px">Not financial advice · Educational reference content</div>
+  <div style="font-size:11px;color:#8A9AB8;margin-top:4px">Personal project by Miika Ray Wires · <span id="author-linkedin">LinkedIn</span></div>
 </div>
+<script>
+// Author line (ledger R92): Ray's LinkedIn profile URL; "LinkedIn" stays plain text until it is set.
+const AUTHOR_LINKEDIN_URL = "";
+if (AUTHOR_LINKEDIN_URL) {
+  document.getElementById("author-linkedin").innerHTML =
+    '<a href="' + AUTHOR_LINKEDIN_URL + '" target="_blank" rel="noopener" style="color:#85B7EB">LinkedIn</a>';
+}
+</script>
 
 <script src="ecosystem-data.v11.js"></script>
 <script src="dashboard-companies.js"></script>

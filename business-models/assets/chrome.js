@@ -19,6 +19,9 @@
     ecosystem: "../ecosystem.html",
     dashboard: "../index.html",
     family: "https://raydar.fi/",
+    // Ray's LinkedIn profile URL for the footer's author line (ledger R92);
+    // "LinkedIn" stays plain text until it is set.
+    authorLinkedIn: "",
     // AI Oy's growth path, in order. Slugs double as the hub's deep-link
     // hashes (#gpu-cloud) and as the model card file names (gpu-cloud.html).
     models: [
@@ -116,6 +119,11 @@
       + '<a href="' + SITE.dashboard + '" hreflang="en" lang="en">Daily signals</a> · '
       + '<a href="' + SITE.ecosystem + '" hreflang="en" lang="en">Ecosystem map</a> · '
       + '<a href="' + SITE.family + '" target="_blank" rel="noopener">Osa RayDar-perhettä &#8599;</a>'
+      + "</div>"
+      + '<div class="bm-footer-note">Henkilökohtainen projekti · Miika Ray Wires · '
+      + (SITE.authorLinkedIn
+          ? '<a href="' + SITE.authorLinkedIn + '" target="_blank" rel="noopener">LinkedIn</a>'
+          : "LinkedIn")
       + "</div>";
   }
 

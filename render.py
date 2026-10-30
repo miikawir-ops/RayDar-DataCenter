@@ -58,6 +58,13 @@ from config import SUB_LAYERS, MODEL_VERSION
 log = logging.getLogger(__name__)
 
 SCORES_HISTORY_FILE = "scores_history.json"
+# Link previews and author line (ledger R92); the image is built by tools/make_og_images.py.
+SITE_URL         = "https://datacenter.raydar.fi/"
+SITE_TITLE       = "RayDar Data Center — bottleneck intelligence"
+SITE_DESCRIPTION = ("Daily bottleneck signals for AI data center infrastructure, from cooling and networking "
+                    "to colocation, built from fundamentals, news and price action.")
+OG_IMAGE_ALT     = "RayDar Data Center title over the data center ecosystem poster"
+AUTHOR_LINKEDIN_URL = ""   # Ray's LinkedIn profile URL; the footer links it only once set
 # config.MODEL_VERSION: the first history entry under a new version is flagged
 # methodology_change (for backtests). The page compares nothing across
 # versions, marks the last old-version day in the heat trail, and shows
@@ -595,6 +602,20 @@ def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>RayDar Data Center — bottleneck intelligence · {datetime_str}</title>
+<meta name="description" content="{SITE_DESCRIPTION}">
+<meta property="og:title" content="{SITE_TITLE}">
+<meta property="og:description" content="{SITE_DESCRIPTION}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{SITE_URL}">
+<meta property="og:image" content="{SITE_URL}og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="{OG_IMAGE_ALT}">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -1091,6 +1112,9 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   </div>
   <div class="footer-family" style="margin-top:6px">
     <a href="https://raydar.fi/" target="_blank" rel="noopener">Part of the RayDar family</a> — AI value chain intelligence, one layer at a time.
+  </div>
+  <div style="font-size:11px;color:#8A9AB8;margin-top:4px">
+    Personal project by Miika Ray Wires · {f'<a href="{AUTHOR_LINKEDIN_URL}" target="_blank" rel="noopener" style="color:#85B7EB">LinkedIn</a>' if AUTHOR_LINKEDIN_URL else 'LinkedIn'}
   </div>
   <div class="footer-cobhc">
     ⚔️ Built in Espoo, Finland · <span>Are You Dead Yet?</span> — the market will tell you 🤘
