@@ -1,4 +1,4 @@
-"""Checks for unmeasured revenue acceleration (PLAN.md ledger R88 step 3):
+"""Checks for unmeasured revenue acceleration (PLAN.md ledger R88 steps 3 and 6):
 with growth_prev missing, the growth delta is unknown, and an unknown delta
 is never treated as an accelerating one. It gets no high-margin bonus, no
 company is Red on it, and no sub-layer reaches Red (instant, confirmed or
@@ -75,10 +75,30 @@ def check_layer_guard():
     check("a sub-layer with a measured company can still be Red", colors["cooling"] == "Red", colors)
 
 
+def check_labels():
+    """Step 6: the page says what the number is. The layer card's
+    "Momentum" was revenue acceleration (now "Rev. acceleration"), the
+    expanded card gives the pp change, and a missing delta reads "not measured"."""
+    scored = {"optical": {"best": {"ticker": "LITE", "score": 60.0, "color": "Orange", "fund_delta": None, "news_velocity": 1.0},
+                          "all_tickers": [{"ticker": "LITE", "score": 60.0, "color": "Orange", "fund_delta": None},
+                                          {"ticker": "COHR", "score": 50.0, "color": "Orange", "fund_delta": 0.132}],
+                          "tickers_scored": 2, "tickers_total": 2}}
+    l = json.loads(render._chain_js_data(scored, {"sub_layers": {}}, {}))[0]
+    check("unmeasured acceleration reads 'not measured' on the layer card (old: 'unknown')", l["momentum_label"] == "not measured", l["momentum_label"])
+    pp = {t["sym"]: t["accel_pp"] for t in l["tickers"]}
+    check("the card data carries the YoY change in pp, None when unmeasured", pp == {"LITE": None, "COHR": 13.2}, pp)
+    src = open(os.path.join(REPO, "render.py"), encoding="utf-8").read()
+    check("the layer card says 'Rev. acceleration', not 'Momentum'",
+          "Rev. acceleration ${{l.momentum_label}}" in src and "· Momentum ${{l.momentum_label}}" not in src)
+    check("the expanded card shows '— not measured' or the pp change",
+          '"— not measured"' in src and '" pp YoY vs prior qtr · "' in src)
+
+
 def run():
     logging.disable(logging.CRITICAL)
     check_engine()
     check_layer_guard()
+    check_labels()
     failed = [n for n, ok in results if not ok]
     print(f"\n{len(results) - len(failed)}/{len(results)} checks passed")
     return 1 if failed else 0

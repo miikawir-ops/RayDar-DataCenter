@@ -359,6 +359,7 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
                 "price_date":   day_label(raw["data_date"]) if raw.get("data_date") else "",
                 "ret30":        round(ret30 * 100, 1) if ret30 is not None else None,
                 "delta_band":   delta_band,
+                "accel_pp":     round(raw_delta, 1) if raw_delta is not None else None,
                 "hype":         t_hype,
                 "color":        t_color,
                 "sparkline":    sparkline,
@@ -379,7 +380,7 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
             momentum_band  = "strong" if abs(fund_delta * 100) > 20 else "moderate" if abs(fund_delta * 100) > 5 else "mild"
             momentum_label = f"{'+' if fund_delta >= 0 else '-'}{momentum_band}"
         else:
-            momentum_label = "unknown"
+            momentum_label = "not measured"
 
         divergence     = False
         divergence_msg = ""
@@ -1073,7 +1074,7 @@ const TREND_TIP = {{
   accelerating: "Revenue growth speeding up: year-on-year growth in the latest quarter is more than 5 percentage points above the previous quarter's.",
   decelerating: "Revenue growth slowing: year-on-year growth in the latest quarter is more than 5 percentage points below the previous quarter's.",
   stable:       "Revenue growth steady: within 5 percentage points of the previous quarter's.",
-  unknown:      "Revenue growth trend unknown: not enough quarterly revenue data.",
+  unknown:      "Revenue growth acceleration not measured: fewer than 6 quarters of revenue, so there's no year-on-year figure for the previous quarter.",
 }};
 
 function fmt(v, decimals=1) {{
@@ -1287,7 +1288,7 @@ function buildChain() {{
           : "<span style='font-size:10px;color:#B4B2A9'>first run</span>"}}
       </div>
       <div class="lyr-bar"><div class="lyr-fill" style="width:${{pct}}%;background:${{c.border}}"></div></div>
-      <div class="lyr-meta">News ${{l.news_vel != null ? l.news_vel : "—"}} hits · Momentum ${{l.momentum_label}}</div>
+      <div class="lyr-meta">News ${{l.news_vel != null ? l.news_vel : "—"}} hits · <span title="Revenue acceleration of the sub-layer's top-scoring company (YoY change vs the prior quarter), not price momentum">Rev. acceleration ${{l.momentum_label}}</span></div>
       ${{l.note ? `<div class="lyr-note">${{l.note}}</div>` : ""}}
       <div style="display:flex;gap:3px;margin-bottom:4px;flex-wrap:wrap">
         ${{top3.map(t => {{
@@ -1369,7 +1370,7 @@ function buildExpand() {{
         Run rate $${{t.run_rate}}B/yr</div>` : ""}}
       <div class="ex-row"><span class="ex-lbl">${{t.price_date ? "Close " + t.price_date : "Price"}}</span><span>${{priceTxt}}</span></div>
       <div class="ex-row"><span class="ex-lbl">30d return</span><span style="color:${{rc}}">${{retTxt}}</span></div>
-      <div class="ex-row"><span class="ex-lbl">Revenue growth</span><span style="color:${{tCol}}" title="${{TREND_TIP[t.delta_band] || TREND_TIP.unknown}}">${{tIcon}} ${{t.delta_band}}</span></div>
+      <div class="ex-row"><span class="ex-lbl">Revenue growth</span><span style="color:${{tCol}}" title="${{TREND_TIP[t.delta_band] || TREND_TIP.unknown}}">${{t.delta_band === "unknown" || t.accel_pp == null ? "— not measured" : tIcon + " " + fmt(t.accel_pp) + " pp YoY vs prior qtr · " + t.delta_band}}</span></div>
       <div style="margin-top:6px;padding:5px 8px;border-radius:5px;
                   background:#F8F8F7;border-left:2px solid ${{t.forecast.color}}">
         <span style="font-size:10px;font-weight:500;color:${{t.forecast.color}}">
