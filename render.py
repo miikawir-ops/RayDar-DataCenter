@@ -314,8 +314,11 @@ def _chain_js_data(scored_data: dict, market_data: dict, yesterday: dict) -> str
             delta_score   = None
             color_changed = False
 
-        news_vals = [ts.get("news_velocity") for ts in all_scores if ts.get("news_velocity") is not None]
-        news_vel  = news_vals[0] if news_vals else None
+        # The best ticker's own news, the same company as fund_delta below in
+        # the divergence text. The first ticker with a value (config order)
+        # paired one company's news with another's growth (the parent's
+        # 9c546d2, ledger R88 step 5).
+        news_vel  = best.get("news_velocity")
 
         fund_delta = best.get("fund_delta")
 

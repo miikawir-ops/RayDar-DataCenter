@@ -1,4 +1,4 @@
-"""Checks for per-ticker news (PLAN.md ledger R88 step 4): run_pipeline()
+"""Checks for per-ticker news (PLAN.md ledger R88 steps 4-5): run_pipeline()
 scores each ticker's news on its own feed. It passed the whole sub-layer's
 ticker list into the ownership filter, so every ticker in a sub-layer got
 the same pooled score (2026-10-29 live headlines: optical 7.0 for all four,
@@ -58,9 +58,25 @@ def check_per_ticker():
     check("Cisco's news is its own, not Arista's (old code: 1.0, pooled)", news.get("CSCO") == 0.0, news)
 
 
+def check_layer_badge():
+    """Step 5: the sub-layer's news number is the best ticker's own, the same
+    company whose fund_delta the divergence text uses, not the first ticker's."""
+    import json
+    import render
+    first = {"ticker": "ANET", "score": 40.0, "color": "Green", "fund_delta": 0.01, "news_velocity": 0.0}
+    best  = {"ticker": "CSCO", "score": 60.0, "color": "Green", "fund_delta": 0.01, "news_velocity": 6.0}
+    scored = {"networking": {"best": dict(best), "all_tickers": [first, best], "tickers_scored": 2, "tickers_total": 2}}
+    layers = json.loads(render._chain_js_data(scored, {"sub_layers": {}}, {}))
+    l = layers[0]
+    check("the sub-layer news number is the best ticker's own (old code: the first ticker's 0.0)",
+          l["news_vel"] == 6.0, l["news_vel"])
+    check("the divergence text reads that same company's news", l["divergence"] is True, (l["divergence"], l["divergence_msg"]))
+
+
 def run():
     logging.disable(logging.CRITICAL)
     check_per_ticker()
+    check_layer_badge()
     failed = [n for n, ok in results if not ok]
     print(f"\n{len(results) - len(failed)}/{len(results)} checks passed")
     return 1 if failed else 0
