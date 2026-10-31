@@ -626,7 +626,7 @@ def suite_layers(b, run):
               tabs: [...sec.querySelectorAll('[role=tab]')].map(t => [t.textContent, t.getAttribute('aria-controls')]),
               live: document.getElementById('lr-detail').getAttribute('aria-live'),
               stairsHidden: document.getElementById('lr-stairs').hidden,
-              toggle: [sec.querySelector('.stairs-toggle').textContent, sec.querySelector('.stairs-toggle').getAttribute('aria-expanded')]} }""")
+              toggle: [sec.querySelector('.stairs-toggle .st-label').textContent, sec.querySelector('.stairs-toggle').getAttribute('aria-expanded')]} }""")
     check("layers: section, then the bridge sentence, then the AI Oy growth path and table",
           st["order"] and st["title"] == "Mitä yritys hoitaa itse ja mitä se ostaa"
           and st["bridge"].startswith("Yllä rakenne yleisesti. Alla samat mallit kuvitteellisen AI Oy:n kasvupolkuna"), str(st["title"]))
@@ -853,7 +853,7 @@ def suite_layers(b, run):
     # Row <-> zone highlight.
     pg.locator(".stairs-toggle").click()
     settle(pg, 200)
-    tg = pg.evaluate("[document.querySelector('.stairs-toggle').textContent, document.querySelector('.stairs-toggle').getAttribute('aria-expanded'), document.getElementById('lr-stairs').hidden]")
+    tg = pg.evaluate("[document.querySelector('.stairs-toggle .st-label').textContent, document.querySelector('.stairs-toggle').getAttribute('aria-expanded'), document.getElementById('lr-stairs').hidden]")
     check("layers: the control opens the staircase and changes its label", tg == ["Piilota rinnakkaisnäkymä", "true", False], str(tg))
     table = pg.evaluate("""() => ({head: [...document.querySelectorAll('.stairs-table thead th')].map(th => th.childNodes[0].textContent.trim()),
         rows: [...document.querySelectorAll('.stairs-table tbody tr[data-row]')].map(tr => {

@@ -447,13 +447,17 @@
   });
 
   const toggle = root.querySelector(".stairs-toggle");
+  const label = toggle.querySelector(".st-label");
   const wrap = root.querySelector("#lr-stairs");
-  const showText = toggle.textContent;
+  const showText = label.textContent;
+  // The toggle's thumbnail is the five tabs' bars side by side (R96).
+  const thumb = toggle.querySelector(".st-thumb");
+  tabs.forEach((t) => thumb.appendChild(t.querySelector(".lr-tab-bar").cloneNode(true)));
   toggle.addEventListener("click", () => {
     const open = toggle.getAttribute("aria-expanded") !== "true";
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
     wrap.hidden = !open;
-    toggle.textContent = open ? T.hide : showText;
+    label.textContent = open ? T.hide : showText;
   });
 
   update(false);
