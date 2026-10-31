@@ -603,8 +603,8 @@
   },
   {
     "date": "2026-10-30",
-    "time": "11:25",
-    "run_at": "2026-10-31T11:25:23+00:00",
+    "time": "14:48",
+    "run_at": "2026-10-31T14:48:07+00:00",
     "model_version": 3,
     "scores": {
       "cooling": {
@@ -615,7 +615,7 @@
         }
       },
       "networking": {
-        "score": 37.04,
+        "score": 36.24,
         "color": "Green",
         "ratings": {
           "ANET": "B",

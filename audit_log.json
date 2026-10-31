@@ -3481,7 +3481,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "colocation",
   "ticker": "DLR",
   "score": 40.23,
@@ -3507,7 +3507,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "colocation",
   "ticker": "EQIX",
   "score": 30.92,
@@ -3531,7 +3531,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "compute",
   "ticker": "DELL",
   "score": 24.14,
@@ -3555,7 +3555,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "compute",
   "ticker": "HPE",
   "score": 33.16,
@@ -3579,7 +3579,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "compute",
   "ticker": "SMCI",
   "score": 29.37,
@@ -3603,7 +3603,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "cooling",
   "ticker": "VRT",
   "score": 53.41,
@@ -3627,7 +3627,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "networking",
   "ticker": "ANET",
   "score": 37.26,
@@ -3651,15 +3651,15 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "networking",
   "ticker": "CSCO",
-  "score": 36.92,
+  "score": 35.72,
   "color": "Green",
   "accel": 47.84,
-  "constraints": 26.9,
+  "constraints": 20.9,
   "smart": 2.99,
-  "raw_composite": 36.92,
+  "raw_composite": 35.72,
   "fund_delta": 0.0562,
   "regime": "Risk-On",
   "multiplier": 1.0,
@@ -3675,7 +3675,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "optical",
   "ticker": "CIEN",
   "score": 33.8,
@@ -3699,7 +3699,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "optical",
   "ticker": "COHR",
   "score": 49.41,
@@ -3723,7 +3723,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "optical",
   "ticker": "GLW",
   "score": 31.79,
@@ -3747,7 +3747,7 @@
  },
  {
   "session": "2026-10-30",
-  "run_at": "2026-10-31T11:25:22+00:00",
+  "run_at": "2026-10-31T14:48:06+00:00",
   "sub_layer": "optical",
   "ticker": "LITE",
   "score": 56.97,
