@@ -957,6 +957,49 @@ def suite_layers(b, run):
           [l["pts"] for l in s["lines"]] == [s["gap"]["g45"], s["gap"]["g56"]], str(s["lines"]))
     ctx.close()
 
+    # The staircase toggle on phones (R97): the page follows the grid open and comes back to
+    # the button on closing; smooth, or at once with reduced motion. Desktop doesn't scroll.
+    # The close is a DOM click so Playwright doesn't scroll the button into view itself.
+    STAIRS_POS = """() => { const r = (s) => document.querySelector(s).getBoundingClientRect(), hd = r('.bm-header').bottom;
+        const g = r('#lr-stairs'), t = r('.stairs-toggle');
+        return {y: Math.round(scrollY), hd: Math.round(hd), grid: Math.round(g.top), btn: [Math.round(t.top), Math.round(t.bottom)],
+                gridIn: g.top >= hd - 1 && g.top < innerHeight, btnIn: t.top >= hd - 1 && t.bottom <= innerHeight} }"""
+    for motion in ("no-preference", "reduce"):
+        ctx = b.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, reduced_motion=motion)
+        pg = ctx.new_page()
+        pw_guard.load(pg, hub)
+        pw_guard.settled(pg)
+        tag = "smooth" if motion == "no-preference" else "reduced motion"
+        pg.locator(".stairs-toggle").click()
+        if motion == "reduce":
+            now = pg.evaluate(STAIRS_POS)
+            check("layers 390, reduced motion: opening jumps to the grid at once", now["gridIn"], str(now))
+        settle(pg, 1200)
+        op = pg.evaluate(STAIRS_POS)
+        check(f"layers 390 ({tag}): after opening, the grid's top is in the viewport below the header", op["gridIn"], str(op))
+        pg.evaluate("document.querySelector('.stairs-toggle').click()")
+        if motion == "reduce":
+            now = pg.evaluate(STAIRS_POS)
+            check("layers 390, reduced motion: closing jumps back to the button at once", now["btnIn"], str(now))
+        settle(pg, 1200)
+        cl = pg.evaluate(STAIRS_POS)
+        check(f"layers 390 ({tag}): after closing, the button is in the viewport", cl["btnIn"], str(cl))
+        ctx.close()
+    ctx = b.new_context(viewport={"width": 1680, "height": 1050})
+    pg = ctx.new_page()
+    pw_guard.load(pg, hub)
+    pw_guard.settled(pg)
+    pg.locator(".stairs-toggle").scroll_into_view_if_needed()
+    y0 = pg.evaluate("scrollY")
+    pg.evaluate("document.querySelector('.stairs-toggle').click()")
+    settle(pg, 1200)
+    y1 = pg.evaluate("scrollY")
+    pg.evaluate("document.querySelector('.stairs-toggle').click()")
+    settle(pg, 1200)
+    y2 = pg.evaluate("scrollY")
+    check("layers 1680: opening and closing the staircase doesn't scroll the page", y0 == y1 == y2, str([y0, y1, y2]))
+    ctx.close()
+
     # The waste-heat link lands on its card.
     ctx = b.new_context(viewport={"width": 1680, "height": 1050})
     pg = ctx.new_page()

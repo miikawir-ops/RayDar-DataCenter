@@ -453,11 +453,16 @@
   // The toggle's thumbnail is the five tabs' bars side by side (R96).
   const thumb = toggle.querySelector(".st-thumb");
   tabs.forEach((t) => thumb.appendChild(t.querySelector(".lr-tab-bar").cloneNode(true)));
+  // On phones the grid opens below the side panel, out of sight, so the page
+  // follows it there, and back to the button on closing (R97).
+  const phone = window.matchMedia("(max-width: 768px)");
   toggle.addEventListener("click", () => {
     const open = toggle.getAttribute("aria-expanded") !== "true";
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
     wrap.hidden = !open;
     label.textContent = open ? T.hide : showText;
+    if (phone.matches)
+      (open ? wrap : toggle).scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: open ? "start" : "nearest" });
   });
 
   update(false);
