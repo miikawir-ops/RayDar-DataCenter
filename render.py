@@ -475,9 +475,8 @@ def _history_js_data(history: list, scored_data: dict) -> str:
 
 
 def _capex_js_data(capex_data: dict) -> str:
-    """Passthrough of main.py's stage_capex() output — already shaped correctly."""
-    default = {"direction": None, "magnitude_pct": None, "reporting": "0/0",
-               "insufficient": [], "beneficiary_map": {}}
+    """Passthrough of main.py's stage_capex() output (capex.fetch() plus the beneficiary map)."""
+    default = {"available": False, "reason": "not computed this run", "companies": [], "beneficiary_map": {}}
     return json.dumps(capex_data or default, allow_nan=False)
 
 
@@ -531,8 +530,7 @@ def generate_dashboard(scored_data: dict, macro_data: dict, market_data: dict = 
     if market_data is None:
         market_data = {"sub_layers": {}, "meta": {}}
     if capex_data is None:
-        capex_data = {"direction": None, "magnitude_pct": None, "reporting": "0/0",
-                       "insufficient": [], "beneficiary_map": {}}
+        capex_data = {"available": False, "reason": "not computed this run", "companies": [], "beneficiary_map": {}}
 
     session = market_data["meta"]["session"]
     save_scores_history(scored_data, session)
@@ -828,6 +826,11 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .capex-lbl{{font-size:10px;font-weight:500;color:#AFA9EC;letter-spacing:.06em;margin-bottom:6px}}
 .capex-dir{{font-size:18px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}}
 .capex-meta{{font-size:11px;color:#8A9AB8;margin-bottom:10px}}
+.capex-cos{{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}}
+.capex-co{{background:rgba(255,255,255,.06);border:0.5px solid rgba(175,169,236,0.3);border-radius:8px;
+          padding:5px 9px;font-size:10px;color:#C8D4E8}}
+.capex-co b{{color:#fff}}
+.capex-off{{border-color:#EF9F27;color:#FAC775}}
 .capex-chips{{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}}
 .capex-chip{{background:rgba(255,255,255,.06);border:0.5px solid rgba(175,169,236,0.3);
             border-radius:8px;padding:6px 10px;font-size:10px;color:#C8D4E8}}
@@ -1624,32 +1627,40 @@ function sendPrompt(text) {{
 }}
 
 function buildCapexStrip() {{
+  // capex.py's aggregate (ledger R98): dollars, date-matched, stale/missing named.
   const el = document.getElementById("capex-strip");
   if (!el || !CAPEX) return;
-  if (!CAPEX.direction) {{
+  const qd = iso => new Date(iso + "T00:00:00Z").toLocaleDateString("en-US", {{month: "short", day: "numeric", year: "numeric", timeZone: "UTC"}});
+  const cos = (CAPEX.companies || []).map(c => c.status === "included"
+    ? `<span class="capex-co"><b>${{c.ticker}}</b> ${{qd(c.quarter)}} · $${{(c.value / 1e9).toFixed(1)}}bn · ${{fmt(c.yoy * 100)}}%</span>`
+    : `<span class="capex-co capex-off"><b>${{c.ticker}}</b> ${{c.status}}: ${{c.status === "stale" && c.latest_quarter ? "latest quarter " + qd(c.latest_quarter) : (c.note || "")}} · not included</span>`
+  ).join("");
+  if (!CAPEX.available) {{
     el.classList.add("insufficient");
     el.innerHTML = `
-      <div class="capex-lbl">HYPERSCALER CAPEX DIRECTION</div>
-      <div class="capex-dir" style="color:#8A9AB8">— Insufficient data</div>
-      <div class="capex-meta">${{CAPEX.reporting || "0/4"}} hyperscalers reporting this run</div>`;
+      <div class="capex-lbl">HYPERSCALER CAPEX (LAST REPORTED QUARTERS)</div>
+      <div class="capex-dir" style="color:#8A9AB8">— Not available this run</div>
+      <div class="capex-meta">${{CAPEX.reason || ""}}</div>
+      <div class="capex-cos">${{cos}}</div>`;
     return;
   }}
-  const arrow = CAPEX.direction === "accelerating" ? "▲" : CAPEX.direction === "decelerating" ? "▼" : "→";
-  const col   = CAPEX.direction === "accelerating" ? "#97C459" : CAPEX.direction === "decelerating" ? "#E8898A" : "#85B7EB";
-  const pct   = (CAPEX.magnitude_pct * 100).toFixed(1);
-  const dirLbl = CAPEX.direction.charAt(0).toUpperCase() + CAPEX.direction.slice(1);
+  const dir   = CAPEX.direction;
+  const arrow = dir === "accelerating" ? "▲" : dir === "decelerating" ? "▼" : dir === "stable" ? "—" : "";
+  const col   = dir === "accelerating" ? "#97C459" : dir === "decelerating" ? "#E8898A" : "#85B7EB";
+  const head  = dir ? `${{arrow}} ${{dir.charAt(0).toUpperCase() + dir.slice(1)}}` : "Direction not measured";
+  const sub   = dir ? `${{fmt(CAPEX.change_pp)}} pp vs the previous quarter` : (CAPEX.direction_note || "");
+  const part  = CAPEX.included === (CAPEX.companies || []).length ? "" : ` · ${{CAPEX.included}} of ${{CAPEX.companies.length}} companies`;
   const chips = Object.values(CAPEX.beneficiary_map || {{}}).map(cat =>
     `<div class="capex-chip"><b>${{cat.description}}</b> → ${{cat.sub_layers.join(", ")}}</div>`
   ).join("");
-  const insuffNote = (CAPEX.insufficient && CAPEX.insufficient.length)
-    ? " · " + CAPEX.insufficient.map(i=>i.ticker).join(", ") + " insufficient data" : "";
   el.innerHTML = `
-    <div class="capex-lbl">HYPERSCALER CAPEX DIRECTION</div>
-    <div class="capex-dir" style="color:${{col}}">${{arrow}} ${{dirLbl}}
-      <span style="font-size:13px;color:#C8D4E8;font-weight:400">${{pct}}% avg YoY</span></div>
-    <div class="capex-meta">${{CAPEX.reporting}} hyperscalers reporting${{insuffNote}}</div>
+    <div class="capex-lbl">HYPERSCALER CAPEX (LAST REPORTED QUARTERS)</div>
+    <div class="capex-dir" style="color:${{col}}">${{head}}
+      <span style="font-size:13px;color:#C8D4E8;font-weight:400">${{sub}}</span></div>
+    <div class="capex-meta">$${{(CAPEX.total / 1e9).toFixed(1)}}bn in the quarter ending ${{qd(CAPEX.quarter)}}, ${{fmt(CAPEX.yoy * 100)}}% vs a year earlier${{part}}</div>
+    <div class="capex-cos">${{cos}}</div>
     <div class="capex-chips">${{chips}}</div>
-    <div class="capex-caveat">Context, not a per-category breakdown — capex data isn't differentiated by spend category. All beneficiary categories shown reflect where AI capex generally flows, not this run's specific allocation.</div>`;
+    <div class="capex-caveat">Context, not a per-category breakdown — capex data isn't differentiated by spend category. All beneficiary categories shown reflect where AI capex generally flows, not this run's specific allocation. Reported cash capex: backward-looking. Company guidance isn't included. Figures are cash capex as filed; headline figures in company releases or the press can differ, for example by including finance leases.</div>`;
 }}
 
 function buildHeroStatus() {{

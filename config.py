@@ -36,7 +36,6 @@ GENERIC_BOTTLENECK_KEYWORDS = [
     "demand surge", "sold out", "supply tight",
 ]
 
-CAPEX_TICKERS = ["MSFT", "GOOGL", "AMZN", "META"]  # Part B5 hyperscaler capex-trend universe
 
 # Names a ticker-feed headline must contain (whole word) to count as news about
 # that company (ledger R45 item 3): Yahoo's per-ticker feeds also carry other
@@ -69,37 +68,11 @@ COMPANY_NAMES = {
 # exemption still in place (ledger R48).
 MODEL_VERSION = 3
 
-# Single-quarter YoY capex-trend label thresholds (PLAN.md decision #4).
-# Picked from verified capex history, not guessed: pre-AI hyperscaler capex growth
-# topped out around 30-43% in strong years (2018: +43%; 2016-2020 avg: ~32%) and ran
-# near-flat in soft years (2019: +1%). The current AI-driven regime has run ~70-80%+
-# YoY sustained since ~Q2 2023 — the 4b real readings (2026-09-17: MSFT +109.6%,
-# GOOGL +100.1%, AMZN +76.7%, META +82.1%) reflect that established regime, not a
-# fresh spike. Expect ACCELERATING to read true for an extended period while the
-# supercycle holds — that's the regime being real, not the thresholds being stuck.
-CAPEX_YOY_ACCELERATING_PCT = 0.30  # >30% YoY = accelerating
-CAPEX_YOY_DECELERATING_PCT = 0.05  # <5% YoY = decelerating; 5-30% = stable
-
-# Minimum hyperscalers required to compute an aggregate capex direction
-# (PLAN.md step 5b). With only 0-1 of 4 reporting, there's no real "aggregate"
-# to speak of — it would just be one company's number mislabeled as a
-# consensus. 2+ is the minimum bar for an averaged magnitude to mean anything
-# as an aggregate, even though it's still a partial one (always disclosed via
-# "reporting": "N/4", never silently presented as if it were 4/4).
-#
-# HONEST CAVEAT: that reasoning only actually justifies "must be >=2" (ruling
-# out the degenerate 1-company case) — it does NOT establish why 2 specifically
-# rather than 3 (a stricter majority-of-4 bar). 3 would be a legitimate,
-# arguably more conservative alternative given GOOGL's documented fragility
-# (decision #4 — exactly 5 quarters total, zero margin on the 4-back slot,
-# one bad data pull from flipping to insufficient-data). That tradeoff wasn't
-# actually weighed when 2 was picked; this isn't a data-derived cutoff like
-# the two thresholds above, it's the simplest floor above the degenerate case.
-# Revisit if a real run ever drops below 4/4 and 2 vs 3 starts to matter in
-# practice. Untested against real data as of 2026-09-18 — every run so far
-# has been 4/4;
-# documented so the rule exists before the branch is ever exercised.
-CAPEX_MIN_REPORTING = 2
+# Hyperscaler capex (ledger R98): capex.py, shared unchanged with the parent,
+# sums the four hyperscalers' last reported quarters in dollars and labels the
+# direction by the change in that YoY (±5 pp), at least 3 of 4 companies. It
+# replaced an average of per-company YoY labelled by level (>30% "accelerating")
+# with a 2-of-4 minimum, and its own ticker list (CAPEX_TICKERS).
 
 # Short company names for display outside the dashboard's own cards (ledger
 # R52/R53): the ecosystem page lists each sub-layer's companies from these,
@@ -181,8 +154,8 @@ SUB_LAYERS = {
 # Capex beneficiary taxonomy (Part B3), consumed by render (step 6), not
 # score_engine (decision #1 — display overlay only, never a scoring input).
 #
-# STATIC CONTEXTUAL TAXONOMY, NOT A PER-CATEGORY BREAKDOWN. fetch_capex_trend()
-# reports one YoY% per hyperscaler (MSFT/GOOGL/AMZN/META) — it does NOT
+# STATIC CONTEXTUAL TAXONOMY, NOT A PER-CATEGORY BREAKDOWN. capex.py
+# reports the hyperscalers' (MSFT/GOOGL/AMZN/META) total capex — it does NOT
 # differentiate what that capex is actually being spent on (GPU clusters vs.
 # interconnect vs. facilities). So when the aggregate direction reads
 # "accelerating," ALL THREE categories below surface together as context for

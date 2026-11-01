@@ -496,75 +496,28 @@ def stage_score(market_data: dict, macro_data: dict) -> dict:
 
 def stage_capex() -> dict:
     """
-    Capex direction overlay (PLAN.md step 5b, decision #1: display overlay
-    only — never fed into ScoreEngine or its weights, independent of
-    stage_score()).
+    Hyperscaler capex overlay (decision #1: display only, never fed into
+    ScoreEngine or its weights). capex.fetch(), shared unchanged with the
+    parent (ledger R98): the four hyperscalers' last reported quarters
+    summed in dollars vs the same quarters a year earlier, EDGAR-filled and
+    date-matched, at least 3 of 4, stale or missing companies named,
+    direction = change in aggregate YoY vs the previous quarter (±5 pp).
+    Plus this site's sub-layer beneficiary map.
 
-    Aggregation rule: average capex_yoy_pct across only the REPORTING
-    hyperscalers (excluding any with data_missing), then classify that
-    average against CAPEX_YOY_ACCELERATING_PCT/DECELERATING_PCT. Chosen
-    over a majority-vote-of-labels approach because individual hyperscalers
-    can vary by 30+ points while all being genuinely "accelerating" (the 4b
-    real spread was 76.7-109.6%) — a single averaged magnitude is more
-    informative than collapsing that to a vote, and matches decision #4's
-    "show magnitude, not just the label" principle.
-
-    Partial-reporting rule (config.CAPEX_MIN_REPORTING = 2): fewer than 2 of
-    4 hyperscalers reporting means direction/magnitude_pct are None
-    ("insufficient data") rather than computed from a 1-company sample
-    mislabeled as an aggregate. Honest caveat (see config.py comment): this
-    only really justifies ">=2", not "2 rather than 3" — 3 (majority-of-4)
-    would be a legitimate, more conservative alternative given GOOGL's
-    documented fragility, but that tradeoff wasn't actually weighed when 2
-    was picked. Untested against real data as of 2026-09-18 (every run so
-    far has been 4/4) — documented so the rule exists before the branch is
-    ever exercised, not discovered later.
-
-    "reporting" (e.g. "3/4") and "insufficient" (ticker + reason) are
-    always present, even at 4/4 — decision #4's "don't drop an
-    insufficient-data ticker from the aggregate silently" rule.
+    Data format (ledger R44): if Yahoo returned cash-flow tables but none
+    had the capex row, the run fails, as fetch_capex_trend() did.
     """
-    from fetch_market import fetch_capex_trend
-    from config import CAPEX_YOY_ACCELERATING_PCT, CAPEX_YOY_DECELERATING_PCT, \
-        CAPEX_MIN_REPORTING, CAPEX_BENEFICIARY_MAP, CAPEX_TICKERS
+    import capex
+    from config import CAPEX_BENEFICIARY_MAP
+    from fetch_market import SchemaError
 
-    capex = fetch_capex_trend()
-    reporting = [c for c in capex if not c["data_missing"]]
-    insufficient = [
-        {"ticker": c["ticker"], "reason": f"missing: {c['data_missing']}"}
-        for c in capex if c["data_missing"]
-    ]
-
-    if len(reporting) < CAPEX_MIN_REPORTING:
-        log.warning(f"  Capex: only {len(reporting)}/{len(capex)} hyperscalers reporting "
-                    f"(minimum {CAPEX_MIN_REPORTING}) — direction insufficient data")
-        return {
-            "direction":       None,
-            "magnitude_pct":   None,
-            "reporting":       f"{len(reporting)}/{len(capex)}",
-            "insufficient":    insufficient,
-            "beneficiary_map": CAPEX_BENEFICIARY_MAP,
-        }
-
-    magnitude_pct = round(sum(c["capex_yoy_pct"] for c in reporting) / len(reporting), 4)
-
-    if magnitude_pct > CAPEX_YOY_ACCELERATING_PCT:
-        direction = "accelerating"
-    elif magnitude_pct < CAPEX_YOY_DECELERATING_PCT:
-        direction = "decelerating"
-    else:
-        direction = "stable"
-
-    log.info(f"  Capex: {direction} ({magnitude_pct*100:.1f}% avg YoY, "
-             f"{len(reporting)}/{len(capex)} hyperscalers reporting)")
-
-    return {
-        "direction":       direction,
-        "magnitude_pct":   magnitude_pct,
-        "reporting":       f"{len(reporting)}/{len(capex)}",
-        "insufficient":    insufficient,
-        "beneficiary_map": CAPEX_BENEFICIARY_MAP,
-    }
+    result = capex.fetch()
+    tables = capex.YAHOO_TABLES
+    if any(v != "no table" for v in tables.values()) and not any(v == "row" for v in tables.values()):
+        raise SchemaError("quarterly_cashflow has no 'Capital Expenditure' row for any hyperscaler with data "
+                          "— yfinance data format changed? (ledger R44)")
+    result["beneficiary_map"] = CAPEX_BENEFICIARY_MAP
+    return result
 
 
 def stage_render(market_data: dict, macro_data: dict, scored_data: dict, capex_data: dict) -> str:

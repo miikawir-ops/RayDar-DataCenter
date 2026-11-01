@@ -207,8 +207,7 @@ def check_nan_values():
           and m["nasdaq_vs_spx_20d"] is not None and nan_free(m), str(m))
 
     try:
-        render._capex_js_data({"direction": "stable", "magnitude_pct": float("nan"), "reporting": "4/4",
-                               "insufficient": [], "beneficiary_map": {}})
+        render._capex_js_data({"available": True, "yoy": float("nan"), "companies": [], "beneficiary_map": {}})
         check("page: a NaN that gets this far fails the run instead of being written", False, "no exception")
     except ValueError:
         check("page: a NaN that gets this far fails the run instead of being written", True)
@@ -330,11 +329,17 @@ def check_data_format():
     cols = pd.to_datetime(["2026-06-30", "2026-03-31", "2025-12-31", "2025-09-30", "2025-06-30"])
     no_row = pd.DataFrame({c: [1.0] for c in cols}, index=["Operating Cash Flow"])
     with_row = pd.DataFrame({c: [-1.0, 1.0] for c in cols}, index=["Capital Expenditure", "Operating Cash Flow"])
-    check("format: no hyperscaler cash-flow table with a capex row fails the run",
-          raises(lambda: with_stub(lambda symbol: CashStub(no_row), fetch_market.fetch_capex_trend)))
-    check("format: one hyperscaler with the capex row is enough",
-          not raises(lambda: with_stub(lambda symbol: CashStub(with_row if symbol == "MSFT" else no_row),
-                                       fetch_market.fetch_capex_trend)))
+    # Through stage_capex, which uses capex.py since ledger R98; EDGAR off so it stays offline.
+    import edgar
+    real_cik, edgar._cik = edgar._cik, (lambda t: None)
+    try:
+        check("format: no hyperscaler cash-flow table with a capex row fails the run",
+              raises(lambda: with_stub(lambda symbol: CashStub(no_row), main.stage_capex)))
+        check("format: one hyperscaler with the capex row is enough",
+              not raises(lambda: with_stub(lambda symbol: CashStub(with_row if symbol == "MSFT" else no_row),
+                                           main.stage_capex)))
+    finally:
+        edgar._cik = real_cik
 
 
 def check_r45_inputs():
