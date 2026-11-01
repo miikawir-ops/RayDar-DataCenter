@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-01 — hyperscaler capex overlay mixed quarters (ledger R98, display-only)
+
+**What was wrong.** The capex strip averaged the four hyperscalers' per-company YoY from Yahoo's columns (each latest column against the one four positions back) and called an average above 30% "accelerating", a growth level rather than a change in it. On 2026-11-01 Yahoo's newest AMZN capex quarter was 2026-03-31 while MSFT, GOOGL and META had 2026-09-30, so the strip mixed AMZN's Q1 into a Q3 reading without saying so: "+93.6% avg YoY", 4/4 reporting.
+
+**Fix.** `capex.py`, shared unchanged with the parent so both sites show the same number: the four hyperscalers' last reported quarters summed in dollars against the same quarters a year earlier (350–380 days; quarter ends aligned within 10 days), from SEC EDGAR cash-flow facts (year-to-date differenced; Q4 = full year − 9 months) cross-checked with Yahoo within 1% (0.00% on every overlapping quarter on 2026-11-01). At least 3 of 4 companies (was 2); a stale or missing company is named and left out. Direction is the change in aggregate YoY against the previous quarter with the same companies, ±5 pp. The strip shows each company's quarter-end and says guidance isn't included and that figures are cash capex as filed. The R44 data-format check (cash-flow tables without a capex row fail the run) is kept.
+
+**Verified.** `tools/check_capex.py` fails on the old code. Replaying one live fetch before and after gives identical sub-layer scores, colours and ratings. Live (run 124, `e6e318c`): $201.9bn in the quarter ending Sep 30, 2026, +107.6% vs a year earlier, accelerating +20.6 pp, all four companies, matching raydar.fi.
+
 ## 2026-10-30 — revenue growth was not year-over-year; news pooled across sub-layers (ledger R88)
 
 **Methodology change.** Scores from the deploy date on are not like-for-like with earlier ones. `config.MODEL_VERSION` goes from 2 to 3. Entries stored under version 2 are kept exactly as published. The first version-3 entry carries `methodology_change: true`. Colour confirmation ignores entries from other versions, the page compares nothing across the change ("no comparison: method changed"), the heat trail marks the last old-version day, and a dated note on the page says colour changes reflect the fix, not a market move. Backtests must not compare across it.
