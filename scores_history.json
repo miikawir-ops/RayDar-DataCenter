@@ -650,5 +650,55 @@
         }
       }
     }
+  },
+  {
+    "date": "2026-11-02",
+    "time": "21:22",
+    "run_at": "2026-11-02T21:22:22+00:00",
+    "model_version": 3,
+    "scores": {
+      "cooling": {
+        "score": 44.95,
+        "color": "Orange",
+        "ratings": {
+          "VRT": "B"
+        }
+      },
+      "networking": {
+        "score": 29.18,
+        "color": "Green",
+        "ratings": {
+          "ANET": "B",
+          "CSCO": "B"
+        }
+      },
+      "optical": {
+        "score": 34.43,
+        "color": "Green",
+        "ratings": {
+          "CIEN": "B",
+          "LITE": "B",
+          "COHR": "B",
+          "GLW": "B"
+        }
+      },
+      "compute": {
+        "score": 24.55,
+        "color": "Blue",
+        "ratings": {
+          "SMCI": "C",
+          "DELL": "C",
+          "HPE": "C"
+        }
+      },
+      "colocation": {
+        "score": 28.07,
+        "color": "Green",
+        "ratings": {
+          "EQIX": "C",
+          "DLR": "B"
+        }
+      }
+    }
   }
 ]
