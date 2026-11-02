@@ -45,12 +45,16 @@ def quarters(drop_amzn_after=None):
     return q
 
 
+OCF_Q3 = {"MSFT": 58.0, "GOOGL": 42.3, "AMZN": 42.4, "META": 32.8}   # $bn, quarter ending 2026-09-30
+
+
 def stage_with(q):
-    """main.stage_capex() with these quarters, no network."""
+    """main.stage_capex() with these quarters (and Q3 operating cash flow), no network."""
     def company(t):
         capex.YAHOO_TABLES[t] = "row"
         return q[t], "stub"
-    with patch("capex.company_quarters", side_effect=company):
+    with patch("capex.company_quarters", side_effect=company), \
+         patch("capex.company_ocf", side_effect=lambda t: ({D("2026-09-30"): OCF_Q3[t] * 1e9}, "stub")):
         return main.stage_capex()
 
 
@@ -62,6 +66,12 @@ def check_aggregate():
     check("direction is the change in aggregate YoY: +20.6 pp -> accelerating (old code: a level above 30%)",
           r["direction"] == "accelerating" and r["change_pp"] == 20.6, (r.get("direction"), r.get("change_pp")))
     check("the site's sub-layer beneficiary map comes along", set(r["beneficiary_map"]) == {"gpu_clusters", "interconnect", "facilities"})
+    tr = {c["ticker"]: c.get("trend") for c in r["companies"]}
+    check("each company's own trend and breadth (R99): 2 of 4 accelerating",
+          r["accelerating_companies"] == 2 and tr == {"MSFT": "decelerating", "GOOGL": "accelerating", "AMZN": "accelerating", "META": "stable"}, tr)
+    f = r["funding"]
+    check("funding (R99): capex 115% of operating cash flow this quarter, free cash flow −$26.4bn",
+          f["available"] and abs(f["capex_to_ocf"] - 1.1506) < 0.001 and abs(f["fcf"] / 1e9 + 26.4) < 0.05, f)
     json.loads(render._capex_js_data(r))   # serialisable, no NaN
 
 
@@ -81,6 +91,8 @@ def check_page_text():
           "HYPERSCALER CAPEX (LAST REPORTED QUARTERS)" in src and "avg YoY" not in src)
     check("the strip gives the dollar total, the quarter-end and each company's quarter, stale ones marked",
           "bn in the quarter ending" in src and "not included" in src and "latest quarter " in src)
+    check("the strip shows breadth, the funding lines and each company's trend and capex/OCF (R99)",
+          "companies accelerating" in src and "Funding: capex was" in src and "Last four quarters: capex" in src and "% of OCF" in src)
     check("the caveat says backward-looking, no guidance, cash capex as filed",
           "Company guidance isn't included" in src and "for example by including finance leases" in src)
 

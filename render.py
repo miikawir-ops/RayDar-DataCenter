@@ -826,6 +826,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .capex-lbl{{font-size:10px;font-weight:500;color:#AFA9EC;letter-spacing:.06em;margin-bottom:6px}}
 .capex-dir{{font-size:18px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}}
 .capex-meta{{font-size:11px;color:#8A9AB8;margin-bottom:10px}}
+.capex-fund{{font-size:11px;color:#C8D4E8;line-height:1.5;margin:-4px 0 10px}}
 .capex-cos{{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}}
 .capex-co{{background:rgba(255,255,255,.06);border:0.5px solid rgba(175,169,236,0.3);border-radius:8px;
           padding:5px 9px;font-size:10px;color:#C8D4E8}}
@@ -1631,8 +1632,22 @@ function buildCapexStrip() {{
   const el = document.getElementById("capex-strip");
   if (!el || !CAPEX) return;
   const qd = iso => new Date(iso + "T00:00:00Z").toLocaleDateString("en-US", {{month: "short", day: "numeric", year: "numeric", timeZone: "UTC"}});
+  // Each company's own trend (±5 pp) and capex as a share of operating cash flow (ledger R99).
+  const TREND = {{accelerating: ["▲", "#97C459"], decelerating: ["▼", "#E8898A"], stable: ["—", "#FAC775"]}};
+  const trend = c => c.trend ? ` <span style="color:${{TREND[c.trend][1]}}">${{TREND[c.trend][0]}} ${{fmt(c.change_pp)}} pp</span>` : "";
+  const ratio = c => c.capex_to_ocf != null ? ` · capex ${{Math.round(c.capex_to_ocf * 100)}}% of OCF` : "";
+  const bn = (v, sign) => (v < 0 ? "−" : (sign ? "+" : "")) + "$" + (Math.abs(v) / 1e9).toFixed(1) + "bn";
+  const F = CAPEX.funding || {{}};
+  let fund;
+  if (!F.available) fund = `Funding: not available this run (${{F.note || "no data"}})`;
+  else if (F.capex_to_ocf == null) fund = `Funding: operating cash flow was not positive this quarter; free cash flow ${{bn(F.fcf, true)}}.`;
+  else fund = `Funding: capex was ${{Math.round(F.capex_to_ocf * 100)}}% of operating cash flow this quarter (${{bn(F.capex)}} vs ${{bn(F.ocf)}}); free cash flow ${{bn(F.fcf, true)}}.`
+            + (F.capex_to_ocf > 1 ? " The difference came from other sources such as cash on hand or financing; this strip doesn't show which." : "");
+  const ttm = F.ttm_available && F.ttm_capex_to_ocf != null
+    ? `Last four quarters: capex ${{Math.round(F.ttm_capex_to_ocf * 100)}}% of operating cash flow.`
+    : `Last four quarters: not available (${{F.ttm_note || F.note || "no data"}}).`;
   const cos = (CAPEX.companies || []).map(c => c.status === "included"
-    ? `<span class="capex-co"><b>${{c.ticker}}</b> ${{qd(c.quarter)}} · $${{(c.value / 1e9).toFixed(1)}}bn · ${{fmt(c.yoy * 100)}}%</span>`
+    ? `<span class="capex-co"><b>${{c.ticker}}</b> ${{qd(c.quarter)}} · $${{(c.value / 1e9).toFixed(1)}}bn · ${{fmt(c.yoy * 100)}}%${{trend(c)}}${{ratio(c)}}</span>`
     : `<span class="capex-co capex-off"><b>${{c.ticker}}</b> ${{c.status}}: ${{c.status === "stale" && c.latest_quarter ? "latest quarter " + qd(c.latest_quarter) : (c.note || "")}} · not included</span>`
   ).join("");
   if (!CAPEX.available) {{
@@ -1648,7 +1663,8 @@ function buildCapexStrip() {{
   const arrow = dir === "accelerating" ? "▲" : dir === "decelerating" ? "▼" : dir === "stable" ? "—" : "";
   const col   = dir === "accelerating" ? "#97C459" : dir === "decelerating" ? "#E8898A" : "#85B7EB";
   const head  = dir ? `${{arrow}} ${{dir.charAt(0).toUpperCase() + dir.slice(1)}}` : "Direction not measured";
-  const sub   = dir ? `${{fmt(CAPEX.change_pp)}} pp vs the previous quarter` : (CAPEX.direction_note || "");
+  const nTrend = (CAPEX.companies || []).filter(c => c.trend).length;
+  const sub   = dir ? `${{fmt(CAPEX.change_pp)}} pp vs the previous quarter · ${{CAPEX.accelerating_companies || 0}} of ${{nTrend}} companies accelerating` : (CAPEX.direction_note || "");
   const part  = CAPEX.included === (CAPEX.companies || []).length ? "" : ` · ${{CAPEX.included}} of ${{CAPEX.companies.length}} companies`;
   const chips = Object.values(CAPEX.beneficiary_map || {{}}).map(cat =>
     `<div class="capex-chip"><b>${{cat.description}}</b> → ${{cat.sub_layers.join(", ")}}</div>`
@@ -1658,9 +1674,10 @@ function buildCapexStrip() {{
     <div class="capex-dir" style="color:${{col}}">${{head}}
       <span style="font-size:13px;color:#C8D4E8;font-weight:400">${{sub}}</span></div>
     <div class="capex-meta">$${{(CAPEX.total / 1e9).toFixed(1)}}bn in the quarter ending ${{qd(CAPEX.quarter)}}, ${{fmt(CAPEX.yoy * 100)}}% vs a year earlier${{part}}</div>
+    <div class="capex-fund">${{fund}}<br>${{ttm}}</div>
     <div class="capex-cos">${{cos}}</div>
     <div class="capex-chips">${{chips}}</div>
-    <div class="capex-caveat">Context, not a per-category breakdown — capex data isn't differentiated by spend category. All beneficiary categories shown reflect where AI capex generally flows, not this run's specific allocation. Reported cash capex: backward-looking. Company guidance isn't included. Figures are cash capex as filed; headline figures in company releases or the press can differ, for example by including finance leases.</div>`;
+    <div class="capex-caveat">Context, not a per-category breakdown — capex data isn't differentiated by spend category. All beneficiary categories shown reflect where AI capex generally flows, not this run's specific allocation. Each company's arrow is its own YoY this quarter vs the previous quarter's, ±5 pp. Free cash flow here = operating cash flow − capex, as filed; single-quarter operating cash flow is seasonal, so the last four quarters are shown too. Reported cash capex: backward-looking. Company guidance isn't included. Figures are cash capex as filed; headline figures in company releases or the press can differ, for example by including finance leases.</div>`;
 }}
 
 function buildHeroStatus() {{
