@@ -717,6 +717,19 @@ def check_workflow():
     check("workflow: the save job pushes to the data branch", "git push origin HEAD:data" in save)
     check("workflow: a failed save opens the failure issue too",
           re.search(r"needs: \[[^\]]*save-history[^\]]*\]", report) is not None and "if: failure()" in report)
+    # R100: a push to main deploys code and published files; docs and the data branch don't.
+    push = re.search(r"^  push:\n((?:    .*\n)+)", top, re.M)
+    push = push.group(1) if push else ""
+    paths = re.findall(r"^      - '([^']+)'$", push, re.M)
+    want = ["**.py", "**.js", "**.html", "**.css", "assets/**", "business-models/**", "requirements.txt", ".github/workflows/**"]
+    check("workflow: a push to main only (never the data branch) triggers a deploy (R100)",
+          "    branches: [main]\n" in push, push or "no push trigger")
+    check("workflow: the push trigger has the path filter, so docs-only commits don't deploy (R100)",
+          paths == want and not any(p.endswith(".md") for p in paths), paths)
+    check("workflow: the schedule and manual dispatch stay (R100)",
+          re.search(r"^  schedule:\n(?:    #.*\n)*    - cron: ", top, re.M) is not None and "\n  workflow_dispatch:" in top)
+    check("workflow: one run at a time, queued, never cancelled midway (R100)",
+          re.search(r"\nconcurrency:\n  group: \"pages\"\n  cancel-in-progress: false\n", top) is not None)
 
 
 def fixture_ticker(symbol):
