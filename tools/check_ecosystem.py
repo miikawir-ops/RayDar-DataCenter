@@ -530,12 +530,9 @@ LABELS_CLEAR = """() => { const nodes = STAKEHOLDERS.map(s => document.querySele
 # R78: poster money arrows may not cross a stakeholder box other than their own two ends, nor a
 # printed label pill. Any crossing fails unless it is listed here, by money step and arrow, with
 # its reason; a listed crossing that no longer happens fails too, so the list can't go stale.
-POSTER_CROSSINGS_ALLOWED = {
-    (2, "capital>construction", "Equipment & Technology Suppliers"):
-        "Equipment sits between the two boxes across their full width; the gap on its left is about 12px "
-        "after margins and the card column closes the right, so no curve clears it without the poster "
-        "image edit (R23).",
-}
+# Empty since R102: money step 2's capital -> construction, allowlisted under R78,
+# now runs its own route up the slot beside Equipment & Technology.
+POSTER_CROSSINGS_ALLOWED = {}
 POSTER_CROSSINGS = """() => { const W = 1536, H = 966, out = [];
   document.querySelectorAll('#money-svg .money-pay').forEach(g => { const path = g.querySelector('path'), L = path.getTotalLength();
     const rects = STAKEHOLDERS.filter(s => s.posterBox && s.id !== g.dataset.from && s.id !== g.dataset.to).map(s => [s.name, s.posterBox])

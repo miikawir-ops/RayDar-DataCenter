@@ -692,8 +692,12 @@ def check_window():
           "(no reading for Mon Oct 5)", note)
     hist = [entry(d, {"optical": (20.0, "Blue")}) for d in ("2026-10-01", "2026-10-02")]
     c, note, branch = confirm(52.0, "Orange", hist, "2026-10-06")
-    check("note: not sustained says 'latest score' and names the missing day",
-          note == "Shown as Orange: latest score 52.0 hasn't held over recent sessions (no reading for Mon Oct 5)", note)
+    check("note: not sustained says 'latest score' and names the missing day (R102: the card stays Blue)",
+          c == "Blue" and note == "Kept Blue: today's score 52.0 isn't confirmed yet (no reading for Mon Oct 5).", note)
+    hist = [entry(d, {"optical": (55.0, "Orange")}) for d in ("2026-10-01", "2026-10-02")]
+    c, note, branch = confirm(30.0, "Green", hist, "2026-10-06")
+    check("note: a move into the Green band still shows the same day",
+          c == "Green" and note == "Shown as Green: latest score 30.0 hasn't held over recent sessions (no reading for Mon Oct 5)", note)
     stored, missing = main._confirmation_window("optical", [], SESSIONS, D("2026-10-07"))
     check("start: an empty history names no missing days", not stored and not missing)
 
@@ -723,6 +727,30 @@ def check_window():
     stored, missing = main._confirmation_window("optical", hist, SESSIONS, D("2026-10-09"))
     check("re-run: the current session's own entry isn't a previous day",
           D("2026-10-09") not in [s for s, _, _ in stored])
+
+
+def check_bypass():
+    """R102: an unconfirmed reading doesn't turn a card Orange, Red or Blue the
+    same day; it keeps the colour shown last. Red above 80 still moves at once,
+    and a move into the Green band isn't held (Green has no confirmed branch)."""
+    days = ("2026-11-02", "2026-11-03", "2026-11-04")
+    hist = lambda col, sc: [entry(d, {"compute": (sc, col)}) for d in days]
+    cases = [("Blue", 22.0, 45.0, "Orange", "Blue", "the 5 Nov case: Blue history, the leader floor's 45.0"),
+             ("Blue", 22.0, 70.0, "Red", "Blue", "Blue history, 70"),
+             ("Orange", 50.0, 20.0, "Blue", "Orange", "Orange history, 20"),
+             ("Red", 70.0, 20.0, "Blue", "Red", "Red history, 20"),
+             ("Blue", 22.0, 81.0, "Red", "Red", "Blue history, 81: instant Red stays"),
+             ("Orange", 50.0, 30.0, "Green", "Green", "Orange history, 30: into the Green band, shown"),
+             ("Blue", 22.0, 40.0, "Green", "Green", "Blue history, 40: into the Green band, shown"),
+             ("Green", 35.0, 70.0, "Red", "Green", "Green history, 70: held Green as before")]
+    for prev, psc, today, col, want, label in cases:
+        c, note, branch = main._confirmed_color(today, col, "compute", hist(prev, psc), SESSIONS, D("2026-11-05"))
+        check(f"bypass: {label} -> {want}", c == want, f"{c} ({branch}: {note})")
+    # The kept colour is the last one shown, not the window's majority.
+    mixed = [entry("2026-11-02", {"compute": (22.0, "Blue")}), entry("2026-11-03", {"compute": (22.0, "Blue")}),
+             entry("2026-11-04", {"compute": (36.0, "Green")})]
+    c, note, branch = main._confirmed_color(70.0, "Red", "compute", mixed, SESSIONS, D("2026-11-05"))
+    check("bypass: Blue, Blue, Green then 70 keeps Green, the colour shown last", c == "Green", f"{c}: {note}")
 
 
 def check_loader(tmp):
@@ -1073,6 +1101,7 @@ def run(shots):
         check_session_dating()
         check_sessions_fetch()
         check_window()
+        check_bypass()
         check_nan_values()
         check_session_prices()
         check_data_format()
