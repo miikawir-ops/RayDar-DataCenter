@@ -1261,8 +1261,9 @@ copy and says nothing about the parent's live code.
   map, legend, side panel, *and* poster panel; every supplier category
   has exactly one stakeholder node; the "Selected stakeholder" panel is
   real. The poster's own two remaining illustration issues (arrow-color/
-  legend mismatch on waste heat and backup power & fuel; three suppliers
-  shown both standalone and inside "Equipment & Technology Suppliers")
+  legend mismatch on waste heat and backup power & fuel; four supplier
+  types (networking, storage, cooling, backup power) shown both standalone
+  and inside "Equipment & Technology Suppliers", as the page's note says)
   are called out in a short note under the poster, same as before.
 
   **Explorer-tab layout fixes**: edges now clip to each node's box
