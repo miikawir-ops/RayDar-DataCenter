@@ -225,6 +225,15 @@ def _confirmed_color(
             return dominant, note + suffix, "holding"
 
     shown = "Green" if 25 <= today_score < 45 else today_color
+    # An unconfirmed reading doesn't turn a card Orange, Red or Blue the same
+    # day (ledger R102): it keeps the colour the card showed last, until a
+    # confirmed branch above moves it (Red above 80 still moves at once).
+    # A move into the Green band isn't held: Green has no confirmed branch,
+    # so holding it would keep a card off Green indefinitely.
+    current = next((c for _, _, c in reversed(stored) if c), None)
+    if shown != "Green" and current and shown != current:
+        log.info(f"  {layer_id}: {today_color} unconfirmed -> kept {current} (R102)")
+        return current, f"Kept {current}: latest score {today_score:.1f} hasn't held over recent sessions{suffix}", "not_sustained"
     log.info(f"  {layer_id}: {today_color} -> {shown} (unconfirmed, fallback)")
     return shown, f"Shown as {shown}: latest score {today_score:.1f} hasn't held over recent sessions{suffix}", "not_sustained"
 
