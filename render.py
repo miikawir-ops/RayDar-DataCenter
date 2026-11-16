@@ -1029,7 +1029,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       </div>
     </div>
     <div style="font-size:11px;font-weight:500;color:#1A1A1A;margin-bottom:6px">Data sources</div>
-    <p style="margin-bottom:2px">Stock prices &amp; fundamentals, capex data — Yahoo Finance · News signals — Reuters, Yahoo Finance, MarketWatch, CNBC</p>
+    <p style="margin-bottom:2px">Stock prices &amp; fundamentals — Yahoo Finance · Revenue, capex and cash flow — SEC EDGAR filings, cross-checked with Yahoo Finance · News signals — Reuters, Yahoo Finance, MarketWatch, CNBC</p>
     <p style="margin-top:8px;font-size:11px;color:#B4B2A9">Quarterly financials are the latest reported quarter and can be several months old · Not financial advice · Always do your own research</p>
   </div>
   <div id="chain-wrap" style="position:relative">
