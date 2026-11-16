@@ -5,9 +5,14 @@ file the pipeline writes (scores_history.json, audit_log.json, index.html)
 goes to a temporary folder, never the repo.
 
 What it covers:
-  - drop_unfinished_bar(): today's bar is dropped until 16:00 US/Eastern,
-    on both sides of the 1 November daylight-saving change, and any trailing
-    row whose Close is NaN is dropped whatever its date (R41).
+  - completed_dates() / session_bars(): today's session counts from 16:00
+    US/Eastern, on both sides of the 1 November daylight-saving change; an
+    empty (NaN close) row still marks a session; each series is cut at the
+    run's session, and one without a usable bar for it is missing (R41, R101).
+  - Session dating (R101): the session for start times before the close,
+    just after, just after midnight UTC, Saturday, Monday morning and a
+    holiday; most companies without the session's bar fail the run; a run
+    never writes a session older than the newest stored one.
   - NaN values (R41): a NaN that reaches a computed value (30-day return,
     momentum, volume spike, macro) becomes None and is named in
     data_missing; one that still reaches the page data fails the run.
@@ -173,15 +178,14 @@ def check_nan_values():
 
     # The NaN row is dated a past session, so only the NaN rule (not the
     # unfinished-today rule) can remove it, whenever this check runs.
-    good = price_bars(130, end="2026-10-08")
-    closes = good["Adj Close"].tolist()
-    expected_30d = round(closes[-1] / closes[-21] - 1, 4)
+    # Since R101 the empty row is the session's own bar, so the prices are
+    # missing, not computed from the session before under the new date.
     d = fetch(price_bars(130, end="2026-10-08", trailing_nan=("2026-10-09",)))
-    check("ticker: with a trailing NaN row, the 30-day return is computed from the last real close",
-          d["price_30d_return"] == expected_30d and "price_30d_return" not in d["data_missing"],
-          f'{d["price_30d_return"]} vs {expected_30d}, missing {d["data_missing"]}')
-    check("ticker: with a trailing NaN row, the data date is the last real session",
-          d["data_date"] == "2026-10-08", d["data_date"])
+    check("ticker: with the session's bar empty, the 30-day return is missing and named (R101)",
+          d["price_30d_return"] is None and "price_30d_return" in d["data_missing"],
+          f'{d["price_30d_return"]}, missing {d["data_missing"]}')
+    check("ticker: with the session's bar empty, the price has no date (not the session before)",
+          d["data_date"] is None, d["data_date"])
     check("ticker: with a trailing NaN row, no value is NaN", nan_free(d))
 
     d = fetch(price_bars(130, nan_at=(-21,)))
@@ -449,36 +453,163 @@ def check_r45_inputs():
 
 
 def check_unfinished_bar():
+    """R33b/R41/R101: which dates count as completed sessions, and where a series is cut."""
     h = bars(["2026-10-08", "2026-10-09", "2026-10-12"])
     at = lambda s: datetime.datetime.fromisoformat(s).replace(tzinfo=UTC)
-    check("bar: Monday 15:00 ET (19:00 UTC) drops today's bar",
-          len(fetch_market.drop_unfinished_bar(h, at("2026-10-12T19:00"))) == 2)
-    check("bar: Monday 16:05 ET (20:05 UTC) keeps today's bar",
-          len(fetch_market.drop_unfinished_bar(h, at("2026-10-12T20:05"))) == 3)
+    done = lambda b, t: fetch_market.completed_dates(b.index, at(t))
+    check("bar: Monday 15:00 ET (19:00 UTC): today's session isn't complete",
+          done(h, "2026-10-12T19:00")[-1] == D("2026-10-09"))
+    check("bar: Monday 16:05 ET (20:05 UTC): today's session is complete",
+          done(h, "2026-10-12T20:05")[-1] == D("2026-10-12"))
     h2 = bars(["2026-10-08", "2026-10-09"])
-    check("bar: Saturday keeps Friday's bar",
-          len(fetch_market.drop_unfinished_bar(h2, at("2026-10-10T10:00"))) == 2)
+    check("bar: Saturday: Friday is the last session", done(h2, "2026-10-10T10:00")[-1] == D("2026-10-09"))
     h3 = bars(["2026-10-30", "2026-11-02"])
-    check("bar: after 1 Nov, 20:30 UTC is 15:30 EST and drops today's bar",
-          len(fetch_market.drop_unfinished_bar(h3, at("2026-11-02T20:30"))) == 1)
-    check("bar: after 1 Nov, 21:05 UTC is 16:05 EST and keeps today's bar",
-          len(fetch_market.drop_unfinished_bar(h3, at("2026-11-02T21:05"))) == 2)
+    check("bar: after 1 Nov, 20:30 UTC is 15:30 EST: today isn't complete",
+          done(h3, "2026-11-02T20:30")[-1] == D("2026-10-30"))
+    check("bar: after 1 Nov, 21:05 UTC is 16:05 EST: today is complete",
+          done(h3, "2026-11-02T21:05")[-1] == D("2026-11-02"))
 
-    # R41: a trailing row without a Close goes, whatever its date.
-    sat = at("2026-10-10T00:08")                      # the parent's Saturday 00:08 UTC run
+    # R101: an empty (NaN close) row still marks a session that happened, and a
+    # series is cut at the run's session; without a usable bar for it the
+    # series is missing, never the bar before under the new date.
     h4 = price_bars(30, end="2026-10-08", trailing_nan=("2026-10-09",))
-    kept = fetch_market.drop_unfinished_bar(h4, sat)
-    check("bar: a trailing NaN row dated a past session is dropped",
-          len(kept) == 30 and kept.index[-1].date() == D("2026-10-08"), str(kept.index[-1].date()))
-    h5 = price_bars(30, end="2026-10-09", trailing_nan=("2026-10-12",))
-    check("bar: a trailing NaN row dated today is dropped even after the close",
-          len(fetch_market.drop_unfinished_bar(h5, at("2026-10-12T20:05"))) == 30)
+    check("bar: an empty row dated a past session still counts as that session",
+          done(h4, "2026-10-10T00:08")[-1] == D("2026-10-09"))
+    kept, ok = fetch_market.session_bars(h4, D("2026-10-09"))
+    check("bar: a series whose session bar is empty has no bar for the session (not the day before)",
+          not ok and kept.index[-1].date() == D("2026-10-08"), f"{ok}, {kept.index[-1].date()}")
+    kept, ok = fetch_market.session_bars(price_bars(30, end="2026-10-12"), D("2026-10-09"))
+    check("bar: bars after the session are cut (a pre-market bar, or a run keyed to Friday)",
+          ok and kept.index[-1].date() == D("2026-10-09"), f"{ok}, {kept.index[-1].date()}")
     h6 = price_bars(30, end="2026-10-07", trailing_nan=("2026-10-08", "2026-10-09"))
-    check("bar: two trailing NaN rows are both dropped",
-          len(fetch_market.drop_unfinished_bar(h6, sat)) == 30)
+    kept, ok = fetch_market.session_bars(h6, D("2026-10-09"))
+    check("bar: two trailing empty rows are both dropped, and the session is missing",
+          not ok and len(kept) == 30)
     h7 = price_bars(30, nan_at=(-10,))
-    check("bar: a NaN in the middle is left for the value checks (only trailing rows go)",
-          len(fetch_market.drop_unfinished_bar(h7, sat)) == 30)
+    kept, ok = fetch_market.session_bars(h7, D("2026-10-09"))
+    check("bar: a NaN in the middle is left for the value checks (only trailing rows go)", ok and len(kept) == 30)
+
+
+def check_session_dating():
+    """R101: the session a run's data is keyed to, for the start times Ray listed.
+    Week of Mon 9 Nov 2026 (EST, ET = UTC-5); the old rule is the pre-R101
+    drop-trailing-NaN calendar, shown for the midnight case it got wrong."""
+    at = lambda s: datetime.datetime.fromisoformat(s).replace(tzinfo=UTC)
+
+    def gspc(dates, empty=()):
+        b = bars(dates).astype(float)
+        for d in empty:
+            b.loc[pd.Timestamp(d).tz_localize("America/New_York"), "Close"] = float("nan")
+        return b
+
+    def session(b, t):
+        return with_stub(StubTicker(b), lambda: fetch_market.fetch_trading_sessions(at(t)))[-1]
+
+    week = ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-09", "2026-11-10"]
+    cases = [
+        ("before the close: Tue 19:10 UTC (14:10 ET), today's bar partial", gspc(week), "2026-11-10T19:10", "2026-11-09"),
+        ("just after the close: Tue 21:05 UTC (16:05 ET)", gspc(week), "2026-11-10T21:05", "2026-11-10"),
+        ("just after midnight UTC: Wed 01:17 UTC (Tue 20:17 ET), Tuesday's bar empty",
+         gspc(week, empty=("2026-11-10",)), "2026-11-11T01:17", "2026-11-10"),
+        ("Wednesday before the open: 08:00 UTC (03:00 ET)", gspc(week), "2026-11-11T08:00", "2026-11-10"),
+        ("Saturday 15:00 UTC", gspc(["2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13"]),
+         "2026-11-14T15:00", "2026-11-13"),
+        ("Saturday 00:57 UTC (Fri 19:57 ET), Friday's bar empty",
+         gspc(["2026-11-11", "2026-11-12", "2026-11-13"], empty=("2026-11-13",)), "2026-11-14T00:57", "2026-11-13"),
+        ("Monday morning 08:00 UTC (03:00 ET), no Monday row yet",
+         gspc(["2026-11-11", "2026-11-12", "2026-11-13"]), "2026-11-16T08:00", "2026-11-13"),
+        ("Monday morning 13:00 UTC (08:00 ET), an empty pre-market Monday row",
+         gspc(["2026-11-12", "2026-11-13", "2026-11-16"], empty=("2026-11-16",)), "2026-11-16T13:00", "2026-11-13"),
+        ("Thanksgiving Thu 26 Nov 22:00 UTC: no Thursday row, Wednesday is the session",
+         gspc(["2026-11-23", "2026-11-24", "2026-11-25"]), "2026-11-26T22:00", "2026-11-25"),
+        ("summer time: Mon 12 Oct 20:05 UTC is 16:05 EDT", gspc(["2026-10-08", "2026-10-09", "2026-10-12"]),
+         "2026-10-12T20:05", "2026-10-12"),
+    ]
+    for label, b, t, want in cases:
+        got = session(b, t)
+        check(f"session: {label} -> {want}", got == D(want), str(got))
+
+    # The old rule on the midnight case dropped Tuesday's empty row and keyed the run to
+    # Monday, rewriting Monday's stored entry with the later news (what R101 fixes).
+    b = gspc(week, empty=("2026-11-10",))
+    old = [ts.date() for ts, c in zip(b.index, b["Close"]) if not (ts == b.index[-1] and c != c)]
+    check("session: the old rule keyed the midnight case to Mon 9 Nov (for the record)", old[-1] == D("2026-11-09"))
+
+    # Prices for that session: a company with an empty session bar is missing, never Monday's close.
+    fetch = lambda hist, sess: with_stub(FullStub(hist), lambda: fetch_market.fetch_ticker_data(
+        "TST", [], ["cooling"], session=D(sess)))
+    d = fetch(price_bars(130, end="2026-11-09", trailing_nan=("2026-11-10",)), "2026-11-10")
+    check("prices: with no bar for the session, price, 30-day return and momentum are missing and named",
+          d["price"] is None and d["price_30d_return"] is None and d["price_momentum"] is None
+          and {"price", "price_30d_return", "price_momentum"} <= set(d["data_missing"]) and nan_free(d),
+          str(d["data_missing"]))
+    check("prices: ... and the price has no date (not Monday's)", d["data_date"] is None, str(d["data_date"]))
+    d = fetch(price_bars(130, end="2026-11-10"), "2026-11-10")
+    check("prices: with the session's bar, the price is that session's", d["data_date"] == "2026-11-10"
+          and d["price"] is not None and d["_session_bar"], str(d["data_date"]))
+    d = fetch(price_bars(130, end="2026-11-10"), "2026-11-09")
+    check("prices: a run keyed to Monday ignores Tuesday's bar", d["data_date"] == "2026-11-09", str(d["data_date"]))
+
+    stubs = {"^VIX": FullStub(price_bars(5, end="2026-11-10", trailing_nan=("2026-11-11",))),
+             "^TNX": FullStub(price_bars(35, end="2026-11-09", trailing_nan=("2026-11-10",))),
+             "^IXIC": FullStub(price_bars(25, end="2026-11-10")), "^GSPC": FullStub(price_bars(25, end="2026-11-10"))}
+    m = with_stub(lambda symbol: stubs[symbol], lambda: fetch_market.fetch_macro(session=D("2026-11-10")))
+    check("macro: VIX's empty row for the next day is cut, its session close kept",
+          m["vix"] == round(float(stubs["^VIX"].hist["Close"].iloc[-2]), 2), str(m["vix"]))
+    check("macro: a series without the session's bar is missing (the 10-year yield), the others kept",
+          m["yield_10y_change"] is None and "yield_10y_change" in m["data_missing"] and m["nasdaq_vs_spx_20d"] is not None,
+          str(m))
+
+    # The whole run: most companies without the session's bar fails it; one company doesn't.
+    tickers = [t for layer in SUB_LAYERS.values() for t in layer["tickers"]]
+
+    def pipeline(empty_for):
+        good, bad = price_bars(130, end="2026-11-10"), price_bars(130, end="2026-11-09", trailing_nan=("2026-11-10",))
+        real = (fetch_market.fetch_all_headlines, fetch_market.check_fields, fetch_market.apply_growth_history)
+        fetch_market.fetch_all_headlines = lambda: ([], set(), [])
+        fetch_market.check_fields = lambda t: None
+        fetch_market.apply_growth_history = lambda r: None
+        try:
+            return with_stub(lambda sym: FullStub(bad if sym in empty_for else good),
+                             lambda: fetch_market.run_pipeline(session=D("2026-11-10")))
+        finally:
+            fetch_market.fetch_all_headlines, fetch_market.check_fields, fetch_market.apply_growth_history = real
+
+    try:
+        pipeline(set(tickers))
+        check("run: every company without the session's bar fails the run (the 01:17 UTC case)", False, "no exception")
+    except fetch_market.SessionDataError:
+        check("run: every company without the session's bar fails the run (the 01:17 UTC case)", True)
+    out = pipeline({tickers[0]})
+    one = [t for ts in out["sub_layers"].values() for t in ts if t["ticker"] == tickers[0]]
+    check("run: one company without the session's bar is missing its prices, the run goes on",
+          one and one[0]["price"] is None and "_session_bar" not in one[0], str(one and one[0].get("data_missing")))
+
+    # stage_fetch: the run-level error isn't swallowed into an empty page, and an older session is refused.
+    real_rp, real_load = fetch_market.run_pipeline, render.load_scores_history
+
+    def raise_session_error(*a, **k):
+        raise fetch_market.SessionDataError("no session bars")
+
+    # Sessions ending yesterday, so the calendar's 7-day staleness check passes whenever this runs.
+    recent = [d.date() for d in pd.bdate_range(end=datetime.date.today() - datetime.timedelta(days=1), periods=5)]
+    stub_gspc = StubTicker(gspc(recent))
+    try:
+        fetch_market.run_pipeline = raise_session_error
+        render.load_scores_history = lambda: []
+        try:
+            with_stub(stub_gspc, main.stage_fetch)
+            check("stage_fetch: missing session bars fail the run (not an empty page)", False, "returned")
+        except fetch_market.SessionDataError:
+            check("stage_fetch: missing session bars fail the run (not an empty page)", True)
+        render.load_scores_history = lambda: [{"date": "2099-01-01"}]
+        try:
+            with_stub(stub_gspc, main.stage_fetch)
+            check("stage_fetch: a session older than the newest stored one is refused", False, "returned")
+        except RuntimeError as e:
+            check("stage_fetch: a session older than the newest stored one is refused", "older than" in str(e), str(e))
+    finally:
+        fetch_market.run_pipeline, render.load_scores_history = real_rp, real_load
 
 
 def check_sessions_fetch():
@@ -939,6 +1070,7 @@ def run(shots):
     real_file = render.SCORES_HISTORY_FILE
     try:
         check_unfinished_bar()
+        check_session_dating()
         check_sessions_fetch()
         check_window()
         check_nan_values()

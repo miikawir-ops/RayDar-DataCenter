@@ -312,23 +312,32 @@ def stage_fetch() -> tuple[dict, dict]:
     is dated by session and confirmation needs to know which sessions to
     expect. meta["session"] is the last completed session (ISO date), and
     meta["sessions"] the calendar it came from.
+
+    A run never writes a session older than the newest one already stored,
+    and fails if most companies have no bar for its session (ledger R101):
+    either way it would put one session's data under another's date.
     """
     log.info("[1/2] Fetching market data...")
-    from fetch_market import fetch_trading_sessions, SchemaError
+    from fetch_market import fetch_trading_sessions, SchemaError, SessionDataError
+    from render import load_scores_history
     sessions = fetch_trading_sessions()
     session_meta = {"session": sessions[-1].isoformat(),
                     "sessions": [s.isoformat() for s in sessions]}
     log.info(f"  Session: {session_meta['session']} (last completed US session)")
+    newest = max((e.get("date", "") for e in load_scores_history()), default="")
+    if session_meta["session"] < newest:
+        raise RuntimeError(f"Session {session_meta['session']} is older than the newest stored session "
+                           f"{newest}: refusing to rewrite an earlier session (ledger R101)")
     try:
         from fetch_market import run_pipeline, fetch_macro
-        market_data = run_pipeline()
-        macro_data  = fetch_macro()
+        market_data = run_pipeline(session=sessions[-1])
+        macro_data  = fetch_macro(session=sessions[-1])
         market_data.setdefault("meta", {}).update(session_meta)
         log.info(f"  Fetched {len(market_data.get('sub_layers', {}))} sub-layers, "
                  f"macro: VIX={macro_data.get('vix')}")
         return market_data, macro_data
-    except SchemaError:
-        raise           # a data-format change fails the run (ledger R44)
+    except (SchemaError, SessionDataError):
+        raise           # a data-format change (ledger R44) or missing session bars (R101) fail the run
     except Exception as e:
         log.error(f"  Fetch failed: {e} — no data this run")
         empty_macro = {
