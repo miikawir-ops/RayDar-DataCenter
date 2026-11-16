@@ -874,6 +874,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   .heat-lbl{{font-size:11px;padding-right:4px}}
   .heat-day{{font-size:11px}}
   .heat-cell{{height:13px}}
+  .heat-grid--dense{{gap:1px}}
   .meth-trigger{{padding:8px 10px}}
   .sigs{{grid-template-columns:1fr}}
   #bottleneck-strip{{font-size:11px;padding:5px 8px;gap:5px}}
@@ -1526,8 +1527,11 @@ function buildHeat() {{
   g.innerHTML = "";
   const days    = currentHeatDays;
   const slice   = HISTORY.days.slice(HISTORY.days.length - days);
-  const cellMin = days<=7?"32px":days<=30?"12px":"6px";
+  // 30 and 90 days shrink to the card's width instead of widening the page
+  // on phones (ledger R102: 90 days was 403px too wide at 390px).
+  const cellMin = days<=7?"32px":"0px";
   g.style.gridTemplateColumns = `56px repeat(${{days}}, minmax(${{cellMin}},1fr))`;
+  g.classList.toggle("heat-grid--dense", days > 7);
 
   g.appendChild(document.createElement("div"));
   const showEvery = days<=7?1:days<=30?5:15;
