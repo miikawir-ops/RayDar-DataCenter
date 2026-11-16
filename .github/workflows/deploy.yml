@@ -12,9 +12,15 @@ name: Deploy RayDar Data Center dashboard
 
 on:
   schedule:
-    # 12:00 UTC, weekdays — ~7-8am US Eastern. Decision #7: daily-only to
-    # start. Adjust anytime; not a load-bearing choice.
-    - cron: "0 12 * * 1-5"
+    # After the US close (21:00 UTC in winter, 20:00 in summer), on off-hour
+    # minutes: GitHub says scheduled runs at the start of an hour are the
+    # most delayed, and the 12:00 run started 7-10 hours late in November
+    # (ledger R101). The second run is a backup if the first is dropped or
+    # late: both belong to the same session, so the later one replaces the
+    # entry, and a run that slips into Yahoo's empty-bar window after 00:00
+    # UTC fails instead of writing the wrong session (R101 A).
+    - cron: "23 22 * * 1-5"
+    - cron: "41 23 * * 1-5"
   # Code and published files only: PLAN.md, CLAUDE.md, CHANGELOG.md, the spec
   # and docs/ don't deploy. The save job's pushes go to the data branch and
   # use GITHUB_TOKEN, so they can't trigger this (branch filter, and
