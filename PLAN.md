@@ -1132,6 +1132,19 @@ copy and says nothing about the parent's live code.
 
 ## Known issues (recorded, not fixed)
 
+- **No entry for Fri 2026-11-06 in scores_history.json (ledger R101 C; not
+  backfilled).** No run happened between that session's close and the next
+  one's: Friday's scheduled run started 18:50 UTC, before the close, and
+  scored Thursday; Monday's started 21:53 UTC, after the close, and scored
+  Monday. The day's news velocity can't be reconstructed, so the gap stays.
+  Verified on the real history (2026-11-16): the calendar has 6 Nov, the
+  history doesn't, and confirmation for 9, 10 and 11 Nov leaves it out of
+  the window, names it ("no reading for Fri Nov 6"), never counts it as 0,
+  and confirms on 2 of 2 available sessions; every result matches the
+  stored colour. Fri 2026-11-13 is stored, but from the R101 A push run on
+  Mon 2026-11-16 19:01 UTC (Friday's closes, Monday's news), like every
+  run before the close. The new schedule (R101 B) runs after each close.
+
 - **`python fetch_market.py --news` crashes on Windows with
   `UnicodeEncodeError`.** The CLI output uses `█` (news-velocity bars) and
   `×` (weight labels); Windows terminals default to the `cp1252` codepage,
