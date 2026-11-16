@@ -347,6 +347,9 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
 /* -- Compact (tablet and phone) -------------------------------------------- */
 @media (max-width:1023px){
   .bm-bar,.bm-steps{padding:0 var(--gutter);gap:12px}
+  /* The steps keep their width; only the current page's name gives way, so a
+     long name ("Wholesale-colocation" at 360px) can't slide over step 5 (R101 E). */
+  .bm-steps ol{flex-shrink:0}
   .bm-steps li:not(:last-child)::after{width:8px;margin:0 4px}
   .bm-step{padding:2px}
   .bm-step-name{display:none}

@@ -642,7 +642,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
            background:rgba(255,255,255,.15);cursor:pointer;position:relative}}
 .reg-pill:hover .reg-tooltip,.reg-pill:focus .reg-tooltip{{display:block}}
 .reg-tooltip{{display:none;position:absolute;top:calc(100% + 8px);right:0;
-              background:#1A1A1A;color:#F8F8F7;font-size:10px;line-height:1.6;
+              background:#1A1A1A;color:#F8F8F7;font-size:11px;line-height:1.6;
               padding:10px 12px;border-radius:6px;width:260px;z-index:200;
               font-weight:400;box-shadow:0 4px 16px rgba(0,0,0,.4);text-align:left}}
 .reg-tooltip::before{{content:"";position:absolute;bottom:100%;right:16px;
@@ -651,9 +651,9 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .hm-grid{{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:relative}}
 .hm-card{{background:rgba(255,255,255,.07);border:0.5px solid rgba(133,183,235,0.2);
           border-radius:8px;padding:5px 12px 6px}}
-.hm-lbl{{font-size:9px;color:#85B7EB;margin-bottom:1px;letter-spacing:.06em;font-weight:500}}
+.hm-lbl{{font-size:11px;color:#85B7EB;margin-bottom:1px;letter-spacing:.06em;font-weight:500}}
 .hm-val{{font-size:14px;font-weight:500;color:#fff;line-height:1.1}}
-.hm-note{{font-size:9px;margin-top:1px;line-height:1.1}}
+.hm-note{{font-size:11px;margin-top:1px;line-height:1.1}}
 .body{{padding:16px 16px 0;margin-top:0;position:relative;
        background:linear-gradient(180deg,#0E1628 0%,#101C32 40%,#13182A 75%,#0F1420 100%);
        min-height:100vh}}
@@ -662,38 +662,38 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 /* Key for the ticker rows (ledger R63): the arrow is the revenue-growth trend,
    not the price, and the percentage is the 30-day share price change. */
 .key-col{{display:flex;flex-direction:column;align-items:flex-end;gap:4px}}
-.trend-key{{font-size:10px;color:#6A7A9A}}
+.trend-key{{font-size:11px;color:#6A7A9A}}
 @media(max-width:768px){{ .key-col{{align-items:flex-start}} }}
-.card-label{{font-size:10px;font-weight:500;color:#888780;
+.card-label{{font-size:11px;font-weight:500;color:#888780;
              letter-spacing:.05em;margin-bottom:12px}}
 /* Section heading on a white card (ledger R59 item 2): dark navy, the page's
    own background colour. It was pale blue (#C8D4E8), styled for the dark
    hero, which left it nearly invisible on white. */
 .section-heading{{margin:0;font-size:20px;font-weight:700;line-height:1.25;
                   letter-spacing:-0.01em;color:#0E1628}}
-.fetch-note{{font-size:10px;color:#B4B2A9;margin-top:4px}}
+.fetch-note{{font-size:11px;color:#B4B2A9;margin-top:4px}}
 .layer{{flex:1;min-width:120px;width:148px;border:1.5px solid;border-radius:10px;
         padding:11px 10px;cursor:pointer;transition:transform .1s,box-shadow .1s}}
 .layer:hover{{transform:translateY(-2px)}}
 .chain-arrow{{display:flex;align-items:center;padding:20px 3px 0;flex-shrink:0}}
 .layer.insufficient{{border-style:dashed}}
-.lyr-pill{{font-size:9px;font-weight:500;padding:2px 8px;border-radius:10px;
+.lyr-pill{{font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;
            display:inline-block;margin-bottom:6px}}
 .lyr-name{{font-size:11px;font-weight:500;color:#1A1A1A;margin-bottom:2px;line-height:1.3}}
 .lyr-score{{font-size:28px;font-weight:500;line-height:1;margin:5px 0 2px}}
-.lyr-delta{{font-size:10px;margin-bottom:4px;display:flex;align-items:center;gap:4px}}
+.lyr-delta{{font-size:11px;margin-bottom:4px;display:flex;align-items:center;gap:4px}}
 .lyr-bar{{height:3px;border-radius:2px;background:rgba(0,0,0,.08);margin-bottom:8px}}
 .lyr-fill{{height:3px;border-radius:2px}}
-.lyr-meta{{font-size:10px;color:#888780;margin-bottom:8px}}
+.lyr-meta{{font-size:11px;color:#888780;margin-bottom:8px}}
 /* Colour-confirmation note per sub-layer, and the page line shown while any
    sub-layer is unconfirmed for lack of history (ledger R30). Neutral grey,
    not a signal colour. */
-.lyr-note{{font-size:9.5px;color:#6E6D68;line-height:1.35;margin:-4px 0 8px}}
+.lyr-note{{font-size:11px;color:#6E6D68;line-height:1.35;margin:-4px 0 8px}}
 .single-day-note{{font-size:11px;color:#5F5E5A;background:#F1EFE8;border-left:2px solid #B4B2A9;
                   border-radius:0 6px 6px 0;padding:6px 10px;margin-bottom:8px}}
 .lyr-tickers{{border-top:1px solid rgba(0,0,0,.06);padding-top:7px;
               display:flex;flex-direction:column;gap:4px}}
-.lyr-tk{{display:flex;justify-content:space-between;font-size:10px;font-weight:500}}
+.lyr-tk{{display:flex;justify-content:space-between;font-size:11px;font-weight:500}}
 .expand{{border:0.5px solid #E0DFDC;border-radius:10px;padding:14px;
          margin-top:10px;background:#F8F8F7;display:none}}
 .expand.open{{display:block}}
@@ -704,18 +704,18 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .ex-grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}}
 .ex-tk{{background:white;border:0.5px solid #E0DFDC;border-radius:8px;padding:10px}}
 .ex-sym{{font-size:13px;font-weight:500;color:#1A1A1A}}
-.ex-name{{font-size:10px;color:#888780;margin:2px 0 6px}}
-.ex-row{{display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px}}
+.ex-name{{font-size:11px;color:#888780;margin:2px 0 6px}}
+.ex-row{{display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px}}
 .ex-lbl{{color:#888780}}
 .heat-grid{{display:grid;grid-template-columns:56px repeat(7,1fr);
             gap:3px;align-items:center;margin-top:14px}}
-.heat-lbl{{font-size:10px;color:#888780;text-align:right;padding-right:8px}}
+.heat-lbl{{font-size:11px;color:#888780;text-align:right;padding-right:8px}}
 .hbtn{{font-size:12px;font-weight:500;padding:5px 14px;border:none;border-radius:5px;
        background:transparent;color:#378ADD;cursor:pointer;transition:all .15s}}
 .hbtn:hover{{background:white;color:#0C447C}}
 .active-hbtn{{background:white!important;color:#0C447C!important;font-weight:600!important;
               box-shadow:0 1px 4px rgba(12,68,124,.2)}}
-.heat-day{{font-size:9px;color:#B4B2A9;text-align:center}}
+.heat-day{{font-size:11px;color:#B4B2A9;text-align:center}}
 .heat-cell{{height:18px;border-radius:3px}}
 .meth-trigger{{display:flex;justify-content:space-between;align-items:center;
                cursor:pointer;padding:14px 16px;background:#E6F1FB;
@@ -727,23 +727,23 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .meth-body.open{{display:block}}
 .mc{{padding:8px 10px;border-radius:7px;border:0.5px solid;margin-bottom:6px}}
 .mc-name{{font-size:11px;font-weight:500;margin-bottom:3px}}
-.mc-desc{{font-size:10px;line-height:1.5}}
+.mc-desc{{font-size:11px;line-height:1.5}}
 .sigs{{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}}
 .sig{{border:0.5px solid #E0DFDC;border-radius:8px;padding:10px}}
 .sig-icon{{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;
            justify-content:center;font-size:12px;margin-bottom:6px}}
 .sig-name{{font-size:11px;font-weight:500;color:#1A1A1A;margin-bottom:4px}}
-.sig-items{{font-size:10px;color:#5F5E5A;line-height:1.7}}
+.sig-items{{font-size:11px;color:#5F5E5A;line-height:1.7}}
 .override{{background:#F8F8F7;border-left:2px solid #B4B2A9;border-radius:0 6px 6px 0;
-           padding:8px 10px;font-size:10px;color:#5F5E5A;line-height:1.6;margin-bottom:12px}}
-.ip-note{{font-size:10px;color:#B4B2A9;text-align:center;line-height:1.6}}
+           padding:8px 10px;font-size:11px;color:#5F5E5A;line-height:1.6;margin-bottom:12px}}
+.ip-note{{font-size:11px;color:#B4B2A9;text-align:center;line-height:1.6}}
 .div-flag{{display:inline-flex;align-items:center;gap:4px;background:#FFF3CD;
            border:0.5px solid #EF9F27;border-radius:4px;padding:2px 6px;
-           font-size:9px;font-weight:500;color:#633806;cursor:pointer;
+           font-size:11px;font-weight:500;color:#633806;cursor:pointer;
            margin-top:4px;position:relative}}
 .div-flag:hover .div-tooltip,.div-flag:focus .div-tooltip{{display:block}}
 .div-tooltip{{display:none;position:absolute;bottom:calc(100% + 6px);left:0;
-              background:#1A1A1A;color:#F8F8F7;font-size:10px;line-height:1.5;
+              background:#1A1A1A;color:#F8F8F7;font-size:11px;line-height:1.5;
               padding:8px 10px;border-radius:6px;width:220px;z-index:100;
               font-weight:400;box-shadow:0 4px 12px rgba(0,0,0,.3)}}
 .div-tooltip::after{{content:"";position:absolute;top:100%;left:12px;
@@ -753,7 +753,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .rating-C{{background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27;font-weight:600}}
 .rating-D{{background:#FCEBEB;color:#791F1F;border:0.5px solid #E24B4A;font-weight:600}}
 .rating-na{{background:#F1EFE8;color:#888780;border:0.5px solid #B4B2A9;font-weight:500}}
-.rating-badge{{font-size:10px;padding:1px 6px;border-radius:4px;display:inline-block}}
+.rating-badge{{font-size:11px;padding:1px 6px;border-radius:4px;display:inline-block}}
 .ticker-band{{background:#05050F;border-top:0.5px solid rgba(83,74,183,0.35);border-bottom:none;
               overflow:hidden;padding:5px 0;position:relative;z-index:10}}
 .ticker-scroll{{display:flex;white-space:nowrap;animation:ticker-move 28s linear infinite}}
@@ -779,6 +779,9 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
           border:1px solid rgba(255,255,255,.3);color:#fff;font-size:11px;font-weight:500;
           padding:5px 14px;border-radius:20px;cursor:pointer;transition:background .15s}}
 .pdf-btn:hover{{background:rgba(255,255,255,.25)}}
+/* Tap targets (R101 E): at least 24px tall everywhere, 40px on touch screens. */
+.pdf-btn,.hbtn{{min-height:24px;box-sizing:border-box}}
+@media (pointer:coarse){{.pdf-btn,.hbtn{{min-height:40px}}}}
 .capex-strip{{background:linear-gradient(135deg,#1A1830,#0F1A2E);border:1px solid rgba(175,169,236,0.35);
              border-radius:10px;padding:14px 16px;margin-bottom:12px;color:#E8E6DF}}
 .capex-strip.insufficient{{opacity:0.75;border-style:dashed}}
@@ -805,7 +808,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .fl-text{{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}}
 .fl-title{{font-size:13.5px;font-weight:700}}
 .fl-sub{{font-size:11.5px;color:#C8D4E8}}
-.fl-tag{{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;letter-spacing:.06em;
+.fl-tag{{display:inline-block;margin-left:7px;font-size:11px;font-weight:700;letter-spacing:.06em;
          color:#0C1A3A;background:#85B7EB;padding:1px 6px;border-radius:5px;vertical-align:1px}}
 .fl-open{{flex-shrink:0;font-size:12px;font-weight:700;color:#fff;white-space:nowrap;padding:6px 13px;
           border-radius:999px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.4);
@@ -823,20 +826,20 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   .family-link:hover{{transform:none}}
 }}
 @media(max-width:768px){{ .family-links{{grid-template-columns:1fr}} }}
-.capex-lbl{{font-size:10px;font-weight:500;color:#AFA9EC;letter-spacing:.06em;margin-bottom:6px}}
+.capex-lbl{{font-size:11px;font-weight:500;color:#AFA9EC;letter-spacing:.06em;margin-bottom:6px}}
 .capex-dir{{font-size:18px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}}
 .capex-meta{{font-size:11px;color:#8A9AB8;margin-bottom:10px}}
 .capex-fund{{font-size:11px;color:#C8D4E8;line-height:1.5;margin:-4px 0 10px}}
 .capex-cos{{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}}
 .capex-co{{background:rgba(255,255,255,.06);border:0.5px solid rgba(175,169,236,0.3);border-radius:8px;
-          padding:5px 9px;font-size:10px;color:#C8D4E8}}
+          padding:5px 9px;font-size:11px;color:#C8D4E8}}
 .capex-co b{{color:#fff}}
 .capex-off{{border-color:#EF9F27;color:#FAC775}}
 .capex-chips{{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}}
 .capex-chip{{background:rgba(255,255,255,.06);border:0.5px solid rgba(175,169,236,0.3);
-            border-radius:8px;padding:6px 10px;font-size:10px;color:#C8D4E8}}
+            border-radius:8px;padding:6px 10px;font-size:11px;color:#C8D4E8}}
 .capex-chip b{{color:#fff}}
-.capex-caveat{{font-size:9px;color:#6A7A9A;line-height:1.5}}
+.capex-caveat{{font-size:11px;color:#6A7A9A;line-height:1.5}}
 @media print{{
   .pdf-btn,.meth-trigger,.meth-body,.expand{{display:none!important}}
   .hero{{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
@@ -854,29 +857,29 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   .hero{{padding:14px 12px 16px}}
   .hero-title{{font-size:15px}}
   .hero-title span:first-child{{font-size:22px!important}}
-  .hero-sub{{font-size:10px}}
+  .hero-sub{{font-size:11px}}
   .hm-grid{{grid-template-columns:1fr 1fr;gap:5px}}
   .hm-val{{font-size:13px}}
-  .hm-lbl,.hm-note{{font-size:9px}}
+  .hm-lbl,.hm-note{{font-size:11px}}
   .body{{padding:8px 8px 0;margin-top:0}}
   .card{{padding:10px 8px;border-radius:8px;margin-bottom:8px}}
-  .card-label{{font-size:9px;margin-bottom:6px}}
+  .card-label{{font-size:11px;margin-bottom:6px}}
   .layer{{min-width:120px;max-width:150px;padding:8px 7px}}
   .lyr-score{{font-size:20px}}
-  .lyr-name{{font-size:9px}}
-  .lyr-pill{{font-size:8px;padding:1px 5px}}
-  .lyr-meta{{font-size:9px}}
-  .lyr-tk{{font-size:9px}}
+  .lyr-name{{font-size:11px}}
+  .lyr-pill{{font-size:11px;padding:1px 5px}}
+  .lyr-meta{{font-size:11px}}
+  .lyr-tk{{font-size:11px}}
   .heat-grid{{grid-template-columns:40px repeat(7,1fr);gap:2px;margin-top:10px}}
-  .heat-lbl{{font-size:9px;padding-right:4px}}
-  .heat-day{{font-size:8px}}
+  .heat-lbl{{font-size:11px;padding-right:4px}}
+  .heat-day{{font-size:11px}}
   .heat-cell{{height:13px}}
   .meth-trigger{{padding:8px 10px}}
   .sigs{{grid-template-columns:1fr}}
-  #bottleneck-strip{{font-size:10px;padding:5px 8px;gap:5px}}
-  .footer{{font-size:9px}}
-  .pdf-btn{{font-size:9px;padding:3px 8px}}
-  .reg-pill{{font-size:9px;padding:3px 8px}}
+  #bottleneck-strip{{font-size:11px;padding:5px 8px;gap:5px}}
+  .footer{{font-size:11px}}
+  .pdf-btn{{font-size:11px;padding:3px 8px}}
+  .reg-pill{{font-size:11px;padding:3px 8px}}
   .ex-grid{{grid-template-columns:1fr 1fr}}
   .hero-top{{gap:6px}}
   #hero-chain-status{{flex-wrap:wrap}}
@@ -980,7 +983,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">
     <h2 class="section-heading">Data center infrastructure — signal scores</h2>
     <div class="key-col">
-    <div style="display:flex;gap:12px;font-size:10px;color:#8A9AB8;align-items:center;flex-wrap:wrap">
+    <div style="display:flex;gap:12px;font-size:11px;color:#8A9AB8;align-items:center;flex-wrap:wrap">
       <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#E24B4A;margin-right:4px"></span>Hot / bottleneck</span>
       <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#EF9F27;margin-right:4px"></span>Emerging</span>
       <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#639922;margin-right:4px"></span>Neutral / healthy</span>
@@ -1026,7 +1029,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     </div>
     <div style="font-size:11px;font-weight:500;color:#1A1A1A;margin-bottom:6px">Data sources</div>
     <p style="margin-bottom:2px">Stock prices &amp; fundamentals, capex data — Yahoo Finance · News signals — Reuters, Yahoo Finance, MarketWatch, CNBC</p>
-    <p style="margin-top:8px;font-size:10px;color:#B4B2A9">Quarterly financials are the latest reported quarter and can be several months old · Not financial advice · Always do your own research</p>
+    <p style="margin-top:8px;font-size:11px;color:#B4B2A9">Quarterly financials are the latest reported quarter and can be several months old · Not financial advice · Always do your own research</p>
   </div>
   <div id="chain-wrap" style="position:relative">
     <div style="display:flex;align-items:stretch;gap:0" id="chain"></div>
@@ -1041,7 +1044,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
           <button onclick="setHeatDays(30)" id="hbtn-30" class="hbtn">30d</button>
           <button onclick="setHeatDays(90)" id="hbtn-90" class="hbtn">90d</button>
         </div>
-        <div style="font-size:10px;font-weight:500;color:#888780" id="heat-label">Signal heat trail</div>
+        <div style="font-size:11px;font-weight:500;color:#888780" id="heat-label">Signal heat trail</div>
       </div>
     </div>
     <div class="heat-grid" id="heat"></div>
@@ -1051,7 +1054,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 <div class="meth-trigger" onclick="toggleMeth()">
   <div style="display:flex;align-items:center;gap:8px">
     <span style="font-size:12px;font-weight:500;color:#1A1A1A">How to read this dashboard</span>
-    <span style="font-size:10px;padding:1px 7px;border:0.5px solid #E0DFDC;border-radius:8px;color:#888780">methodology</span>
+    <span style="font-size:11px;padding:1px 7px;border:0.5px solid #E0DFDC;border-radius:8px;color:#888780">methodology</span>
   </div>
   <span style="font-size:11px;color:#B4B2A9" id="marrow">▾</span>
 </div>
@@ -1074,13 +1077,13 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     <div class="mc-desc" style="color:#185FA5">Previously hot sub-layer, constraint easing.</div>
   </div>
   <div style="background:#F8F8F7;border-left:2px solid #378ADD;border-radius:0 6px 6px 0;
-              padding:8px 10px;font-size:10px;color:#5F5E5A;line-height:1.6;margin-top:4px">
+              padding:8px 10px;font-size:11px;color:#5F5E5A;line-height:1.6;margin-top:4px">
     <strong>Note on Cooling:</strong> this sub-layer is currently a single ticker (VRT). Its score is
     that company's own score directly — market-cap weighting degenerates correctly to N=1, and the
     Red reality check (which needs 2+ companies) does not apply here.
   </div>
   <div style="background:#F8F8F7;border-left:2px solid #AFA9EC;border-radius:0 6px 6px 0;
-              padding:8px 10px;font-size:10px;color:#5F5E5A;line-height:1.6;margin-top:6px">
+              padding:8px 10px;font-size:11px;color:#5F5E5A;line-height:1.6;margin-top:6px">
     <strong>Note on the capex strip above:</strong> hyperscaler capex direction is a display overlay
     only — it does not feed into any sub-layer's score or weighting.
   </div>
@@ -1163,13 +1166,13 @@ function deltaArrow(d) {{
   if (d === null || d === undefined) return "";
   const col   = d > 0 ? "#27500A" : d < 0 ? "#A32D2D" : "#888780";
   const arrow = d > 0 ? "▲" : d < 0 ? "▼" : "—";
-  return `<span style="color:${{col}};font-size:10px">${{arrow}} ${{Math.abs(d).toFixed(1)}}</span>`;
+  return `<span style="color:${{col}};font-size:11px">${{arrow}} ${{Math.abs(d).toFixed(1)}}</span>`;
 }}
 
 function colorChangeBadge(l) {{
   if (!HAS_YESTERDAY || !l.color_changed || !l.prev_color) return "";
   const prev = CC[l.prev_color] || CC.Green;
-  return `<span style="font-size:9px;padding:1px 5px;border-radius:4px;
+  return `<span style="font-size:11px;padding:1px 5px;border-radius:4px;
                         background:${{prev.bg}};color:${{prev.pill}};
                         border:0.5px solid ${{prev.pill}};margin-left:4px">was ${{prev.lbl}}</span>`;
 }}
@@ -1223,10 +1226,10 @@ function toggleTickerDetail(id) {{
           plugins: {{ legend:{{display:false}}, tooltip:{{ callbacks:{{
             label: c => "$" + c.parsed.y.toFixed(2), title: c => c[0].label }} }} }},
           scales: {{
-            x: {{ display:true, ticks:{{maxTicksLimit:5,font:{{size:9}},color:"#888780",maxRotation:0}},
+            x: {{ display:true, ticks:{{maxTicksLimit:5,font:{{size:11}},color:"#888780",maxRotation:0}},
                   grid:{{display:false}}, border:{{display:false}} }},
             y: {{ display:true, min:mn-pad, max:mx+pad,
-                  ticks:{{maxTicksLimit:4,font:{{size:9}},color:"#888780",callback:v=>"$"+Math.round(v)}},
+                  ticks:{{maxTicksLimit:4,font:{{size:11}},color:"#888780",callback:v=>"$"+Math.round(v)}},
                   grid:{{color:"rgba(0,0,0,0.04)"}}, border:{{display:false}} }}
           }},
           animation: {{ duration:500 }}
@@ -1346,7 +1349,7 @@ function buildChain() {{
       const retTxt = "30d " + (t.ret30 != null ? fmt(t.ret30) + "%" : "—");
       const tip   = TREND_TIP[t.delta_band] || TREND_TIP.unknown;
       return `<div class="lyr-tk">
-        <span>${{t.sym}} <span class="tk-arrow" style="color:${{dc}};font-size:9px" title="${{tip}}" aria-label="${{tip}}">${{db}}</span></span>
+        <span>${{t.sym}} <span class="tk-arrow" style="color:${{dc}};font-size:11px" title="${{tip}}" aria-label="${{tip}}">${{db}}</span></span>
         <span style="color:${{col}}">${{retTxt}}</span>
       </div>`;
     }}).join("");
@@ -1362,10 +1365,10 @@ function buildChain() {{
       <div class="lyr-score" style="color:${{c.border}}">${{l.score.toFixed(0)}}</div>
       <div class="lyr-delta">
         ${{HAS_YESTERDAY && l.delta_score !== null
-          ? deltaArrow(l.delta_score) + "<span style='font-size:10px;color:#888780;margin-left:2px'>vs " + PREV_LABEL + "</span>"
+          ? deltaArrow(l.delta_score) + "<span style='font-size:11px;color:#888780;margin-left:2px'>vs " + PREV_LABEL + "</span>"
           : METHOD_BREAK
-            ? "<span style='font-size:10px;color:#B4B2A9'>no comparison: method changed</span>"
-            : "<span style='font-size:10px;color:#B4B2A9'>first run</span>"}}
+            ? "<span style='font-size:11px;color:#B4B2A9'>no comparison: method changed</span>"
+            : "<span style='font-size:11px;color:#B4B2A9'>first run</span>"}}
       </div>
       <div class="lyr-bar"><div class="lyr-fill" style="width:${{pct}}%;background:${{c.border}}"></div></div>
       <div class="lyr-meta">News ${{l.news_vel != null ? l.news_vel : "—"}} hits · <span title="Revenue acceleration of the sub-layer's top-scoring company (YoY change vs the prior quarter), not price momentum">Rev. acceleration ${{l.momentum_label}}</span></div>
@@ -1375,7 +1378,7 @@ function buildChain() {{
           const rc = t.rating || "na";
           const rTxt = t.rating || "—";
           const rTitle = t.rating ? `${{t.sym}}: ${{t.rating==='A'?'Accelerating':t.rating==='B'?'Stable':t.rating==='C'?'Caution':'Deteriorating'}}` : `${{t.sym}}: insufficient data`;
-          return `<span class="rating-badge rating-${{rc}}" style="font-size:9px;padding:1px 4px" title="${{rTitle}}">${{t.sym}} ${{rTxt}}</span>`;
+          return `<span class="rating-badge rating-${{rc}}" style="font-size:11px;padding:1px 4px" title="${{rTitle}}">${{t.sym}} ${{rTxt}}</span>`;
         }}).join("")}}
       </div>
       ${{l.divergence ? `<div class="div-flag" tabindex="0">⚡ Narrative ahead of fundamentals
@@ -1420,7 +1423,7 @@ function buildExpand() {{
   const cards = l.tickers.map(t => {{
     const rc      = t.ret30 != null ? (t.ret30 >= 0 ? "#27500A" : "#A32D2D") : "#888780";
     const retTxt  = t.ret30 != null ? fmt(t.ret30) + "%" : "—";
-    const hyp     = t.hype ? `<span style="font-size:9px;background:#FAEEDA;color:#854F0B;padding:1px 5px;border-radius:4px;margin-left:4px">hype</span>` : "";
+    const hyp     = t.hype ? `<span style="font-size:11px;background:#FAEEDA;color:#854F0B;padding:1px 5px;border-radius:4px;margin-left:4px">hype</span>` : "";
     const tIcon   = t.delta_band === "accelerating" ? "▲" : t.delta_band === "decelerating" ? "▼" : t.delta_band === "unknown" ? "?" : "—";
     const tCol    = t.delta_band === "accelerating" ? "#27500A" : t.delta_band === "decelerating" ? "#A32D2D" : "#888780";
     const cardId  = `tk-detail-${{l.id}}-${{t.sym}}`;
@@ -1428,7 +1431,7 @@ function buildExpand() {{
     const rTxt    = t.rating || "—";
     const priceTxt = t.price != null ? "$" + t.price.toLocaleString() : "—";
     const missing = (t.data_missing && t.data_missing.length)
-      ? `<div style="font-size:9px;color:#B4B2A9;margin-top:6px">Data gaps this run: ${{t.data_missing.join(", ")}}</div>` : "";
+      ? `<div style="font-size:11px;color:#B4B2A9;margin-top:6px">Data gaps this run: ${{t.data_missing.join(", ")}}</div>` : "";
     const deepDive = `Give me a focused investment deep dive on ${{t.sym}} (${{t.name}}) in the context of the AI data center buildout. Cover: 1) What role does ${{t.sym}} play? 2) Latest revenue trend — accelerating or decelerating? 3) Gross margin trend. 4) The strongest bull case in one paragraph. 5) The main risk. 6) Compared to peers in the ${{l.n1}} sub-layer, is ${{t.sym}} gaining or losing ground?`;
 
     return `<div class="ex-tk" style="cursor:pointer" onclick="toggleTickerDetail('${{cardId}}')">
@@ -1438,14 +1441,14 @@ function buildExpand() {{
           <span class="rating-badge rating-${{rCls}}"
                 title="${{t.rating_up ? 'Upgraded from '+t.prev_rating : t.rating_down ? 'Downgraded from '+t.prev_rating : (t.rating ? 'Rating: '+t.rating : 'Insufficient data')}}"
           >${{rTxt}}</span>
-          ${{t.rating_up ? `<span style="font-size:10px;color:#27500A;font-weight:600">↑ was ${{t.prev_rating}}</span>` : ""}}
-          ${{t.rating_down ? `<span style="font-size:10px;color:#A32D2D;font-weight:600">↓ was ${{t.prev_rating}}</span>` : ""}}
+          ${{t.rating_up ? `<span style="font-size:11px;color:#27500A;font-weight:600">↑ was ${{t.prev_rating}}</span>` : ""}}
+          ${{t.rating_down ? `<span style="font-size:11px;color:#A32D2D;font-weight:600">↓ was ${{t.prev_rating}}</span>` : ""}}
           ${{hyp}}
         </div>
-        <span style="font-size:9px;color:#B4B2A9">tap for insight ↓</span>
+        <span style="font-size:11px;color:#B4B2A9">tap for insight ↓</span>
       </div>
       <div class="ex-name">${{t.name}}</div>
-      ${{t.run_rate ? `<div style="font-size:10px;font-weight:600;color:#27500A;margin:3px 0;
+      ${{t.run_rate ? `<div style="font-size:11px;font-weight:600;color:#27500A;margin:3px 0;
           padding:2px 6px;background:#EAF3DE;border-radius:4px;display:inline-block">
         Run rate $${{t.run_rate}}B/yr</div>` : ""}}
       <div class="ex-row"><span class="ex-lbl">${{t.price_date ? "Close " + t.price_date : "Price"}}</span><span>${{priceTxt}}</span></div>
@@ -1453,35 +1456,35 @@ function buildExpand() {{
       <div class="ex-row"><span class="ex-lbl">YoY vs prior qtr</span><span style="color:${{tCol}}" title="${{TREND_TIP[t.delta_band] || TREND_TIP.unknown}}">${{t.delta_band === "unknown" || t.accel_pp == null ? "— not measured" : tIcon + " " + fmt(t.accel_pp) + " pp · " + t.delta_band}}</span></div>
       <div style="margin-top:6px;padding:5px 8px;border-radius:5px;
                   background:#F8F8F7;border-left:2px solid ${{t.forecast.color}}">
-        <span style="font-size:10px;font-weight:500;color:${{t.forecast.color}}">
+        <span style="font-size:11px;font-weight:500;color:${{t.forecast.color}}">
           ${{t.forecast.direction}} ${{rTxt}}${{t.forecast.target ? " → " + t.forecast.target : ""}}
         </span>
-        <span style="font-size:10px;color:#888780;margin-left:6px">${{t.forecast.label}}</span>
+        <span style="font-size:11px;color:#888780;margin-left:6px">${{t.forecast.label}}</span>
       </div>
       ${{missing}}
       <div id="${{cardId}}" style="display:none;margin-top:10px;padding-top:10px;
            border-top:0.5px solid #E0DFDC" onclick="event.stopPropagation()">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
           ${{t.run_rate ? `<div style="background:#EAF3DE;border-radius:6px;padding:8px 10px;border:0.5px solid #639922">
-            <div style="font-size:9px;color:#27500A;font-weight:500;margin-bottom:2px">REVENUE RUN RATE</div>
+            <div style="font-size:11px;color:#27500A;font-weight:500;margin-bottom:2px">REVENUE RUN RATE</div>
             <div style="font-size:16px;font-weight:500;color:#27500A">$${{t.run_rate}}B</div>
-            <div style="font-size:9px;color:#3B6D11">annualized · latest quarter ×4</div>
+            <div style="font-size:11px;color:#3B6D11">annualized · latest quarter ×4</div>
           </div>` : ""}}
           ${{t.pct_of_high ? `<div style="background:#F8F8F7;border-radius:6px;padding:8px 10px;border:0.5px solid #E0DFDC">
-            <div style="font-size:9px;color:#888780;font-weight:500;margin-bottom:2px">52W POSITION</div>
+            <div style="font-size:11px;color:#888780;font-weight:500;margin-bottom:2px">52W POSITION</div>
             <div style="font-size:16px;font-weight:500;color:#1A1A1A">${{t.pct_of_high}}%</div>
-            <div style="font-size:9px;color:#888780">of 52-week high (${{t.week52_high != null ? "$"+t.week52_high.toFixed(0) : "—"}})</div>
+            <div style="font-size:11px;color:#888780">of 52-week high (${{t.week52_high != null ? "$"+t.week52_high.toFixed(0) : "—"}})</div>
             <div style="margin-top:4px;height:4px;background:#E0DFDC;border-radius:2px">
               <div style="height:4px;border-radius:2px;background:${{t.pct_of_high>80?'#E24B4A':t.pct_of_high>50?'#EF9F27':'#639922'}};width:${{t.pct_of_high}}%"></div>
             </div>
           </div>` : ""}}
         </div>
-        <div style="font-size:10px;color:#888780;margin-bottom:4px;font-weight:500">6-month price trend</div>
+        <div style="font-size:11px;color:#888780;margin-bottom:4px;font-weight:500">6-month price trend</div>
         <div id="spark-wrap-${{t.sym}}" style="position:relative;width:100%;height:120px;margin-bottom:8px;background:#F8F8F7;border-radius:4px">
           <canvas id="spark-${{t.sym}}" style="width:100%;height:100%" role="img" aria-label="${{t.sym}} 6-month price chart"></canvas>
         </div>
-        <div style="font-size:10px;color:#888780;margin-bottom:4px;font-weight:500">Strategic role</div>
-        <div style="font-size:10px;color:#5F5E5A;line-height:1.6;margin-bottom:8px">${{getCompanyContext(t.sym, l.id)}}</div>
+        <div style="font-size:11px;color:#888780;margin-bottom:4px;font-weight:500">Strategic role</div>
+        <div style="font-size:11px;color:#5F5E5A;line-height:1.6;margin-bottom:8px">${{getCompanyContext(t.sym, l.id)}}</div>
         <button onclick="sendPrompt('${{deepDive}}')"
                 style="width:100%;padding:7px;border:1px solid #378ADD;border-radius:6px;
                        background:#E6F1FB;color:#0C447C;font-size:11px;font-weight:500;cursor:pointer">
@@ -1531,7 +1534,7 @@ function buildHeat() {{
   slice.forEach((day,i) => {{
     const d = document.createElement("div");
     d.className = "heat-day";
-    d.style.fontSize = days>30?"7px":"9px";
+    d.style.fontSize = "11px";
     d.textContent = i%showEvery===0 ? day.short : "";
     g.appendChild(d);
   }});
@@ -1547,7 +1550,7 @@ function buildHeat() {{
     displaySlice.forEach((day,i) => {{
       const d = document.createElement("div");
       d.className = "heat-day";
-      d.style.fontSize = "9px";
+      d.style.fontSize = "11px";
       d.textContent = day.short;
       g.appendChild(d);
     }});
@@ -1699,14 +1702,14 @@ function buildHeroStatus() {{
   el.innerHTML = sorted.map(l => {{
     if (l.insufficient) {{
       return `<div style="flex:1;padding:7px 10px;background:rgba(180,178,169,0.1);border-right:0.5px solid rgba(255,255,255,0.06);">
-        <div style="font-size:8px;color:#B4B2A9;font-weight:600;letter-spacing:.08em;margin-bottom:1px">NO DATA</div>
+        <div style="font-size:11px;color:#B4B2A9;font-weight:600;letter-spacing:.08em;margin-bottom:1px">NO DATA</div>
         <div style="font-size:11px;font-weight:500;color:#fff;margin-bottom:1px">${{l.n1}}</div>
         <div style="font-size:16px;font-weight:500;color:#8A9AB8;line-height:1">—</div>
       </div>`;
     }}
     const c = HCOLOR[l.color] || HCOLOR.Green;
     return `<div style="flex:1;padding:7px 10px;background:${{c.bg}};border-right:0.5px solid rgba(255,255,255,0.06);">
-      <div style="font-size:8px;color:${{c.val}};font-weight:600;letter-spacing:.08em;margin-bottom:1px">${{c.label}}</div>
+      <div style="font-size:11px;color:${{c.val}};font-weight:600;letter-spacing:.08em;margin-bottom:1px">${{c.label}}</div>
       <div style="font-size:11px;font-weight:500;color:#fff;margin-bottom:1px">${{l.n1}}</div>
       <div style="font-size:16px;font-weight:500;color:${{c.val}};line-height:1">${{l.score.toFixed(0)}}</div>
     </div>`;
