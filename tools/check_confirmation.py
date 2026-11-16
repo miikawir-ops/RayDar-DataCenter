@@ -693,7 +693,7 @@ def check_window():
     hist = [entry(d, {"optical": (20.0, "Blue")}) for d in ("2026-10-01", "2026-10-02")]
     c, note, branch = confirm(52.0, "Orange", hist, "2026-10-06")
     check("note: not sustained says 'latest score' and names the missing day (R102: the card stays Blue)",
-          c == "Blue" and note == "Kept Blue: latest score 52.0 hasn't held over recent sessions (no reading for Mon Oct 5)", note)
+          c == "Blue" and note == "Kept Blue: today's score 52.0 isn't confirmed yet (no reading for Mon Oct 5).", note)
     hist = [entry(d, {"optical": (55.0, "Orange")}) for d in ("2026-10-01", "2026-10-02")]
     c, note, branch = confirm(30.0, "Green", hist, "2026-10-06")
     check("note: a move into the Green band still shows the same day",

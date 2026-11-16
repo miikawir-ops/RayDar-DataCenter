@@ -233,7 +233,7 @@ def _confirmed_color(
     current = next((c for _, _, c in reversed(stored) if c), None)
     if shown != "Green" and current and shown != current:
         log.info(f"  {layer_id}: {today_color} unconfirmed -> kept {current} (R102)")
-        return current, f"Kept {current}: latest score {today_score:.1f} hasn't held over recent sessions{suffix}", "not_sustained"
+        return current, f"Kept {current}: today's score {today_score:.1f} isn't confirmed yet{suffix}.", "not_sustained"
     log.info(f"  {layer_id}: {today_color} -> {shown} (unconfirmed, fallback)")
     return shown, f"Shown as {shown}: latest score {today_score:.1f} hasn't held over recent sessions{suffix}", "not_sustained"
 
