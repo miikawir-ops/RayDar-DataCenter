@@ -264,6 +264,17 @@ TICKER_TO_LAYER = {
 }
 
 
+def _feed_failed(feed) -> bool:
+    """A feed that returned nothing because it failed, not because there was
+    no news: feedparser doesn't raise on a dead host or an HTTP error, it
+    sets bozo / status (ledger R103, from the parent's 877b6b1). A feed with
+    entries, or an empty 200, hasn't failed."""
+    if feed.entries:
+        return False
+    status = feed.get("status")
+    return bool(feed.bozo) or status is None or status != 200
+
+
 def fetch_ticker_headlines(tickers: list, max_per_ticker: int = 10) -> tuple:
     """
     Fetch Yahoo Finance RSS for each specific ticker.
@@ -278,7 +289,7 @@ def fetch_ticker_headlines(tickers: list, max_per_ticker: int = 10) -> tuple:
     score_news_velocity() filters by layer_tickers to prevent cross-contamination.
 
     Returns (headlines, failed_tickers). failed_tickers is the set of
-    tickers whose feed fetch raised an exception this run — callers use
+    tickers whose feed failed this run (raised, or _feed_failed) — callers use
     this to mark news_velocity as missing rather than a misleadingly
     clean 0.0 (fetch-failure rule, CLAUDE.md).
     """
@@ -288,6 +299,9 @@ def fetch_ticker_headlines(tickers: list, max_per_ticker: int = 10) -> tuple:
         url = f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={ticker}&region=US&lang=en-US"
         try:
             feed = feedparser.parse(url)
+            if _feed_failed(feed):
+                failed_tickers.add(ticker.upper())
+                continue
             for entry in feed.entries[:max_per_ticker]:
                 title   = entry.get("title", "")
                 summary = entry.get("summary", "")[:200]
@@ -309,7 +323,7 @@ def fetch_generic_headlines(max_per_feed: int = 20) -> tuple:
     Fetch generic business news as supplementary signal.
 
     Returns (headlines, failed_feeds). failed_feeds is the list of feed
-    URLs that raised an exception this run — not attributable to a single
+    URLs that failed this run (raised, or _feed_failed) — not attributable to a single
     ticker/sub-layer, so it's surfaced at the pipeline level instead.
     """
     headlines = []
@@ -317,6 +331,10 @@ def fetch_generic_headlines(max_per_feed: int = 20) -> tuple:
     for url in GENERIC_FEEDS:
         try:
             feed = feedparser.parse(url)
+            if _feed_failed(feed):
+                log.warning(f"Generic feed failed ({url}): status {feed.get('status')}, {feed.get('bozo_exception')}")
+                failed_feeds.append(url)
+                continue
             for entry in feed.entries[:max_per_feed]:
                 title   = entry.get("title", "")
                 summary = entry.get("summary", "")[:200]

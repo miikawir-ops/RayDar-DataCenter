@@ -73,10 +73,33 @@ def check_layer_badge():
     check("the divergence text reads that same company's news", l["divergence"] is True, (l["divergence"], l["divergence_msg"]))
 
 
+class _Feed(dict):
+    def __init__(self, entries=(), bozo=False, status=200):
+        super().__init__(status=status)
+        self.entries, self.bozo = list(entries), bozo
+
+
+def check_feed_failure():
+    """R103: feedparser doesn't raise on a dead host or an HTTP error; it sets
+    bozo / status and returns no entries. Those count as failed feeds (news
+    missing, not a clean 0). An empty 200 is a working feed with no news."""
+    ok = _Feed([{"title": "Vertiv cooling orders", "summary": ""}])
+    feeds = {"VRT": ok, "ANET": _Feed(bozo=True, status=None), "CSCO": _Feed(status=503), "EQIX": _Feed(status=200)}
+    with patch("fetch_market.feedparser.parse", side_effect=lambda url: feeds[url.split("s=")[1].split("&")[0]]):
+        heads, failed = fetch_market.fetch_ticker_headlines(list(feeds))
+    check("feeds: a dead host and an HTTP 503 count as failed ticker feeds; an empty 200 doesn't (R103)",
+          failed == {"ANET", "CSCO"} and len(heads) == 1, f"{sorted(failed)}, {len(heads)} headlines")
+    generic = {u: _Feed(status=404, bozo=True) for u in fetch_market.GENERIC_FEEDS}
+    with patch("fetch_market.feedparser.parse", side_effect=lambda url: generic[url]):
+        _, gfailed = fetch_market.fetch_generic_headlines()
+    check("feeds: a 404 generic feed counts as failed (R103)", gfailed == list(fetch_market.GENERIC_FEEDS), str(gfailed))
+
+
 def run():
     logging.disable(logging.CRITICAL)
     check_per_ticker()
     check_layer_badge()
+    check_feed_failure()
     failed = [n for n, ok in results if not ok]
     print(f"\n{len(results) - len(failed)}/{len(results)} checks passed")
     return 1 if failed else 0
