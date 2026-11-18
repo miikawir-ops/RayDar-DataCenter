@@ -1153,8 +1153,8 @@
   },
   {
     "date": "2026-11-17",
-    "time": "04:41",
-    "run_at": "2026-11-18T04:41:38+00:00",
+    "time": "18:35",
+    "run_at": "2026-11-18T18:35:54+00:00",
     "model_version": 3,
     "scores": {
       "cooling": {
@@ -1165,7 +1165,7 @@
         }
       },
       "networking": {
-        "score": 36.01,
+        "score": 36.64,
         "color": "Green",
         "ratings": {
           "ANET": "A",
@@ -1173,7 +1173,7 @@
         }
       },
       "optical": {
-        "score": 36.06,
+        "score": 36.69,
         "color": "Green",
         "ratings": {
           "CIEN": "B",
@@ -1192,7 +1192,7 @@
         }
       },
       "colocation": {
-        "score": 22.29,
+        "score": 22.97,
         "color": "Blue",
         "ratings": {
           "EQIX": "C",
