@@ -244,9 +244,11 @@ def fetch_trading_sessions(now: datetime.datetime = None) -> list:
                            f"{sessions[-1]}, more than {MAX_SESSION_AGE_DAYS} days before {today_et}")
     return sessions
 
+# Removed 2026-11-18 (ledger R103), both dead, so no headline was lost:
+# feeds.reuters.com (host doesn't resolve; last archived 2020-06) and
+# finance.yahoo.com/news/rssindex (404 since at least 2026-10-11).
+# Replacements would add headlines and change scores: the January review.
 GENERIC_FEEDS = [
-    "https://feeds.reuters.com/reuters/businessNews",
-    "https://finance.yahoo.com/news/rssindex",
     "https://feeds.content.dowjones.io/public/rss/mw_realtimeheadlines",
     "https://www.cnbc.com/id/20910258/device/rss/rss.html",
 ]
