@@ -15,10 +15,6 @@
 (function () {
   const LANG = document.documentElement.lang === "en" ? "en" : "fi";
   const UP = LANG === "en" ? "../../" : "../";
-  // Pages that have an English version so far (R104 goes live in batches).
-  // A Finnish page without one shows no switch, and a link on an English
-  // page to a page without one goes to the Finnish page instead of a 404.
-  const EN_READY = ["hub", "public-cloud", "gpu-cloud", "retail-colocation", "wholesale-colocation", "own-data-center"];
   const TEXT = {
     fi: {
       // Review date: when the facts were last verified, not when a page was
@@ -92,7 +88,6 @@
   const stepHref = (m) => (isHub ? "#" + m.slug : m.slug + ".html");
   const currentAttr = isHub ? "step" : "page";
   const fileOf = (slug) => (slug === "hub" ? "" : slug + ".html");
-  const enReady = (slug) => EN_READY.includes(slug);
 
   function esc(s) {
     return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -115,7 +110,7 @@
   // page in that language. The #hash is added when the link is used, since
   // the hub rewrites it as the reader moves between models.
   function langSwitch() {
-    if (!PAGE_SLUGS.concat(SLUGS).includes(page) || (LANG === "fi" && !enReady(page))) return "";
+    if (!PAGE_SLUGS.concat(SLUGS).includes(page)) return "";
     const other = LANG === "fi" ? "en/" + fileOf(page) : "../" + fileOf(page);
     const item = (code, label) => (code === LANG
       ? '<span class="bm-lang-current" lang="' + code + '" aria-current="true">' + code.toUpperCase() + "</span>"
@@ -178,20 +173,6 @@
       + '<a href="' + SITE.family + '" target="_blank" rel="noopener">' + esc(TEXT.family) + " &#8599;</a>"
       + "</div>"
       + '<div class="bm-footer-note">' + esc(TEXT.author) + "</div>";
-  }
-
-  // On an English page, a link to a page that has no English version yet goes
-  // to the Finnish page instead (R104, while the batches go live).
-  if (LANG === "en") {
-    document.querySelectorAll("a[href]").forEach((a) => {
-      const href = a.getAttribute("href");
-      if (/^([a-z]+:|#|\.\.\/|\/)/i.test(href)) return;
-      const slug = href.split("#")[0].replace(/\.html$/, "") || "hub";
-      if (href.split("#")[0] === "./" || enReady(slug) || !PAGE_SLUGS.concat(SLUGS).includes(slug)) return;
-      a.setAttribute("href", "../" + href);
-      a.setAttribute("lang", "fi");
-      a.setAttribute("hreflang", "fi");
-    });
   }
 
   // Marks one stepper step as current (or none, with a falsy slug) and

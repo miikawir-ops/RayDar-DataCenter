@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Specialized models — RayDar Data Center</title>
+<meta name="description" content="Specialized data center models tied to location, revenue model, demand, ownership or extra revenue.">
+<meta property="og:title" content="Specialized models — RayDar Data Center">
+<meta property="og:description" content="Specialized data center models tied to location, revenue model, demand, ownership or extra revenue.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datacenter.raydar.fi/business-models/en/specialised-models.html">
+<meta property="og:image" content="https://datacenter.raydar.fi/business-models/assets/og-image-fi.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="The Finnish title Datakeskusten liiketoimintamallit (Data center business models) over an image of a data center shown in layers.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" hreflang="fi" href="https://datacenter.raydar.fi/business-models/specialised-models.html">
+<link rel="alternate" hreflang="en" href="https://datacenter.raydar.fi/business-models/en/specialised-models.html">
+<link rel="alternate" hreflang="x-default" href="https://datacenter.raydar.fi/business-models/specialised-models.html">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preload" href="../assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/explainer.css">
+<style>
+/* Specialised models (Lisamallit.dc.html): six cards, three columns. */
+.spec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.spec-card{display:flex;flex-direction:column;gap:10px;padding:24px;border-radius:12px}
+/* #hukkalampo is the hub's waste-heat link target (ledger R61): clear the sticky stepper. */
+.spec-card[id]{scroll-margin-top:calc(var(--header-steps-h) + 16px)}
+.spec-label{font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--ink-3)}
+.spec-card h3{margin:0;font-family:var(--f-display);font-size:22px;font-weight:700}
+.spec-card p{margin:0;font-size:15px;line-height:1.5;color:var(--ink-2)}
+.spec-foot{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--line-mid)}
+.spec-row{display:flex;gap:10px;align-items:baseline;font-size:14px;line-height:1.4}
+.spec-row--ex{font-weight:600}
+.spec-row-label{width:64px;flex-shrink:0;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em}
+.spec-row-label--rel{font-weight:600;color:var(--blue)}
+.spec-row-label--ex{color:var(--rust)}
+.doc-note{font-size:13px}
+@media (max-width:1023px){ .spec-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px} .spec-card{padding:18px} }
+@media (max-width:600px){ .spec-grid{grid-template-columns:minmax(0,1fr)} }
+</style>
+</head>
+<body data-page="specialised-models">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--doc">
+  <!-- Ported from Lisamallit.dc.html (approved design, Tilanne 9/2026). -->
+  <div class="page-head page-head--doc">
+    <div class="kicker">MORE DIMENSIONS · CONTENT REVIEWED 9/2026</div>
+    <h1 class="page-title">Specialized models</h1>
+    <div class="page-lede">Other models in the industry, tied to location, revenue model, demand, ownership or extra revenue</div>
+  </div>
+  <div class="spec-grid">
+    <div class="spec-card panel">
+      <div class="spec-label">LOCATION</div>
+      <h3>Edge data centers</h3>
+      <p>Small, distributed data centers close to users. The value comes from low latency: 5G, IoT and content delivery.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">RELATES TO</div><div>Stage 3 (<span class="gloss" data-g="retail_colocation">retail colocation</span>)</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">E.G.</div><div>EdgeConneX, Vapor IO</div></div>
+      </div>
+    </div>
+    <div class="spec-card panel">
+      <div class="spec-label">REVENUE MODEL</div>
+      <h3>Interconnection</h3>
+      <p>A carrier-neutral data center as the meeting point of networks. Revenue comes from <span class="gloss" data-g="cross_connect">cross-connects</span> and the ecosystem, not only from space.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">RELATES TO</div><div>Stage 3 (retail colocation)</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">E.G.</div><div>Equinix, Digital Realty; in Finland, the FICIX <span class="gloss" data-g="internet_exchange">internet exchanges</span></div></div>
+      </div>
+    </div>
+    <div class="spec-card panel">
+      <div class="spec-label">DEMAND</div>
+      <h3>Cloud giants' leased capacity</h3>
+      <p>AWS, Microsoft and Google lease part of their capacity from <span class="gloss" data-g="colocation">colocation</span> companies and <span class="gloss" data-g="gpu_cloud">GPU clouds</span>, alongside building their own. The largest source of <span class="gloss" data-g="wholesale_colocation">wholesale</span> demand (leased hyperscale).</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">RELATES TO</div><div>Stages 2 and 4</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">E.G.</div><div>Microsoft's capacity contracts with Nebius and CoreWeave</div></div>
+      </div>
+    </div>
+    <div class="spec-card panel">
+      <div class="spec-label">OWNERSHIP AND FINANCING</div>
+      <h3>Development and financing models</h3>
+      <p><span class="gloss" data-g="build_to_suit">Build-to-suit</span> (built for one tenant), <span class="gloss" data-g="sale_leaseback">sale-leaseback</span> (sale and leaseback), data center <span class="gloss" data-g="reit">REITs</span> and <span class="gloss" data-g="infrastructure_fund">infrastructure funds'</span> joint ventures decide who owns the property.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">RELATES TO</div><div>Stages 4 and 5; more on the Financing models page</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">E.G.</div><div>Blackstone bought QTS (2021); Equinix and Digital Realty are REITs</div></div>
+      </div>
+    </div>
+    <div class="spec-card panel" id="hukkalampo">
+      <div class="spec-label">EXTRA REVENUE</div>
+      <h3>Selling waste heat</h3>
+      <p>The servers' heat is sold to the district heating (kaukolämpö) network. The extra revenue improves profitability and local acceptance.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">RELATES TO</div><div>The data center's owner or operator</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">E.G.</div><div>Nebius in Mäntsälä since 2015; Microsoft and Fortum's agreement on future data centers</div></div>
+      </div>
+    </div>
+    <div class="spec-card panel">
+      <div class="spec-label">PUBLIC SECTOR</div>
+      <h3>Public computing infrastructure</h3>
+      <p>Supercomputers funded by governments and the EU, whose computing time is granted to research and companies through calls for applications.</p>
+      <div class="spec-foot">
+        <div class="spec-row"><div class="spec-row-label spec-row-label--rel">RELATES TO</div><div>An alternative to stages 1–2</div></div>
+        <div class="spec-row spec-row--ex"><div class="spec-row-label spec-row-label--ex">E.G.</div><div>LUMI in Kajaani (EuroHPC); Silo AI trained its Poro and Viking models on LUMI</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="doc-note fine-print">As of September 2026. Sources: company publications and industry news.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="../assets/glossary-en.js"></script>
+<script src="../assets/glossary.js"></script>
+<script src="../assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

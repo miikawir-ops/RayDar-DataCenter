@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Glossary — RayDar Data Center</title>
+<meta name="description" content="Glossary of data center business models: every term used in the explainer, in alphabetical order.">
+<meta property="og:title" content="Glossary — RayDar Data Center">
+<meta property="og:description" content="Glossary of data center business models: every term used in the explainer, in alphabetical order.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datacenter.raydar.fi/business-models/en/glossary.html">
+<meta property="og:image" content="https://datacenter.raydar.fi/business-models/assets/og-image-fi.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="The Finnish title Datakeskusten liiketoimintamallit (Data center business models) over an image of a data center shown in layers.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" hreflang="fi" href="https://datacenter.raydar.fi/business-models/glossary.html">
+<link rel="alternate" hreflang="en" href="https://datacenter.raydar.fi/business-models/en/glossary.html">
+<link rel="alternate" hreflang="x-default" href="https://datacenter.raydar.fi/business-models/glossary.html">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preload" href="../assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/explainer.css">
+</head>
+<body data-page="glossary">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--doc">
+  <!-- English glossary (ledger R104): the cards are rendered from assets/glossary-en.js,
+       the same data the English pages' tooltips use, sorted by the English term. Each card
+       has the same id as on the Finnish page, id="g-<key>", e.g. glossary.html#g-rack. -->
+  <div class="page-head page-head--doc">
+    <div class="kicker">TERMS</div>
+    <h1 class="page-title">Glossary</h1>
+    <div class="page-lede">All the terms used in the explainer, in alphabetical order (<span id="glossary-count"></span> terms)</div>
+  </div>
+  <div class="glossary-grid" id="glossary-grid"></div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="../assets/glossary-en.js"></script>
+<script src="../assets/chrome.js"></script>
+<script>
+(function () {
+  const grid = document.getElementById("glossary-grid");
+  // The count comes from the data, so it can't drift from the cards (ledger R104).
+  document.getElementById("glossary-count").textContent = Object.keys(window.BM_GLOSSARY).length;
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+  Object.entries(window.BM_GLOSSARY).forEach(([key, g]) => {
+    const card = el("div", "glossary-card panel");
+    card.id = "g-" + key;
+    const head = el("div", "term-head");
+    head.appendChild(el("div", "term-name", g.term));
+    if (g.alt) head.appendChild(el("div", "term-alt", g.alt));
+    card.appendChild(head);
+    card.appendChild(el("p", "", g.definition));
+    grid.appendChild(card);
+  });
+  // Cards are rendered after load, so a #g-<key> link needs a second jump.
+  if (location.hash.startsWith("#g-")) {
+    const target = document.getElementById(location.hash.slice(1));
+    if (target) target.scrollIntoView();
+  }
+})();
+</script>
+</body>
+</html>

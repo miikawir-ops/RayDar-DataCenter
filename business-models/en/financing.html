@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Financing models — RayDar Data Center</title>
+<meta name="description" content="How data centers and GPU capacity are financed, and who carries the debt.">
+<meta property="og:title" content="Financing models — RayDar Data Center">
+<meta property="og:description" content="How data centers and GPU capacity are financed, and who carries the debt.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datacenter.raydar.fi/business-models/en/financing.html">
+<meta property="og:image" content="https://datacenter.raydar.fi/business-models/assets/og-image-fi.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="The Finnish title Datakeskusten liiketoimintamallit (Data center business models) over an image of a data center shown in layers.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" hreflang="fi" href="https://datacenter.raydar.fi/business-models/financing.html">
+<link rel="alternate" hreflang="en" href="https://datacenter.raydar.fi/business-models/en/financing.html">
+<link rel="alternate" hreflang="x-default" href="https://datacenter.raydar.fi/business-models/financing.html">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preload" href="../assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/explainer.css">
+<style>
+/* Financing (Rahoitusmallit.dc.html) */
+.core{display:flex;gap:28px;align-items:center;padding:22px 28px;border-radius:14px}
+.core-label{width:220px;flex-shrink:0;font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.12em;color:var(--peach)}
+.core-text{display:flex;flex-direction:column;gap:6px}
+.core-headline{font-family:var(--f-display);font-size:22px;font-weight:600;color:var(--white);line-height:1.3}
+.core-body{font-size:15px;line-height:1.5}
+.fin-body,.fin-row{display:flex;gap:22px;align-items:stretch}
+.fin-assets{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px}
+.fin-examples{flex:1.25 1 0;min-width:0;display:flex;flex-direction:column;gap:10px}
+.asset{display:flex;flex-direction:column;gap:8px;padding:16px 18px;border-radius:10px}
+.asset-top{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.asset-tag{padding:4px 10px;border-radius:6px;font-family:var(--f-mono);font-size:12px;font-weight:600;letter-spacing:.08em}
+.asset-note{font-size:13px;color:var(--ink-3);text-align:right}
+.asset-desc{font-size:14px;color:var(--ink-2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;background:var(--cream);border:1px solid var(--line);color:var(--navy)}
+.asset-basis{font-size:13.5px}
+.example-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.example{display:flex;flex-direction:column;gap:5px;padding:14px 16px;border-radius:10px}
+.example-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.example-title{font-family:var(--f-display);font-size:16px;font-weight:700}
+.example-tag{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--rust)}
+.example-text{font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.fin-flows{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px;padding:18px 22px;border-radius:14px}
+.fin-flows-intro{font-size:14px;color:var(--ink-2)}
+.pill--lg{padding:4px 10px;border-radius:6px;font-size:13px}
+.fin-flows .flow{line-height:normal}  /* source rows set no line-height, unlike the model cards' 1.35 */
+.fin-risks{flex:1.6 1 0;min-width:0;display:flex;flex-direction:column;gap:10px;padding:18px 22px;border-radius:14px}
+.risk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 22px}
+.fin-risk{display:flex;flex-direction:column;gap:3px;padding-bottom:8px;border-bottom:1px solid var(--line-soft)}
+.fin-risk-title{font-size:14px;font-weight:700}
+.fin-risk-text{font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.term-grid--4{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 26px}
+@media (max-width:1279px){ .fin-body,.fin-row{flex-direction:column} }
+@media (max-width:1023px){
+  .core{flex-direction:column;align-items:flex-start;gap:8px;padding:18px}
+  .core-label{width:auto} .core-headline{font-size:19px}
+  .asset-top{flex-wrap:wrap} .asset-note{text-align:left}
+  .example-grid,.risk-grid,.term-grid--4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fin-flows,.fin-risks{padding:16px}
+}
+@media (max-width:600px){ .example-grid,.risk-grid,.term-grid--4{grid-template-columns:minmax(0,1fr)} }
+</style>
+</head>
+<body data-page="financing">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--doc">
+  <!-- Ported from Rahoitusmallit.dc.html (approved design, Tilanne 9/2026). -->
+  <div class="page-head page-head--doc">
+    <div class="kicker">FINANCING · CONTENT REVIEWED 9/2026</div>
+    <h1 class="page-title">Financing models</h1>
+    <div class="page-lede">How data centers and GPU capacity are financed, and who carries the debt</div>
+  </div>
+  <div class="core panel panel--dark"><div class="core-label">KEY IDEA</div><div class="core-text"><div class="core-headline">Financing rests on the customer's commitment and creditworthiness, not on the property alone.</div><div class="core-body">A long lease or take-or-pay contract makes future cash flow predictable, and the customer's creditworthiness decides how cheaply you can borrow against it.</div></div></div>
+  <div class="fin-body">
+    <div class="fin-assets">
+      <div class="section-label">WHAT IS FINANCED, AND HOW</div>
+      <div class="asset panel">
+        <div class="asset-top"><div class="asset-tag fill-sand">PROPERTY AND POWER INFRASTRUCTURE</div><div class="asset-note">A life of decades, steady rental cash flow</div></div>
+        <div class="asset-desc">The building, the grid connection, the power and cooling systems</div>
+        <div class="chips"><div class="chip">Bank construction loans</div><div class="chip">Project finance in an SPV</div><div class="chip">ABS refinancing</div><div class="chip">Green bonds</div><div class="chip">Sale-leaseback</div></div>
+        <div class="asset-basis"><b>Secured by:</b> The leases and the property</div>
+      </div>
+      <div class="asset panel">
+        <div class="asset-top"><div class="asset-tag fill-green">GPU SERVERS</div><div class="asset-note">An economic life of a few years, value falls fast</div></div>
+        <div class="asset-desc">The equipment for AI computing</div>
+        <div class="chips"><div class="chip">GPU-backed loans</div><div class="chip">Equipment leasing through an SPV</div><div class="chip">Customer prepayments</div><div class="chip">Manufacturer financing</div></div>
+        <div class="asset-basis"><b>Secured by:</b> The equipment and the customer contracts</div>
+      </div>
+      <div class="asset panel">
+        <div class="asset-top"><div class="asset-tag fill-blue">CORPORATE FINANCING</div><div class="asset-note">Most of the investment is financed from the company's own cash flow</div></div>
+        <div class="asset-desc">Hyperscalers and other large users</div>
+        <div class="chips"><div class="chip">Own cash flow</div><div class="chip">Corporate debt (bonds)</div><div class="chip">Share issues and convertible notes</div><div class="chip">Joint ventures and off-balance-sheet debt</div></div>
+        <div class="asset-basis"><b>Rests on:</b> The company's creditworthiness; in separate entities, the tenant's commitments and guarantees</div>
+      </div>
+      <div class="asset panel">
+        <div class="asset-top"><div class="asset-tag fill-navy">EQUITY AND OWNERSHIP</div><div class="asset-note">Long-term capital seeks a steady return backed by contracts</div></div>
+        <div class="asset-desc">Who owns the data center operators and the properties</div>
+        <div class="chips"><div class="chip">Infrastructure funds</div><div class="chip">Pension and insurance companies</div><div class="chip">Private equity</div><div class="chip">Sovereign wealth funds</div><div class="chip">REITs</div></div>
+        <div class="asset-basis"><b>Return:</b> From rental cash flow and the rise in asset values</div>
+      </div>
+    </div>
+    <div class="fin-examples">
+      <div class="section-label">REAL-WORLD EXAMPLES</div>
+      <div class="example-grid">
+        <div class="example panel"><div class="example-head"><div class="example-title">Meta and Oracle (2025)</div><div class="example-tag">CORPORATE DEBT</div></div><div class="example-text">In October 2025 Meta issued $30 billion of <span class="gloss" data-g="bond">bonds</span>, the largest <span class="gloss" data-g="investment_grade">investment grade</span> issue since 2023. Oracle raised $18 billion in September, and banks arranged about $38 billion of loans for data centers that Oracle will use.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Meta Hyperion, Louisiana (2025)</div><div class="example-tag">OFF-BALANCE-SHEET JOINT VENTURE</div></div><div class="example-text">Blue Owl's funds own 80% and Meta 20% of the joint venture building the campus; a separate entity of the venture issued about $27 billion of bonds. Meta is the tenant and gives a 16-year <span class="gloss" data-g="residual_value_guarantee">residual value guarantee</span>.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Aligned and AirTrunk (2024–2026)</div><div class="example-tag">INFRASTRUCTURE, PENSION AND SOVEREIGN CAPITAL</div></div><div class="example-text">BlackRock's GIP, Abu Dhabi's MGX and the AIP partnership (including Microsoft and Nvidia) bought Aligned from Macquarie's <span class="gloss" data-g="infrastructure_fund">infrastructure funds</span> at a valuation of about $40 billion (2026). Blackstone and the Canadian pension fund CPP Investments bought AirTrunk for about $16 billion (2024).</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Vantage Data Centers (2024–2026)</div><div class="example-tag">DATA CENTER ABS</div></div><div class="example-text">Vantage carried out the first data center <span class="gloss" data-g="abs">ABS</span> deals in North America and Europe. For example, notes backed by the leases of its Wales campus were issued for £600 million (2024) and another £254 million (2026).</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">CoreWeave (2023–2026)</div><div class="example-tag">GPU-BACKED LOANS</div></div><div class="example-text">The first $2.3 billion loan (2023) put the GPUs and the customer contracts in the same <span class="gloss" data-g="spv">SPV</span>. In March 2026 an $8.5 billion loan became the first GPU financing rated investment grade, because it was secured by a contract with Meta.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Nebius (2025)</div><div class="example-tag">CONVERTIBLE NOTES AND A SHARE ISSUE</div></div><div class="example-text">After the Microsoft contract, Nebius raised about $3.75 billion through <span class="gloss" data-g="convertible_note">convertible notes</span> and a share issue to buy land and computing capacity. The company said it would also finance construction with debt raised against the Microsoft contract.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">Equinix (2020–2025)</div><div class="example-tag">GREEN BONDS</div></div><div class="example-text">Equinix has issued about $9 billion of <span class="gloss" data-g="green_bond">green bonds</span>. The proceeds are earmarked for energy-efficient sites: in Europe a new data center's PUE must be at most 1.35. The Paris PA10 data center, for example, was financed this way.</div></div>
+        <div class="example panel"><div class="example-head"><div class="example-title">xAI Colossus 2, Memphis (2025)</div><div class="example-tag">GPU LEASING AND MANUFACTURER FINANCING</div></div><div class="example-text">According to news reports, an SPV of about $20 billion buys Nvidia GPUs and leases them to xAI for five years. Nvidia takes part with equity: <span class="gloss" data-g="vendor_financing">the equipment supplier finances its customer</span>.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="fin-row">
+    <div class="fin-flows panel">
+      <div class="section-label">MONEY FLOWS IN A TYPICAL STRUCTURE</div>
+      <div class="fin-flows-intro">A separate company (an SPV or joint venture) owns the asset and takes on the debt. The tenant pays rent, which pays the debt.</div>
+      <div class="flow"><div class="pill pill--lg fill-own">Tenant</div><div class="flow-arrow">→</div><div class="pill pill--lg fill-blue">SPV / joint venture</div><div class="flow-text">rent under the long contract</div></div>
+      <div class="flow"><div class="pill pill--lg fill-blue">SPV / joint venture</div><div class="flow-arrow">→</div><div class="pill pill--lg fill-stone">Lenders</div><div class="flow-text">interest and repayments, secured by the lease</div></div>
+      <div class="flow"><div class="pill pill--lg fill-blue">SPV / joint venture</div><div class="flow-arrow">→</div><div class="pill pill--lg fill-sand">Equity investors</div><div class="flow-text">the remaining return</div></div>
+      <div class="flow"><div class="pill pill--lg fill-own">Tenant</div><div class="flow-arrow">→</div><div class="pill pill--lg fill-blue">SPV / joint venture</div><div class="flow-text">a residual value guarantee, if the contract isn't renewed</div></div>
+    </div>
+    <div class="fin-risks panel">
+      <div class="section-label">RISKS FROM THE LENDER'S POINT OF VIEW</div>
+      <div class="risk-grid">
+        <div class="fin-risk"><div class="fin-risk-title">Customer risk</div><div class="fin-risk-text">The price of a loan often follows the customer's creditworthiness more than the property or the equipment itself. CoreWeave's loans are cheaper when the customer is rated investment grade.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Duration mismatch</div><div class="fin-risk-text">Leases and ABS can run 15–20 years, but GPU equipment becomes obsolete in a few years. GPU loans are therefore shorter and amortize quickly.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Residual value risk</div><div class="fin-risk-text">Who bears the risk if the asset or the equipment is worth less when the contract ends? A residual value guarantee moves the risk back to the tenant.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Construction risk</div><div class="fin-risk-text">There is no cash flow before completion. Construction financing is more expensive, and it is <span class="gloss" data-g="refinancing">refinanced</span> once the site is finished and leased.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Interest rate and refinancing risk</div><div class="fin-risk-text">Debt often has to be refinanced partway through an asset's life. Vantage's ABS notes, for example, have an expected repayment in five years but a final maturity only in 30 years. The interest rate at the time of refinancing decides the cost of the financing.</div></div>
+        <div class="fin-risk"><div class="fin-risk-title">Guarantee or non-recourse</div><div class="fin-risk-text">Who answers if the cash flow falls short? CoreWeave's $8.5 billion loan was <span class="gloss" data-g="non_recourse">non-recourse</span>, because it was secured by an investment grade customer's contract. CoreWeave itself guaranteed a $3.1 billion loan taken against contracts with lower-rated customers.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="terms panel">
+    <div class="section-label">TERMS ON THIS PAGE</div>
+    <div class="term-grid term-grid--4">
+      <div class="term"><div class="term-head"><div class="term-name">SPV</div><div class="term-alt">special purpose vehicle</div></div><div class="term-def">a separate company set up to own one asset and carry its debt</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Project finance</div></div><div class="term-def">a loan repaid from the asset's own cash flow, not from the owner's balance sheet</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Non-recourse</div></div><div class="term-def">the lender can recover its claim only from the asset and its cash flow, not from the owner company</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">ABS</div><div class="term-alt">asset-backed securities</div></div><div class="term-def">notes secured by, e.g., lease receivables</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">DDTL</div><div class="term-alt">delayed draw term loan</div></div><div class="term-def">a loan drawn in installments as equipment is bought</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Investment grade</div></div><div class="term-def">a good credit rating (BBB- or better), which lowers the price of a loan</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Residual value guarantee</div></div><div class="term-def">the tenant guarantees the asset's value if it doesn't renew the contract</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Off-balance sheet</div></div><div class="term-def">the debt sits on another company's balance sheet, even though the benefit and part of the risk are the user's</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Vendor financing</div></div><div class="term-def">an equipment supplier finances its customer's purchases, e.g. by investing in it</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Refinancing</div></div><div class="term-def">an expensive construction loan is replaced with a cheaper one once the site is finished</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Bond</div></div><div class="term-def">a loan issued by a company, which investors buy and which can be traded</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Convertible note</div></div><div class="term-def">a bond that can later be converted into the company's shares</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Infrastructure fund</div></div><div class="term-def">a fund that invests in long-lived assets with steady cash flow</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Parent company guarantee</div></div><div class="term-def">the parent company answers for a subsidiary's or SPV's debt if it can't pay</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Green bond</div></div><div class="term-def">a loan whose proceeds are earmarked for environmental projects, e.g. an energy-efficient data center</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Sustainability-linked loan</div></div><div class="term-def">a loan whose interest rate depends on meeting agreed sustainability targets</div></div>
+    </div>
+  </div>
+  <div class="card-note fine-print">A simplified overview. The examples are based on company announcements, credit rating agencies' reports and industry news. The xAI arrangement is based on news reports and hasn't been confirmed by the companies. As of September 2026.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="../assets/glossary-en.js"></script>
+<script src="../assets/glossary.js"></script>
+<script src="../assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>
