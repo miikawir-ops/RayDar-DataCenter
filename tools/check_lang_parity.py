@@ -18,7 +18,7 @@ How the sides are made comparable:
     either language, must appear on the other side too (anywhere there,
     sentence starts included). Finnish inflects names
     (Helsingin, Microsoftin), so two words match when they share a prefix of
-    at least max(4, shorter - 3) letters; translated place names (Suomi /
+    at least max(min(4, shorter), shorter - 3) letters (Owl / Owlilta); translated place names (Suomi /
     Finland) are listed in EXONYMS. All-caps labels are left to the numbers.
 
     python tools/check_lang_parity.py                  # the repo's pages
@@ -125,7 +125,7 @@ def dates(text, lang):
     t = re.sub(r"\b(\d{1,2})\.(\d{1,2})\.(?=[–-]\d{1,2}\.\d{1,2}\.\d{4})", lambda m: take(f"--{int(m[2]):02d}-{int(m[1]):02d}"), t)
     t = re.sub(r"\b(\d{1,2})/(\d{4})\b", lambda m: take(f"{m[2]}-{int(m[1]):02d}"), t)
     if lang == "fi":
-        t = re.sub(r"\b(" + "|".join(FI_MONTHS) + r")(?:kuu|kuussa|kuun|kuuta)\s+(\d{4})\b",
+        t = re.sub(r"\b(" + "|".join(FI_MONTHS) + r")(?:kuu|kuussa|kuun|kuuta|kuusta|kuuhun)\s+(\d{4})\b",
                    lambda m: take(f"{m[2]}-{FI_MONTHS.index(m[1].lower()) + 1:02d}"), t, flags=re.I)
     else:
         mon = "|".join(EN_MONTHS)
@@ -157,11 +157,13 @@ def names(text):
         return out            # an all-caps label (a kicker): its words aren't names
     for m in re.finditer(r"[A-ZÅÄÖ][\wÅÄÖåäö&]*(?:-[\wÅÄÖåäö]+)*", text):
         before = text[:m.start()].rstrip()
-        if not before or before[-1] in ".!?:·•–—(\"“'‘|←→" or before.endswith("<br>"):
+        if not before or before[-1] in ".!?:·•–—(\"“'‘|←→*" or before.endswith("<br>"):
             continue
         w = m.group(0).split("-")[0].split(":")[0]
         if (w.isupper() and len(w) > 1) or (w.endswith("s") and w[:-1].isupper() and len(w) > 2):
             continue          # acronyms (GPU, GPUs) and all-caps labels: the numbers cover them
+        if w.lower() in EN_MONTHS:
+            continue          # a month in a date, not a name (the dates are compared above)
         out.append(w)
     return out
 
@@ -176,7 +178,8 @@ def same_name(a, b):
     k = 0
     while k < min(len(a), len(b)) and a[k].lower() == b[k].lower():
         k += 1
-    return k >= max(4, min(len(a), len(b)) - 3) or (k == len(a) == len(b))
+    short = min(len(a), len(b))
+    return k >= max(min(4, short), short - 3)
 
 
 def base_exonym(word):

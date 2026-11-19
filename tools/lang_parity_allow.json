@@ -35,7 +35,7 @@
    "reason": "Quotes the table row's own name (rivi Sähkön hankinta / row Electricity procurement), not a company or place."
   },
   {
-   "page": "index.html",
+   "page": "*",
    "kind": "name",
    "value": "Finnish",
    "block": "meta og:image:alt",
@@ -46,6 +46,12 @@
    "kind": "block",
    "value": "p.lang-note",
    "reason": "The Finnish hub's 'This explainer is in Finnish' note; the language switch replaces it in R104 batch 3, then this entry goes."
+  },
+  {
+   "page": "*",
+   "kind": "block",
+   "value": "div.term-alt",
+   "reason": "A card's term list drops the alt where it only gives the term in the other language (Räkki / rack becomes Rack; julkinen pilvi; datakeskuskehittäjä), the glossary rule (R104, docs/r104-terminology.md)."
   }
  ]
 }

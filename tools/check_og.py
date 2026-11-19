@@ -44,6 +44,11 @@ PAGES = {
     "business-models/why-finland.html": "fi_FI",
     # English explainer pages (R104), added batch by batch as they go live.
     "business-models/en/": "en_US",
+    "business-models/en/public-cloud.html": "en_US",
+    "business-models/en/gpu-cloud.html": "en_US",
+    "business-models/en/retail-colocation.html": "en_US",
+    "business-models/en/wholesale-colocation.html": "en_US",
+    "business-models/en/own-data-center.html": "en_US",
 }
 REQUIRED = ("description", "og:title", "og:description", "og:type", "og:url", "og:image", "og:image:width",
             "og:image:height", "og:image:alt", "og:locale", "twitter:card")

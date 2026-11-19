@@ -34,7 +34,11 @@ PAGES = ("", "ecosystem.html", "business-models/", "business-models/public-cloud
          "business-models/wholesale-colocation.html", "business-models/own-data-center.html",
          "business-models/glossary.html", "business-models/financing.html",
          "business-models/specialised-models.html", "business-models/value-chain.html",
-         "business-models/why-finland.html")
+         "business-models/why-finland.html",
+         # English explainer pages (R104), added batch by batch as they go live.
+         "business-models/en/", "business-models/en/public-cloud.html", "business-models/en/gpu-cloud.html",
+         "business-models/en/retail-colocation.html", "business-models/en/wholesale-colocation.html",
+         "business-models/en/own-data-center.html")
 NOT_LINKS = ("http://www.w3.org/",)            # XML namespaces in scripts, never fetched by a browser
 COLLECT = """() => [
   ...[...document.querySelectorAll('a[href]')].map(a => a.href),
