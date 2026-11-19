@@ -18,7 +18,7 @@
   // Pages that have an English version so far (R104 goes live in batches).
   // A Finnish page without one shows no switch, and a link on an English
   // page to a page without one goes to the Finnish page instead of a 404.
-  const EN_READY = ["hub"];
+  const EN_READY = ["hub", "public-cloud", "gpu-cloud", "retail-colocation", "wholesale-colocation", "own-data-center"];
   const TEXT = {
     fi: {
       // Review date: when the facts were last verified, not when a page was

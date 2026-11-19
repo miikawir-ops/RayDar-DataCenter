@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Model card: GPU cloud — RayDar Data Center</title>
+<meta name="description" content="Model card on the GPU cloud: AI Ltd reserves GPU capacity for its own use from a cloud company specialized in AI computing.">
+<meta property="og:title" content="Model card: GPU cloud — RayDar Data Center">
+<meta property="og:description" content="Model card on the GPU cloud: AI Ltd reserves GPU capacity for its own use from a cloud company specialized in AI computing.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datacenter.raydar.fi/business-models/en/gpu-cloud.html">
+<meta property="og:image" content="https://datacenter.raydar.fi/business-models/assets/og-image-fi.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="The Finnish title Datakeskusten liiketoimintamallit (Data center business models) over an image of a data center shown in layers.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" hreflang="fi" href="https://datacenter.raydar.fi/business-models/gpu-cloud.html">
+<link rel="alternate" hreflang="en" href="https://datacenter.raydar.fi/business-models/en/gpu-cloud.html">
+<link rel="alternate" hreflang="x-default" href="https://datacenter.raydar.fi/business-models/gpu-cloud.html">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preload" href="../assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/explainer.css">
+</head>
+<body data-page="gpu-cloud">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--card">
+  <!-- Ported from Mallikortti2.dc.html (approved design, Tilanne 9/2026). The in-page
+       1-5 stepper is dropped: the shared header stepper replaces it (Ray, 2026-10-06). -->
+  <div class="page-head">
+    <div class="kicker">MODEL CARD · STAGE 2 / 5 · CONTENT REVIEWED 9/2026</div>
+    <h1 class="page-title">GPU cloud</h1>
+    <div class="page-lede">GPU cloud / <span class="gloss" data-g="gpu_cloud">neocloud</span>: AI Ltd reserves <span class="gloss" data-g="gpu">GPU</span> capacity for its own use from a cloud company specialized in AI computing</div>
+  </div>
+
+  <div class="band">
+    <div class="band-col"><div class="band-label">SITUATION</div><p class="band-text">AI Ltd's models are in production, and its GPU use is continuous. The public cloud's hourly price gets expensive, and capacity isn't always available when it's needed.</p></div>
+    <div class="band-col"><div class="band-label">DECISION</div><p class="band-text band-text--strong">AI Ltd signs a three-year contract with a GPU cloud, reserving a fixed amount of GPU capacity for its own use.</p></div>
+    <div class="band-col"><div class="band-label">REAL-WORLD COMPARISON</div><p class="band-text">In September 2025 Microsoft agreed with Nebius on about $17.4 billion of GPU capacity over five years. OpenAI has similar contracts with CoreWeave.</p></div>
+  </div>
+
+  <div class="card-body">
+    <div class="card-main">
+      <div class="cake-head"><div class="section-label">LAYER CAKE</div><div class="section-label">OPERATES</div><div class="section-label">OWNS</div></div>
+      <div class="cake cake--rows-2">
+        <div class="layer"><div class="layer-name">Applications and data</div><div class="layer-desc">AI Ltd's AI models and the data they process</div></div>
+        <div class="layer"><div class="layer-name">Operating system and platform</div><div class="layer-desc">The operating system, <span class="gloss" data-g="cluster">cluster</span> management and software libraries</div></div>
+        <div class="role fill-own">AI Ltd</div>
+        <div class="role fill-shared">Shared, per the contract</div>
+        <div class="role fill-own">AI Ltd</div>
+        <div class="role fill-shared">Shared</div>
+      </div>
+      <div class="demarc"><div class="demarc-label">RESPONSIBILITY BOUNDARY: SERVER OR CLUSTER LEVEL, PER THE CONTRACT</div><div class="demarc-line"></div></div>
+      <div class="cake cake--rows-3">
+        <div class="layer"><div class="layer-name">Servers and network equipment</div><div class="layer-desc">GPU servers owned by the GPU cloud, reserved for AI Ltd</div></div>
+        <div class="layer"><div class="layer-name">Power, cooling and security</div><div class="layer-desc">UPS, backup power, cooling and access control</div></div>
+        <div class="layer"><div class="layer-name">Property</div><div class="layer-desc">The GPU cloud's own or leased data center</div></div>
+        <div class="role fill-green">GPU cloud</div>
+        <div class="role fill-blue span-2">Colocation operator or the GPU cloud itself*</div>
+        <div class="role fill-green">GPU cloud</div>
+        <div class="role fill-blue">Colocation operator or the GPU cloud*</div>
+        <div class="role fill-sand">GPU cloud, operator or real estate investor</div>
+      </div>
+      <div class="footnote">* A GPU cloud can build its own data center (e.g. Nebius in Mäntsälä) or place its servers in a <span class="gloss" data-g="colocation">colocation</span> operator's premises (e.g. Nebius in Equinix's Paris data center). In the latter case the GPU cloud is itself a colocation customer: the models chain together.</div>
+      <div class="key-list">
+        <div class="key-row"><span class="swatch swatch--key fill-own"></span><div><b>AI Ltd</b>: a fictional AI company, the GPU cloud's customer</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-green"></span><div><b>GPU cloud (neocloud)</b>: owns GPU servers and sells their capacity, e.g. Nebius, Verda and CoreWeave</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-blue"></span><div><b>Colocation operator</b>: leases space to the GPU cloud if it has no data center of its own</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-sand"></span><div><b>Real estate investor (landlord)</b>: owns the building if the operator doesn't</div></div>
+      </div>
+      <div class="flows panel">
+        <div class="section-label">MONEY FLOWS</div>
+        <div class="flow"><div class="pill fill-own">AI Ltd</div><div class="flow-arrow">→</div><div class="pill fill-green">GPU cloud</div><div class="flow-text">a fixed fee for <span class="gloss" data-g="reserved_capacity">reserved capacity</span>, often partly in advance</div></div>
+        <div class="flow"><div class="pill fill-green">GPU cloud</div><div class="flow-arrow">→</div><div class="pill fill-blue">Operator</div><div class="flow-text">colocation fees, if the GPU cloud is a tenant</div></div>
+        <div class="flow"><div class="pill fill-green">GPU cloud</div><div class="flow-arrow">→</div><div class="pill fill-stone">Equipment supplier</div><div class="flow-text">GPU servers</div></div>
+        <div class="flow"><div class="pill fill-green">GPU cloud</div><div class="flow-arrow">→</div><div class="pill fill-stone">Lenders</div><div class="flow-text">interest and repayments; secured by the GPUs and the customer contracts</div></div>
+      </div>
+    </div>
+
+    <div class="contract panel">
+      <div class="section-label">CONTRACT</div>
+      <h3 class="contract-title">Capacity agreement</h3>
+      <div class="callout"><div class="callout-label">WHAT AI LTD BUYS</div><div class="callout-text">A service, but AI Ltd commits to paying for the reserved capacity for the whole contract term.</div></div>
+      <div class="crow"><div class="crow-label">PARTIES</div><div class="crow-value">AI Ltd and the GPU cloud</div></div>
+      <div class="crow"><div class="crow-label">CONTRACT STRUCTURE</div><div class="crow-value">A framework agreement and a capacity order, e.g. a set number of GPUs in a specific data center</div></div>
+      <div class="crow"><div class="crow-label">WHAT IS DELIVERED</div><div class="crow-value">GPU servers or a cluster reserved for its own use, networking, storage and maintenance</div></div>
+      <div class="crow"><div class="crow-label">WHAT IS PAID FOR</div><div class="crow-value">A fixed price per <span class="gloss" data-g="gpu_hour">GPU hour</span> or per month for the whole contract term. Paid whether used or not (<b><span class="gloss" data-g="take_or_pay">take-or-pay</span></b>). Often partly in advance</div></div>
+      <div class="crow"><div class="crow-label">TERM</div><div class="crow-value">Typically 1–5 years</div></div>
+      <div class="crow"><div class="crow-label">SLA</div><div class="crow-value">Capacity availability and performance. Credits for shortfalls (<span class="gloss" data-g="sla_service_credit">service credits</span>)</div></div>
+      <div class="crow"><div class="crow-label">NOT INCLUDED</div><div class="crow-value">AI Ltd's models, software or data</div></div>
+      <div class="section-label section-label--spaced">WHO BEARS THE RISK</div>
+      <div class="risk-list">
+        <div class="risk-item"><div class="risk-item-name">Utilization</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Ltd: pays for the reserved capacity for the whole term</div></div>
+        <div class="risk-item"><div class="risk-item-name">Equipment obsolescence</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">GPU cloud: owns the servers</div></div>
+        <div class="risk-item"><div class="risk-item-name">Electricity price</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">Usually the GPU cloud: included in the price</div></div>
+        <div class="risk-item"><div class="risk-item-name">Capacity availability</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">GPU cloud: committed to delivering</div></div>
+        <div class="risk-item"><div class="risk-item-name">Counterparty risk</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Ltd: the GPU cloud's ability to meet its commitments</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms panel">
+    <div class="section-label">TERMS ON THIS CARD</div>
+    <div class="term-grid">
+      <div class="term"><div class="term-head"><div class="term-name">GPU</div><div class="term-alt">graphics processing unit</div></div><div class="term-def">the processor used for AI computing</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Neocloud</div><div class="term-alt">GPU cloud</div></div><div class="term-def">a cloud company specialized in AI computing</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Cluster</div></div><div class="term-def">servers linked together that work as one unit</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">GPU hour</div></div><div class="term-def">the use of one GPU for an hour; a common pricing unit</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Reserved capacity</div></div><div class="term-def">capacity reserved for the customer's own use by contract</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Take-or-pay</div></div><div class="term-def">the agreed amount is paid whether it is used or not</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Prepayment</div></div><div class="term-def">payment before delivery; finances the GPU cloud's equipment purchases</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Counterparty risk</div></div><div class="term-def">the risk that a contract partner can't meet its commitment</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Colocation</div></div><div class="term-def">renting data center space for your own equipment</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">SLA and service credit</div></div><div class="term-def">a promised service level, and a credit if the promise isn't met</div></div>
+    </div>
+  </div>
+
+  <div class="card-note fine-print">AI Ltd is fictional; the other companies are real. The contract terms are typical features of the industry, not any one company's terms. Sources: company publications and industry news.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="../assets/glossary-en.js"></script>
+<script src="../assets/glossary.js"></script>
+<script src="../assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

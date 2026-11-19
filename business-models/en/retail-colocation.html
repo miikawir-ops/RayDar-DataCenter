@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Model card: Retail colocation — RayDar Data Center</title>
+<meta name="description" content="Model card on retail colocation: AI Ltd rents data center space for its own servers.">
+<meta property="og:title" content="Model card: Retail colocation — RayDar Data Center">
+<meta property="og:description" content="Model card on retail colocation: AI Ltd rents data center space for its own servers.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datacenter.raydar.fi/business-models/en/retail-colocation.html">
+<meta property="og:image" content="https://datacenter.raydar.fi/business-models/assets/og-image-fi.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="The Finnish title Datakeskusten liiketoimintamallit (Data center business models) over an image of a data center shown in layers.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" hreflang="fi" href="https://datacenter.raydar.fi/business-models/retail-colocation.html">
+<link rel="alternate" hreflang="en" href="https://datacenter.raydar.fi/business-models/en/retail-colocation.html">
+<link rel="alternate" hreflang="x-default" href="https://datacenter.raydar.fi/business-models/retail-colocation.html">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preload" href="../assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/explainer.css">
+</head>
+<body data-page="retail-colocation">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--card">
+  <!-- Ported from Mallikortti3.dc.html (approved design, Tilanne 9/2026). The in-page
+       1-5 stepper is dropped: the shared header stepper replaces it (Ray, 2026-10-06). -->
+  <div class="page-head">
+    <div class="kicker">MODEL CARD · STAGE 3 / 5 · CONTENT REVIEWED 9/2026</div>
+    <h1 class="page-title">Retail colocation</h1>
+    <div class="page-lede">Colocation at retail scale: AI Ltd rents data center space for its own servers</div>
+  </div>
+
+  <div class="band">
+    <div class="band-col"><div class="band-label">SITUATION</div><p class="band-text">AI Ltd has used a GPU cloud for a long time, and its use is continuous. The monthly bill keeps growing, and its own servers would be cheaper in the long run.</p></div>
+    <div class="band-col"><div class="band-label">DECISION</div><p class="band-text band-text--strong">AI Ltd buys its own GPU servers and rents <span class="gloss" data-g="rack">rack space</span> for them in a colocation operator's data center.</p></div>
+    <div class="band-col"><div class="band-label">REAL-WORLD COMPARISON</div><p class="band-text">The GPU cloud Nebius places some of its own servers in Equinix's Paris data center, which makes it a colocation customer itself.</p></div>
+  </div>
+
+  <div class="card-body">
+    <div class="card-main">
+      <div class="cake-head"><div class="section-label">LAYER CAKE</div><div class="section-label">OPERATES</div><div class="section-label">OWNS</div></div>
+      <div class="cake cake--rows-3">
+        <div class="layer"><div class="layer-name">Applications and data</div><div class="layer-desc">AI Ltd's AI models and the data they process</div></div>
+        <div class="layer"><div class="layer-name">Operating system and platform</div><div class="layer-desc">The software that runs and manages the servers</div></div>
+        <div class="layer"><div class="layer-name">Servers and network equipment</div><div class="layer-desc">AI Ltd's own GPU servers in racks (<b><span class="gloss" data-g="white_space">white space</span></b>)</div></div>
+        <div class="role fill-own span-3">AI Ltd</div>
+        <div class="role fill-own span-3">AI Ltd</div>
+      </div>
+      <div class="demarc"><div class="demarc-label">RESPONSIBILITY BOUNDARY (DEMARC): THE RACK'S POWER AND NETWORK CONNECTION</div><div class="demarc-line"></div></div>
+      <div class="cake cake--rows-2">
+        <div class="layer"><div class="layer-name">Power, cooling and security</div><div class="layer-desc">UPS, backup power, cooling and access control (<b><span class="gloss" data-g="grey_space">grey space</span></b>)</div></div>
+        <div class="layer"><div class="layer-name">Property</div><div class="layer-desc">The building, the land and the grid connection</div></div>
+        <div class="role fill-blue span-2">Colocation operator</div>
+        <div class="role fill-blue">Colocation operator</div>
+        <div class="role fill-sand">Operator or real estate investor*</div>
+      </div>
+      <div class="footnote">* The operator often owns the building itself. Sometimes it has sold the building to an investor and leases it back (sale-leaseback).</div>
+      <div class="key-list">
+        <div class="key-row"><span class="swatch swatch--key fill-own"></span><div><b>AI Ltd</b>: a fictional AI company, the colocation customer (tenant)</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-blue"></span><div><b>Colocation operator</b>: builds and runs the data center and rents out space in it, e.g. Equinix or Digital Realty</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-sand"></span><div><b>Real estate investor (landlord)</b>: a fund or REIT that owns the building and leases it to the operator</div></div>
+      </div>
+      <div class="flows panel">
+        <div class="section-label">MONEY FLOWS</div>
+        <div class="flow"><div class="pill fill-own">AI Ltd</div><div class="flow-arrow">→</div><div class="pill fill-blue">Operator</div><div class="flow-text">space, power, <span class="gloss" data-g="cross_connect">cross-connects</span> and <span class="gloss" data-g="remote_hands">remote hands</span> (<span class="gloss" data-g="mrc_nrc">MRC + NRC</span>)</div></div>
+        <div class="flow"><div class="pill fill-blue">Operator</div><div class="flow-arrow">→</div><div class="pill fill-sand">Investor</div><div class="flow-text">property rent, if the building belongs to an investor</div></div>
+        <div class="flow"><div class="pill fill-blue">Operator</div><div class="flow-arrow">→</div><div class="pill fill-stone">Electricity company</div><div class="flow-text">electricity, billed on to AI Ltd</div></div>
+      </div>
+    </div>
+
+    <div class="contract panel">
+      <div class="section-label">CONTRACT</div>
+      <h3 class="contract-title">Colocation agreement</h3>
+      <div class="callout"><div class="callout-label">WHAT AI LTD BUYS</div><div class="callout-text">Space and services: a mix of lease and service. The servers are AI Ltd's own.</div></div>
+      <div class="crow"><div class="crow-label">PARTIES</div><div class="crow-value">AI Ltd (customer) and the colocation operator</div></div>
+      <div class="crow"><div class="crow-label">CONTRACT STRUCTURE</div><div class="crow-value">An <b><span class="gloss" data-g="msa">MSA</span></b> (framework agreement) and separate orders (order forms) for space, power and connections</div></div>
+      <div class="crow"><div class="crow-label">WHAT IS DELIVERED</div><div class="crow-value">Rack space or a <span class="gloss" data-g="cage_suite">cage</span>, reserved power (kW), cooling, physical security and access to telecom carriers' networks</div></div>
+      <div class="crow"><div class="crow-label">WHAT IS PAID FOR</div><div class="crow-value">Monthly fees (<b>MRC</b>): space per rack, power (kW or kWh), cross-connects per unit. Plus one-off installation fees (<b>NRC</b>) and remote hands work by the hour</div></div>
+      <div class="crow"><div class="crow-label">TERM</div><div class="crow-value">Typically 1–5 years, often renewing automatically</div></div>
+      <div class="crow"><div class="crow-label">SLA</div><div class="crow-value">Availability of power and cooling, typically 99.99–99.999%. Credits for shortfalls (<span class="gloss" data-g="sla_service_credit">service credits</span>)</div></div>
+      <div class="crow"><div class="crow-label">NOT INCLUDED</div><div class="crow-value">The servers, software or data, which are AI Ltd's</div></div>
+      <div class="section-label section-label--spaced">WHO BEARS THE RISK</div>
+      <div class="risk-list">
+        <div class="risk-item"><div class="risk-item-name">Utilization</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Ltd: pays for the reserved space and power, used or not</div></div>
+        <div class="risk-item"><div class="risk-item-name">Equipment obsolescence</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Ltd: owns the GPU servers</div></div>
+        <div class="risk-item"><div class="risk-item-name">Electricity price</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Ltd: on the operator's invoice (kW or kWh)</div></div>
+        <div class="risk-item"><div class="risk-item-name">Facilities and infrastructure working</div><span class="swatch swatch--sq fill-blue"></span><div class="risk-item-text">Operator: per the SLA</div></div>
+        <div class="risk-item"><div class="risk-item-name">Vacant space</div><span class="swatch swatch--sq fill-blue"></span><div class="risk-item-text">Operator: unleased space earns nothing</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="eco panel">
+    <div class="section-label">NETWORK ECOSYSTEM</div>
+    <p class="eco-text">In retail colocation, AI Ltd gets more than rack space: it gets access to the telecom carriers and cloud services in the same building. It can connect to them directly with a <span class="gloss" data-g="cross_connect">cross-connect</span>, a cable inside the building, so the traffic doesn't go over the public internet. A direct connection is fast, reliable and inexpensive. The more parties in the building, the more valuable it is to each of them: Equinix has over 10,500 customers, more than 2,000 of them network service providers (2025).</p>
+  </div>
+
+  <div class="terms panel">
+    <div class="section-label">TERMS ON THIS CARD</div>
+    <div class="term-grid">
+      <div class="term"><div class="term-head"><div class="term-name">Rack</div></div><div class="term-def">a standard-size equipment cabinet; the smallest rental unit</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Cage and suite</div></div><div class="term-def">cage = a fenced area in the data hall, suite = a separate closed room; each for one customer</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">White space</div></div><div class="term-def">the data hall where the customers' racks are</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Grey space</div></div><div class="term-def">the technical rooms for the power and cooling systems</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Demarc</div><div class="term-alt">demarcation point</div></div><div class="term-def">the responsibility boundary: the point where the operator's responsibility ends and the customer's begins</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">MSA</div><div class="term-alt">master service agreement</div></div><div class="term-def">a framework agreement under which orders are placed</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">MRC and NRC</div><div class="term-alt">monthly / non-recurring charge</div></div><div class="term-def">a monthly fee and a one-off fee</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Cross-connect</div></div><div class="term-def">a direct cable connection between two parties in a data center</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">SLA and service credit</div></div><div class="term-def">a promised service level, and a credit if the promise isn't met</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">kW and kWh</div></div><div class="term-def">kW is the reserved power, how much electricity the equipment can draw at once; kWh is the amount of energy used. In retail colocation the price is often based on reserved power (kW), and the energy used (kWh) can be billed separately.</div></div>
+    </div>
+  </div>
+
+  <div class="card-note fine-print">AI Ltd is fictional; the other companies are real. The contract terms are typical features of the industry, not any one operator's terms. Remote hands = equipment work done by the operator's staff. Sources: company publications and industry news. The electricity billing and the network ecosystem figures are based on Equinix's annual report (10-K, 2025), reviewed 10/2026.</div>
+  <!-- Retail facts (verified 2026-10-11 and 2026-10-21, PLAN.md ledger R54, R64): Equinix FY2025 10-K,
+       sec.gov/Archives/edgar/data/1101239/000110123926000032/eqix-20251231.htm: billing "based on the space and power a customer
+       consumes"; "over 10,500 customers, including 2,000+ network service providers"; cross connects "fast, convenient,
+       affordable and highly reliable" -->
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="../assets/glossary-en.js"></script>
+<script src="../assets/glossary.js"></script>
+<script src="../assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Model card: Public cloud — RayDar Data Center</title>
+<meta name="description" content="Model card on the public cloud: AI Ltd buys computing capacity as a service over the internet.">
+<meta property="og:title" content="Model card: Public cloud — RayDar Data Center">
+<meta property="og:description" content="Model card on the public cloud: AI Ltd buys computing capacity as a service over the internet.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datacenter.raydar.fi/business-models/en/public-cloud.html">
+<meta property="og:image" content="https://datacenter.raydar.fi/business-models/assets/og-image-fi.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="The Finnish title Datakeskusten liiketoimintamallit (Data center business models) over an image of a data center shown in layers.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" hreflang="fi" href="https://datacenter.raydar.fi/business-models/public-cloud.html">
+<link rel="alternate" hreflang="en" href="https://datacenter.raydar.fi/business-models/en/public-cloud.html">
+<link rel="alternate" hreflang="x-default" href="https://datacenter.raydar.fi/business-models/public-cloud.html">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preload" href="../assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/explainer.css">
+</head>
+<body data-page="public-cloud">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--card">
+  <!-- Ported from Mallikortti1.dc.html (approved design, Tilanne 9/2026). The in-page
+       1-5 stepper is dropped: the shared header stepper replaces it (Ray, 2026-10-06). -->
+  <div class="page-head">
+    <div class="kicker">MODEL CARD · STAGE 1 / 5 · CONTENT REVIEWED 9/2026</div>
+    <h1 class="page-title">Public cloud</h1>
+    <div class="page-lede"><span class="gloss" data-g="public_cloud">Public cloud</span>: AI Ltd buys computing capacity as a service over the internet</div>
+  </div>
+
+  <div class="band">
+    <div class="band-col"><div class="band-label">SITUATION</div><p class="band-text">AI Ltd has just been founded. It needs to test and train its first models right away, its funding is limited, and its needs can't be forecast yet.</p></div>
+    <div class="band-col"><div class="band-label">DECISION</div><p class="band-text band-text--strong">AI Ltd opens an account with a <span class="gloss" data-g="hyperscaler">hyperscaler's</span> cloud and starts GPU virtual machines as needed.</p></div>
+    <!-- Azure arrangement (verified 2026-10-08, PLAN.md ledger R14):
+         2016 primary cloud: blogs.microsoft.com/blog/2016/11/15/advancing-ambition-democratize-artificial-intelligence/
+         2019 exclusive: news.microsoft.com/source/2019/07/22/openai-forms-exclusive-computing-partnership-with-microsoft-to-build-new-azure-ai-supercomputing-technologies/
+         2023 exclusive, restated: blogs.microsoft.com/blog/2023/01/23/microsoftandopenaiextendpartnership/
+         2026-04 any cloud, Azure primary: blogs.microsoft.com/blog/2026/04/27/the-next-phase-of-the-microsoft-openai-partnership/ -->
+    <div class="band-col"><div class="band-label">REAL-WORLD COMPARISON</div><p class="band-text">Microsoft's Azure has been OpenAI's main cloud since 2016. Exclusivity began in 2019; since April 2026 OpenAI can offer its products on other clouds too, but Azure remains its primary cloud.</p></div>
+  </div>
+
+  <div class="card-body">
+    <div class="card-main">
+      <div class="cake-head"><div class="section-label">LAYER CAKE</div><div class="section-label">OPERATES</div><div class="section-label">OWNS</div></div>
+      <div class="cake cake--rows-2">
+        <div class="layer"><div class="layer-name">Applications and data</div><div class="layer-desc">AI Ltd's AI models and the data they process</div></div>
+        <div class="layer"><div class="layer-name">Operating system and platform</div><div class="layer-desc">Virtual machines, the operating system and software libraries</div></div>
+        <div class="role fill-own">AI Ltd</div>
+        <div class="role fill-shared">Shared: AI Ltd in IaaS, the CSP in PaaS</div>
+        <div class="role fill-own">AI Ltd</div>
+        <div class="role fill-shared">Shared: AI Ltd's software, the CSP's virtualization</div>
+      </div>
+      <div class="demarc"><div class="demarc-label">RESPONSIBILITY BOUNDARY IN IAAS: THE VIRTUALIZATION LAYER (SHARED RESPONSIBILITY MODEL)</div><div class="demarc-line"></div></div>
+      <div class="cake cake--rows-3">
+        <div class="layer"><div class="layer-name">Servers and network equipment</div><div class="layer-desc">The CSP's GPU servers, shared among many customers (<span class="gloss" data-g="multi_tenant">multi-tenant</span>)</div></div>
+        <div class="layer"><div class="layer-name">Power, cooling and security</div><div class="layer-desc">UPS, backup power, cooling and access control</div></div>
+        <div class="layer"><div class="layer-name">Property</div><div class="layer-desc">The <span class="gloss" data-g="csp">CSP</span>'s own or leased data center</div></div>
+        <div class="role fill-green span-3">Cloud service provider (CSP)</div>
+        <div class="role fill-green span-2">Cloud service provider (CSP)</div>
+        <div class="role fill-sand">CSP or real estate investor*</div>
+      </div>
+      <div class="footnote">* Hyperscalers own much of their data center capacity themselves, but also lease capacity from colocation and wholesale operators.</div>
+      <div class="key-list">
+        <div class="key-row"><span class="swatch swatch--key fill-own"></span><div><b>AI Ltd</b>: a fictional AI company, the cloud service's customer</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-green"></span><div><b>Cloud service provider (CSP)</b>: sells computing, storage and software as a service, e.g. AWS, Microsoft Azure and Google Cloud</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-shared"></span><div><b>Shared</b>: responsibility is split according to the service level (<span class="gloss" data-g="iaas">IaaS</span>, <span class="gloss" data-g="paas">PaaS</span> or <span class="gloss" data-g="saas">SaaS</span>)</div></div>
+        <div class="key-row"><span class="swatch swatch--key fill-sand"></span><div><b>Real estate investor (landlord)</b>: owns some of the data centers the CSP uses</div></div>
+      </div>
+      <div class="flows panel">
+        <div class="section-label">MONEY FLOWS</div>
+        <div class="flow"><div class="pill fill-own">AI Ltd</div><div class="flow-arrow">→</div><div class="pill fill-green">CSP</div><div class="flow-text">usage-based fees each month (<span class="gloss" data-g="pay_as_you_go">pay-as-you-go</span>)</div></div>
+        <div class="flow"><div class="pill fill-green">CSP</div><div class="flow-arrow">→</div><div class="pill fill-sand">Investor</div><div class="flow-text">rent for the data centers the CSP doesn't own</div></div>
+        <div class="flow"><div class="pill fill-green">CSP</div><div class="flow-arrow">→</div><div class="pill fill-stone">Electricity company</div><div class="flow-text">electricity, included in the service price</div></div>
+      </div>
+    </div>
+
+    <div class="contract panel">
+      <div class="section-label">CONTRACT</div>
+      <h3 class="contract-title">Cloud services agreement</h3>
+      <div class="callout"><div class="callout-label">WHAT AI LTD BUYS</div><div class="callout-text">A service. AI Ltd buys capacity as it uses it and owns no equipment or premises.</div></div>
+      <div class="crow"><div class="crow-label">PARTIES</div><div class="crow-value">AI Ltd and the cloud service provider (CSP)</div></div>
+      <div class="crow"><div class="crow-label">CONTRACT STRUCTURE</div><div class="crow-value">A standard customer agreement and service-specific terms. Large customers have a negotiated enterprise agreement</div></div>
+      <div class="crow"><div class="crow-label">WHAT IS DELIVERED</div><div class="crow-value">GPU virtual machines, storage, networking and ready platform services, not a specific physical server</div></div>
+      <div class="crow"><div class="crow-label">WHAT IS PAID FOR</div><div class="crow-value">By use: GPU hours, data stored and transferred. A discount for committing to a level of use for 1–3 years (<b><span class="gloss" data-g="committed_use">committed use</span></b>)</div></div>
+      <div class="crow"><div class="crow-label">TERM</div><div class="crow-value">No minimum term; commitment discounts 1–3 years</div></div>
+      <div class="crow"><div class="crow-label">SLA</div><div class="crow-value">Availability per service, typically 99.9–99.99%. Credits for shortfalls (service credits)</div></div>
+      <div class="crow"><div class="crow-label">NOT INCLUDED</div><div class="crow-value">Protecting AI Ltd's applications and data, which AI Ltd is responsible for itself (<b><span class="gloss" data-g="shared_responsibility_model">shared responsibility model</span></b>)</div></div>
+      <div class="section-label section-label--spaced">WHO BEARS THE RISK</div>
+      <div class="risk-list">
+        <div class="risk-item"><div class="risk-item-name">Utilization</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">CSP: AI Ltd pays only for use, unless it commits</div></div>
+        <div class="risk-item"><div class="risk-item-name">Equipment obsolescence</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">CSP: owns the servers</div></div>
+        <div class="risk-item"><div class="risk-item-name">Electricity price</div><span class="swatch swatch--sq fill-green"></span><div class="risk-item-text">CSP: included in the service price</div></div>
+        <div class="risk-item"><div class="risk-item-name">Capacity availability</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Ltd: GPU capacity isn't always available right away</div></div>
+        <div class="risk-item"><div class="risk-item-name">Applications and data</div><span class="swatch swatch--sq fill-own"></span><div class="risk-item-text">AI Ltd: under the shared responsibility model</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms panel">
+    <div class="section-label">TERMS ON THIS CARD</div>
+    <div class="term-grid">
+      <div class="term"><div class="term-head"><div class="term-name">Public cloud</div></div><div class="term-def">a commercial cloud service shared by many customers, not a public-sector cloud</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">CSP</div><div class="term-alt">cloud service provider</div></div><div class="term-def">a cloud services company</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Hyperscaler</div></div><div class="term-def">the largest cloud players: AWS, Microsoft and Google</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">IaaS</div><div class="term-alt">infrastructure as a service</div></div><div class="term-def">virtual machines, storage and networking as a service</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">PaaS</div><div class="term-alt">platform as a service</div></div><div class="term-def">a ready platform the customer brings its applications to</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">SaaS</div><div class="term-alt">software as a service</div></div><div class="term-def">ready software as a service</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Multi-tenant</div></div><div class="term-def">the same infrastructure is shared among many customers</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Pay-as-you-go</div></div><div class="term-def">paying for what you use, no commitment</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Committed use</div><div class="term-alt">also reserved</div></div><div class="term-def">a discount when the customer commits to a level of use</div></div>
+      <div class="term"><div class="term-head"><div class="term-name">Shared responsibility model</div></div><div class="term-def">what the CSP and the customer are each responsible for</div></div>
+    </div>
+  </div>
+
+  <div class="card-note fine-print">AI Ltd is fictional; the other companies are real. The contract terms are typical features of the industry, not any one company's terms. Sources: company publications and industry news. The Azure arrangement is based on OpenAI's and Microsoft's announcements (2016, 2019, 2023 and April 2026), reviewed 10/2026.</div>
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="../assets/glossary-en.js"></script>
+<script src="../assets/glossary.js"></script>
+<script src="../assets/chrome.js"></script>
+<script>BMGlossary.init(window.BM_GLOSSARY);</script>
+</body>
+</html>
