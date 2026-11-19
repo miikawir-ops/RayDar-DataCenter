@@ -1203,8 +1203,8 @@
   },
   {
     "date": "2026-11-18",
-    "time": "04:29",
-    "run_at": "2026-11-19T04:29:04+00:00",
+    "time": "07:39",
+    "run_at": "2026-11-19T07:39:57+00:00",
     "model_version": 3,
     "scores": {
       "cooling": {
@@ -1223,7 +1223,7 @@
         }
       },
       "optical": {
-        "score": 42.31,
+        "score": 42.52,
         "color": "Green",
         "ratings": {
           "CIEN": "B",
