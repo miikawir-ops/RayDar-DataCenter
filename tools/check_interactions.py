@@ -501,6 +501,8 @@ def suite_pages(b, run):
     pw_guard.load(pg, run.base + "glossary.html#g-rack"); pw_guard.settled(pg); pg.wait_for_timeout(300)
     gt = pg.evaluate("() => { const e=document.getElementById('g-rack'); const r=e.getBoundingClientRect(); return {top:r.top, vh:innerHeight, target: e.matches(':target')} }")
     check("glossary: #g-rack deep link scrolls to the card and highlights it", gt["target"] and 0 <= gt["top"] < gt["vh"], str(gt))
+    cnt = pg.evaluate("[document.getElementById('glossary-count').textContent, document.querySelectorAll('.glossary-card').length]")
+    check("glossary: the lede's term count is the number of cards (R104)", cnt[0] == str(cnt[1]) and cnt[1] > 0, str(cnt))
     ctx.close()
 
 

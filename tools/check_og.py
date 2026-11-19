@@ -7,7 +7,9 @@ Per page:
     twitter:card=summary_large_image, all present and non-empty;
   - og:url is the page's own https://datacenter.raydar.fi/ URL, og:image an absolute URL on that site;
   - og:image returns 200 with image/png or image/jpeg and is exactly 1200x627;
-  - the favicon.svg, favicon.png and apple-touch-icon.png links resolve with 200.
+  - the favicon.svg, favicon.png and apple-touch-icon.png links resolve with 200;
+  - an explainer page with versions in both languages (R104) has <html lang> matching its locale and
+    hreflang alternates fi (business-models/<page>), en (business-models/en/<page>) and x-default (= fi).
 
 Against a local server (the default base) the absolute site URLs are fetched from the base instead, so
 the files about to be deployed are the ones checked. Against live:
@@ -40,6 +42,8 @@ PAGES = {
     "business-models/specialised-models.html": "fi_FI",
     "business-models/value-chain.html": "fi_FI",
     "business-models/why-finland.html": "fi_FI",
+    # English explainer pages (R104), added batch by batch as they go live.
+    "business-models/en/": "en_US",
 }
 REQUIRED = ("description", "og:title", "og:description", "og:type", "og:url", "og:image", "og:image:width",
             "og:image:height", "og:image:alt", "og:locale", "twitter:card")
@@ -56,10 +60,14 @@ def check(name, ok, detail=""):
 class Head(HTMLParser):
     def __init__(self):
         super().__init__()
-        self.meta, self.links = {}, []
+        self.meta, self.links, self.alternates, self.lang = {}, [], {}, None
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag == "html":
+            self.lang = a.get("lang")
+        if tag == "link" and a.get("rel") == "alternate" and a.get("hreflang"):
+            self.alternates[a["hreflang"]] = a.get("href")
         if tag == "meta" and (a.get("property") or a.get("name")):
             self.meta.setdefault(a.get("property") or a.get("name"), a.get("content") or "")
         elif tag == "link" and a.get("rel") and a.get("href"):
@@ -127,6 +135,13 @@ def main():
             check(f"{tag}: og:image 200", s == 200, f"{s} {img}")
             check(f"{tag}: og:image png/jpeg", ctype in ("image/png", "image/jpeg"), ctype)
             check(f"{tag}: og:image is 1200x627", size == (1200, 627), size)
+        if path.startswith("business-models/"):
+            page = path[len("business-models/"):].removeprefix("en/")
+            fi, en = "business-models/" + page, "business-models/en/" + page
+            if fi in PAGES and en in PAGES:
+                check(f"{tag}: <html lang> matches {locale}", head.lang == locale[:2], head.lang)
+                want = {"fi": SITE + fi, "en": SITE + en, "x-default": SITE + fi}
+                check(f"{tag}: hreflang fi, en and x-default (R104)", head.alternates == want, head.alternates)
         for rel, name in ICONS:
             href = next((h for r, h in head.links if r == rel and h.endswith(name)), None)
             ok = href is not None and fetch(urljoin(base + path, href))[0] == 200

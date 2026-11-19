@@ -118,15 +118,17 @@ jobs:
           mkdir -p _site/assets
           cp index.html _site/index.html
           cp ecosystem.html _site/ecosystem.html
-          cp ecosystem-data.v12.js _site/ecosystem-data.v12.js
+          cp ecosystem-data.v13.js _site/ecosystem-data.v13.js
           cp dashboard-companies.js _site/dashboard-companies.js
           cp assets/ecosystem-v2.webp _site/assets/ecosystem-v2.webp
           cp og-image.jpg favicon.svg favicon.png apple-touch-icon.png _site/
           cp -r business-models _site/business-models
           test -f _site/business-models/index.html
           test -f _site/business-models/assets/og-image-fi.jpg
+          test -f _site/business-models/en/index.html
         # Only the generated dashboard, the hand-authored ecosystem page
-        # and its image, the link-preview image and favicons (R92), and the Finnish business-models pages are uploaded
+        # and its image, the link-preview image and favicons (R92), and the business-models pages (Finnish, and
+        # English in business-models/en/, R104; cp -r copies the nested folder) are uploaded
         # — not the whole repo (source files, PLAN.md, etc. stay
         # out of the deployed site regardless of the repo's own visibility).
         # business-models/ is copied as a whole folder, so a new page or

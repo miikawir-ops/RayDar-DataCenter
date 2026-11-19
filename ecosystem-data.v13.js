@@ -1,4 +1,4 @@
-// ecosystem-data.v12.js — single source of truth for the interactive Data
+// ecosystem-data.v13.js — single source of truth for the interactive Data
 // Center Ecosystem map. Diagram arrows, the legend, the side panel, and the
 // poster hotspots are all generated from this file, so they can't drift
 // apart the way the static poster image's arrow colors drifted from its
@@ -38,6 +38,7 @@
 // says who buys storage. v12 (2026-10-30, R93): the Hämeenlinna fee source,
 // whose old page is gone, points at the city's current fee schedule (1.2.2026);
 // the storage example Pure Storage is now Everpure (rebrand 23.2.2026, R94).
+// v13 (2026-11-19, R104): American spelling in the electricity-tax note (data centers).
 //
 // Accuracy (CLAUDE.md): general mechanisms below are not independently
 // cited. The one named real-world example (Fortum/Microsoft, Espoo &
@@ -353,7 +354,7 @@ const MONEY_WALKTHROUGH_STEPS = [
     ] },
   { title: "8. The public sector's share", highlightIds: ["public_sector", "operator"],
     description: "The public sector is paid along the way. Where a municipality owns the land, it receives the sale price or rent, and its building control charges fees for permits. Once the facility stands, its owner pays property tax to that municipality every year. The state collects electricity tax through the electricity bill. Income taxes are shared: the operator's corporate income tax goes to the state and municipalities, and its employees' income tax to the state and their home municipalities.",
-    note: "In Finland, data centres paid the lower electricity tax class until 30 June 2026 and have paid the general class since 1 July 2026: an energy tax of 2.24 c/kWh instead of 0.05 c/kWh. A ten-year tax-relief scheme the Government decided on in December 2025 was dropped in September 2026. (Reviewed 10/2026.)",
+    note: "In Finland, data centers paid the lower electricity tax class until 30 June 2026 and have paid the general class since 1 July 2026: an energy tax of 2.24 c/kWh instead of 0.05 c/kWh. A ten-year tax-relief scheme the Government decided on in December 2025 was dropped in September 2026. (Reviewed 10/2026.)",
     payments: [
       { from: "operator", to: "public_sector", what: "land price and building-permit fees", phase: "build" },
       { from: "operator", to: "public_sector", what: "land rent, where the municipality leases the plot", phase: "operate" },

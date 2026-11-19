@@ -1,0 +1,51 @@
+{
+ "_doc": "Legitimate Finnish/English differences for tools/check_lang_parity.py (ledger R104). Each entry: page (file name, 'glossary data', or * for all), kind (name, number, date or block), value (the name, number, date token or block label; * = every name in that block), optional block (the block label it applies to; * or absent = any), and a reason.",
+ "allow": [
+  {
+   "page": "*",
+   "kind": "name",
+   "value": "Oy",
+   "reason": "The fictional company AI Oy is AI Ltd in English (Ray, R104)."
+  },
+  {
+   "page": "*",
+   "kind": "name",
+   "value": "Ltd",
+   "reason": "The fictional company AI Oy is AI Ltd in English (Ray, R104)."
+  },
+  {
+   "page": "index.html",
+   "kind": "name",
+   "value": "*",
+   "block": "div.lr-keys",
+   "reason": "The legend's keys are separate one-word labels (Itse, Vastapuoli / In-house, Counterparty), not names."
+  },
+  {
+   "page": "index.html",
+   "kind": "name",
+   "value": "Sähkön",
+   "block": "p",
+   "reason": "Quotes the table row's own name (rivi Sähkön hankinta / row Electricity procurement), not a company or place."
+  },
+  {
+   "page": "index.html",
+   "kind": "name",
+   "value": "Electricity",
+   "block": "p",
+   "reason": "Quotes the table row's own name (rivi Sähkön hankinta / row Electricity procurement), not a company or place."
+  },
+  {
+   "page": "index.html",
+   "kind": "name",
+   "value": "Finnish",
+   "block": "meta og:image:alt",
+   "reason": "The English pages reuse the Finnish preview image, whose title is in Finnish; the English alt text says so."
+  },
+  {
+   "page": "index.html",
+   "kind": "block",
+   "value": "p.lang-note",
+   "reason": "The Finnish hub's 'This explainer is in Finnish' note; the language switch replaces it in R104 batch 3, then this entry goes."
+  }
+ ]
+}

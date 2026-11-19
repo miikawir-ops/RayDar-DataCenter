@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Data center business models — RayDar Data Center</title>
+<meta name="description" content="Data center business models explained through the growth of a fictional company, AI Ltd, from public cloud to GPU cloud, colocation and its own data center.">
+<meta property="og:title" content="Data center business models — RayDar Data Center">
+<meta property="og:description" content="Data center business models explained through the growth of a fictional company, AI Ltd, from public cloud to GPU cloud, colocation and its own data center.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datacenter.raydar.fi/business-models/en/">
+<meta property="og:image" content="https://datacenter.raydar.fi/business-models/assets/og-image-fi.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="The Finnish title Datakeskusten liiketoimintamallit (Data center business models) over an image of a data center shown in layers.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" hreflang="fi" href="https://datacenter.raydar.fi/business-models/">
+<link rel="alternate" hreflang="en" href="https://datacenter.raydar.fi/business-models/en/">
+<link rel="alternate" hreflang="x-default" href="https://datacenter.raydar.fi/business-models/">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preload" href="../assets/fonts/ibm-plex-sans-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/space-grotesk-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/explainer.css">
+<style>
+/* Hub (one pager): ported from the approved design (Main.dc.html, 1680px
+   canvas). Desktop values are the source's own; only the canvas's fixed
+   width and height are gone (fluid, max 1680px). */
+.hub-head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;
+          padding-bottom:14px;border-bottom:2px solid var(--navy)}
+.hub-head__titles{display:flex;flex-direction:column;gap:6px}
+.hub-head .kicker{font-size:12px}
+.hub-title{margin:0;font-family:var(--f-display);font-size:38px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
+.hub-lede{font-size:15px;color:var(--ink-3);text-align:right;max-width:560px}
+/* One-line English note for visitors arriving from the English ecosystem
+   page (Ray, 2026-10-08); a registered deviation in tools/port_deviations.json. */
+.hub-head__aside{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.lang-note{margin:0;font-size:12px;color:var(--ink-3);text-align:right}
+/* The note stays small and grey (secondary to the lede); its two links carry
+   the weight, so they read as links at a glance (Ray, 2026-10-08). */
+.lang-note a{color:var(--blue);font-weight:600;text-decoration:underline;
+             text-decoration-thickness:1.5px;text-underline-offset:3px}
+.lang-note a:hover{color:var(--navy);text-decoration-thickness:2px}
+.lang-note a:focus-visible{outline:2px solid var(--rust);outline-offset:2px;border-radius:2px}
+
+/* Growth path: flexible -> cheaper but committed */
+.path{display:flex;align-items:center;gap:12px}
+.path-label{width:150px;flex-shrink:0;text-align:right;font-size:11.5px;color:var(--navy)}
+/* The source had white-space:nowrap (it only ever rendered at 1680px). Here
+   the phrases sit on one line while they fit and wrap only when they don't,
+   which kept them past the right edge at 1024px. */
+.path-from,.path-to{min-width:0;font-family:var(--f-display);font-size:15px;font-weight:600}
+.path-from{color:var(--blue)}
+.path-to{color:var(--rust)}
+.path-line{flex-grow:1;min-width:24px;height:2px;background:var(--navy)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12.5px;color:var(--ink-2);padding-left:162px}
+.legend-title{font-size:11px;color:var(--ink-3)}
+.legend-items{display:flex;gap:6px 14px;align-items:center}  /* the keys wrap as one group */
+.legend-item{display:flex;gap:5px;align-items:center;white-space:nowrap}
+
+/* Five-model matrix. Desktop: a label column plus five model columns whose
+   rows line up through CSS subgrid, so a row grows for its tallest cell at
+   narrower widths instead of overflowing the source's fixed row heights.
+   Compact: the same five <article>s become a snap-scrolling swipe track
+   (the dashboard's #chain pattern), one model per screen. */
+.matrix{display:grid;grid-template-columns:150px repeat(5,minmax(0,1fr));grid-template-rows:repeat(12,auto);
+        column-gap:10px;row-gap:7px;overflow:visible}
+.matrix-labels,.model{grid-row:1 / -1;display:grid;grid-template-rows:subgrid;box-sizing:border-box}
+.matrix-labels{padding:12px 0;border:1px solid transparent}
+.model{padding:12px;border-radius:10px;scroll-margin-top:calc(var(--header-steps-h) + 12px)}
+.model.is-active{border-color:var(--rust-strong);box-shadow:0 0 0 1px var(--rust-strong)}
+.mlabel{align-self:start;display:flex;align-items:center;justify-content:flex-end;text-align:right;
+        font-size:11.5px;line-height:1.3;color:var(--ink-3)}
+.mlabel--strong{color:var(--navy)}
+
+.cell{display:flex;align-items:center;position:relative}
+/* Stage label and model name are separate matrix rows, so each lines up
+   across all five columns even when one of them wraps (VAIHE 1's label
+   below ~1270px, Wholesale-colocation below ~1400px). */
+.cell--stage,.cell--title{align-items:flex-start}
+.stage{font-size:11.5px;color:var(--rust)}
+.model h2{margin:0;font-family:var(--f-display);font-size:19px;font-weight:700;line-height:1.15}
+.cell--buys{font-size:14px;line-height:1.3;font-weight:600}
+.cell--text{font-size:14px;line-height:1.3;color:var(--ink-2)}
+.cell--why{font-size:14px;line-height:1.3;font-style:italic;color:var(--ink-2)}
+.cell--risk{align-items:stretch;container-type:inline-size}
+.risk{flex:1;min-width:0;display:flex;gap:6px}
+.risk-box{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px;
+          padding:4px 8px;border-radius:6px;box-sizing:border-box;overflow-wrap:anywhere}
+/* "Who bears the risk": the two boxes sit side by side while the column has
+   room (they need ~192px; "AI Oy (sitoumus)" and "GPU-pilvi" are the widest pair) and
+   stack below that. Every model column has the same width, so all five
+   switch together and the row stays consistent. */
+@container (max-width:199px){ .risk{flex-direction:column} }
+.risk-k{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.06em;opacity:.85}
+.risk-v{font-size:13px;font-weight:600;line-height:1.2}
+/* One colour convention on the hub (Ray, ledger R62): the company is navy and the
+   counterparty light blue, in this table as in the layered section above. The
+   model cards keep the shared fill-own / fill-blue look. */
+.risk-box.fill-own,.legend .swatch.fill-own{background:var(--navy);border:none;color:var(--white)}
+.risk-box.fill-blue,.legend .swatch.fill-blue{background:#E8EFF5;border:1px solid rgba(31,78,110,.35);color:var(--blue)}
+.cell--actors{padding-top:4px;border-top:1px solid var(--line-mid);font-size:13px;font-weight:600;color:var(--rust)}
+/* Row labels repeated inside each cell: visually hidden on desktop (the
+   label column shows them; screen readers get them per cell), visible on
+   compact, where the label column is gone. */
+.cell-label{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);
+            white-space:nowrap;font-family:var(--f-mono);font-weight:600;letter-spacing:.06em}
+
+@media (min-width:1024px){
+  /* At 1680px these reproduce the source's single 44px heading cell exactly:
+     2.578125px offset + label (15) + 2px + name (21.84375) + 2.578125px
+     (exact 1/64px values: Chromium truncates layout lengths to 1/64px, so
+     2.578px would drift everything below by 0.03px). The title
+     row's -5px margin turns the uniform 7px row gap into the source's 2px. */
+  .cell--stage{padding-top:2.578125px}
+  .cell--title{margin-top:-5px;padding-bottom:2.578125px}
+  /* Row labels fill their row and centre in it, so they follow rows that grow
+     at narrower widths; at 1680px rows keep their source heights (no change).
+     The last row keeps its fixed top-aligned label: its cells have 4px of
+     top padding plus a 1px rule, which the label never had. */
+  .matrix-labels > *{align-self:stretch}
+  .matrix-labels > :nth-child(12){align-self:start}
+  .model > :nth-child(3){min-height:40px} .matrix-labels > :nth-child(3){min-height:40px}
+  .model > :nth-child(4){min-height:40px} .matrix-labels > :nth-child(4){min-height:40px}
+  .model > :nth-child(5){min-height:40px} .matrix-labels > :nth-child(5){min-height:40px}
+  .model > :nth-child(6){min-height:40px} .matrix-labels > :nth-child(6){min-height:40px}
+  .model > :nth-child(7){min-height:40px} .matrix-labels > :nth-child(7){min-height:40px}
+  .model > :nth-child(8){min-height:52px} .matrix-labels > :nth-child(8){min-height:52px}
+  .model > :nth-child(9){min-height:40px} .matrix-labels > :nth-child(9){min-height:40px}
+  .model > :nth-child(10){min-height:40px} .matrix-labels > :nth-child(10){min-height:40px}
+  .model > :nth-child(11){min-height:58px} .matrix-labels > :nth-child(11){min-height:58px}
+  .model > :nth-child(12){min-height:24px} .matrix-labels > :nth-child(12){height:24px}
+  .matrix-wrap::after{display:none}
+}
+
+/* Bottom row: value chain, specialised models, five things to remember */
+.bottom{display:flex;gap:14px;align-items:stretch;flex-grow:1}
+.bottom > section{min-width:0;display:flex;flex-direction:column;padding:18px 20px;border-radius:12px}
+.panel-kicker{font-size:11.5px;letter-spacing:.12em}
+.panel-title{margin:0;font-family:var(--f-display);font-size:20px;font-weight:700}
+
+.vc{flex:2.1 1 0;gap:10px}
+.vc-sub{font-size:13px;font-weight:600;color:var(--ink-3)}
+.vc .scroll-x{--fade-to:var(--white)}
+/* Nodes keep the flexbox default min-width (their longest word) instead of
+   the source's min-width:0, so a narrow panel scrolls the row sideways
+   rather than squeezing words out of their boxes. */
+.chain{display:flex;align-items:center;gap:4px;min-width:560px}
+.chain-node{flex:1 1 0;padding:7px 8px;border-radius:6px;text-align:center;line-height:1.25}
+.chain-name{font-size:13px;font-weight:700}
+.chain-role{font-size:12px}
+.chain-stage{margin-top:3px;font-family:var(--f-mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;color:var(--rust)}
+.fill-navy .chain-stage{color:var(--peach)}
+.chain-node.fill-navy{border:1px solid var(--navy)}
+.chain-link{width:92px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;
+            font-size:11.5px;font-weight:600;line-height:1.2;text-align:center}
+.chain-fwd{color:var(--blue)}
+.chain-back{color:var(--rust)}
+.chain-line{width:100%;height:1.5px;background:var(--navy)}
+.vc-note{padding:10px 12px;background:var(--cream);border-radius:8px;font-size:13.5px;line-height:1.45}
+
+.spec{flex:.85 1 0;gap:8px}
+.spec-item{font-size:13.5px;line-height:1.4;padding-bottom:7px;border-bottom:1px solid var(--line-soft)}
+.spec-text{color:var(--ink-2)}
+
+.remember{flex:1.1 1 0;justify-content:space-between;gap:12px}
+.remember .panel-kicker{color:var(--peach)}
+.remember-item{display:flex;gap:10px}
+.remember-num{font-family:var(--f-display);font-size:18px;font-weight:700;color:var(--peach)}
+.remember-text{font-size:13.5px;line-height:1.42}
+.remember-text b{color:var(--white)}
+
+.terms-note{font-size:12px;line-height:1.5}
+
+/* Below 1400px the value-chain panel's 2.1 share of the bottom row is too
+   narrow for its chains (they need ~620px), which pushed the last box behind
+   the edge fade at common laptop widths (63px hidden at 1263px). The three
+   panels stack instead, so the chain gets the full width and never scrolls
+   at desktop widths (Ray, 2026-10-07). */
+@media (max-width:1399px){
+  .bottom{flex-direction:column}
+  .bottom > section{flex:none}
+}
+
+/* Layered responsibility view (ledger R61; brief docs/briefs/layered-responsibility.md).
+   Generic, above the AI Oy table. The picture is a frozen image
+   (assets/datakeskus-kerrokset.webp, 1672x941); everything that carries
+   meaning (zones, highlights, labels, the demarc line, the buttons) is an SVG
+   overlay with the image's pixel size as its viewBox, drawn by
+   assets/kerrokset.js from the coordinates in assets/kerrokset-data.js. The
+   staircase table is the single source for who handles what. Itse is navy
+   and the counterparty light blue, as in the AI Oy table's risk boxes below
+   (one convention on the hub, ledger R62). */
+.layers{display:flex;flex-direction:column;gap:14px;padding:20px 22px;border-radius:12px}
+.layers-head{display:flex;flex-direction:column;gap:6px}
+.layers-head .kicker{font-size:12px}
+.layers-title{margin:0;font-family:var(--f-display);font-size:28px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.layers-lede{margin:0;font-size:15px;line-height:1.45;color:var(--ink-2);max-width:880px}
+.layers-analogy{margin-top:6px}
+.layers-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.layers-tab{font:600 14px/1.2 var(--f-body);color:var(--navy);background:var(--white);border:1.5px solid var(--line);
+            border-radius:999px;padding:5px 15px 5px 9px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+/* The tab's own staircase: six zones, Z1 on top, coloured as the picture (R65). */
+.lr-tab-bar{display:inline-flex;flex-direction:column;gap:1px;padding:2px;border-radius:3px;background:var(--white);border:1px solid var(--line)}
+.lr-tab-bar span{display:block;width:12px;height:3px;border-radius:1px;background:#D3DEE8}
+.lr-tab-bar span.is-own{background:var(--navy)}
+.lr-tab-bar span.is-mixed{background:repeating-linear-gradient(90deg,var(--navy) 0 2px,#D3DEE8 2px 4px)}
+.layers-tab[aria-selected="true"] .lr-tab-bar{border-color:var(--white)}
+.layers-tab:hover{border-color:var(--navy)}
+.layers-tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.layers-tab:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+.layers-body{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+.layers-figure{margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.layers-stage{position:relative;border-radius:8px;overflow:hidden;background:#DCE6EF}
+.layers-stage img{display:block;width:100%;height:auto}
+.layers-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+/* SVG overlay. Fills differ in lightness, not only hue; every state also has text. */
+.lr-zone{cursor:pointer;outline:none}
+/* Fills match the legend (R65): Itse translucent navy, shared hatched, counterparty a light wash; no outline at rest. */
+.lr-zone-shape{fill:transparent;stroke:transparent;stroke-width:3;transition:fill .35s,stroke .25s}
+.lr-zone.is-own .lr-zone-shape{fill:rgba(18,34,46,.5)}
+.lr-zone.is-mixed .lr-zone-shape{fill:url(#lr-hatch)}
+.lr-zone.is-cp .lr-zone-shape{fill:rgba(232,239,245,.4)}
+/* Rust is kept for the demarc line alone. One selection colour (R69): the selected or focused
+   zone and the selected list item are blue; hover is the lighter blue. */
+.lr-zone:hover .lr-zone-shape,.lr-zone.is-hot .lr-zone-shape{stroke:var(--blue-soft);stroke-width:4}
+.lr-zone:focus-visible .lr-zone-shape{stroke:var(--blue);stroke-width:5;stroke-dasharray:none}
+.lr-zone.is-selected .lr-zone-shape{stroke:var(--blue);stroke-width:5;stroke-dasharray:none}
+.lr-zone-halo{fill:none;stroke:none}
+.lr-zone.is-selected .lr-zone-halo,.lr-zone:focus-visible .lr-zone-halo{stroke:rgba(255,255,255,.9);stroke-width:9}
+.lr-label-box{fill:rgba(255,255,255,.94);stroke:var(--line);stroke-width:1.5}
+.lr-zone.is-selected .lr-label-box,.lr-zone:focus-visible .lr-label-box{stroke:var(--blue);stroke-width:3.5}
+.lr-label-name{font:700 24px var(--f-display);fill:var(--navy)}
+.lr-label-who{font:600 21px var(--f-body);fill:var(--blue)}
+.lr-zone.is-own .lr-label-who{fill:var(--navy)}
+.lr-leader{stroke:var(--navy);stroke-width:1.5;opacity:.55}
+.lr-line-halo{fill:none;stroke:rgba(255,255,255,.85);stroke-width:10;stroke-linejoin:round}
+.lr-line{fill:none;stroke:var(--rust-strong);stroke-width:5;stroke-dasharray:16 10;stroke-linejoin:round}
+.lr-line-label{font:700 20px var(--f-body);fill:var(--rust);paint-order:stroke;stroke:rgba(255,255,255,.92);stroke-width:6px}
+/* The cloud range (R65): a light shaded band from the typical line to where the line can move. */
+.lr-range{fill:rgba(251,234,220,.55);stroke:none}
+.lr-pos-halo{fill:none;stroke:rgba(255,255,255,.75);stroke-width:5;stroke-linejoin:round}
+.lr-pos-line{fill:none;stroke:var(--rust-strong);stroke-width:2;stroke-linejoin:round}
+/* The position names are glossary terms (R66): they take the pointer although the line layer doesn't. */
+.lr-pos-label{pointer-events:auto;cursor:help}
+.lr-range-label{font:600 19px var(--f-body);fill:var(--rust);paint-order:stroke;stroke:rgba(255,255,255,.92);stroke-width:6px}
+/* The lines and the range band are drawn over the zones but never take a click. */
+.lr-lines{transition:opacity .3s;pointer-events:none}
+.lr-marker{cursor:pointer;outline:none}
+.lr-marker-ring{fill:var(--white);stroke:var(--navy);stroke-width:4}
+.lr-marker-dot{fill:var(--rust-strong)}
+.lr-marker--heat .lr-marker-dot{fill:#C2412D}
+.lr-heat-shape{fill:transparent;stroke:transparent;stroke-width:4}
+.lr-marker:hover .lr-heat-shape,.lr-marker.is-selected .lr-heat-shape{fill:rgba(194,65,45,.16);stroke:#C2412D}
+.lr-marker:hover .lr-marker-ring,.lr-marker:focus-visible .lr-marker-ring,.lr-marker.is-selected .lr-marker-ring{stroke:var(--blue);stroke-width:7}
+.lr-marker-label{font:700 21px var(--f-body);fill:var(--navy)}
+.lr-marker-sub{font:500 19px var(--f-body);fill:var(--navy)}
+.lr-marker.is-selected .lr-marker-box,.lr-marker:focus-visible .lr-marker-box{stroke:var(--blue);stroke-width:3.5}
+/* Legend */
+.layers-legend{display:flex;flex-direction:column;gap:5px;font-size:13px;line-height:1.45;color:var(--ink-2)}
+.layers-legend p{margin:0}
+.lr-keys{display:flex;flex-wrap:wrap;gap:6px 16px}
+.lr-key{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--navy)}
+.lr-swatch{display:inline-block;width:18px;height:13px;border-radius:3px;box-sizing:border-box}
+.lr-swatch--own{background:var(--navy)}
+.lr-swatch--mixed{background:repeating-linear-gradient(135deg,var(--blue-soft) 0 3px,var(--white) 3px 6px);border:1px solid var(--blue)}
+.lr-swatch--cp{background:#E8EFF5;border:1px solid rgba(31,78,110,.45)}
+.lr-swatch--line{height:0;border-top:3px dashed var(--rust-strong);border-radius:0}
+.lr-terms{color:var(--ink-3);font-size:12.5px}
+/* Side panel: the selected zone (announced) and the zone list (also the phone list). */
+.layers-side{display:flex;flex-direction:column;gap:10px;min-width:0}
+.zone-detail{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--cream);min-height:92px}
+.zd-summary{margin:0}
+.zd-back{display:inline-block;margin:0 0 8px;padding:0;font:600 13px var(--f-body);color:var(--blue);background:none;border:0;cursor:pointer}
+.zd-back:hover{text-decoration:underline}
+.zd-back:focus-visible,.zone-detail:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+.zd-title{margin:0 0 4px;font-family:var(--f-display);font-size:17px;font-weight:700}
+.zd-desc{margin:0 0 6px;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.zd-who{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--blue)}
+.zd-who.is-own{color:var(--navy)}
+.zd-rows{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.zd-rows li{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;line-height:1.35;
+            padding-bottom:5px;border-bottom:1px solid var(--line-soft)}
+.zd-rows .zd-cell{font-weight:600;text-align:right}
+.zd-note{margin:8px 0 0;font-size:12.5px;line-height:1.45;color:var(--ink-3)}
+.zone-detail p{font-size:13.5px;line-height:1.5}
+.zone-detail p:last-child{margin-bottom:0}
+.zone-detail a{color:var(--blue);font-weight:600}
+.zd-src{font-size:12px;color:var(--ink-3)}
+.zd-extra{margin:10px 0 0}
+.lr-cloud-note{margin:0;font-size:13px;line-height:1.45;color:var(--ink-2);padding:8px 12px;border-left:3px solid var(--rust-strong);background:var(--white)}
+.lr-cloud-note[hidden]{display:none}
+.zone-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.zone-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;cursor:pointer;
+          font:inherit;font-size:14px;color:var(--navy);background:#E8EFF5;border:1px solid rgba(31,78,110,.35);
+          border-radius:8px;padding:8px 11px}
+.zone-btn.is-own{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.zone-btn.is-mixed{background:repeating-linear-gradient(135deg,#D7E3EC 0 6px,#EEF3F7 6px 12px);border-color:var(--blue)}
+.zone-btn .zone-name{font-weight:600}
+.zone-btn .zone-who{font-size:12.5px;font-weight:600;text-align:right}
+.zone-btn:hover,.zone-btn.is-hot{box-shadow:0 0 0 2px var(--blue-soft)}
+/* A white gap between button and ring, so the ring shows on navy (Itse) items too (R70). */
+.zone-btn[aria-pressed="true"]{box-shadow:0 0 0 2px var(--white),0 0 0 5px var(--blue)}
+.zone-btn:focus-visible,.marker-btn:focus-visible,.stairs-toggle:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+.lr-markers{display:flex;gap:8px;flex-wrap:wrap}
+.marker-btn{display:inline-flex;align-items:center;gap:7px;font:600 13px var(--f-body);color:var(--navy);background:var(--white);
+            border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.marker-btn[aria-pressed="true"]{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy)}
+.marker-dot{width:12px;height:12px;border-radius:50%;border:3px solid var(--navy);box-sizing:border-box;background:var(--rust-strong)}
+.marker-dot--heat{background:#C2412D}
+/* Staircase */
+.stairs{display:flex;flex-direction:column;gap:10px}
+/* The way into the grid, a primary button under the legend (R96): the five models' own tab bars side by side
+   as a staircase thumbnail, the label with its open/closed arrow, and what the grid holds. */
+.stairs-toggle{align-self:flex-start;display:inline-flex;align-items:center;gap:12px;margin:4px 0 2px;max-width:100%;
+               font:600 15px/1.25 var(--f-body);color:var(--white);background:var(--navy);text-align:left;
+               border:1.5px solid var(--navy);border-radius:10px;padding:9px 18px 9px 12px;cursor:pointer;
+               box-shadow:0 2px 6px rgba(18,34,46,.18);transition:background .15s,box-shadow .15s}
+.stairs-toggle:hover{background:#1E3A4E;box-shadow:0 3px 10px rgba(18,34,46,.3)}
+.stairs-toggle:focus-visible{box-shadow:0 0 0 2px var(--white)}
+.st-thumb{display:inline-flex;gap:3px;align-items:flex-start;padding:4px;border-radius:5px;background:var(--white);flex-shrink:0}
+.st-thumb .lr-tab-bar{border:0;padding:0}
+.st-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.st-label::after{content:" ↓"}
+.stairs-toggle[aria-expanded="true"] .st-label::after{content:" ↑"}
+.st-sub{font-size:12.5px;font-weight:500;color:#C9D6E1}
+.lr-fine{display:flex;flex-direction:column;gap:4px;margin-top:2px;font-size:12.5px;color:var(--ink-3)}
+@media (max-width:480px){.st-thumb{display:none}.stairs-toggle{padding:9px 14px}}
+/* Clear of the sticky stepper when the toggle scrolls to the grid or back (R97). */
+.stairs-toggle,.stairs-wrap{scroll-margin-top:calc(var(--header-steps-h) + 12px)}
+.stairs-wrap[hidden]{display:none}
+.stairs-wrap{display:flex;flex-direction:column;gap:8px}
+.stairs-wrap .scroll-x{--fade-to:var(--white)}
+/* Five equal model columns (R73): the steps' shape is the message, so no column widens to its longest text. */
+.stairs-table{border-collapse:separate;border-spacing:3px;width:100%;min-width:760px;font-size:13px;line-height:1.3;table-layout:fixed}
+.stairs-table col.sc-label{width:22%}
+.stairs-table .sc-line{display:block}
+.stairs-table .sc-sep{display:none}
+.stairs-table th,.stairs-table td{padding:6px 9px;border-radius:5px;text-align:left;vertical-align:middle}
+.stairs-table thead th{font-family:var(--f-display);font-size:14px;font-weight:700;color:var(--navy)}
+.stairs-table tbody th[scope="row"]{font-weight:600;color:var(--navy);background:var(--cream);width:22%}
+.stairs-table .stairs-group th{padding:9px 2px 2px;font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--rust);background:none}
+.stairs-table td.own{background:var(--navy);color:var(--white);font-weight:600}
+.stairs-table td.mixed{background:repeating-linear-gradient(135deg,#D7E3EC 0 6px,#EEF3F7 6px 12px);color:var(--navy);font-weight:600}
+.stairs-table td.cp{background:#E8EFF5;color:var(--blue)}
+.stairs-table tr.is-hot th[scope="row"],.stairs-table tr:hover th[scope="row"]{box-shadow:inset 0 0 0 2px var(--blue)}
+/* The vastuuraja in the grid (R73): the picture's rust dashed line on the first row below it. */
+.stairs-table td.demarc-top{border-top:3px dashed var(--rust-strong);border-top-left-radius:0;border-top-right-radius:0}
+/* Selected model, marked once in blue (rust is the vastuuraja's alone): a navy header like the selected tab, thin blue side edges. */
+.stairs-table thead th.is-col{background:var(--navy);color:var(--white)}
+.stairs-table thead th.is-col .fn{color:var(--peach)}
+.stairs-table td.is-col{box-shadow:-2px 0 0 var(--blue),2px 0 0 var(--blue)}
+.fn{font-size:.75em;margin-left:2px;color:var(--rust)}
+.stairs-notes{margin:0;padding-left:20px;font-size:12.5px;line-height:1.45;color:var(--ink-3)}
+.stairs-note{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2);max-width:980px}
+.stairs-note p{margin:0 0 4px}
+.stairs-note ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:3px}
+.layers-bridge{margin:6px 0 0;font-family:var(--f-display);font-size:16px;font-weight:600;line-height:1.4;color:var(--navy)}
+@media (max-width:1399px){
+  .layers-body{grid-template-columns:minmax(0,1fr)}
+  .layers-side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start}
+  .zone-detail{grid-row:span 2}
+  .lr-cloud-note,.zone-list,.lr-markers{grid-column:2}
+}
+@media (prefers-reduced-motion: reduce){
+  .lr-zone-shape,.lr-lines{transition:none}
+}
+
+/* Compact: tablet and phone */
+@media (max-width:1023px){
+  .layers{padding:16px 14px;gap:12px}
+  .layers-title{font-size:22px}
+  .layers-tabs{flex-wrap:nowrap;overflow-x:auto;margin:0 -14px;padding:2px 14px 6px;scrollbar-width:thin}
+  .layers-side{display:flex;align-items:stretch}  /* undo the 1399px grid's align-items:start */
+  .stairs-table{min-width:960px}   /* swipes anyway; wide enough that wholesale's two lines don't wrap further (R73) */
+  .lr-label,.lr-leader,.lr-line-label,.lr-range-label,.lr-pos-halo,.lr-pos-line,.lr-marker-label,.lr-marker-sub,.lr-marker-box{display:none}
+  .hub-head{flex-direction:column;align-items:flex-start;gap:8px}
+  .hub-title{font-size:30px}
+  .hub-lede{text-align:left;max-width:none}
+  .hub-head__aside{align-items:flex-start}
+  .lang-note{text-align:left}
+  .path{flex-wrap:wrap;gap:6px 10px}
+  .path-label{width:auto;flex-basis:100%;text-align:left}
+  .path-from,.path-to{flex:1 1 0}
+  .path-to{text-align:right}
+  .path-line{flex:0 0 20px}
+  .legend{padding-left:0}
+  .legend-title{flex-basis:100%}
+  .legend-items{flex-wrap:wrap}  /* phones are narrower than the keys together */
+
+  .matrix{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;
+          margin:0 calc(-1 * var(--gutter));padding:2px var(--gutter) 8px;scroll-padding-left:var(--gutter)}
+  .matrix-wrap::after{right:calc(-1 * var(--gutter))}
+  .matrix-labels{display:none}
+  .model{flex:0 0 min(85%,420px);display:flex;flex-direction:column;gap:12px;scroll-snap-align:start}
+  .cell{display:block}
+  .cell--title{margin-top:-10px}
+  .cell--risk .risk{min-height:48px}
+  .cell--actors{padding-top:8px}
+  .cell-label{position:static;width:auto;height:auto;margin:0 0 3px;overflow:visible;clip-path:none;
+              white-space:normal;display:block;font-size:10.5px;font-style:normal;font-weight:600;
+              line-height:1.3;color:var(--ink-3)}
+  .cell--actors .cell-label{color:var(--ink-3)}
+
+  .chain{min-width:680px}
+  .bottom{flex-direction:column}
+  .bottom > section{flex:none;padding:16px}
+}
+</style>
+</head>
+<body data-page="hub">
+
+<header id="bm-header" class="bm-header"></header>
+
+<main class="page page--hub">
+  <div class="hub-head">
+    <div class="hub-head__titles">
+      <div class="kicker">CONTENT REVIEWED 9/2026</div>
+      <h1 class="hub-title">Data center business models</h1>
+    </div>
+    <div class="hub-head__aside">
+      <div class="hub-lede">The example is a fictional AI company, AI Ltd, that needs computing capacity and grows from stage 1 to stage 5</div>
+    </div>
+  </div>
+
+  <section class="layers panel" id="kerrokset" aria-labelledby="h-layers">
+    <div class="layers-head">
+      <div class="kicker">THE LAYERS OF A DATA CENTER</div>
+      <h2 class="layers-title" id="h-layers">What a company handles in-house and what it buys</h2>
+      <p class="layers-lede">Every model contains the whole data center, from the property to the applications. The models differ in how much of it the company handles in-house and how much it buys from a provider.</p>
+      <p class="layers-lede layers-analogy">As an analogy, the data center is a factory and the servers are its production machines: in the cloud you buy the factory's output, in colocation you put your own machines in someone else's factory, and with your own data center the whole factory is yours.</p>
+    </div>
+
+    <div class="layers-tabs" role="tablist" aria-label="Model">
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-public-cloud" data-model="public-cloud" aria-selected="true" aria-controls="lr-panel">Public cloud</button>
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-gpu-cloud" data-model="gpu-cloud" aria-selected="false" aria-controls="lr-panel" tabindex="-1">GPU cloud</button>
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-retail-colocation" data-model="retail-colocation" aria-selected="false" aria-controls="lr-panel" tabindex="-1">Retail colocation</button>
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-wholesale-colocation" data-model="wholesale-colocation" aria-selected="false" aria-controls="lr-panel" tabindex="-1">Wholesale colocation</button>
+      <button class="layers-tab" type="button" role="tab" id="lr-tab-own-data-center" data-model="own-data-center" aria-selected="false" aria-controls="lr-panel" tabindex="-1">Own data center</button>
+    </div>
+
+    <div class="layers-body" role="tabpanel" id="lr-panel" aria-labelledby="lr-tab-public-cloud">
+      <figure class="layers-figure">
+        <div class="layers-stage">
+          <img src="../assets/datakeskus-kerrokset.webp" width="1672" height="941" alt="Cutaway image of a data center in a winter landscape. At the top, the cloud and application views; below them the software platform, servers and network equipment, the data hall with its caged racks, and the building systems: cooling equipment, UPS systems and backup generators. At the bottom, the property with its substation and transformers, power lines, and a district heating pipe leading towards the city.">
+          <svg class="layers-svg" viewBox="0 0 1672 941" role="group" aria-label="The layers of a data center"></svg>
+        </div>
+        <figcaption class="layers-legend">
+          <div class="lr-keys">
+            <span class="lr-key"><span class="lr-swatch lr-swatch--own"></span>In-house</span>
+            <span class="lr-key"><span class="lr-swatch lr-swatch--mixed"></span>Shared, or depends on the service or contract</span>
+            <span class="lr-key"><span class="lr-swatch lr-swatch--cp"></span>Provider</span>
+            <span class="lr-key"><span class="lr-swatch lr-swatch--line"></span>Responsibility boundary</span>
+          </div>
+          <button class="stairs-toggle" type="button" aria-expanded="false" aria-controls="lr-stairs"><span class="st-thumb" aria-hidden="true"></span><span class="st-text"><span class="st-label">Show all models side by side</span> <span class="st-sub">14 parts × 5 models: who handles what</span></span></button>
+          <p><b>In-house</b> = the company that needs computing capacity. <b>Provider</b> = the company it buys the rest from: a CSP, a GPU cloud, a colocation operator or a data center operator.</p>
+          <p><b>Responsibility boundary (demarc):</b> the point where the provider's responsibility ends and the company's own begins. In the cloud models the boundary is drawn at its typical position, and the light area shows where it can move.</p>
+          <div class="lr-fine">
+            <p>In the <span class="gloss" data-g="sla_service_credit">service level agreement (SLA)</span>, the provider promises a level of availability and credits part of the fee if the level isn't met. The promise covers what is below the responsibility boundary: in colocation, for example, power and cooling; in the cloud, the service itself.</p>
+          <p class="lr-terms">CSP = cloud service provider · colocation = rented data center space for your own equipment · turnkey = a ready-to-use data hall with its power and cooling systems · powered shell = a building with its grid connection in place; the building systems are the tenant's.</p>
+          </div>
+        </figcaption>
+      </figure>
+
+      <div class="layers-side">
+        <div class="zone-detail" id="lr-detail" aria-live="polite" tabindex="-1"></div>
+        <p class="lr-cloud-note" id="lr-cloud-note">The boundary depends on the service bought: in <span class="gloss" data-g="iaas">IaaS</span> the company manages the operating system; in <span class="gloss" data-g="paas">PaaS</span> and <span class="gloss" data-g="saas">SaaS</span> the provider handles more (shared responsibility model).</p>
+        <ol class="zone-list" aria-label="Layers">
+          <li><button class="zone-btn" type="button" data-zone="z1"><span class="zone-name">Applications, data and software</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z2"><span class="zone-name">Software platform</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z3"><span class="zone-name">IT equipment</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z4"><span class="zone-name">Data hall and racks</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z5"><span class="zone-name">Building systems</span><span class="zone-who"></span></button></li>
+          <li><button class="zone-btn" type="button" data-zone="z6"><span class="zone-name">Site and grid connection</span><span class="zone-who"></span></button></li>
+        </ol>
+        <div class="lr-markers">
+          <button class="marker-btn" type="button" data-marker="grid"><span class="marker-dot marker-dot--grid" aria-hidden="true"></span>Grid connection point</button>
+          <button class="marker-btn" type="button" data-marker="heat"><span class="marker-dot marker-dot--heat" aria-hidden="true"></span>Waste heat</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stairs">
+      <div class="stairs-wrap" id="lr-stairs" hidden>
+        <div class="scroll-x"><div class="scroll-x__inner">
+          <table class="stairs-table">
+            <caption class="visually-hidden">Who handles each part in each model</caption>
+            <colgroup><col class="sc-label"><col span="5"></colgroup>
+            <thead>
+              <tr><td></td><th scope="col" data-model="public-cloud">Public cloud</th><th scope="col" data-model="gpu-cloud">GPU cloud<sup class="fn">2</sup></th><th scope="col" data-model="retail-colocation">Retail colocation</th><th scope="col" data-model="wholesale-colocation">Wholesale colocation</th><th scope="col" data-model="own-data-center">Own data center</th></tr>
+            </thead>
+            <tbody>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">APPLICATIONS AND DATA</th></tr>
+              <tr data-row="1" data-zone="z1"><th scope="row">Applications and AI models</th><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td></tr>
+              <tr data-row="2" data-zone="z1"><th scope="row">Data</th><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td></tr>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">PLATFORM</th></tr>
+              <tr data-row="3" data-zone="z1"><th scope="row">Operating system and software libraries</th><td class="mixed">Shared: IaaS in-house, PaaS CSP</td><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td></tr>
+              <tr data-row="4" data-zone="z2"><th scope="row">Virtualization and cluster management</th><td class="cp">CSP</td><td class="mixed">In-house (bare metal) / GPU cloud (managed)</td><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td></tr>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">EQUIPMENT</th></tr>
+              <tr data-row="5" data-zone="z3"><th scope="row">Servers and storage</th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td></tr>
+              <tr data-row="6" data-zone="z3"><th scope="row">Network equipment</th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="own">In-house</td><td class="own">In-house</td><td class="own">In-house</td></tr>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">DATA HALL</th></tr>
+              <tr data-row="7" data-zone="z4"><th scope="row">Racks and power to the rack</th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="cp">Colocation operator</td><td class="own">In-house</td><td class="own">In-house</td></tr>
+              <tr data-row="8" data-zone="z5"><th scope="row">Cooling (air or liquid)</th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="cp">Colocation operator</td><td class="mixed"><span class="sc-line">Turnkey: operator</span><span class="sc-sep"> · </span><span class="sc-line">Powered shell: in-house</span></td><td class="own">In-house</td></tr>
+              <tr data-row="9" data-zone="z5"><th scope="row">UPS and backup power</th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="cp">Colocation operator</td><td class="mixed"><span class="sc-line">Turnkey: operator</span><span class="sc-sep"> · </span><span class="sc-line">Powered shell: in-house</span></td><td class="own">In-house</td></tr>
+              <tr data-row="10" data-zone="z5"><th scope="row">Access control and physical security</th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="cp">Colocation operator</td><td class="mixed"><span class="sc-line">Turnkey: operator</span><span class="sc-sep"> · </span><span class="sc-line">Powered shell: in-house</span></td><td class="own">In-house</td></tr>
+              <tr class="stairs-group"><th scope="colgroup" colspan="6">PROPERTY AND ENERGY</th></tr>
+              <tr data-row="11" data-zone="z6"><th scope="row">Land and building</th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="cp">Colocation operator</td><td class="cp">Data center operator</td><td class="own">In-house</td></tr>
+              <tr data-row="12" data-zone="z6"><th scope="row">Grid connection and substation<sup class="fn">1</sup></th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="cp">Colocation operator</td><td class="cp">Data center operator</td><td class="own">In-house</td></tr>
+              <tr data-row="13" data-zone="z6"><th scope="row">Electricity procurement</th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="cp">Colocation operator<sup class="fn">3</sup></td><td class="mixed">In-house or passed through</td><td class="own">In-house</td></tr>
+              <tr data-row="14" data-zone="z6"><th scope="row">Building and environmental permits</th><td class="cp">CSP</td><td class="cp">GPU cloud</td><td class="cp">Colocation operator</td><td class="cp">Data center operator</td><td class="own">In-house</td></tr>
+            </tbody>
+          </table>
+        </div></div>
+        <ol class="stairs-notes">
+          <li id="lr-fn1">The grid operator is responsible for the grid up to the connection point.</li>
+          <li id="lr-fn2">A GPU cloud can operate in its own data center or in a colocation operator's.</li>
+          <li id="lr-fn3">Electricity is usually billed on the operator's invoice (kW or kWh).</li>
+        </ol>
+      </div>
+      <div class="stairs-note">
+        <p>The layers don't show every difference.</p>
+        <ul>
+          <li>Public cloud and GPU cloud: the difference is above all the commitment. In a GPU cloud, capacity is often reserved for your own use with a multi-year contract.</li>
+          <li>Retail and wholesale: the difference is scale and the contract. Wholesale is a whole data hall or building on a 5–15-year lease.</li>
+          <li>Retail colocation also gains value from its network ecosystem: the carriers and cloud services in the same building, which customers can connect to directly (<span class="gloss" data-g="cross_connect">cross-connect</span>). A wholesale customer cares more about power capacity and cooling.</li>
+          <li>In the cloud models the responsibility boundary also depends on the service bought.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Text the script shows (kept here so tools/check_port_text.py sees every word). -->
+    <template id="lr-strings">
+      <span data-key="own">In-house</span>
+      <span data-key="handles">handles it</span>
+      <span data-key="handlesOwn">the company handles it in-house</span>
+      <span data-key="line">Responsibility boundary</span>
+      <span data-key="typical">Responsibility boundary, typically</span>
+      <span data-key="turnkey">Responsibility boundary: turnkey</span>
+      <span data-key="shell">Responsibility boundary: powered shell</span>
+      <span data-key="iaas">IaaS</span>
+      <span data-key="paas">PaaS</span>
+      <span data-key="saas">SaaS</span>
+      <span data-key="rangeGpu">managed service</span>
+      <span data-key="hide">Hide side-by-side view</span>
+      <span data-key="back">← Back to the summary</span>
+    </template>
+    <template id="lr-grid">
+      <h3 class="zd-title">Grid connection point</h3>
+      <p>Grid connection point: the grid operator's responsibility ends here. Electricity is bought separately (row Electricity procurement). The point is the same in every model, including your own data center.</p>
+    </template>
+    <template id="lr-heat">
+      <h3 class="zd-title">Waste heat into the district heating network</h3>
+      <p>A data center's owner or operator can sell the servers' waste heat to a district heating (kaukolämpö) company. The Mäntsälä data center has sold waste heat to the local district heating network since 2015; it was built by Yandex and now belongs to Nebius. Under the agreement between Microsoft and Fortum, waste heat recovery from Microsoft's data centers in Espoo and Kirkkonummi starts in stages from 2027.</p>
+      <p><a href="specialised-models.html#hukkalampo">Selling waste heat &rarr;</a></p>
+      <p class="zd-src">Sources: <a href="https://www.datacenterdynamics.com/en/news/yandex-data-center-heats-finnish-city" target="_blank" rel="noopener">DCD (2015)</a> · <a href="https://nebius.com/sustainability/turning-heat-into-a-resource" target="_blank" rel="noopener">Nebius</a> · <a href="https://www.fortum.com/en/media/2026/05/fortum-has-started-heat-production-two-large-data-centre-sites-finland" target="_blank" rel="noopener">Fortum (2026)</a> · reviewed 10/2026</p>
+    </template>
+    <template id="lr-zone-desc">
+      <p data-zone="z1">What the capacity is needed for: applications, AI models, their data and the operating system.</p>
+      <p data-zone="z2">The layer that puts the equipment's capacity to use: virtualization and cluster management.</p>
+      <p data-zone="z3">The equipment that does the actual computing and storage: servers, storage systems and network equipment.</p>
+      <p data-zone="z4">The space where the IT equipment is installed: racks, cages and power to the rack. Nothing is computed here.</p>
+      <p data-zone="z5">The systems that keep the data hall running: cooling, UPS, backup power and access control.</p>
+      <p data-zone="z6">The land, the building, the grid connection and substation, electricity procurement and permits.</p>
+    </template>
+    <template id="lr-zone-z5">
+      <p class="zd-extra">Redundancy: power supply, UPS, backup power and cooling are built with spare units (e.g. N+1 or 2N), so that one unit failing or being serviced doesn't stop operations. That is why data centers of the same size can cost very different amounts to build and run; the power and cooling systems are the largest cost item in the building.</p>
+      <p class="zd-src">Sources: <a href="https://datacenters.lbl.gov/sites/default/files/(TUI3011B)SimpleModelDetermingTrueTCO.pdf" target="_blank" rel="noopener">Uptime Institute</a> · <a href="https://www.coresite.com/blog/data-center-redundancy-n-1-vs-2n-1" target="_blank" rel="noopener">CoreSite</a> · <a href="https://ir.cushmanwakefield.com/news/press-release-details/2026/Cushman--Wakefield-Releases-2026-Data-Center-Development-Cost-Guide-Citing-21-Rise-in-Per-MW-Construction-Costs/default.aspx" target="_blank" rel="noopener">Cushman &amp; Wakefield (2026)</a> · reviewed 10/2026</p>
+    </template>
+    <template id="lr-summary">
+      <p data-model="public-cloud">The company handles the applications and data, and in an IaaS service the operating system too. The cloud service provider (CSP), for example Microsoft, Google or Amazon, handles everything else, from virtualization to the property.</p>
+      <p data-model="gpu-cloud">The company handles the applications, data and operating system, and in a bare metal service cluster management too. The GPU cloud company, for example CoreWeave, Nebius or Lambda, handles the equipment, the data hall and the property.</p>
+      <p data-model="retail-colocation">The company owns and runs its servers and network equipment. The colocation operator, for example Equinix, Digital Realty or Telia, handles the rack space, power, cooling and the property.</p>
+      <p data-model="wholesale-colocation">The company leases a whole data hall or building and fits it out. In the turnkey model the operator handles cooling, UPS, backup power and access control; in the powered shell model the company builds those itself too. The building and the grid connection come from a data center operator, for example Digital Realty or Equinix.</p>
+      <p data-model="own-data-center">The company handles everything from the land to the applications. The grid operator's responsibility (for example Fingrid or Caruna) ends at the connection point.</p>
+    </template>
+  </section>
+
+  <p class="layers-bridge">Above, the structure in general. Below, the same models as the growth path of the fictional AI Ltd: why the company moves from one model to the next, and what it buys, commits to and risks.</p>
+
+  <div class="path">
+    <div class="path-label mono-label">AI LTD'S GROWTH PATH</div>
+    <div class="path-from">Flexible, no capital tied up, high unit price</div>
+    <div class="path-line"></div>
+    <svg width="12" height="16" viewBox="0 0 12 16" aria-hidden="true"><path d="M1 1 L10 8 L1 15" fill="none" stroke="#9A4712" stroke-width="2"></path></svg>
+    <div class="path-to">Cheaper capacity, but more capital, commitments and risk</div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-title mono-label">COLORS:</div>
+    <div class="legend-items">
+      <div class="legend-item"><span class="swatch fill-own"></span>AI Ltd</div>
+      <div class="legend-item"><span class="swatch fill-blue"></span>Provider: a cloud or colocation company</div>
+    </div>
+  </div>
+
+  <div class="scroll-x matrix-wrap">
+    <div class="scroll-x__inner matrix" id="matrix">
+      <div class="matrix-labels" aria-hidden="true">
+        <div class="mlabel mono-label"></div>
+        <div class="mlabel mono-label"></div>
+        <div class="mlabel mono-label">BUILDING OWNED BY</div>
+        <div class="mlabel mono-label mlabel--strong">AI LTD BUYS</div>
+        <div class="mlabel mono-label">AI LTD'S COMMITMENTS</div>
+        <div class="mlabel mono-label">CONTRACT · PRICING</div>
+        <div class="mlabel mono-label">ELECTRICITY PAID BY</div>
+        <div class="mlabel mono-label mlabel--strong">WHO BEARS THE RISK</div>
+        <div class="mlabel mono-label">PROVIDER REVENUE</div>
+        <div class="mlabel mono-label">SCALE</div>
+        <div class="mlabel mono-label">WHY THIS STAGE</div>
+        <div class="mlabel mono-label">REAL-WORLD PLAYERS</div>
+      </div>
+
+      <article class="model panel" id="public-cloud" aria-labelledby="h-public-cloud">
+        <div class="cell cell--stage"><div class="stage mono-label">STAGE 1</div></div>
+        <div class="cell cell--title"><h2 id="h-public-cloud"><a class="quiet-link" href="public-cloud.html">Public cloud</a></h2></div>
+        <div class="cell cell--text"><div class="cell-label">BUILDING OWNED BY</div><span>CSP or real estate investor</span></div>
+        <div class="cell cell--buys"><div class="cell-label">AI LTD BUYS</div><span>Capacity, a platform or software as a service</span></div>
+        <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>No commitments, pays for what it uses</span></div>
+        <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>No commitment · pay as you go</span></div>
+        <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>CSP: included in the price</span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-blue"><div class="risk-k">UTILIZATION</div><div class="risk-v">CSP</div></div><div class="risk-box fill-blue"><div class="risk-k">EQUIPMENT</div><div class="risk-v">CSP</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>Usage-based fees</span></div>
+        <div class="cell cell--text"><div class="cell-label">SCALE</div><span>From single <span class="gloss" data-g="gpu">GPUs</span> to hundreds</span></div>
+        <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>Getting started: no investment, capacity right away</span></div>
+        <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>AWS, Azure, Google Cloud</span></div>
+      </article>
+
+      <article class="model panel" id="gpu-cloud" aria-labelledby="h-gpu-cloud">
+        <div class="cell cell--stage"><div class="stage mono-label">STAGE 2</div></div>
+        <div class="cell cell--title"><h2 id="h-gpu-cloud"><a class="quiet-link" href="gpu-cloud.html">GPU cloud</a></h2></div>
+        <div class="cell cell--text"><div class="cell-label">BUILDING OWNED BY</div><span>GPU cloud, operator or real estate investor</span></div>
+        <div class="cell cell--buys"><div class="cell-label">AI LTD BUYS</div><span>Ready, maintained capacity as a service</span></div>
+        <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>Multi-year payment commitment, no equipment of its own</span></div>
+        <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>1–5 yrs · per <span class="gloss" data-g="gpu_hour">GPU hour</span> or server</span></div>
+        <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>Usually the GPU cloud: included in the price</span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd (commitment)</div></div><div class="risk-box fill-blue"><div class="risk-k">EQUIPMENT</div><div class="risk-v">GPU cloud</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>Service fees, often <span class="gloss" data-g="take_or_pay">take-or-pay</span></span></div>
+        <div class="cell cell--text"><div class="cell-label">SCALE</div><span>Hundreds to thousands of GPUs</span></div>
+        <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>Use is continuous: the cloud gets expensive, capacity has to be secured</span></div>
+        <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>Nebius, Verda, CoreWeave</span></div>
+      </article>
+
+      <article class="model panel" id="retail-colocation" aria-labelledby="h-retail-colocation">
+        <div class="cell cell--stage"><div class="stage mono-label">STAGE 3</div></div>
+        <div class="cell cell--title"><h2 id="h-retail-colocation"><a class="quiet-link" href="retail-colocation.html">Retail colocation</a></h2></div>
+        <div class="cell cell--text"><div class="cell-label">BUILDING OWNED BY</div><span>Operator or real estate investor</span></div>
+        <div class="cell cell--buys"><div class="cell-label">AI LTD BUYS</div><span>Space and services: a mix of lease and service</span></div>
+        <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>Its own equipment and the lease obligation</span></div>
+        <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>1–5 yrs · per <span class="gloss" data-g="rack">rack</span> and kW</span></div>
+        <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>AI Ltd: on the operator's invoice (kW or kWh)</span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd</div></div><div class="risk-box fill-own"><div class="risk-k">EQUIPMENT</div><div class="risk-v">AI Ltd</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>Space rental, power, <span class="gloss" data-g="cross_connect">cross-connects</span>, <span class="gloss" data-g="remote_hands">remote hands</span></span></div>
+        <div class="cell cell--text"><div class="cell-label">SCALE</div><span>Rack = tens of kW</span></div>
+        <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>Owning the equipment is cheaper in the long run</span></div>
+        <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>Equinix (also Helsinki)</span></div>
+      </article>
+
+      <article class="model panel" id="wholesale-colocation" aria-labelledby="h-wholesale-colocation">
+        <div class="cell cell--stage"><div class="stage mono-label">STAGE 4</div></div>
+        <div class="cell cell--title"><h2 id="h-wholesale-colocation"><a class="quiet-link" href="wholesale-colocation.html">Wholesale colocation</a></h2></div>
+        <div class="cell cell--text"><div class="cell-label">BUILDING OWNED BY</div><span>Operator or real estate investor</span></div>
+        <div class="cell cell--buys"><div class="cell-label">AI LTD BUYS</div><span>The right to use the space: close to a property lease</span></div>
+        <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>Its own equipment and a long lease obligation</span></div>
+        <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>5–15 yrs · reserved power (€/kW)</span></div>
+        <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>AI Ltd: <span class="gloss" data-g="pass_through">passed through</span> or under its own contract</span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd, long term</div></div><div class="risk-box fill-own"><div class="risk-k">EQUIPMENT</div><div class="risk-v">AI Ltd</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>Long-term capacity lease</span></div>
+        <div class="cell cell--text"><div class="cell-label">SCALE</div><span>Tens to hundreds of MW</span></div>
+        <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>The need grows to tens of MW, and <span class="gloss" data-g="colocation">colocation</span> can't supply enough</span></div>
+        <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>Digital Realty, Vantage, Crusoe</span></div>
+      </article>
+
+      <article class="model panel" id="own-data-center" aria-labelledby="h-own-data-center">
+        <div class="cell cell--stage"><div class="stage mono-label">STAGE 5</div></div>
+        <div class="cell cell--title"><h2 id="h-own-data-center"><a class="quiet-link" href="own-data-center.html">Own data center</a></h2></div>
+        <div class="cell cell--text"><div class="cell-label">BUILDING OWNED BY</div><span>AI Ltd</span></div>
+        <div class="cell cell--buys"><div class="cell-label">AI LTD BUYS</div><span>Nothing: builds it itself</span></div>
+        <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>Land, building, grid connection and equipment</span></div>
+        <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>No lease · investment + maintenance</span></div>
+        <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>AI Ltd: directly from an electricity retailer; large players often also through a <span class="gloss" data-g="ppa">PPA</span></span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd</div></div><div class="risk-box fill-own"><div class="risk-k">EQUIPMENT</div><div class="risk-v">AI Ltd</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>No provider: its own means of production</span></div>
+        <div class="cell cell--text"><div class="cell-label">SCALE</div><span>Hundreds of MW to gigawatts</span></div>
+        <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>To control the whole chain, or because others build too slowly</span></div>
+        <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>xAI Colossus, Google Hamina</span></div>
+      </article>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <section class="vc panel" aria-labelledby="h-vc">
+      <div class="panel-kicker kicker">VALUE CHAIN</div>
+      <h3 class="panel-title" id="h-vc"><a class="quiet-link" href="value-chain.html">The same service, one company or four</a></h3>
+      <div class="vc-sub">A long chain, four companies: OpenAI's Stargate data center in Abilene, Texas</div>
+      <div class="scroll-x"><div class="scroll-x__inner"><div class="chain">
+        <div class="chain-node fill-own"><div class="chain-name">Crusoe and Blue Owl</div><div class="chain-role">own the campus</div></div>
+        <div class="chain-link"><div class="chain-fwd">campus →</div><div class="chain-line"></div><div class="chain-back">← lease, 15 yrs</div></div>
+        <div class="chain-node fill-own"><div class="chain-name">Oracle</div><div class="chain-role">owns the GPUs</div><div class="chain-stage">STAGE 4</div></div>
+        <div class="chain-link"><div class="chain-fwd">compute →</div><div class="chain-line"></div><div class="chain-back">← capacity fee</div></div>
+        <div class="chain-node fill-own"><div class="chain-name">OpenAI</div><div class="chain-role">buys compute</div><div class="chain-stage">STAGE 2</div></div>
+        <div class="chain-link"><div class="chain-fwd">service →</div><div class="chain-line"></div><div class="chain-back">← subscription</div></div>
+        <div class="chain-node fill-own"><div class="chain-name">Users</div></div>
+      </div></div></div>
+      <div class="vc-sub">A short chain, one company: Google owns and operates everything itself</div>
+      <div class="scroll-x"><div class="scroll-x__inner"><div class="chain">
+        <div class="chain-node fill-navy"><div class="chain-name">Google</div><div class="chain-role">owns everything</div><div class="chain-stage">STAGE 5</div></div>
+        <div class="chain-link"><div class="chain-fwd">compute →</div><div class="chain-line"></div><div class="chain-back">← usage fee</div></div>
+        <div class="chain-node fill-own"><div class="chain-name">AI Ltd</div><div class="chain-role">buys compute</div><div class="chain-stage">STAGE 1</div></div>
+        <div class="chain-link"><div class="chain-fwd">service →</div><div class="chain-line"></div><div class="chain-back">← subscription</div></div>
+        <div class="chain-node fill-own"><div class="chain-name">Users</div></div>
+      </div></div></div>
+      <div class="vc-note"><b>The stage tag shows which model the chain is from each company's point of view.</b> For Oracle, Abilene is a <span class="gloss" data-g="wholesale_colocation">wholesale</span> lease; for OpenAI, it is purchased capacity. Each layer owns different assets, carries different risks and gets its own share of the revenue.</div>
+    </section>
+
+    <section class="spec panel" aria-labelledby="h-spec">
+      <div class="panel-kicker kicker">SPECIALIZED MODELS</div>
+      <h3 class="panel-title" id="h-spec"><a class="quiet-link" href="specialised-models.html">Other models in the industry</a></h3>
+      <div class="spec-item"><b>Cloud giants' leased capacity:</b> <span class="spec-text">AWS, Microsoft and Google lease part of their capacity from colocation companies and <span class="gloss" data-g="gpu_cloud">GPU clouds</span>. The largest source of wholesale demand.</span></div>
+      <div class="spec-item"><b>Interconnection:</b> <span class="spec-text">revenue comes from connections between networks, not only from space (e.g. Equinix, FICIX).</span></div>
+      <div class="spec-item"><b>Edge data centers:</b> <span class="spec-text">small data centers close to users, for low latency.</span></div>
+      <div class="spec-item"><b>Development and financing models:</b> <span class="spec-text">the property can be owned by a fund, a <span class="gloss" data-g="reit">REIT</span> or a developer that leases it to an operator (e.g. <span class="gloss" data-g="build_to_suit">build-to-suit</span>, <span class="gloss" data-g="sale_leaseback">sale-leaseback</span>).</span></div>
+      <div class="spec-item"><b>Waste heat:</b> <span class="spec-text">the data center sells its heat to the district heating network (e.g. Nebius in Mäntsälä).</span></div>
+    </section>
+
+    <section class="remember panel panel--dark" aria-labelledby="h-remember">
+      <div class="panel-kicker kicker" id="h-remember">FIVE THINGS TO REMEMBER</div>
+      <div class="remember-item"><div class="remember-num">1</div><div class="remember-text"><b>Lease or service?</b> The models differ in what AI Ltd buys: the right to use space, or ready capacity.</div></div>
+      <div class="remember-item"><div class="remember-num">2</div><div class="remember-text"><b><span class="gloss" data-g="operate">Operating</span> is not owning.</b> The building can belong to an investor, the equipment to AI Ltd and the operation to a third party.</div></div>
+      <div class="remember-item"><div class="remember-num">3</div><div class="remember-text"><b>A lower price takes more risk.</b> E.g. a GPU cloud customer pays for reserved capacity even if it doesn't use it.</div></div>
+      <div class="remember-item"><div class="remember-num">4</div><div class="remember-text"><b>Models chain together.</b> Several companies in different roles and different countries can be behind the same service.</div></div>
+      <div class="remember-item"><div class="remember-num">5</div><div class="remember-text"><b>Financing rests on the customer's commitment and creditworthiness, not on the property alone.</b> A long contract makes the cash flow predictable, and creditworthiness decides the price of the loan.</div></div>
+    </section>
+  </div>
+
+  <div class="terms-note fine-print"><b><a class="quiet-link" href="glossary.html">Terms:</a></b> public cloud = a commercial cloud service shared by many customers · colocation = rented data center space for your own equipment · retail = racks or small spaces for many customers · wholesale = a whole data hall or building for one tenant · rack = equipment cabinet · cross-connect = a direct cable connection between two parties · remote hands = equipment work done by the operator's staff · take-or-pay = payment regardless of use · utilization = who pays if reserved capacity goes unused; the risk of unleased or unsold capacity sits with the provider (the CSP, the GPU cloud or the operator).<br>AI Ltd is fictional; the other companies are real. Contract terms are indicative. Sources: company publications and industry news. The building owner and electricity rows are based on the companies' annual reports (Microsoft, CoreWeave, Equinix, Digital Realty; 10-K, fiscal years 2025–2026), reviewed 10/2026.</div>
+  <!-- Matrix rows RAKENNUKSEN OMISTAA and SÄHKÖN MAKSAA (verified 2026-10-11, PLAN.md ledger R54, which quotes the passages):
+       sec.gov/Archives/edgar/data/: Microsoft msft-20260630.htm, CoreWeave crwv-20251231.htm, Equinix eqix-20251231.htm,
+       Digital Realty dlr-20251231x10k.htm -->
+</main>
+
+<footer id="bm-footer" class="bm-footer"></footer>
+
+<script src="../assets/glossary-en.js"></script>
+<script src="../assets/glossary.js"></script>
+<script src="../assets/chrome.js"></script>
+<script src="../assets/kerrokset-data.js"></script>
+<script src="../assets/kerrokset.js"></script>
+<script>
+// Hub: matrix <-> growth-path stepper. The stepper (rendered by chrome.js)
+// selects a model; on compact screens it scrolls the swipe track, and
+// swiping moves the stepper with it. #<slug> deep-links to a model.
+(function () {
+  BMGlossary.init(window.BM_GLOSSARY);
+
+  const track = document.getElementById("matrix");
+  const cards = Array.from(track.querySelectorAll(".model"));
+  const slugs = cards.map((c) => c.id);
+  const compact = window.matchMedia("(max-width: 1023px)");
+  let active = null;
+
+  // Desktop shows all five models at once, so the selected one gets an
+  // outline; on compact screens the stepper's current step is enough.
+  function setActive(slug, writeHash) {
+    active = slug;
+    cards.forEach((c) => c.classList.toggle("is-active", !compact.matches && c.id === slug));
+    BMChrome.setActiveStep(slug);
+    if (writeHash && slug && location.hash !== "#" + slug) history.replaceState(null, "", "#" + slug);
+  }
+
+  function goTo(slug, smooth) {
+    const card = document.getElementById(slug);
+    if (!card) return;
+    card.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "nearest", inline: "start" });
+    setActive(slug, true);
+  }
+
+  document.querySelector(".bm-steps").addEventListener("click", (e) => {
+    const a = e.target.closest("a[data-step]");
+    if (!a || !slugs.includes(a.dataset.step)) return;
+    e.preventDefault();
+    goTo(a.dataset.step, true);
+  });
+
+  // The card whose left edge is nearest the track's snap line is current.
+  let raf = 0;
+  track.addEventListener("scroll", () => {
+    if (raf || !compact.matches) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      const snapX = track.getBoundingClientRect().left + (parseFloat(getComputedStyle(track).scrollPaddingLeft) || 0);
+      let best = cards[0], bestD = Infinity;
+      cards.forEach((c) => {
+        const d = Math.abs(c.getBoundingClientRect().left - snapX);
+        if (d < bestD) { best = c; bestD = d; }
+      });
+      if (best.id !== active) setActive(best.id, true);
+    });
+  }, { passive: true });
+
+  const hashSlug = () => decodeURIComponent(location.hash.slice(1));
+  window.addEventListener("hashchange", () => {
+    if (slugs.includes(hashSlug())) goTo(hashSlug(), true);
+  });
+  compact.addEventListener("change", () => {
+    const s = hashSlug();
+    setActive(slugs.includes(s) ? s : (compact.matches ? slugs[0] : null), false);
+  });
+
+  const initial = hashSlug();
+  if (slugs.includes(initial)) {
+    goTo(initial, false);
+    // Web fonts can shift layout after the first jump; settle once more.
+    if (document.fonts) document.fonts.ready.then(() => goTo(initial, false));
+  } else if (compact.matches) {
+    setActive(slugs[0], false);
+  }
+})();
+</script>
+</body>
+</html>
