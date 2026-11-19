@@ -42,16 +42,35 @@
    "reason": "The English pages reuse the Finnish preview image, whose title is in Finnish; the English alt text says so."
   },
   {
-   "page": "index.html",
-   "kind": "block",
-   "value": "p.lang-note",
-   "reason": "The Finnish hub's 'This explainer is in Finnish' note; the language switch replaces it in R104 batch 3, then this entry goes."
-  },
-  {
    "page": "*",
    "kind": "block",
    "value": "div.term-alt",
    "reason": "A card's term list drops the alt where it only gives the term in the other language (Räkki / rack becomes Rack; julkinen pilvi; datakeskuskehittäjä), the glossary rule (R104, docs/r104-terminology.md)."
+  },
+  {
+   "page": "why-finland.html",
+   "kind": "name",
+   "value": "Government",
+   "reason": "Finnish writes hallitus and valtioneuvosto in lower case; English capitalizes the Government (and the Finnish Government for valtioneuvosto)."
+  },
+  {
+   "page": "why-finland.html",
+   "kind": "name",
+   "value": "Finnish",
+   "block": "div.doc-note",
+   "reason": "Finnish Government is the English name of valtioneuvosto in the source list."
+  },
+  {
+   "page": "specialised-models.html",
+   "kind": "name",
+   "value": "Rahoitusmallit",
+   "reason": "Names the Financing models page by its title (Rahoitusmallit-sivulla / on the Financing models page)."
+  },
+  {
+   "page": "specialised-models.html",
+   "kind": "name",
+   "value": "Financing",
+   "reason": "Names the Financing models page by its title (Rahoitusmallit-sivulla / on the Financing models page)."
   }
  ]
 }

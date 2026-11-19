@@ -49,6 +49,11 @@ PAGES = {
     "business-models/en/retail-colocation.html": "en_US",
     "business-models/en/wholesale-colocation.html": "en_US",
     "business-models/en/own-data-center.html": "en_US",
+    "business-models/en/value-chain.html": "en_US",
+    "business-models/en/financing.html": "en_US",
+    "business-models/en/specialised-models.html": "en_US",
+    "business-models/en/why-finland.html": "en_US",
+    "business-models/en/glossary.html": "en_US",
 }
 REQUIRED = ("description", "og:title", "og:description", "og:type", "og:url", "og:image", "og:image:width",
             "og:image:height", "og:image:alt", "og:locale", "twitter:card")

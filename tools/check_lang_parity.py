@@ -44,9 +44,12 @@ SKIP = {"script", "style"}
 TEXT_ATTRS = ("alt", "aria-label", "title")
 META = {"description", "og:title", "og:description", "og:image:alt"}
 # Place names written differently in the two languages (Finnish base form -> English).
-EXONYMS = {"Suomi": "Finland", "Saksa": "Germany", "Ruotsi": "Sweden", "Norja": "Norway", "Tanska": "Denmark",
-           "Tukholma": "Stockholm", "Kööpenhamina": "Copenhagen", "Teksas": "Texas", "Yhdysvallat": "United",
-           "Eurooppa": "Europe", "Kanada": "Canada", "Israel": "Israeli"}
+# A Finnish word can stand for several English ones (Yhdysvallat / United States).
+EXONYMS = {"Suomi": ["Finland"], "Saksa": ["Germany"], "Ruotsi": ["Sweden"], "Norja": ["Norway"], "Tanska": ["Denmark"],
+           "Tukholma": ["Stockholm"], "Kööpenhamina": ["Copenhagen"], "Teksas": ["Texas"],
+           "Yhdysvallat": ["United", "States"], "Pohjois": ["North"], "Amerikka": ["America"],
+           "Keski": ["Central"], "Pohjoismaat": ["Nordic"],
+           "Eurooppa": ["Europe"], "Kanada": ["Canada"], "Israel": ["Israeli"]}
 FI_MONTHS = ["tammi", "helmi", "maalis", "huhti", "touko", "kesä", "heinä", "elo", "syys", "loka", "marras", "joulu"]
 EN_MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october",
              "november", "december"]
@@ -66,6 +69,10 @@ class Blocks(HTMLParser):
         a = dict(attrs)
         if tag in SKIP:
             self.skip += 1
+        if tag == "br" and self.stack:
+            # A line break starts a new line of text: the word after it is a start, like after a full stop.
+            blk = [st for st in self.stack if st[3]]
+            self._add(self._key(), "|", blk[-1][2] if blk else "?", append=True)
         if tag in ("br", "wbr", "meta", "link", "img", "input", "col", "source"):
             if tag == "meta" and (a.get("name") or a.get("property")) in META:
                 self._add(("head", a.get("name") or a.get("property")), a.get("content") or "", "meta " + (a.get("name") or a.get("property")))
@@ -157,11 +164,13 @@ def names(text):
         return out            # an all-caps label (a kicker): its words aren't names
     for m in re.finditer(r"[A-ZÅÄÖ][\wÅÄÖåäö&]*(?:-[\wÅÄÖåäö]+)*", text):
         before = text[:m.start()].rstrip()
-        if not before or before[-1] in ".!?:·•–—(\"“'‘|←→*" or before.endswith("<br>"):
+        if not before or before[-1] in ".!?:·•–—(\"“'‘|←→*▼▲" or before.endswith("<br>"):
             continue
         w = m.group(0).split("-")[0].split(":")[0]
         if (w.isupper() and len(w) > 1) or (w.endswith("s") and w[:-1].isupper() and len(w) > 2):
             continue          # acronyms (GPU, GPUs) and all-caps labels: the numbers cover them
+        if len(w) == 1:
+            continue          # a single letter: a unit (30 M€) or a list mark, not a name
         if w.lower() in EN_MONTHS:
             continue          # a month in a date, not a name (the dates are compared above)
         out.append(w)
@@ -169,9 +178,12 @@ def names(text):
 
 
 def capitalised(text):
-    """Every capitalised word, wherever it stands: what a name is looked for in."""
-    return [m.group(0).split("-")[0].split(":")[0]
-            for m in re.finditer(r"[A-ZÅÄÖ][\wÅÄÖåäö&]*(?:[-:][\wÅÄÖåäö]+)*", text)]
+    """Every capitalised word, wherever it stands: what a name is looked for in. Each capitalised
+    part of a hyphenated word counts (Pohjois-Amerikassa gives Pohjois and Amerikassa)."""
+    out = []
+    for m in re.finditer(r"[A-ZÅÄÖ][\wÅÄÖåäö&]*(?:[-:][\wÅÄÖåäö]+)*", text):
+        out += [part for part in re.split(r"[-:]", m.group(0)) if part[:1].isupper()]
+    return out
 
 
 def same_name(a, b):
@@ -183,16 +195,14 @@ def same_name(a, b):
 
 
 def base_exonym(word):
-    for fi, en in EXONYMS.items():
-        if same_name(word, fi) or same_name(word, en):
-            return en
-    return None
+    """The EXONYMS entries (their Finnish keys) a word belongs to, in either language."""
+    return {fi for fi, ens in EXONYMS.items() if same_name(word, fi) or any(same_name(word, en) for en in ens)}
 
 
 def name_missing(word, other_words):
     ex = base_exonym(word)
     if ex:
-        return not any(same_name(ex, o) or base_exonym(o) == ex for o in other_words)
+        return not any(base_exonym(o) & ex for o in other_words)
     return not any(same_name(word, o) for o in other_words)
 
 
