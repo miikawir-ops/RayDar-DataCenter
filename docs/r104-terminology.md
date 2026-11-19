@@ -108,6 +108,31 @@ ecosystem pages ("data center", "color", "utilization", "specialized").
 | Sähköyhtiö / Sähkö- ja verkkoyhtiöt | Electricity company / Electricity companies and grid operators |
 | Pilvipalvelusopimus / Kapasiteettisopimus / Colocation-sopimus / Wholesale-vuokrasopimus | Cloud services agreement / Capacity agreement / Colocation agreement / Wholesale lease |
 
+## Value chain, financing, specialized models, Why Finland, glossary (batch 3; labels new in this batch)
+
+| Finnish | English |
+|---|---|
+| ARVOKETJU · Sama palvelu, yksi tai neljä yhtiötä | VALUE CHAIN · The same service, one company or four |
+| PITKÄ KETJU / LYHYT KETJU | A LONG CHAIN / A SHORT CHAIN |
+| ORACLELLE: VAIHE 4 (WHOLESALE) | FOR ORACLE: STAGE 4 (WHOLESALE) |
+| MIKÄ STARGATE ON · Mitä vertailu opettaa | WHAT STARGATE IS · What the comparison teaches |
+| RAHOITUS · YDINAJATUS | FINANCING · KEY IDEA |
+| MITÄ RAHOITETAAN JA MILLÄ · TODELLISIA ESIMERKKEJÄ | WHAT IS FINANCED, AND HOW · REAL-WORLD EXAMPLES |
+| Vakuutena / Perustuu / Tuotto | Secured by / Rests on / Return |
+| RISKIT RAHOITTAJAN NÄKÖKULMASTA | RISKS FROM THE LENDER'S POINT OF VIEW |
+| Asiakasriski · Kestoero · Rakentamisriski | Customer risk · Duration mismatch · Construction risk |
+| SIVUN TERMIT | TERMS ON THIS PAGE |
+| mrd $ / milj. £ | $ billion / £ million |
+| LISÄULOTTUVUUDET · LIITTYY · ESIM. | MORE DIMENSIONS · RELATES TO · E.G. |
+| SIJAINTI · TULOMALLI · KYSYNTÄ · OMISTUS JA RAHOITUS · LISÄTULO · JULKINEN SEKTORI | LOCATION · REVENUE MODEL · DEMAND · OWNERSHIP AND FINANCING · EXTRA REVENUE · PUBLIC SECTOR |
+| Pilvijättien vuokrakapasiteetti | Cloud giants' leased capacity |
+| Operaattorineutraali | Carrier-neutral |
+| SIJAINTI · Miksi Suomi? | LOCATION · Why Finland? |
+| VASTATUULET | HEADWINDS |
+| Hallitus / valtioneuvosto | the Government / the Finnish Government |
+| 2. vuosipuolisko 2025 | the second half (H2) of 2025 |
+| KÄSITTEET · Sanasto | TERMS · Glossary |
+
 ## Commercial and financing terms
 
 Kept as the industry writes them: colocation, retail/wholesale colocation, powered
