@@ -1581,7 +1581,7 @@ function buildHeat() {{
       }}
       if (day.method_boundary) {{
         cell.style.borderRight = "2px dashed #888780";
-        cell.title += " · scoring method changed after this day — later colours aren't comparable";
+        cell.title += " · scoring method changed after this day — later colors aren't comparable";
       }}
       cell.style.background = displayColor;
       g.appendChild(cell);
