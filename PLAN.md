@@ -705,7 +705,8 @@ findings don't get lost, not because a fix or a direction has been agreed.
      in a test run.
    - Playwright functional checks from 1680px down to 360px.
 
-   **Every explainer change runs all three checks (Ray, 2026-10-08)**, from the
+   **Every explainer change runs all four checks (Ray, 2026-10-08; the fourth,
+   check_lang_parity, since R104, 2026-11-19)**, from the
    repo root with the site served locally
    (`python -m http.server 8765 --bind 127.0.0.1`):
    - `python tools/check_port_text.py --all`: text identity with the approved
@@ -716,6 +717,13 @@ findings don't get lost, not because a fix or a direction has been agreed.
      links and swipe, 1680px down to 360px (565 checks in three suites: hub,
      cards, pages). Add `--shots Output/screenshots/business-models` for the
      review screenshots.
+   - `python tools/check_lang_parity.py`: every English page in
+     business-models/en/ against its Finnish page, block by block (dates,
+     numbers, company and place names), and the two glossary data files;
+     legitimate differences only through tools/lang_parity_allow.json, each
+     with a reason. check_port_text stays Finnish-only. The layout sweep also
+     runs on the English pages: `python tools/check_layout_sweep.py --base
+     http://127.0.0.1:8765/business-models/en/ --pages <the English pages>`.
 
    Since R92 (2026-10-30), also `python tools/check_og.py`: link-preview tags,
    og:image and favicons on all 13 public pages. After every deploy, run it and
