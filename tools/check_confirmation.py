@@ -1039,11 +1039,11 @@ def check_dashboard_page(tmp):
         pg.evaluate("location.hash = '#layer-colocation'"); pg.wait_for_timeout(300)
         check("anchors: changing the hash opens that card", pg.evaluate("active") == "colocation")
         links = st["links"]
-        check("link cards: ecosystem map and the Finnish explainer, each with an 'Open →' pill and a coloured icon tile",
-              [l["href"] for l in links] == ["ecosystem.html", "business-models/"]
+        check("link cards: ecosystem map and the explainer (English, R104), each with an 'Open →' pill and a coloured icon tile",
+              [l["href"] for l in links] == ["ecosystem.html", "business-models/en/"]
               and all(l["open"] == "Open →" and l["tile"] not in ("rgba(0, 0, 0, 0)", "transparent") for l in links), str(links))
-        check("link cards: the explainer card in its cream-and-navy editorial style with an FI tag",
-              "fl-editorial" in links[1]["cls"] and links[1]["tag"] == "FI" and "fl-editorial" not in links[0]["cls"], str(links))
+        check("link cards: the explainer card in its cream-and-navy editorial style, no FI tag since it opens the English pages (R104)",
+              "fl-editorial" in links[1]["cls"] and links[1]["tag"] is None and "fl-editorial" not in links[0]["cls"], str(links))
         # R63 item 3: the ticker rows say what the arrow and the percentage are.
         tk = pg.evaluate("""() => ({key: (document.querySelector('.trend-key') || {}).textContent,
             vals: [...document.querySelectorAll('#chain .lyr-tk')].map(r => r.lastElementChild.textContent.trim()),

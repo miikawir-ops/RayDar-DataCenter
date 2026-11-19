@@ -330,8 +330,8 @@ def navigation(b, run):
         cards = st["cards"]
         check(f"{tag}: each link card shows an 'Open →' pill instead of the small arrow",
               len(cards) == 2 and all(c["open"] == "Open →" and c["openShown"] and not c["arrow"] for c in cards), str(cards))
-        check(f"{tag}: only the Finnish explainer card carries the FI tag",
-              [c["fi"] for c in cards] == [[], ["FI"]] and cards[1]["href"] == "business-models/", str(cards))
+        check(f"{tag}: the explainer card opens the English pages, with no FI tag (R104)",
+              [c["fi"] for c in cards] == [[], []] and cards[1]["href"] == "business-models/en/", str(cards))
         check(f"{tag}: each link card has a coloured icon tile",
               all(c["tile"] not in ("rgba(0, 0, 0, 0)", "transparent") for c in cards), str([c["tile"] for c in cards]))
         lv = st["live"]

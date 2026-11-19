@@ -785,14 +785,15 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .capex-strip{{background:linear-gradient(135deg,#1A1830,#0F1A2E);border:1px solid rgba(175,169,236,0.35);
              border-radius:10px;padding:14px 16px;margin-bottom:12px;color:#E8E6DF}}
 .capex-strip.insufficient{{opacity:0.75;border-style:dashed}}
-/* Family links: the dashboard, the ecosystem map and the Finnish business-
-   models explainer link to each other with cards (one icon per site:
-   📈 Daily signals, 🗺️ Ecosystem map, 📊 Liiketoimintamallit). Same style
+/* Family links: the dashboard, the ecosystem map and the business-models
+   explainer link to each other with cards (one icon per site:
+   📈 Daily signals, 🗺️ Ecosystem map, 📊 Data center business models). Same style
    as ecosystem.html's since R50/R51 (ledger R59 item 5): a coloured icon
    tile, an "Open →" pill and a lift on hover (no continuous animation), each
    card looking like where it leads. The ecosystem map keeps the poster's
-   blue-violet gradient; the Finnish explainer is in its own cream-and-navy
-   editorial colours with an "FI" tag. The explainer uses header pills. */
+   blue-violet gradient; the explainer is in its own cream-and-navy
+   editorial colours and opens its English pages, which link to the Finnish
+   ones (ledger R104). The explainer uses header pills. */
 .family-links{{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}}
 .family-link{{display:flex;align-items:center;gap:11px;padding:7px 12px;border-radius:10px;
               color:#fff;text-decoration:none;
@@ -977,7 +978,7 @@ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 <nav class="family-links" aria-label="RayDar Data Center pages">
   <a href="ecosystem.html" class="family-link" style="--tile:#534AB7"><span class="fl-icon" aria-hidden="true">🗺️</span><span class="fl-text"><span class="fl-title">Ecosystem map</span><span class="fl-sub">Who the players are and how they connect</span></span><span class="fl-open" aria-hidden="true">Open →</span></a>
-  <a href="business-models/" class="family-link fl-editorial" hreflang="fi" style="--tile:#12222E"><span class="fl-icon" aria-hidden="true">📊</span><span class="fl-text"><span class="fl-title"><span lang="fi">Datakeskusten liiketoimintamallit</span><span class="fl-tag" title="In Finnish">FI</span></span><span class="fl-sub">Business models explainer, in Finnish: how capacity is bought, leased and financed</span></span><span class="fl-open" aria-hidden="true">Open →</span></a>
+  <a href="business-models/en/" class="family-link fl-editorial" hreflang="en" style="--tile:#12222E"><span class="fl-icon" aria-hidden="true">📊</span><span class="fl-text"><span class="fl-title">Data center business models</span><span class="fl-sub">Business models explainer: how capacity is bought, leased and financed. Also in Finnish.</span></span><span class="fl-open" aria-hidden="true">Open →</span></a>
 </nav>
 
 <div class="card">
