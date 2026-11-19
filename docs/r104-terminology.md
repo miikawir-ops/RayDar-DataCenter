@@ -88,6 +88,26 @@ ecosystem pages ("data center", "color", "utilization", "specialized").
 | varattu teho (€/kW) | reserved power (€/kW) |
 | v (vuotta) | yrs |
 
+## Model cards (batch 2; labels new in this batch)
+
+| Finnish | English |
+|---|---|
+| MALLIKORTTI · VAIHE n / 5 | MODEL CARD · STAGE n / 5 |
+| TILANNE · PÄÄTÖS · TODELLINEN VERTAILUKOHTA | SITUATION · DECISION · REAL-WORLD COMPARISON |
+| KERROSKAKKU · OPEROI · OMISTAA | LAYER CAKE · OPERATES · OWNS |
+| RAHAVIRRAT | MONEY FLOWS |
+| SOPIMUS · MITÄ AI OY OSTAA | CONTRACT · WHAT AI LTD BUYS |
+| OSAPUOLET · SOPIMUSRAKENNE · MITÄ TOIMITETAAN · MISTÄ MAKSETAAN · KESTO · EI SISÄLLÄ | PARTIES · CONTRACT STRUCTURE · WHAT IS DELIVERED · WHAT IS PAID FOR · TERM · NOT INCLUDED |
+| KESKEISET SOPIMUKSET · MITÄ HANKITAAN · LUVAT | KEY CONTRACTS · WHAT IS PROCURED · PERMITS |
+| KORTIN TERMIT | TERMS ON THIS CARD |
+| VERKKOEKOSYSTEEMI | NETWORK ECOSYSTEM |
+| Laitteiden vanheneminen | Equipment obsolescence |
+| Kapasiteetin saatavuus | Capacity availability |
+| Jaettu | Shared |
+| Sijoittaja / Lainanantajat / Laitetoimittaja / Urakoitsijat | Investor / Lenders / Equipment supplier / Contractors |
+| Sähköyhtiö / Sähkö- ja verkkoyhtiöt | Electricity company / Electricity companies and grid operators |
+| Pilvipalvelusopimus / Kapasiteettisopimus / Colocation-sopimus / Wholesale-vuokrasopimus | Cloud services agreement / Capacity agreement / Colocation agreement / Wholesale lease |
+
 ## Commercial and financing terms
 
 Kept as the industry writes them: colocation, retail/wholesale colocation, powered
