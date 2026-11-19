@@ -34,7 +34,7 @@
   <div class="page-head page-head--doc">
     <div class="kicker">KÄSITTEET</div>
     <h1 class="page-title">Sanasto</h1>
-    <div class="page-lede">Kaikki esityksessä käytetyt termit aakkosjärjestyksessä (68 termiä)</div>
+    <div class="page-lede">Kaikki esityksessä käytetyt termit aakkosjärjestyksessä (<span id="glossary-count"></span> termiä)</div>
   </div>
   <div class="glossary-grid" id="glossary-grid"></div>
 </main>
@@ -46,6 +46,8 @@
 <script>
 (function () {
   const grid = document.getElementById("glossary-grid");
+  // The count comes from the data, so it can't drift from the cards (ledger R104).
+  document.getElementById("glossary-count").textContent = Object.keys(window.BM_GLOSSARY).length;
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
   Object.entries(window.BM_GLOSSARY).forEach(([key, g]) => {
     const card = el("div", "glossary-card panel");
