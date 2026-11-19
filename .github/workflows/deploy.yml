@@ -125,8 +125,10 @@ jobs:
           cp -r business-models _site/business-models
           test -f _site/business-models/index.html
           test -f _site/business-models/assets/og-image-fi.jpg
+          test -f _site/business-models/en/index.html
         # Only the generated dashboard, the hand-authored ecosystem page
-        # and its image, the link-preview image and favicons (R92), and the Finnish business-models pages are uploaded
+        # and its image, the link-preview image and favicons (R92), and the business-models pages (Finnish, and
+        # English in business-models/en/, R104; cp -r copies the nested folder) are uploaded
         # — not the whole repo (source files, PLAN.md, etc. stay
         # out of the deployed site regardless of the repo's own visibility).
         # business-models/ is copied as a whole folder, so a new page or

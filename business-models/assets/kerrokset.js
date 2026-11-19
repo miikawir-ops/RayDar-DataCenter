@@ -64,7 +64,8 @@
     const texts = D.zones[z].rows.map((r) => clean(cell(r, m)));
     const uniq = Array.from(new Set(texts));
     let who = uniq.length === 1 ? uniq[0] : (D.models[m].own.indexOf(z) >= 0 ? T.own : clean(cell("11", m)));
-    const cls = who === T.own ? "own" : /itse/i.test(who) ? "mixed" : "cp";
+    // A cell that names the company itself among others is mixed ("Itse"/"In-house", R104).
+    const cls = who === T.own ? "own" : new RegExp(T.own, "i").test(who) ? "mixed" : "cp";
     return { who, cls };
   }
 

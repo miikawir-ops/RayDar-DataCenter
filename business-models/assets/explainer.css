@@ -290,6 +290,14 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
   .bm-pages-list{display:none}
   .bm-pages-menu{display:block}
 }
+/* FI | EN (ledger R104): the current language as text, the other a link to
+   the same page in that language; after the page links, at the bar's end. */
+.bm-lang{display:flex;align-items:center;gap:6px;flex-shrink:0;font-size:13px;font-weight:600;white-space:nowrap}
+.bm-lang-current{color:var(--white);text-decoration:underline;text-decoration-color:var(--peach);
+                 text-decoration-thickness:2px;text-underline-offset:5px}
+.bm-lang-sep{color:var(--navy-line)}
+.bm-header .bm-lang-link{color:var(--navy-text);padding:3px 4px;border-radius:4px}
+.bm-header .bm-lang-link:hover{color:var(--white)}
 
 .bm-steps-label{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.1em;
                 text-transform:uppercase;color:var(--navy-text);white-space:nowrap}
@@ -400,4 +408,12 @@ body{margin:0;background:var(--cream);font-family:var(--f-body);color:var(--navy
   .term-grid,.glossary-grid{grid-template-columns:minmax(0,1fr)}
   .cake-head,.cake{grid-template-columns:minmax(0,1fr) 84px 84px}
   .layer-name{font-size:14px}
+}
+/* Phones: the FI | EN switch (R104) needs the room, so the family links show
+   their icon only; their screen-reader names stay. */
+@media (max-width:480px){
+  .bm-family-short{display:none}
+  .bm-header .bm-family{padding:4px 9px}
+  .bm-family-icon{font-size:17px}
+  .bm-bar{gap:10px}
 }

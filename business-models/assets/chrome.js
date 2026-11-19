@@ -7,40 +7,81 @@
 //   <body data-page="hub">  (or a model or page slug from the lists below)
 //   <header id="bm-header" class="bm-header"></header> ... <footer id="bm-footer" class="bm-footer"></footer>
 // and loads this script after them.
+//
+// Finnish pages live in business-models/, their English versions under the
+// same file names in business-models/en/ (ledger R104); the page's own
+// <html lang> picks the language. The FI | EN switch in the bar keeps the
+// page and the #hash.
 (function () {
+  const LANG = document.documentElement.lang === "en" ? "en" : "fi";
+  const UP = LANG === "en" ? "../../" : "../";
+  // Pages that have an English version so far (R104 goes live in batches).
+  // A Finnish page without one shows no switch, and a link on an English
+  // page to a page without one goes to the Finnish page instead of a 404.
+  const EN_READY = ["hub"];
+  const TEXT = {
+    fi: {
+      // Review date: when the facts were last verified, not when a page was
+      // last touched. Bump it only after an actual fact re-check (PLAN.md
+      // step 8). Shown in the footer only: every page except the glossary
+      // already carries it in its own kicker, so a header copy would duplicate
+      // it; the footer is the glossary page's only marker.
+      asOf: "Tiedot tarkistettu 9/2026",
+      brandSub: "Datakeskusten liiketoimintamallit",
+      pagesNav: "Sivut",
+      stepsNav: "AI Oy:n kasvupolku",
+      stepsLabel: "Kasvupolku",
+      step: "Vaihe",
+      langNav: "Kieli",
+      // Family links to the two English sites: each screen-reader name starts
+      // with the visible label (so voice control can target it) and says in
+      // Finnish that the page is English.
+      signalsAria: "Daily signals: päivittäiset signaalit ja pisteet (englanninkielinen sivu)",
+      mapAria: "Ecosystem map: ekosysteemikartta (englanninkielinen sivu)",
+      disclaimer: "Ei sijoitusneuvontaa · Opetuskäyttöön tarkoitettua taustatietoa",
+      family: "Osa RayDar-perhettä",
+      author: "Henkilökohtainen projekti · Miika Ray Wires",
+      // AI Oy's growth path, in order. Slugs double as the hub's deep-link
+      // hashes (#gpu-cloud) and as the model card file names (gpu-cloud.html).
+      models: ["Julkinen pilvi", "GPU-pilvi", "Retail-colocation", "Wholesale-colocation", "Oma datakeskus"],
+      // The pages linked from the header's top row (a "Sivut" menu on narrow
+      // screens). Names are the pages' own titles from the design. The hub
+      // comes first as "One pager", the design's own name for it, so it has a
+      // visible link back from every page (Ray, 2026-10-08).
+      pages: { hub: "One pager", "value-chain": "Arvoketju", financing: "Rahoitusmallit",
+               "specialised-models": "Erikoistuneet mallit", "why-finland": "Miksi Suomi", glossary: "Sanasto" },
+    },
+    en: {
+      asOf: "Content reviewed 9/2026",
+      brandSub: "Data center business models",
+      pagesNav: "Pages",
+      stepsNav: "AI Ltd's growth path",
+      stepsLabel: "Growth path",
+      step: "Stage",
+      langNav: "Language",
+      signalsAria: "Daily signals: daily signals and scores",
+      mapAria: "Ecosystem map: data center ecosystem map",
+      disclaimer: "Not investment advice · Background information for educational use",
+      family: "Part of the RayDar family",
+      author: "Personal project · Miika Ray Wires",
+      models: ["Public cloud", "GPU cloud", "Retail colocation", "Wholesale colocation", "Own data center"],
+      pages: { hub: "One pager", "value-chain": "Value chain", financing: "Financing models",
+               "specialised-models": "Specialized models", "why-finland": "Why Finland", glossary: "Glossary" },
+    },
+  }[LANG];
+  const SLUGS = ["public-cloud", "gpu-cloud", "retail-colocation", "wholesale-colocation", "own-data-center"];
+  const PAGE_SLUGS = ["hub", "value-chain", "financing", "specialised-models", "why-finland", "glossary"];
   const SITE = {
-    // Review date: when the facts were last verified, not when a page was
-    // last touched. Bump it only after an actual fact re-check (PLAN.md
-    // step 8). Shown in the footer only: every page except the glossary
-    // already carries it in its own kicker, so a header copy would duplicate
-    // it; the footer is the glossary page's only marker.
-    asOf: "Tiedot tarkistettu 9/2026",
+    asOf: TEXT.asOf,
     hub: "index.html",
-    ecosystem: "../ecosystem.html",
-    dashboard: "../index.html",
+    ecosystem: UP + "ecosystem.html",
+    dashboard: UP + "index.html",
     family: "https://raydar.fi/",
-    // AI Oy's growth path, in order. Slugs double as the hub's deep-link
-    // hashes (#gpu-cloud) and as the model card file names (gpu-cloud.html).
-    models: [
-      { slug: "public-cloud", name: "Julkinen pilvi" },
-      { slug: "gpu-cloud", name: "GPU-pilvi" },
-      { slug: "retail-colocation", name: "Retail-colocation" },
-      { slug: "wholesale-colocation", name: "Wholesale-colocation" },
-      { slug: "own-data-center", name: "Oma datakeskus" },
-    ],
-    // The pages linked from the header's top row (a "Sivut" menu on narrow
-    // screens). Names are the pages' own titles from the design. The hub
-    // comes first as "One pager", the design's own name for it, so it has a
-    // visible link back from every page (Ray, 2026-10-08); its link points at
-    // the folder (business-models/), the hub's canonical URL.
-    pages: [
-      { slug: "hub", name: "One pager", href: "./", lang: "en" },
-      { slug: "value-chain", name: "Arvoketju" },
-      { slug: "financing", name: "Rahoitusmallit" },
-      { slug: "specialised-models", name: "Erikoistuneet mallit" },
-      { slug: "why-finland", name: "Miksi Suomi" },
-      { slug: "glossary", name: "Sanasto" },
-    ],
+    models: SLUGS.map((slug, i) => ({ slug, name: TEXT.models[i] })),
+    // The hub's link points at the folder (business-models/ or
+    // business-models/en/), the hub's canonical URL.
+    pages: PAGE_SLUGS.map((slug) => ({ slug, name: TEXT.pages[slug], href: slug === "hub" ? "./" : undefined,
+                                        lang: LANG === "fi" && slug === "hub" ? "en" : undefined })),
   };
   window.BM_SITE = SITE;
 
@@ -50,6 +91,8 @@
   // cards); elsewhere it navigates between the model card pages.
   const stepHref = (m) => (isHub ? "#" + m.slug : m.slug + ".html");
   const currentAttr = isHub ? "step" : "page";
+  const fileOf = (slug) => (slug === "hub" ? "" : slug + ".html");
+  const enReady = (slug) => EN_READY.includes(slug);
 
   function esc(s) {
     return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -62,9 +105,24 @@
       '<li><a href="' + esc(pg.href || pg.slug + ".html") + '"' + (pg.lang ? ' lang="' + pg.lang + '"' : "")
       + (pg.slug === page ? ' aria-current="page"' : "") + ">"
       + esc(pg.name) + "</a></li>").join("");
-    return '<nav class="bm-pages" aria-label="Sivut">'
+    return '<nav class="bm-pages" aria-label="' + esc(TEXT.pagesNav) + '">'
       + '<ul class="bm-pages-list">' + links + "</ul>"
-      + '<details class="bm-pages-menu"><summary>Sivut</summary><ul>' + links + "</ul></details>"
+      + '<details class="bm-pages-menu"><summary>' + esc(TEXT.pagesNav) + "</summary><ul>" + links + "</ul></details>"
+      + "</nav>";
+  }
+
+  // FI | EN: the current language as text, the other as a link to the same
+  // page in that language. The #hash is added when the link is used, since
+  // the hub rewrites it as the reader moves between models.
+  function langSwitch() {
+    if (!PAGE_SLUGS.concat(SLUGS).includes(page) || (LANG === "fi" && !enReady(page))) return "";
+    const other = LANG === "fi" ? "en/" + fileOf(page) : "../" + fileOf(page);
+    const item = (code, label) => (code === LANG
+      ? '<span class="bm-lang-current" lang="' + code + '" aria-current="true">' + code.toUpperCase() + "</span>"
+      : '<a class="bm-lang-link" href="' + esc(other) + '" lang="' + code + '" hreflang="' + code + '" aria-label="'
+        + esc(label) + '">' + code.toUpperCase() + "</a>");
+    return '<nav class="bm-lang" aria-label="' + esc(TEXT.langNav) + '">'
+      + item("fi", "Suomeksi") + '<span class="bm-lang-sep" aria-hidden="true">|</span>' + item("en", "In English")
       + "</nav>";
   }
 
@@ -79,7 +137,7 @@
   if (header) {
     const steps = SITE.models.map((m, i) =>
       '<li><a class="bm-step" href="' + esc(stepHref(m)) + '" data-step="' + esc(m.slug) + '"'
-      + ' aria-label="Vaihe ' + (i + 1) + ": " + esc(m.name) + '"'
+      + ' aria-label="' + esc(TEXT.step) + " " + (i + 1) + ": " + esc(m.name) + '"'
       + (m.slug === page ? ' aria-current="' + currentAttr + '"' : "") + ">"
       + '<span class="bm-step-num" aria-hidden="true">' + (i + 1) + "</span>"
       + '<span class="bm-step-name" aria-hidden="true">' + esc(m.name) + "</span></a></li>"
@@ -88,36 +146,52 @@
       '<div class="bm-bar">'
       // Family links to the two English sites, styled like the family-link
       // cards on the dashboard and ecosystem page (same gradient and icons).
-      // English labels, since the targets are English; each screen-reader
-      // name starts with the visible label (so voice control can target it)
-      // and says in Finnish that the page is English.
-      + familyLink(SITE.dashboard, "📈", "Daily signals", "Signals",
-                   "Daily signals: päivittäiset signaalit ja pisteet (englanninkielinen sivu)")
-      + familyLink(SITE.ecosystem, "🗺️", "Ecosystem map", "Map",
-                   "Ecosystem map: ekosysteemikartta (englanninkielinen sivu)")
+      + familyLink(SITE.dashboard, "📈", "Daily signals", "Signals", TEXT.signalsAria)
+      + familyLink(SITE.ecosystem, "🗺️", "Ecosystem map", "Map", TEXT.mapAria)
       + '<a class="bm-brand" href="' + SITE.hub + '"' + (isHub ? ' aria-current="page"' : "") + ">"
       + '<span class="bm-wordmark">Ray<span>Dar</span></span>'
-      + '<span class="bm-brand-sub">Datakeskusten liiketoimintamallit</span></a>'
+      + '<span class="bm-brand-sub">' + esc(TEXT.brandSub) + "</span></a>"
       + pagesNav()
+      + langSwitch()
       + "</div>"
-      + '<nav class="bm-steps" aria-label="AI Oy:n kasvupolku">'
-      + '<span class="bm-steps-label" aria-hidden="true">Kasvupolku</span>'
+      + '<nav class="bm-steps" aria-label="' + esc(TEXT.stepsNav) + '">'
+      + '<span class="bm-steps-label" aria-hidden="true">' + esc(TEXT.stepsLabel) + "</span>"
       + "<ol>" + steps + "</ol>"
       + '<span class="bm-steps-current" aria-hidden="true"></span>'
       + "</nav>";
+    const sw = header.querySelector(".bm-lang-link");
+    if (sw) {
+      const base = sw.getAttribute("href");
+      const withHash = () => { sw.setAttribute("href", base + location.hash); };
+      ["pointerdown", "focus", "click"].forEach((ev) => sw.addEventListener(ev, withHash));
+    }
   }
 
   const footer = document.getElementById("bm-footer");
   if (footer) {
     footer.innerHTML =
-      "<div><strong>RayDar Data Center</strong> · Datakeskusten liiketoimintamallit · " + esc(SITE.asOf) + "</div>"
-      + '<div class="bm-footer-note">Ei sijoitusneuvontaa · Opetuskäyttöön tarkoitettua taustatietoa</div>'
+      "<div><strong>RayDar Data Center</strong> · " + esc(TEXT.brandSub) + " · " + esc(SITE.asOf) + "</div>"
+      + '<div class="bm-footer-note">' + esc(TEXT.disclaimer) + "</div>"
       + "<div>"
       + '<a href="' + SITE.dashboard + '" hreflang="en" lang="en">Daily signals</a> · '
       + '<a href="' + SITE.ecosystem + '" hreflang="en" lang="en">Ecosystem map</a> · '
-      + '<a href="' + SITE.family + '" target="_blank" rel="noopener">Osa RayDar-perhettä &#8599;</a>'
+      + '<a href="' + SITE.family + '" target="_blank" rel="noopener">' + esc(TEXT.family) + " &#8599;</a>"
       + "</div>"
-      + '<div class="bm-footer-note">Henkilökohtainen projekti · Miika Ray Wires</div>';
+      + '<div class="bm-footer-note">' + esc(TEXT.author) + "</div>";
+  }
+
+  // On an English page, a link to a page that has no English version yet goes
+  // to the Finnish page instead (R104, while the batches go live).
+  if (LANG === "en") {
+    document.querySelectorAll("a[href]").forEach((a) => {
+      const href = a.getAttribute("href");
+      if (/^([a-z]+:|#|\.\.\/|\/)/i.test(href)) return;
+      const slug = href.split("#")[0].replace(/\.html$/, "") || "hub";
+      if (href.split("#")[0] === "./" || enReady(slug) || !PAGE_SLUGS.concat(SLUGS).includes(slug)) return;
+      a.setAttribute("href", "../" + href);
+      a.setAttribute("lang", "fi");
+      a.setAttribute("hreflang", "fi");
+    });
   }
 
   // Marks one stepper step as current (or none, with a falsy slug) and
@@ -152,7 +226,7 @@
   }
   document.querySelectorAll(".scroll-x").forEach(watchScrollX);
 
-  // The "Sivut" menu closes on a click outside it or on Esc.
+  // The "Sivut" / "Pages" menu closes on a click outside it or on Esc.
   const menu = document.querySelector(".bm-pages-menu");
   if (menu) {
     document.addEventListener("click", (e) => { if (menu.open && !menu.contains(e.target)) menu.open = false; });
