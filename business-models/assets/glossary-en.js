@@ -21,7 +21,7 @@ window.BM_GLOSSARY = {
   cross_connect: { term: "Cross-connect", definition: "A direct cable connection between two parties in the same data center; billed as a monthly fee." },
   csp: { term: "CSP", alt: "cloud service provider", definition: "A cloud services company, e.g. AWS, Microsoft Azure or Google Cloud." },
   ddtl: { term: "DDTL", alt: "delayed draw term loan", definition: "A loan drawn in installments as equipment is bought." },
-  demarc: { term: "Demarc", alt: "demarcation point", definition: "The responsibility line: the point where the counterparty's responsibility ends and the customer's begins." },
+  demarc: { term: "Demarc", alt: "demarcation point", definition: "The responsibility boundary: the point where the provider's responsibility ends and the customer's begins." },
   developer: { term: "Developer", definition: "A company that secures the land and the power and builds a site to lease out." },
   edge_data_center: { term: "Edge data center", definition: "A small data center close to users, for low latency." },
   epc: { term: "EPC", alt: "engineering, procurement and construction", definition: "A turnkey contract from design to construction." },

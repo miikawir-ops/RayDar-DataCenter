@@ -430,7 +430,7 @@
     <div class="layers-head">
       <div class="kicker">THE LAYERS OF A DATA CENTER</div>
       <h2 class="layers-title" id="h-layers">What a company handles in-house and what it buys</h2>
-      <p class="layers-lede">Every model contains the whole data center, from the property to the applications. The models differ in how much of it the company handles in-house and how much it buys from a counterparty.</p>
+      <p class="layers-lede">Every model contains the whole data center, from the property to the applications. The models differ in how much of it the company handles in-house and how much it buys from a provider.</p>
       <p class="layers-lede layers-analogy">As an analogy, the data center is a factory and the servers are its production machines: in the cloud you buy the factory's output, in colocation you put your own machines in someone else's factory, and with your own data center the whole factory is yours.</p>
     </div>
 
@@ -452,14 +452,14 @@
           <div class="lr-keys">
             <span class="lr-key"><span class="lr-swatch lr-swatch--own"></span>In-house</span>
             <span class="lr-key"><span class="lr-swatch lr-swatch--mixed"></span>Shared, or depends on the service or contract</span>
-            <span class="lr-key"><span class="lr-swatch lr-swatch--cp"></span>Counterparty</span>
-            <span class="lr-key"><span class="lr-swatch lr-swatch--line"></span>Responsibility line</span>
+            <span class="lr-key"><span class="lr-swatch lr-swatch--cp"></span>Provider</span>
+            <span class="lr-key"><span class="lr-swatch lr-swatch--line"></span>Responsibility boundary</span>
           </div>
           <button class="stairs-toggle" type="button" aria-expanded="false" aria-controls="lr-stairs"><span class="st-thumb" aria-hidden="true"></span><span class="st-text"><span class="st-label">Show all models side by side</span> <span class="st-sub">14 parts × 5 models: who handles what</span></span></button>
-          <p><b>In-house</b> = the company that needs computing capacity. <b>Counterparty</b> = the company it buys the rest from: a CSP, a GPU cloud, a colocation operator or a data center operator.</p>
-          <p><b>Responsibility line (demarc):</b> the point where the counterparty's responsibility ends and the company's own begins. In the cloud models the line is drawn at its typical position, and the light area shows where it can move.</p>
+          <p><b>In-house</b> = the company that needs computing capacity. <b>Provider</b> = the company it buys the rest from: a CSP, a GPU cloud, a colocation operator or a data center operator.</p>
+          <p><b>Responsibility boundary (demarc):</b> the point where the provider's responsibility ends and the company's own begins. In the cloud models the boundary is drawn at its typical position, and the light area shows where it can move.</p>
           <div class="lr-fine">
-            <p>In the <span class="gloss" data-g="sla_service_credit">service level agreement (SLA)</span>, the counterparty promises a level of availability and credits part of the fee if the level isn't met. The promise covers what is below the responsibility line: in colocation, for example, power and cooling; in the cloud, the service itself.</p>
+            <p>In the <span class="gloss" data-g="sla_service_credit">service level agreement (SLA)</span>, the provider promises a level of availability and credits part of the fee if the level isn't met. The promise covers what is below the responsibility boundary: in colocation, for example, power and cooling; in the cloud, the service itself.</p>
           <p class="lr-terms">CSP = cloud service provider · colocation = rented data center space for your own equipment · turnkey = a ready-to-use data hall with its power and cooling systems · powered shell = a building with its grid connection in place; the building systems are the tenant's.</p>
           </div>
         </figcaption>
@@ -467,7 +467,7 @@
 
       <div class="layers-side">
         <div class="zone-detail" id="lr-detail" aria-live="polite" tabindex="-1"></div>
-        <p class="lr-cloud-note" id="lr-cloud-note">The line depends on the service bought: in <span class="gloss" data-g="iaas">IaaS</span> the company manages the operating system; in <span class="gloss" data-g="paas">PaaS</span> and <span class="gloss" data-g="saas">SaaS</span> the counterparty handles more (shared responsibility model).</p>
+        <p class="lr-cloud-note" id="lr-cloud-note">The boundary depends on the service bought: in <span class="gloss" data-g="iaas">IaaS</span> the company manages the operating system; in <span class="gloss" data-g="paas">PaaS</span> and <span class="gloss" data-g="saas">SaaS</span> the provider handles more (shared responsibility model).</p>
         <ol class="zone-list" aria-label="Layers">
           <li><button class="zone-btn" type="button" data-zone="z1"><span class="zone-name">Applications, data and software</span><span class="zone-who"></span></button></li>
           <li><button class="zone-btn" type="button" data-zone="z2"><span class="zone-name">Software platform</span><span class="zone-who"></span></button></li>
@@ -516,7 +516,7 @@
           </table>
         </div></div>
         <ol class="stairs-notes">
-          <li id="lr-fn1">The grid company is responsible for the grid up to the connection point.</li>
+          <li id="lr-fn1">The grid operator is responsible for the grid up to the connection point.</li>
           <li id="lr-fn2">A GPU cloud can operate in its own data center or in a colocation operator's.</li>
           <li id="lr-fn3">Electricity is usually billed on the operator's invoice (kW or kWh).</li>
         </ol>
@@ -527,7 +527,7 @@
           <li>Public cloud and GPU cloud: the difference is above all the commitment. In a GPU cloud, capacity is often reserved for your own use with a multi-year contract.</li>
           <li>Retail and wholesale: the difference is scale and the contract. Wholesale is a whole data hall or building on a 5–15-year lease.</li>
           <li>Retail colocation also gains value from its network ecosystem: the carriers and cloud services in the same building, which customers can connect to directly (<span class="gloss" data-g="cross_connect">cross-connect</span>). A wholesale customer cares more about power capacity and cooling.</li>
-          <li>In the cloud models the responsibility line also depends on the service bought.</li>
+          <li>In the cloud models the responsibility boundary also depends on the service bought.</li>
         </ul>
       </div>
     </div>
@@ -537,10 +537,10 @@
       <span data-key="own">In-house</span>
       <span data-key="handles">handles it</span>
       <span data-key="handlesOwn">the company handles it in-house</span>
-      <span data-key="line">Responsibility line</span>
-      <span data-key="typical">Responsibility line, typically</span>
-      <span data-key="turnkey">Responsibility line: turnkey</span>
-      <span data-key="shell">Responsibility line: powered shell</span>
+      <span data-key="line">Responsibility boundary</span>
+      <span data-key="typical">Responsibility boundary, typically</span>
+      <span data-key="turnkey">Responsibility boundary: turnkey</span>
+      <span data-key="shell">Responsibility boundary: powered shell</span>
       <span data-key="iaas">IaaS</span>
       <span data-key="paas">PaaS</span>
       <span data-key="saas">SaaS</span>
@@ -550,7 +550,7 @@
     </template>
     <template id="lr-grid">
       <h3 class="zd-title">Grid connection point</h3>
-      <p>Grid connection point: the grid company's responsibility ends here. Electricity is bought separately (row Electricity procurement). The point is the same in every model, including your own data center.</p>
+      <p>Grid connection point: the grid operator's responsibility ends here. Electricity is bought separately (row Electricity procurement). The point is the same in every model, including your own data center.</p>
     </template>
     <template id="lr-heat">
       <h3 class="zd-title">Waste heat into the district heating network</h3>
@@ -575,7 +575,7 @@
       <p data-model="gpu-cloud">The company handles the applications, data and operating system, and in a bare metal service cluster management too. The GPU cloud company, for example CoreWeave, Nebius or Lambda, handles the equipment, the data hall and the property.</p>
       <p data-model="retail-colocation">The company owns and runs its servers and network equipment. The colocation operator, for example Equinix, Digital Realty or Telia, handles the rack space, power, cooling and the property.</p>
       <p data-model="wholesale-colocation">The company leases a whole data hall or building and fits it out. In the turnkey model the operator handles cooling, UPS, backup power and access control; in the powered shell model the company builds those itself too. The building and the grid connection come from a data center operator, for example Digital Realty or Equinix.</p>
-      <p data-model="own-data-center">The company handles everything from the land to the applications. The grid company's responsibility (for example Fingrid or Caruna) ends at the connection point.</p>
+      <p data-model="own-data-center">The company handles everything from the land to the applications. The grid operator's responsibility (for example Fingrid or Caruna) ends at the connection point.</p>
     </template>
   </section>
 
@@ -593,7 +593,7 @@
     <div class="legend-title mono-label">COLORS:</div>
     <div class="legend-items">
       <div class="legend-item"><span class="swatch fill-own"></span>AI Ltd</div>
-      <div class="legend-item"><span class="swatch fill-blue"></span>Counterparty: a cloud or colocation company</div>
+      <div class="legend-item"><span class="swatch fill-blue"></span>Provider: a cloud or colocation company</div>
     </div>
   </div>
 
@@ -607,8 +607,8 @@
         <div class="mlabel mono-label">AI LTD'S COMMITMENTS</div>
         <div class="mlabel mono-label">CONTRACT · PRICING</div>
         <div class="mlabel mono-label">ELECTRICITY PAID BY</div>
-        <div class="mlabel mono-label mlabel--strong">WHO CARRIES THE RISK</div>
-        <div class="mlabel mono-label">COUNTERPARTY REVENUE</div>
+        <div class="mlabel mono-label mlabel--strong">WHO BEARS THE RISK</div>
+        <div class="mlabel mono-label">PROVIDER REVENUE</div>
         <div class="mlabel mono-label">SCALE</div>
         <div class="mlabel mono-label">WHY THIS STAGE</div>
         <div class="mlabel mono-label">REAL-WORLD PLAYERS</div>
@@ -622,8 +622,8 @@
         <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>No commitments, pays for what it uses</span></div>
         <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>No commitment · pay as you go</span></div>
         <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>CSP: included in the price</span></div>
-        <div class="cell cell--risk"><div class="cell-label">WHO CARRIES THE RISK</div><div class="risk"><div class="risk-box fill-blue"><div class="risk-k">UTILIZATION</div><div class="risk-v">CSP</div></div><div class="risk-box fill-blue"><div class="risk-k">EQUIPMENT</div><div class="risk-v">CSP</div></div></div></div>
-        <div class="cell cell--text"><div class="cell-label">COUNTERPARTY REVENUE</div><span>Usage-based fees</span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-blue"><div class="risk-k">UTILIZATION</div><div class="risk-v">CSP</div></div><div class="risk-box fill-blue"><div class="risk-k">EQUIPMENT</div><div class="risk-v">CSP</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>Usage-based fees</span></div>
         <div class="cell cell--text"><div class="cell-label">SCALE</div><span>From single <span class="gloss" data-g="gpu">GPUs</span> to hundreds</span></div>
         <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>Getting started: no investment, capacity right away</span></div>
         <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>AWS, Azure, Google Cloud</span></div>
@@ -637,8 +637,8 @@
         <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>Multi-year payment commitment, no equipment of its own</span></div>
         <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>1–5 yrs · per <span class="gloss" data-g="gpu_hour">GPU hour</span> or server</span></div>
         <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>Usually the GPU cloud: included in the price</span></div>
-        <div class="cell cell--risk"><div class="cell-label">WHO CARRIES THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd (commitment)</div></div><div class="risk-box fill-blue"><div class="risk-k">EQUIPMENT</div><div class="risk-v">GPU cloud</div></div></div></div>
-        <div class="cell cell--text"><div class="cell-label">COUNTERPARTY REVENUE</div><span>Service fees, often <span class="gloss" data-g="take_or_pay">take-or-pay</span></span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd (commitment)</div></div><div class="risk-box fill-blue"><div class="risk-k">EQUIPMENT</div><div class="risk-v">GPU cloud</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>Service fees, often <span class="gloss" data-g="take_or_pay">take-or-pay</span></span></div>
         <div class="cell cell--text"><div class="cell-label">SCALE</div><span>Hundreds to thousands of GPUs</span></div>
         <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>Use is continuous: the cloud gets expensive, capacity has to be secured</span></div>
         <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>Nebius, Verda, CoreWeave</span></div>
@@ -652,8 +652,8 @@
         <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>Its own equipment and the lease obligation</span></div>
         <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>1–5 yrs · per <span class="gloss" data-g="rack">rack</span> and kW</span></div>
         <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>AI Ltd: on the operator's invoice (kW or kWh)</span></div>
-        <div class="cell cell--risk"><div class="cell-label">WHO CARRIES THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd</div></div><div class="risk-box fill-own"><div class="risk-k">EQUIPMENT</div><div class="risk-v">AI Ltd</div></div></div></div>
-        <div class="cell cell--text"><div class="cell-label">COUNTERPARTY REVENUE</div><span>Space rental, power, <span class="gloss" data-g="cross_connect">cross-connects</span>, <span class="gloss" data-g="remote_hands">remote hands</span></span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd</div></div><div class="risk-box fill-own"><div class="risk-k">EQUIPMENT</div><div class="risk-v">AI Ltd</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>Space rental, power, <span class="gloss" data-g="cross_connect">cross-connects</span>, <span class="gloss" data-g="remote_hands">remote hands</span></span></div>
         <div class="cell cell--text"><div class="cell-label">SCALE</div><span>Rack = tens of kW</span></div>
         <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>Owning the equipment is cheaper in the long run</span></div>
         <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>Equinix (also Helsinki)</span></div>
@@ -667,8 +667,8 @@
         <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>Its own equipment and a long lease obligation</span></div>
         <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>5–15 yrs · reserved power (€/kW)</span></div>
         <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>AI Ltd: <span class="gloss" data-g="pass_through">passed through</span> or under its own contract</span></div>
-        <div class="cell cell--risk"><div class="cell-label">WHO CARRIES THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd, long term</div></div><div class="risk-box fill-own"><div class="risk-k">EQUIPMENT</div><div class="risk-v">AI Ltd</div></div></div></div>
-        <div class="cell cell--text"><div class="cell-label">COUNTERPARTY REVENUE</div><span>Long-term capacity lease</span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd, long term</div></div><div class="risk-box fill-own"><div class="risk-k">EQUIPMENT</div><div class="risk-v">AI Ltd</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>Long-term capacity lease</span></div>
         <div class="cell cell--text"><div class="cell-label">SCALE</div><span>Tens to hundreds of MW</span></div>
         <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>The need grows to tens of MW, and <span class="gloss" data-g="colocation">colocation</span> can't supply enough</span></div>
         <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>Digital Realty, Vantage, Crusoe</span></div>
@@ -682,8 +682,8 @@
         <div class="cell cell--text"><div class="cell-label">AI LTD'S COMMITMENTS</div><span>Land, building, grid connection and equipment</span></div>
         <div class="cell cell--text"><div class="cell-label">CONTRACT · PRICING</div><span>No lease · investment + maintenance</span></div>
         <div class="cell cell--text"><div class="cell-label">ELECTRICITY PAID BY</div><span>AI Ltd: directly from an electricity retailer; large players often also through a <span class="gloss" data-g="ppa">PPA</span></span></div>
-        <div class="cell cell--risk"><div class="cell-label">WHO CARRIES THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd</div></div><div class="risk-box fill-own"><div class="risk-k">EQUIPMENT</div><div class="risk-v">AI Ltd</div></div></div></div>
-        <div class="cell cell--text"><div class="cell-label">COUNTERPARTY REVENUE</div><span>No counterparty: its own means of production</span></div>
+        <div class="cell cell--risk"><div class="cell-label">WHO BEARS THE RISK</div><div class="risk"><div class="risk-box fill-own"><div class="risk-k">UTILIZATION</div><div class="risk-v">AI Ltd</div></div><div class="risk-box fill-own"><div class="risk-k">EQUIPMENT</div><div class="risk-v">AI Ltd</div></div></div></div>
+        <div class="cell cell--text"><div class="cell-label">PROVIDER REVENUE</div><span>No provider: its own means of production</span></div>
         <div class="cell cell--text"><div class="cell-label">SCALE</div><span>Hundreds of MW to gigawatts</span></div>
         <div class="cell cell--why"><div class="cell-label">WHY THIS STAGE</div><span>To control the whole chain, or because others build too slowly</span></div>
         <div class="cell cell--actors"><div class="cell-label">REAL-WORLD PLAYERS</div><span>xAI Colossus, Google Hamina</span></div>
@@ -736,7 +736,7 @@
     </section>
   </div>
 
-  <div class="terms-note fine-print"><b><a class="quiet-link" href="glossary.html">Terms:</a></b> public cloud = a commercial cloud service shared by many customers · colocation = rented data center space for your own equipment · retail = racks or small spaces for many customers · wholesale = a whole data hall or building for one tenant · rack = equipment cabinet · cross-connect = a direct cable connection between two parties · remote hands = equipment work done by the operator's staff · take-or-pay = payment regardless of use · utilization = who pays if reserved capacity goes unused; the risk of unleased or unsold capacity sits with the counterparty (the CSP, the GPU cloud or the operator).<br>AI Ltd is fictional; the other companies are real. Contract terms are indicative. Sources: company publications and industry news. The building owner and electricity rows are based on the companies' annual reports (Microsoft, CoreWeave, Equinix, Digital Realty; 10-K, fiscal years 2025–2026), reviewed 10/2026.</div>
+  <div class="terms-note fine-print"><b><a class="quiet-link" href="glossary.html">Terms:</a></b> public cloud = a commercial cloud service shared by many customers · colocation = rented data center space for your own equipment · retail = racks or small spaces for many customers · wholesale = a whole data hall or building for one tenant · rack = equipment cabinet · cross-connect = a direct cable connection between two parties · remote hands = equipment work done by the operator's staff · take-or-pay = payment regardless of use · utilization = who pays if reserved capacity goes unused; the risk of unleased or unsold capacity sits with the provider (the CSP, the GPU cloud or the operator).<br>AI Ltd is fictional; the other companies are real. Contract terms are indicative. Sources: company publications and industry news. The building owner and electricity rows are based on the companies' annual reports (Microsoft, CoreWeave, Equinix, Digital Realty; 10-K, fiscal years 2025–2026), reviewed 10/2026.</div>
   <!-- Matrix rows RAKENNUKSEN OMISTAA and SÄHKÖN MAKSAA (verified 2026-10-11, PLAN.md ledger R54, which quotes the passages):
        sec.gov/Archives/edgar/data/: Microsoft msft-20260630.htm, CoreWeave crwv-20251231.htm, Equinix eqix-20251231.htm,
        Digital Realty dlr-20251231x10k.htm -->

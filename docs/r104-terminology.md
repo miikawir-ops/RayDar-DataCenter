@@ -1,7 +1,7 @@
 # English explainer: terminology (ledger R104)
 
 The Finnish term → the English term chosen for the English business-models pages
-(business-models/en/). Batches 2 and 3 follow this list; any deviation is named in
+(business-models/en/). Approved by Ray on 2026-11-19 with four changes (Provider, Responsibility boundary, Grid operator, WHO BEARS THE RISK), all applied below. Batches 2 and 3 follow this list; any deviation is named in
 that batch's report. Spelling is American, as on the English dashboard and
 ecosystem pages ("data center", "color", "utilization", "specialized").
 
@@ -48,13 +48,13 @@ ecosystem pages ("data center", "color", "utilization", "specialized").
 | Finnish | English | Note |
 |---|---|---|
 | Itse | In-house | The company that needs the capacity |
-| Vastapuoli | Counterparty | |
-| Vastuuraja (demarc) | Responsibility line (demarc) | |
+| Vastapuoli | Provider | Ray, batch 1 approval. "Counterparty risk" stays where the term is the risk itself |
+| Vastuuraja (demarc) | Responsibility boundary (demarc) | Ray, batch 1 approval |
 | Jaettu tai riippuu palvelusta tai sopimuksesta | Shared, or depends on the service or contract | |
 | Pilvipalveluyhtiö (CSP) | cloud service provider (CSP) | |
 | Colocation-operaattori | Colocation operator | |
 | Datakeskusoperaattori | Data center operator | |
-| Verkkoyhtiö | Grid company | Fingrid (TSO) or a distribution company such as Caruna (DSO) |
+| Verkkoyhtiö | Grid operator | Ray, batch 1 approval. Fingrid (TSO) or a distribution operator such as Caruna (DSO) |
 | Liittymispiste | Grid connection point | |
 | Sähköliittymä ja muuntamo | Grid connection and substation | |
 | Sähkön hankinta | Electricity procurement | |
@@ -78,9 +78,9 @@ ecosystem pages ("data center", "color", "utilization", "specialized").
 | AI OY:N SITOUMUKSET | AI LTD'S COMMITMENTS |
 | SOPIMUS · HINNOITTELU | CONTRACT · PRICING |
 | SÄHKÖN MAKSAA | ELECTRICITY PAID BY |
-| KUKA KANTAA RISKIN | WHO CARRIES THE RISK |
+| KUKA KANTAA RISKIN | WHO BEARS THE RISK |
 | KÄYTTÖASTE / LAITTEET | UTILIZATION / EQUIPMENT |
-| VASTAPUOLEN TULOT | COUNTERPARTY REVENUE |
+| VASTAPUOLEN TULOT | PROVIDER REVENUE |
 | MITTAKAAVA | SCALE |
 | MIKSI TÄHÄN VAIHEESEEN | WHY THIS STAGE |
 | TODELLISIA TOIMIJOITA | REAL-WORLD PLAYERS |
