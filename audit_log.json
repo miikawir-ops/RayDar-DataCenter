@@ -7290,5 +7290,325 @@
   "missing_fields": [],
   "data_status": "Full",
   "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "colocation",
+  "ticker": "DLR",
+  "score": 20.27,
+  "color": "Blue",
+  "accel": 30.31,
+  "constraints": 15.0,
+  "smart": 7.68,
+  "raw_composite": 23.85,
+  "fund_delta": null,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [
+   "growth_prev",
+   "capex_div"
+  ],
+  "data_status": "Reduced input — missing: growth_prev, capex_div",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "colocation",
+  "ticker": "EQIX",
+  "score": 24.96,
+  "color": "Blue",
+  "accel": 27.91,
+  "constraints": 49.0,
+  "smart": 9.47,
+  "raw_composite": 29.36,
+  "fund_delta": -0.0535,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [],
+  "data_status": "Full",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "compute",
+  "ticker": "DELL",
+  "score": 25.05,
+  "color": "Blue",
+  "accel": 26.84,
+  "constraints": 60.12,
+  "smart": 0.0,
+  "raw_composite": 29.47,
+  "fund_delta": -0.2979,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [
+   "vol_spike",
+   "price_momentum",
+   "price_30d_return",
+   "peer_outperformance"
+  ],
+  "data_status": "Reduced input — missing: vol_spike, price_momentum, price_30d_return, peer_outperformance",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "compute",
+  "ticker": "HPE",
+  "score": 26.21,
+  "color": "Blue",
+  "accel": 40.0,
+  "constraints": 24.16,
+  "smart": 0.0,
+  "raw_composite": 30.83,
+  "fund_delta": -0.0632,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [
+   "vol_spike",
+   "price_momentum",
+   "price_30d_return",
+   "peer_outperformance"
+  ],
+  "data_status": "Reduced input — missing: vol_spike, price_momentum, price_30d_return, peer_outperformance",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "compute",
+  "ticker": "SMCI",
+  "score": 45.45,
+  "color": "Orange",
+  "accel": 80.0,
+  "constraints": 0.0,
+  "smart": 9.8,
+  "raw_composite": 53.47,
+  "fund_delta": 2.0434,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [
+   "capex_div"
+  ],
+  "data_status": "Reduced input — missing: capex_div",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "cooling",
+  "ticker": "VRT",
+  "score": 45.82,
+  "color": "Orange",
+  "accel": 74.57,
+  "constraints": 13.14,
+  "smart": 18.75,
+  "raw_composite": 53.91,
+  "fund_delta": 0.3706,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [
+   "vol_spike",
+   "price_momentum",
+   "price_30d_return",
+   "peer_outperformance"
+  ],
+  "data_status": "Reduced input — missing: vol_spike, price_momentum, price_30d_return, peer_outperformance",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "networking",
+  "ticker": "ANET",
+  "score": 45.86,
+  "color": "Orange",
+  "accel": 75.8,
+  "constraints": 9.36,
+  "smart": 18.75,
+  "raw_composite": 53.96,
+  "fund_delta": 0.2076,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [
+   "vol_spike",
+   "price_momentum",
+   "price_30d_return",
+   "peer_outperformance"
+  ],
+  "data_status": "Reduced input — missing: vol_spike, price_momentum, price_30d_return, peer_outperformance",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "networking",
+  "ticker": "CSCO",
+  "score": 30.41,
+  "color": "Green",
+  "accel": 51.78,
+  "constraints": 10.61,
+  "smart": 0.0,
+  "raw_composite": 35.78,
+  "fund_delta": 0.0684,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [],
+  "data_status": "Full",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "optical",
+  "ticker": "CIEN",
+  "score": 27.66,
+  "color": "Green",
+  "accel": 43.2,
+  "constraints": 22.3,
+  "smart": 0.0,
+  "raw_composite": 32.54,
+  "fund_delta": -0.0246,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [],
+  "data_status": "Full",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "optical",
+  "ticker": "COHR",
+  "score": 38.69,
+  "color": "Green",
+  "accel": 64.25,
+  "constraints": 10.0,
+  "smart": 11.72,
+  "raw_composite": 45.52,
+  "fund_delta": 0.1615,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [
+   "capex_div"
+  ],
+  "data_status": "Reduced input — missing: capex_div",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "optical",
+  "ticker": "GLW",
+  "score": 27.49,
+  "color": "Green",
+  "accel": 41.71,
+  "constraints": 20.55,
+  "smart": 7.5,
+  "raw_composite": 32.34,
+  "fund_delta": 0.0176,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [],
+  "data_status": "Full",
+  "model_version": 3
+ },
+ {
+  "session": "2026-11-19",
+  "run_at": "2026-11-20T03:33:08+00:00",
+  "sub_layer": "optical",
+  "ticker": "LITE",
+  "score": 55.8,
+  "color": "Orange",
+  "accel": 83.57,
+  "constraints": 40.34,
+  "smart": 21.73,
+  "raw_composite": 65.65,
+  "fund_delta": 0.2719,
+  "regime": "Neutral",
+  "multiplier": 0.85,
+  "is_hype": false,
+  "stages_used": [
+   "acceleration",
+   "constraints",
+   "smart_money"
+  ],
+  "missing_fields": [
+   "vol_spike",
+   "price_momentum",
+   "price_30d_return",
+   "peer_outperformance"
+  ],
+  "data_status": "Reduced input — missing: vol_spike, price_momentum, price_30d_return, peer_outperformance",
+  "model_version": 3
  }
 ]
