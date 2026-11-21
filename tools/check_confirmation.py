@@ -857,10 +857,25 @@ def check_workflow():
     jobs_at = text.index("\njobs:\n")
     top, jobs = text[:jobs_at], text[jobs_at:]
     blocks = dict(re.findall(r"^  ([\w-]+):\n((?:    .*\n|[ \t]*\n)+)", jobs, re.M))
-    build, save, report = blocks.get("build-and-deploy", ""), blocks.get("save-history", ""), blocks.get("report-failure", "")
+    build, deploy = blocks.get("build", ""), blocks.get("deploy", "")
+    save, report = blocks.get("save-history", ""), blocks.get("report-failure", "")
     check("workflow: the workflow-wide token can only read contents",
           re.search(r"\npermissions:\n(  .*\n)*  contents: read", top) is not None)
-    check("workflow: the build-and-deploy job never gets contents: write", "contents: write" not in build)
+    check("workflow: the build and deploy jobs never get contents: write", build and deploy and "contents: write" not in build + deploy)
+    # R107: deploy in its own job after the build, once the artifact is listed; artifact names carry the run
+    # attempt and travel through the build's outputs, so a re-run never finds two artifacts with one name.
+    check("workflow: deploy-pages runs in its own job after the build, not in the build job (R107)",
+          "deploy-pages@" in deploy and "deploy-pages@" not in build and re.search(r"needs: \[?build\b", deploy) is not None, deploy[:200])
+    check("workflow: the deploy job waits until the Pages artifact is listed before deploying (R107)",
+          0 < deploy.find("Wait until the Pages artifact is listed") < deploy.find("deploy-pages@") and "actions: read" in deploy)
+    check("workflow: both artifact names carry the run attempt and reach the later jobs through the build's outputs (R107)",
+          "pages_artifact: github-pages-${{ github.run_attempt }}" in build and "history_artifact: history-${{ github.run_attempt }}" in build
+          and "name: github-pages-${{ github.run_attempt }}" in build and "name: history-${{ github.run_attempt }}" in build
+          and "artifact_name: ${{ needs.build.outputs.pages_artifact }}" in deploy
+          and "name: ${{ needs.build.outputs.history_artifact }}" in save)
+    check("workflow: no action is pinned to a Node 20 major (R107)",
+          not re.search(r"uses: actions/(checkout@v[1-4]|setup-python@v[1-5]|upload-artifact@v[1-5]|download-artifact@v[1-6]|upload-pages-artifact@v[1-4]|deploy-pages@v[1-4])\b", text),
+          ", ".join(re.findall(r"uses: (actions/[\w-]+@v\d+)", text)))
     restore = build.find("git show origin/data:scores_history.json")
     run = build.find("python main.py --now")
     check("workflow: the build restores all three files from the data branch before the pipeline runs",
@@ -871,7 +886,7 @@ def check_workflow():
     check("workflow: the save job commits growth_history.json too (R88)",
           "git add scores_history.json audit_log.json growth_history.json" in save)
     check("workflow: only the save job has contents: write, and it runs after the build",
-          "contents: write" in save and re.search(r"needs: \[?build-and-deploy", save) is not None
+          "contents: write" in save and re.search(r"needs: \[build, deploy\]", save) is not None
           and text.count("contents: write") == 1)
     check("workflow: the save job pushes to the data branch", "git push origin HEAD:data" in save)
     check("workflow: a failed save opens the failure issue too",

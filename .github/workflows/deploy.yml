@@ -45,8 +45,8 @@ on:
 
 permissions:
   contents: read   # checkout and reading the data branch; only save-history writes
-  pages: write     # required by actions/deploy-pages
-  id-token: write  # required by actions/deploy-pages (OIDC)
+  pages: write     # the deploy job's (it sets its own permissions too)
+  id-token: write  # the deploy job's
 
 # One run at a time, so a run's restore -> pipeline -> save can't interleave
 # with another run's.
@@ -55,11 +55,16 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
+    # Builds the site and hands it on as artifacts. Each artifact name carries
+    # the run attempt (github-pages-2, history-2), passed on through this
+    # job's outputs (ledger R107): re-running every job makes fresh, uniquely
+    # named artifacts, and re-running only a failed later job reuses this
+    # job's outputs, so a run never holds two artifacts with one name.
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      pages_artifact: github-pages-${{ github.run_attempt }}
+      history_artifact: history-${{ github.run_attempt }}
     steps:
       - name: Deliberate test failure (manual runs only)
         if: ${{ inputs.test_failure }}
@@ -71,10 +76,10 @@ jobs:
         # live site keeps its last deployment (ledger R38).
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -103,9 +108,9 @@ jobs:
         run: python main.py --now
 
       - name: Hand the history and audit log to the save job
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: history
+          name: history-${{ github.run_attempt }}
           path: |
             scores_history.json
             audit_log.json
@@ -137,33 +142,64 @@ jobs:
         # again (a bare "index.html" pattern once matched it).
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
+          name: github-pages-${{ github.run_attempt }}
+
+  deploy:
+    # Deploys in its own job, after the build has finished uploading, as in
+    # actions/deploy-pages' own README (ledger R107). In one job, deploy-pages
+    # listed the run's artifacts 0.46 s after the upload, before the new one
+    # was listed, and failed ("No artifacts named github-pages"; it lists once
+    # and doesn't retry). The wait step makes sure the artifact is listed first.
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read    # to list this run's artifacts in the wait step
+      pages: write     # required by actions/deploy-pages
+      id-token: write  # required by actions/deploy-pages (OIDC)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Wait until the Pages artifact is listed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NAME: ${{ needs.build.outputs.pages_artifact }}
+        run: |
+          for i in $(seq 1 30); do
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=$NAME" --jq '.total_count')
+            if [ "$n" = "1" ]; then echo "$NAME is listed"; exit 0; fi
+            echo "$NAME listed $n times; waiting"; sleep 2
+          done
+          echo "$NAME was not listed exactly once within 60 s"; exit 1
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: ${{ needs.build.outputs.pages_artifact }}
 
   save-history:
     # Saves this run's history and audit log to the data branch (ledger
     # R33a). The only job with write access to the repo, and it runs no
     # pipeline code: it commits the two files the build handed over. It
     # runs only after a successful build and deploy.
-    needs: build-and-deploy
+    needs: [build, deploy]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Check out the data branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: data
 
       - name: Download the build's files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: history
+          name: ${{ needs.build.outputs.history_artifact }}
           path: _incoming
 
       - name: Commit and push to the data branch
@@ -183,9 +219,9 @@ jobs:
     # Opens an issue when the run fails (ledger R33f, R36, R38). GitHub's
     # own failure email didn't arrive for the failed 2026-10-05 scheduled
     # run, so this is the notification of record. A separate job, so
-    # build-and-deploy keeps its read-only contents token; this job gets
+    # build and deploy keep their read-only contents token; this job gets
     # issues: write and nothing else. Covers a failed save too (R33a).
-    needs: [build-and-deploy, save-history]
+    needs: [build, deploy, save-history]
     if: failure()
     runs-on: ubuntu-latest
     permissions:
