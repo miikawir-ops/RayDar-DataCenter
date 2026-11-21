@@ -21,6 +21,9 @@ How the sides are made comparable:
     at least max(min(4, shorter), shorter - 3) letters (Owl / Owlilta); translated place names (Suomi /
     Finland) are listed in EXONYMS. All-caps labels are left to the numbers.
 
+On the English pages, every link to a Finnish-language source (hreflang="fi") must be followed
+by "in Finnish" (R107).
+
     python tools/check_lang_parity.py                  # the repo's pages
     python tools/check_lang_parity.py --root <copy>    # a copy (e.g. the failure proof)
 
@@ -263,6 +266,11 @@ def main():
             continue
         fi, fi_labels = parse(fi_path)
         en, _ = parse(en_path)
+        # On an English page, a link to a Finnish-language source says so (R107).
+        en_src = open(en_path, encoding="utf-8").read()
+        for m in re.finditer(r'<a [^>]*href="https?://[^"]+"[^>]*hreflang="fi"[^>]*>(.*?)</a>(?=(.{0,30}))', en_src, re.S):
+            if "in Finnish" not in m.group(2):
+                problems.append(f"en/{name}: link to a Finnish-language source without \"(in Finnish)\": {re.sub('<[^>]+>', '', m.group(1))[:60]}")
         compare(name, fi, en, fi_labels, allow, problems)
         pairs += 1
     gfi, gen = (os.path.join(root, "assets", f) for f in ("glossary-fi.js", "glossary-en.js"))
