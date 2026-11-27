@@ -1453,8 +1453,8 @@
   },
   {
     "date": "2026-11-25",
-    "time": "05:25",
-    "run_at": "2026-11-26T05:25:16+00:00",
+    "time": "04:20",
+    "run_at": "2026-11-27T04:20:33+00:00",
     "model_version": 3,
     "scores": {
       "cooling": {
@@ -1465,7 +1465,7 @@
         }
       },
       "networking": {
-        "score": 35.72,
+        "score": 36.74,
         "color": "Green",
         "ratings": {
           "ANET": "B",
@@ -1473,7 +1473,7 @@
         }
       },
       "optical": {
-        "score": 35.52,
+        "score": 36.17,
         "color": "Green",
         "ratings": {
           "CIEN": "B",
